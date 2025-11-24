@@ -104,7 +104,9 @@ const App: React.FC = () => {
                                     <Route index element={<Home />} />
                                     <Route path="products" element={<Products />} />
                                     <Route path="repair" element={<BuybackRepair type="repair" />} />
+                                    <Route path="repair/:device/:brand/:model" element={<BuybackRepair type="repair" />} />
                                     <Route path="buyback" element={<BuybackRepair type="buyback" />} />
+                                    <Route path="buyback/:device/:brand/:model" element={<BuybackRepair type="buyback" />} />
                                     <Route path="stores" element={<StoreLocator />} />
                                     <Route path="contact" element={<Contact />} />
                                     <Route path="franchise" element={<Franchise />} />

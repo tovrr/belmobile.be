@@ -48,11 +48,11 @@ const Home: React.FC = () => {
                         <FireIcon className="h-4 w-4 mr-1 text-orange-500" /> {t('Popular')}:
                     </span>
                     {[
-                        { name: 'link_repair_iphone_11', url: '/repair?device=smartphone&brand=Apple&model=iPhone%2011' },
-                        { name: 'link_sell_iphone_13', url: '/buyback?device=smartphone&brand=Apple&model=iPhone%2013' },
-                        { name: 'link_repair_s23', url: '/repair?device=smartphone&brand=Samsung&model=Galaxy%20S23' },
-                        { name: 'link_sell_ps5', url: '/buyback?device=console&brand=Sony&model=PlayStation%205%20(Disc)' },
-                        { name: 'link_repair_macbook', url: '/repair?device=laptop&brand=Apple' }
+                        { name: 'link_repair_iphone_11', url: '/repair/smartphone/apple/iphone-11' },
+                        { name: 'link_sell_iphone_13', url: '/buyback/smartphone/apple/iphone-13' },
+                        { name: 'link_repair_s23', url: '/repair/smartphone/samsung/galaxy-s23' },
+                        { name: 'link_sell_ps5', url: '/buyback/console/sony/playstation-5-(disc)' },
+                        { name: 'link_repair_macbook', url: '/repair/laptop/apple' }
                     ].map((link, idx) => (
                         <Link 
                             key={idx} 

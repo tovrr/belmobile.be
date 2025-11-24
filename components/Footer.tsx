@@ -90,12 +90,11 @@ const Footer: React.FC = () => {
                     <div className="lg:col-span-2">
                         <h4 className="font-bold text-white uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('Popular Repairs')}</h4>
                         <ul className="space-y-4 text-sm text-slate-400">
-                            <li><Link to={`/${language}/repair?device=smartphone&brand=Apple&model=iPhone%2011`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('link_repair_iphone_11')}</Link></li>
-                            <li><Link to={`/${language}/repair?device=smartphone&brand=Apple&model=iPhone%2012`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('link_repair_iphone_12')}</Link></li>
-                            <li><Link to={`/${language}/repair?device=smartphone&brand=Apple&model=iPhone%2013`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('link_repair_iphone_13')}</Link></li>
-                            <li><Link to={`/${language}/repair?device=smartphone&brand=Apple&model=iPhone%2014%20Pro`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('link_repair_iphone_14_pro')}</Link></li>
-                            <li><Link to={`/${language}/repair?device=smartphone&brand=Samsung&model=Galaxy%20S23`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('link_repair_s23')}</Link></li>
-                        </ul>
+                                                    <li><Link to={`/${language}/repair/smartphone/apple/iphone-11`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('link_repair_iphone_11')}</Link></li>
+                                                    <li><Link to={`/${language}/repair/smartphone/apple/iphone-12`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('link_repair_iphone_12')}</Link></li>
+                                                    <li><Link to={`/${language}/repair/smartphone/apple/iphone-13`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('link_repair_iphone_13')}</Link></li>
+                                                    <li><Link to={`/${language}/repair/smartphone/apple/iphone-14-pro`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('link_repair_iphone_14_pro')}</Link></li>
+                                                    <li><Link to={`/${language}/repair/smartphone/samsung/galaxy-s23`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('link_repair_s23')}</Link></li>                        </ul>
                     </div>
 
                     <div className="lg:col-span-2">

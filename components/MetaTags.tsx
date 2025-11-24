@@ -23,9 +23,9 @@ const MetaTags: React.FC<MetaTagsProps> = ({ title, description, imageUrl }) => 
         // Simple path translation, can be expanded
         let translatedPath = pathWithoutLang;
         if (lang === 'fr') {
-            translatedPath = translatedPath.replace('/products', '/produits').replace('/stores', '/magasins').replace('/contact', '/contactez-nous').replace('/repair', '/reparation').replace('/buyback', '/rachat');
+            translatedPath = translatedPath.replace('/products', '/produits').replace('/stores', '/magasins').replace('/contact', '/contactez-nous');
         } else if (lang === 'nl') {
-             translatedPath = translatedPath.replace('/products', '/producten').replace('/stores', '/winkels').replace('/contact', '/contacteer-ons').replace('/repair', '/reparatie').replace('/buyback', '/inkoop');
+             translatedPath = translatedPath.replace('/products', '/producten').replace('/stores', '/winkels').replace('/contact', '/contacteer-ons');
         }
         return `/${lang}${translatedPath || '/'}`;
     };

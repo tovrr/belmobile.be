@@ -607,11 +607,11 @@ export const DEVICE_SPECS: Record<string, string[]> = {
 };
 
 export const DEVICE_TYPES = [
-    { id: 'smartphone', label: 'Smartphone', icon: DevicePhoneMobileIcon },
-    { id: 'tablet', label: 'Tablet', icon: DeviceTabletIcon },
-    { id: 'laptop', label: 'Laptop', icon: ComputerDesktopIcon },
-    { id: 'console', label: 'Gaming Console', icon: TvIcon },
-    { id: 'smartwatch', label: 'Smartwatch', icon: ClockIcon },
+    { id: 'smartphone', label: 'Smartphone', icon: DevicePhoneMobileIcon, applicableIssues: ['screen', 'battery', 'charging', 'camera', 'audio', 'water', 'other'] },
+    { id: 'tablet', label: 'Tablet', icon: DeviceTabletIcon, applicableIssues: ['screen', 'battery', 'charging', 'water', 'other'] },
+    { id: 'laptop', label: 'Laptop', icon: ComputerDesktopIcon, applicableIssues: ['screen', 'battery', 'charging', 'water', 'other'] },
+    { id: 'console', label: 'Gaming Console', icon: TvIcon, applicableIssues: ['hdmi', 'disk', 'power', 'other'] },
+    { id: 'smartwatch', label: 'Smartwatch', icon: ClockIcon, applicableIssues: ['screen', 'battery', 'other'] },
 ];
 
 export const REPAIR_ISSUES = [
@@ -621,5 +621,8 @@ export const REPAIR_ISSUES = [
     { id: 'audio', label: 'Audio / Sound', icon: SpeakerWaveIcon, desc: 'Speaker, mic, or volume', base: 55 },
     { id: 'camera', label: 'Camera', icon: CameraIcon, desc: 'Blurry, spots, or broken lens', base: 70 },
     { id: 'water', label: 'Water Damage', icon: NoSymbolIcon, desc: 'Device got wet', base: 40 },
+    { id: 'hdmi', label: 'HDMI Port', icon: TvIcon, desc: 'No signal or broken port', base: 70 },
+    { id: 'disk', label: 'Disk Drive', icon: DocumentTextIcon, desc: 'Games not reading or ejecting', base: 60 },
+    { id: 'power', label: 'Power Issue', icon: BoltIcon, desc: 'Doesn\'t turn on or shuts down', base: 50 },
     { id: 'other', label: 'Other / Unknown', icon: WrenchScrewdriverIcon, desc: 'Diagnostic required', base: 30 },
 ];

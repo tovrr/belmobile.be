@@ -4,7 +4,8 @@ import { useShop } from '../hooks/useShop';
 import { useData } from '../hooks/useData';
 import { Quote } from '../types';
 import { useLanguage } from '../hooks/useLanguage';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams } from 'react-router-dom';
+import CalculatorBreadcrumbs from '../components/CalculatorBreadcrumbs';
 import { 
     CheckCircleIcon, 
     CurrencyEuroIcon, 
@@ -16,7 +17,8 @@ import {
     WrenchScrewdriverIcon,
     MagnifyingGlassIcon,
     PencilSquareIcon,
-    SparklesIcon
+    SparklesIcon,
+    ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { DEVICE_CATALOG, DEVICE_SPECS, DEVICE_TYPES, REPAIR_ISSUES } from '../constants';
 import MetaTags from '../components/MetaTags';
@@ -79,58 +81,79 @@ const SelectionSummary = ({
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden sticky top-24 transition-colors duration-300">
             <div className="bg-bel-blue p-4 text-white">
                 <h3 className="font-bold text-lg flex items-center">
+                    <PencilSquareIcon className="h-6 w-6 mr-2" />
                     {t(isBuyback ? 'Sell Request' : 'Repair Request')}
                 </h3>
             </div>
             <div className="p-4 space-y-4">
                 {deviceType && (
                     <div className="flex justify-between items-start pb-3 border-b border-gray-100 dark:border-slate-700">
-                        <div>
-                            <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">{t('Device')}</p>
-                            <p className="font-semibold text-gray-800 dark:text-gray-200">{t(DEVICE_TYPES.find(d => d.id === deviceType)?.label || '')}</p>
+                        <div className="flex items-center">
+                            <div className="p-2 bg-gray-100 dark:bg-slate-700 rounded-lg mr-3">
+                                <WrenchScrewdriverIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">{t('Device')}</p>
+                                <p className="font-semibold text-gray-800 dark:text-gray-200">{t(DEVICE_TYPES.find(d => d.id === deviceType)?.label || '')}</p>
+                            </div>
                         </div>
-                        <button onClick={() => onEditStep(1)} className="text-bel-blue dark:text-blue-400 hover:text-blue-700 p-1">
-                            <PencilSquareIcon className="h-4 w-4" />
+                        <button onClick={() => onEditStep(1)} className="text-bel-blue dark:text-blue-400 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700">
+                            <PencilSquareIcon className="h-5 w-5" />
                         </button>
                     </div>
                 )}
                 
                 {selectedBrand && selectedModel && (
                     <div className="flex justify-between items-start pb-3 border-b border-gray-100 dark:border-slate-700">
-                        <div>
-                            <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">{t('Model')}</p>
-                            <p className="font-semibold text-gray-800 dark:text-gray-200">{selectedBrand} {selectedModel}</p>
+                        <div className="flex items-center">
+                            <div className="p-2 bg-gray-100 dark:bg-slate-700 rounded-lg mr-3">
+                                <SparklesIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">{t('Model')}</p>
+                                <p className="font-semibold text-gray-800 dark:text-gray-200">{selectedBrand} {selectedModel}</p>
+                            </div>
                         </div>
-                        <button onClick={() => onEditStep(2)} className="text-bel-blue dark:text-blue-400 hover:text-blue-700 p-1">
-                            <PencilSquareIcon className="h-4 w-4" />
+                        <button onClick={() => onEditStep(2)} className="text-bel-blue dark:text-blue-400 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700">
+                            <PencilSquareIcon className="h-5 w-5" />
                         </button>
                     </div>
                 )}
 
                 {storage && isBuyback && (
                      <div className="flex justify-between items-start pb-3 border-b border-gray-100 dark:border-slate-700">
-                        <div>
-                            <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">{t('Storage')}</p>
-                            <p className="font-semibold text-gray-800 dark:text-gray-200">{storage}</p>
+                        <div className="flex items-center">
+                            <div className="p-2 bg-gray-100 dark:bg-slate-700 rounded-lg mr-3">
+                                <InformationCircleIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">{t('Storage')}</p>
+                                <p className="font-semibold text-gray-800 dark:text-gray-200">{storage}</p>
+                            </div>
                         </div>
-                        <button onClick={() => onEditStep(3)} className="text-bel-blue dark:text-blue-400 hover:text-blue-700 p-1">
-                            <PencilSquareIcon className="h-4 w-4" />
+                        <button onClick={() => onEditStep(3)} className="text-bel-blue dark:text-blue-400 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700">
+                            <PencilSquareIcon className="h-5 w-5" />
                         </button>
                     </div>
                 )}
 
                 {repairIssues && repairIssues.length > 0 && !isBuyback && (
                     <div className="flex justify-between items-start pb-3 border-b border-gray-100 dark:border-slate-700">
-                        <div>
-                            <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">{t('Issue')}</p>
-                            <ul className="font-semibold text-gray-800 dark:text-gray-200 list-disc list-inside text-sm">
-                                {repairIssues.map((id: string) => (
-                                    <li key={id}>{t(REPAIR_ISSUES.find(r => r.id === id)?.label || '')}</li>
-                                ))}
-                            </ul>
+                        <div className="flex items-center">
+                            <div className="p-2 bg-gray-100 dark:bg-slate-700 rounded-lg mr-3">
+                                <WrenchScrewdriverIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">{t('Issue')}</p>
+                                <ul className="font-semibold text-gray-800 dark:text-gray-200 list-disc list-inside text-sm">
+                                    {repairIssues.map((id: string) => (
+                                        <li key={id}>{t(REPAIR_ISSUES.find(r => r.id === id)?.label || '')}</li>
+                                    ))}
+                                </ul>
+                            </div>
                         </div>
-                        <button onClick={() => onEditStep(3)} className="text-bel-blue dark:text-blue-400 hover:text-blue-700 p-1">
-                            <PencilSquareIcon className="h-4 w-4" />
+                        <button onClick={() => onEditStep(3)} className="text-bel-blue dark:text-blue-400 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700">
+                            <PencilSquareIcon className="h-5 w-5" />
                         </button>
                     </div>
                 )}
@@ -176,6 +199,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
     const { addQuote } = useData();
     const { t } = useLanguage();
     const [searchParams] = useSearchParams();
+    const params = useParams();
 
     const [submitted, setSubmitted] = useState(false);
     
@@ -210,9 +234,9 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
         setRepairIssues([]);
         setSubmitted(false);
 
-        const pDevice = searchParams.get('device');
-        const pBrand = searchParams.get('brand');
-        const pModel = searchParams.get('model');
+        const pDevice = params.device || searchParams.get('device');
+        const pBrand = params.brand || searchParams.get('brand');
+        const pModel = params.model || searchParams.get('model');
 
         if (pDevice && pBrand && pModel) {
             // Validate against catalog to avoid crashes
@@ -224,7 +248,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                 setStep(3); 
             }
         }
-    }, [type, searchParams]);
+    }, [type, searchParams, params]);
 
     // --- HELPER: Single Issue Price Calculation ---
     // Used to show prices on the buttons in Step 3
@@ -469,53 +493,58 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
     };
 
     // STEP 3 (Repair): Issue Selection (MULTI-SELECT)
-    const renderRepairIssues = () => (
-        <div className="animate-fade-in h-full flex flex-col">
-            <StepHeader title={t('step3_repair_title')} />
-            {selectedModel && (
-                <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center text-bel-blue dark:text-blue-300 border border-blue-100 dark:border-blue-800/50">
-                    <SparklesIcon className="h-5 w-5 mr-2" />
-                    <span className="text-sm font-bold">{t('Showing prices for')} {selectedBrand} {selectedModel}</span>
-                </div>
-            )}
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{t("Select all that apply")}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                {REPAIR_ISSUES.map((issue) => {
-                    const isSelected = repairIssues.includes(issue.id);
-                    const price = getSingleIssuePrice(issue.id);
+    const renderRepairIssues = () => {
+        const applicableIssues = DEVICE_TYPES.find(dt => dt.id === deviceType)?.applicableIssues || [];
+        const issuesToShow = REPAIR_ISSUES.filter(issue => applicableIssues.includes(issue.id));
 
-                    return (
-                        <button
-                            key={issue.id}
-                            onClick={() => toggleRepairIssue(issue.id)}
-                            className={`flex items-center p-4 border rounded-xl transition-all text-left active:scale-[0.98] ${
-                                isSelected 
-                                    ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/30 ring-1 ring-bel-blue' 
-                                    : 'border-gray-200 dark:border-slate-600 hover:border-bel-blue/50 hover:bg-gray-50 dark:hover:bg-slate-700'
-                            }`}
-                        >
-                            <div className={`p-3 rounded-full mr-4 flex-shrink-0 ${isSelected ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300'}`}>
-                                <issue.icon className="h-6 w-6" />
-                            </div>
-                            <div className="flex-grow">
-                                <div className="flex justify-between items-center">
-                                    <div className={`font-bold ${isSelected ? 'text-bel-blue dark:text-blue-300' : 'text-gray-800 dark:text-gray-200'}`}>{t(issue.label)}</div>
-                                    {price && (
-                                        <div className="text-sm font-extrabold text-bel-blue dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 px-2 py-0.5 rounded ml-2">
-                                            €{price}
-                                        </div>
-                                    )}
+        return (
+            <div className="animate-fade-in h-full flex flex-col">
+                <StepHeader title={t('step3_repair_title')} />
+                {selectedModel && (
+                    <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center text-bel-blue dark:text-blue-300 border border-blue-100 dark:border-blue-800/50">
+                        <SparklesIcon className="h-5 w-5 mr-2" />
+                        <span className="text-sm font-bold">{t('Showing prices for')} {selectedBrand} {selectedModel}</span>
+                    </div>
+                )}
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{t("Select all that apply")}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    {issuesToShow.map((issue) => {
+                        const isSelected = repairIssues.includes(issue.id);
+                        const price = getSingleIssuePrice(issue.id);
+
+                        return (
+                            <button
+                                key={issue.id}
+                                onClick={() => toggleRepairIssue(issue.id)}
+                                className={`flex items-center p-4 border rounded-xl transition-all text-left active:scale-[0.98] ${
+                                    isSelected 
+                                        ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/30 ring-1 ring-bel-blue' 
+                                        : 'border-gray-200 dark:border-slate-600 hover:border-bel-blue/50 hover:bg-gray-50 dark:hover:bg-slate-700'
+                                }`}
+                            >
+                                <div className={`p-3 rounded-full mr-4 flex-shrink-0 ${isSelected ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300'}`}>
+                                    <issue.icon className="h-6 w-6" />
                                 </div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{t(issue.desc)}</div>
-                            </div>
-                            {isSelected && <CheckCircleIcon className="h-6 w-6 text-bel-blue dark:text-blue-400 ml-2" />}
-                        </button>
-                    );
-                })}
+                                <div className="flex-grow">
+                                    <div className="flex justify-between items-center">
+                                        <div className={`font-bold ${isSelected ? 'text-bel-blue dark:text-blue-300' : 'text-gray-800 dark:text-gray-200'}`}>{t(issue.label)}</div>
+                                        {price && (
+                                            <div className="text-sm font-extrabold text-bel-blue dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 px-2 py-0.5 rounded ml-2">
+                                                €{price}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{t(issue.desc)}</div>
+                                </div>
+                                {isSelected && <CheckCircleIcon className="h-6 w-6 text-bel-blue dark:text-blue-400 ml-2" />}
+                            </button>
+                        );
+                    })}
+                </div>
+                <NavigationButtons onNext={handleNext} nextDisabled={repairIssues.length === 0} nextLabel={repairIssues.includes('other') ? t("Next") : t("Get Price")} />
             </div>
-            <NavigationButtons onNext={handleNext} nextDisabled={repairIssues.length === 0} nextLabel={repairIssues.includes('other') ? t("Next") : t("Get Price")} />
-        </div>
-    );
+        );
+    };
 
     // STEP 4 (Repair): Estimate (DUAL PRICE FOR SCREENS)
     const renderRepairEstimate = () => {
@@ -921,12 +950,54 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
         return schema ? <script type="application/ld+json">{JSON.stringify(schema)}</script> : null;
     };
 
+    const handleStartOver = () => {
+        setDeviceType('');
+        setSelectedBrand('');
+        setSelectedModel('');
+        setStep(1);
+        setStorage('');
+        setRepairIssues([]);
+        setSubmitted(false);
+    };
+
+    const breadcrumbSteps =
+        type === 'buyback'
+            ? [
+                  { name: t('Device'), step: 1 },
+                  { name: t('Model'), step: 2 },
+                  { name: t('Specs'), step: 3 },
+                  { name: t('Functional'), step: 4 },
+                  { name: t('Cosmetic'), step: 5 },
+                  { name: t('Estimate'), step: 6 },
+                  { name: t('Delivery'), step: 7 },
+                  { name: t('Finalize'), step: 8 },
+              ]
+            : [
+                  { name: t('Device'), step: 1 },
+                  { name: t('Model'), step: 2 },
+                  { name: t('Issue'), step: 3 },
+                  { name: t('Estimate'), step: 4 },
+                  { name: t('Delivery'), step: 5 },
+                  { name: t('Finalize'), step: 6 },
+              ];
+
     return (
         <div className="bg-gray-50 dark:bg-slate-900 min-h-screen flex flex-col transition-colors duration-300">
             <MetaTags title={pageTitle} description={pageDesc} />
             {generateServiceSchema()}
             
             <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="flex justify-between items-center mb-4">
+                    <CalculatorBreadcrumbs
+                        steps={breadcrumbSteps}
+                        currentStep={step}
+                        onStepClick={handleEditStep}
+                    />
+                    <button onClick={handleStartOver} className="flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <ArrowPathIcon className="h-4 w-4 mr-2" />
+                        {t('Start Over')}
+                    </button>
+                </div>
                 <div className="flex flex-col lg:flex-row gap-8">
                     
                     {/* Main Form Area */}
