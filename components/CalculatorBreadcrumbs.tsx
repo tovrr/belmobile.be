@@ -13,7 +13,7 @@ interface CalculatorBreadcrumbsProps {
 
 const CalculatorBreadcrumbs: React.FC<CalculatorBreadcrumbsProps> = ({ steps, currentStep, onStepClick }) => {
   return (
-    <nav aria-label="Calculator Steps" className="w-full py-2">
+    <nav aria-label="Calculator Steps" className="py-2">
       {/* Conteneur pour le défilement horizontal sur mobile */}
       <ol role="list" className="flex items-center overflow-x-auto no-scrollbar px-4 sm:px-0">
         {steps.map((step, index) => {
