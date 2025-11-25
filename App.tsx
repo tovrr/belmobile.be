@@ -60,6 +60,11 @@ const ScrollToTop = () => {
 const MainLayout = () => {
     const { lang } = useParams<{ lang: string }>();
     const { setLanguage, language } = useLanguage();
+    const location = useLocation(); // <-- Ajout pour connaître l'URL actuelle
+
+    // Masquer le fil d'Ariane général sur ces chemins
+    const hideOnPaths = ['/repair', '/buyback'];
+    const shouldHideBreadcrumbs = hideOnPaths.some(path => location.pathname.includes(path));
 
     useEffect(() => {
         // Sync URL param with Context State
@@ -73,7 +78,8 @@ const MainLayout = () => {
              <ScrollToTop />
              <SchemaMarkup />
              <Header />
-             <Breadcrumbs />
+             {/* Affiche les breadcrumbs uniquement si shouldHideBreadcrumbs est faux */}
+             {!shouldHideBreadcrumbs && <Breadcrumbs />}
              <main className="flex-grow relative z-0">
                 <Outlet />
              </main>
