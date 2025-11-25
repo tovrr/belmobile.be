@@ -1,12 +1,16 @@
 
-import React, { useEffect, useRef } from 'react';
-import { BrowserRouter, Routes, Route, useLocation, Outlet, Navigate, useParams } from 'react-router-dom';
-import { ShopProvider } from './context/ShopContext';
-import { DataProvider } from './context/DataContext';
-import { LanguageProvider, useLanguage } from './hooks/useLanguage';
+import { BrowserRouter, Routes, Route, Outlet, Navigate, useParams, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
+import { LanguageProvider, useLanguage } from './hooks/useLanguage';
+import { DataProvider } from './context/DataContext';
+import { ShopProvider } from './context/ShopContext';
+
+// Import General Components
 import Header from './components/Header';
 import Footer from './components/Footer';
+import StagingGate from './components/StagingGate';
+
+// Import Pages
 import Home from './pages/Home';
 import Products from './pages/Products';
 import BuybackRepair from './pages/BuybackRepair';
@@ -17,10 +21,24 @@ import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import FAQPage from './pages/FAQPage';
 import TermsPrivacy from './pages/TermsPrivacy';
+import ProductDetail from './pages/ProductDetail';
+
+// Import Admin Pages
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminLayout from './components/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
-import ProductDetail from './pages/ProductDetail';
+import ProductManagement from './pages/admin/ProductManagement';
+import ServiceManagement from './pages/admin/ServiceManagement';
+import ShopManagement from './pages/admin/ShopManagement';
+import ReservationManagement from './pages/admin/ReservationManagement';
+import QuoteManagement from './pages/admin/QuoteManagement';
+import FranchiseManagement from './pages/admin/FranchiseManagement';
+import BlogManagement from './pages/admin/BlogManagement';
+
+// Import Utility & SEO Components
+import AIChatAssistant from './components/AIChatAssistant';
+import SchemaMarkup from './components/SchemaMarkup';
+import Breadcrumbs from './components/Breadcrumbs';
 import SEOMigrationHandler from './components/SEOMigrationHandler';
 
 const ScrollToTop = () => {
