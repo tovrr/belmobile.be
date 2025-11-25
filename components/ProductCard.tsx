@@ -1,6 +1,7 @@
 
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom'; // <-- Ajout de l'importation de Link
 import { Product } from '../types';
 import { useShop } from '../hooks/useShop';
 import ReservationModal from './ReservationModal';
@@ -21,8 +22,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     const canReserve = selectedShop && availability && availability > 0;
 
     const localizedDescription = t(`product_desc_${product.id}`, product.description);
+    const productSlug = product.name.toLowerCase().replace(/ /g, '-'); // <-- Génération du slug ici
 
-    const handleReserveClick = () => {
+    const handleReserveClick = (e: React.MouseEvent) => { // <-- Modifier pour prendre l'événement
+        e.stopPropagation(); // <-- Empêcher la propagation du clic au lien parent
         if (canReserve) {
             setIsModalOpen(true);
         }
@@ -47,26 +50,30 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 )}
 
                 {/* Image Container */}
-                <div className="relative pt-[100%] bg-gray-50 dark:bg-gray-100 overflow-hidden">
-                    {hasImage ? (
-                        <img 
-                            className="absolute top-0 left-0 w-full h-full object-contain mix-blend-multiply p-8 group-hover:scale-110 transition-transform duration-500 ease-in-out" 
-                            src={product.imageUrl} 
-                            alt={`${product.name} - ${t('Buy or Reserve at Belmobile')}`}
-                            loading="lazy" 
-                            onError={() => setImgError(true)}
-                        />
-                    ) : (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 text-gray-400">
-                            <CameraIcon className="h-12 w-12 mb-2 opacity-50" />
-                            <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400">{t('Image Coming Soon')}</span>
-                        </div>
-                    )}
-                </div>
+                <Link to={`/products/${productSlug}`}> {/* <-- Ajout du lien sur l'image */}
+                    <div className="relative pt-[100%] bg-gray-50 dark:bg-gray-100 overflow-hidden">
+                        {hasImage ? (
+                            <img 
+                                className="absolute top-0 left-0 w-full h-full object-contain mix-blend-multiply p-8 group-hover:scale-110 transition-transform duration-500 ease-in-out" 
+                                src={product.imageUrl} 
+                                alt={`${product.name} - ${t('Buy or Reserve at Belmobile')}`}
+                                loading="lazy" 
+                                onError={() => setImgError(true)}
+                            />
+                        ) : (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 text-gray-400">
+                                <CameraIcon className="h-12 w-12 mb-2 opacity-50" />
+                                <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400">{t('Image Coming Soon')}</span>
+                            </div>
+                        )}
+                    </div>
+                </Link>
 
                 <div className="p-3 sm:p-5 flex flex-col flex-grow">
                     <div className="flex-grow">
-                        <h3 className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white leading-tight mb-1 group-hover:text-bel-blue dark:group-hover:text-blue-400 transition-colors line-clamp-2">{product.name}</h3>
+                        <Link to={`/products/${productSlug}`}> {/* <-- Ajout du lien sur le nom du produit */}
+                            <h3 className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white leading-tight mb-1 group-hover:text-bel-blue dark:group-hover:text-blue-400 transition-colors line-clamp-2">{product.name}</h3>
+                        </Link>
                         <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-2 sm:mb-3 hidden sm:block">{localizedDescription}</p>
                     </div>
                     
