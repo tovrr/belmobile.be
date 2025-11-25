@@ -8,17 +8,11 @@ RUN npm install
 
 RUN chmod +x /app/node_modules/.bin/vite
 
-# Copy only necessary files for redirect generation
-RUN mkdir -p utils
-COPY generate_combined_redirects.js pages.csv ./
-COPY utils/legacyUrlMap.ts utils/
-COPY constants.ts ./ 
+# Copy the rest of the application source code
+COPY . .
 
 # Generate combined_redirects.json during the build process
 RUN node generate_combined_redirects.js
-
-# Copy the rest of the application source code
-COPY . .
 
 RUN npm run build
 
@@ -29,7 +23,7 @@ WORKDIR /app
 
 COPY package.json ./
 COPY server.js ./
-COPY --from=builder /app/combined_redirects.json combined_redirects.json # Copy the generated redirects file from the builder stage
+COPY combined_redirects.json ./
 
 RUN npm install --omit=dev
 
