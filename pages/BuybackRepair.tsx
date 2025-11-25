@@ -987,7 +987,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
             {generateServiceSchema()}
             
             <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-center mb-4" style={{ border: '4px solid blue' }}>
                     <CalculatorBreadcrumbs
                         steps={breadcrumbSteps}
                         currentStep={step}
