@@ -82,7 +82,7 @@ const SelectionSummary = ({
             <div className="bg-bel-blue p-4 text-white">
                 <h3 className="font-bold text-lg flex items-center">
                     <PencilSquareIcon className="h-6 w-6 mr-2" />
-                    {t(isBuyback ? 'Sell Request' : 'Repair Request')}
+                    {t(isBuyback ? 'sell_request_title' : 'repair_request_title')}
                 </h3>
             </div>
             <div className="p-4 space-y-4">
@@ -1005,7 +1005,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                          {/* Mobile Progress Bar Sticky */}
                         <div className="sticky top-16 sm:top-0 z-20 bg-gray-50 dark:bg-slate-900 pt-2 pb-4 transition-colors duration-300 mb-2">
                              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
-                                 <span>Progress</span>
+                                 <span>{t('Progress')}</span>
                                  <span>{Math.round((step/totalSteps)*100)}%</span>
                              </div>
                             <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
