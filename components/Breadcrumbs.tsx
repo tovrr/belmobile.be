@@ -22,7 +22,7 @@ const Breadcrumbs: React.FC = () => {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": `https://belmobile.be/${language}` // SEO Fix: Removed /#
+          "item": `https://belmobile.be/${language}`
         },
         ...pathnames.map((name, index) => {
           const path = `/${language}/${pathnames.slice(0, index + 1).join('/')}`;
@@ -31,46 +31,44 @@ const Breadcrumbs: React.FC = () => {
             "@type": "ListItem",
             "position": index + 2,
             "name": translatedName,
-            "item": `https://belmobile.be${path}` // SEO Fix: Removed /#
+            "item": `https://belmobile.be${path}`
           };
         })
       ]
     };
 
     return (
-        <nav aria-label="Breadcrumb" className="bg-gray-100 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 transition-colors duration-300">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <ol className="flex items-center space-x-2 py-3 text-sm">
-                    <li>
-                        <Link to={`/${language}`} className="text-gray-500 dark:text-gray-400 hover:text-bel-blue dark:hover:text-blue-400 flex items-center transition-colors">
-                            <HomeIcon className="h-4 w-4 mr-1.5" aria-hidden="true" />
-                            <span className="sr-only">Home</span>
-                        </Link>
-                    </li>
-                    {pathnames.map((name, index) => {
-                        const routeTo = `/${language}/${pathnames.slice(0, index + 1).join('/')}`;
-                        const isLast = index === pathnames.length - 1;
-                        const translatedName = t(name.charAt(0).toUpperCase() + name.slice(1));
+        <nav aria-label="Breadcrumb" className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <ol className="flex items-center space-x-2 text-sm">
+                <li>
+                    <Link to={`/${language}`} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center transition-colors">
+                        <HomeIcon className="h-5 w-5" aria-hidden="true" />
+                        <span className="sr-only">Home</span>
+                    </Link>
+                </li>
+                {pathnames.map((name, index) => {
+                    const routeTo = `/${language}/${pathnames.slice(0, index + 1).join('/')}`;
+                    const isLast = index === pathnames.length - 1;
+                    const translatedName = t(name.charAt(0).toUpperCase() + name.slice(1));
 
-                        return (
-                            <li key={name} className="flex items-center">
-                                <ChevronRightIcon className="h-4 w-4 text-gray-400 dark:text-gray-600" aria-hidden="true" />
-                                <Link
-                                    to={routeTo}
-                                    className={`ml-2 font-medium transition-colors ${
-                                        isLast 
-                                            ? 'text-gray-700 dark:text-white pointer-events-none' 
-                                            : 'text-gray-500 dark:text-gray-400 hover:text-bel-blue dark:hover:text-blue-400'
-                                    }`}
-                                    aria-current={isLast ? 'page' : undefined}
-                                >
-                                    {translatedName}
-                                </Link>
-                            </li>
-                        );
-                    })}
-                </ol>
-            </div>
+                    return (
+                        <li key={name} className="flex items-center">
+                            <ChevronRightIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                            <Link
+                                to={routeTo}
+                                className={`ml-2 font-medium transition-colors ${
+                                    isLast 
+                                        ? 'text-bel-blue dark:text-blue-400 pointer-events-none' 
+                                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                                }`}
+                                aria-current={isLast ? 'page' : undefined}
+                            >
+                                {translatedName}
+                            </Link>
+                        </li>
+                    );
+                })}
+            </ol>
             <script type="application/ld+json">
                 {JSON.stringify(breadcrumbData)}
             </script>
