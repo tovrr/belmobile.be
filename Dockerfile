@@ -23,11 +23,11 @@ WORKDIR /app
 
 COPY package.json ./
 COPY server.js ./
-COPY combined_redirects.json ./
 
 RUN npm install --omit=dev
 
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/combined_redirects.json ./
 
 EXPOSE 8080
 
