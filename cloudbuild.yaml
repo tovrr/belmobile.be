@@ -1,0 +1,50 @@
+steps:
+  # Step 1: Build the builder stage to generate combined_redirects.json
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-builder-stage'
+    args: ['build', '--target', 'builder', '-t', 'builder-image', '.']
+
+  # Step 2: Extract combined_redirects.json from the builder image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'extract-redirects'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker create --name builder-container builder-image
+        docker cp builder-container:/app/combined_redirects.json ./combined_redirects.json
+        docker rm builder-container
+
+  # Step 3: Build the frontend application image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-frontend-image'
+    args: ['build', '-t', 'europe-west1-docker.pkg.dev/belmobile/cloud-run-source-deploy/frontend:$COMMIT_SHA', '.']
+
+  # Step 4: Push the frontend image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-frontend-image'
+    args: ['push', 'europe-west1-docker.pkg.dev/belmobile/cloud-run-source-deploy/frontend:$COMMIT_SHA']
+
+  # Step 5: Deploy to Cloud Run based on the branch
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-to-cloud-run'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [ "$BRANCH_NAME" == "main" ]; then
+          SERVICE_NAME="frontend"
+        elif [ "$BRANCH_NAME" == "staging" ]; then
+          SERVICE_NAME="frontend-staging"
+        else
+          echo "Skipping Cloud Run deployment for branch $BRANCH_NAME"
+          exit 0
+        fi
+        gcloud run deploy $SERVICE_NAME \
+          --image europe-west1-docker.pkg.dev/belmobile/cloud-run-source-deploy/frontend:$COMMIT_SHA \
+          --region europe-west1 \
+          --platform managed \
+          --allow-unauthenticated \
+          --project belmobile # Assurez-vous que 'belmobile' est bien votre ID de projet GCP
+images:
+  - 'europe-west1-docker.pkg.dev/belmobile/cloud-run-source-deploy/frontend:$COMMIT_SHA'
