@@ -23,6 +23,7 @@ WORKDIR /app
 
 COPY package.json ./
 COPY server.js ./
+COPY utils ./utils/
 
 RUN npm install --omit=dev
 
