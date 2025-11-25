@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
@@ -21,7 +22,7 @@ const Products: React.FC = () => {
             
             // Simple heuristic mapping for the 'All' and other categories in English against product names
             // In a real app, products should have a 'category' field.
-            // Here we try to match the translated category back to English or just substring match.
+            // Here we try to match the translated category back to rough English keywords for filtering mock data
             
             // Map translation keys back to rough English keywords for filtering mock data
             const categoryKeywords: {[key: string]: string} = {
@@ -78,7 +79,7 @@ const Products: React.FC = () => {
                             <span className="text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-transparent dark:border-slate-700">{t('items_count', filteredProducts.length)}</span>
                         </div>
 
-                        {/* Mobile: Search & Categories Stack */}
+                        {/* Mobile: Search & Sort Row */}
                         <div className="flex flex-col gap-4">
                             {/* Search & Sort Row */}
                             <div className="flex gap-3">
@@ -135,9 +136,14 @@ const Products: React.FC = () => {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {filteredProducts.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
-                        {filteredProducts.map(product => (
-                            <ProductCard key={product.id} product={product} />
-                        ))}
+                        {filteredProducts.map(product => {
+                            const productSlug = product.name.toLowerCase().replace(/ /g, '-');
+                            return (
+                                <Link key={product.id} to={`/products/${productSlug}`}>
+                                    <ProductCard product={product} />
+                                </Link>
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className="text-center py-20">
