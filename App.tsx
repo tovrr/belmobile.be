@@ -20,16 +20,7 @@ import TermsPrivacy from './pages/TermsPrivacy';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminLayout from './components/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
-import ProductManagement from './pages/admin/ProductManagement';
-import ServiceManagement from './pages/admin/ServiceManagement';
-import ShopManagement from './pages/admin/ShopManagement';
-import ReservationManagement from './pages/admin/ReservationManagement';
-import QuoteManagement from './pages/admin/QuoteManagement';
-import FranchiseManagement from './pages/admin/FranchiseManagement';
-import BlogManagement from './pages/admin/BlogManagement';
-import AIChatAssistant from './components/AIChatAssistant';
-import SchemaMarkup from './components/SchemaMarkup';
-import Breadcrumbs from './components/Breadcrumbs';
+import ProductDetail from './pages/ProductDetail';
 import SEOMigrationHandler from './components/SEOMigrationHandler';
 
 const ScrollToTop = () => {
@@ -109,6 +100,7 @@ const App: React.FC = () => {
                                 <Route path="/:lang" element={<MainLayout />}>
                                     <Route index element={<Home />} />
                                     <Route path="products" element={<Products />} />
+                                    <Route path="products/:productSlug" element={<ProductDetail />} />
                                     <Route path="repair" element={<BuybackRepair type="repair" />} />
                                     <Route path="repair/:device/:brand/:model" element={<BuybackRepair type="repair" />} />
                                     <Route path="buyback" element={<BuybackRepair type="buyback" />} />
