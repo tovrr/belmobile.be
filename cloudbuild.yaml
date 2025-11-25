@@ -48,3 +48,6 @@ steps:
           --project belmobile # Assurez-vous que 'belmobile' est bien votre ID de projet GCP
 images:
   - 'europe-west1-docker.pkg.dev/belmobile/cloud-run-source-deploy/frontend:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
