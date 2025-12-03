@@ -1,0 +1,317 @@
+'use client';
+import React, { createContext, useState, ReactNode, useEffect } from 'react';
+import { Reservation, Quote, Product, Service, Shop, FranchiseApplication, BlogPost, RepairPricing } from '../types';
+import {
+    collection,
+    onSnapshot,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc,
+    query,
+    orderBy,
+    setDoc
+} from 'firebase/firestore';
+import { db } from '../firebase';
+import {
+    useProducts,
+    useServices,
+    useShops,
+    useBlogPosts,
+    useRepairPrices,
+    useReservations,
+    useQuotes,
+    useFranchiseApplications
+} from '../hooks/useFirestore';
+
+type ReservationStatus = 'pending' | 'approved' | 'cancelled';
+type QuoteStatus = 'new' | 'processing' | 'responded' | 'closed';
+type FranchiseApplicationStatus = 'new' | 'reviewing' | 'approved' | 'rejected';
+
+interface DataContextType {
+    reservations: Reservation[];
+    quotes: Quote[];
+    products: Product[];
+    services: Service[];
+    shops: Shop[];
+    franchiseApplications: FranchiseApplication[];
+    blogPosts: BlogPost[];
+    repairPrices: RepairPricing[];
+    addReservation: (reservation: Omit<Reservation, 'id' | 'date' | 'status'>) => void;
+    addQuote: (quote: Omit<Quote, 'id' | 'date' | 'status'>) => void;
+    addFranchiseApplication: (application: Omit<FranchiseApplication, 'id' | 'date' | 'status'>) => void;
+    updateReservationStatus: (id: number | string, status: ReservationStatus) => void;
+    updateQuoteStatus: (id: number | string, status: QuoteStatus) => void;
+    updateFranchiseApplicationStatus: (id: number | string, status: FranchiseApplicationStatus) => void;
+    addProduct: (product: Omit<Product, 'id'>) => void;
+    updateProduct: (product: Product) => void;
+    deleteProduct: (id: number | string) => void;
+    addShop: (shop: Omit<Shop, 'id'>) => void;
+    updateShop: (shop: Shop) => void;
+    deleteShop: (id: number | string) => void;
+    addService: (service: Omit<Service, 'id'>) => void;
+    updateService: (service: Service) => void;
+    deleteService: (id: number | string) => void;
+    addBlogPost: (post: Omit<BlogPost, 'id' | 'date'>) => void;
+    updateBlogPost: (post: BlogPost) => void;
+    deleteBlogPost: (id: number | string) => void;
+    updateRepairPrice: (pricing: RepairPricing) => void;
+    loading: boolean;
+}
+
+export const DataContext = createContext<DataContextType | undefined>(undefined);
+
+export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    // --- FIRESTORE SUBSCRIPTIONS (Refactored to use hooks) ---
+    const { products, loading: productsLoading } = useProducts();
+    const { services, loading: servicesLoading } = useServices();
+    const { shops, loading: shopsLoading } = useShops();
+    const { posts: blogPosts, loading: blogLoading } = useBlogPosts();
+    const { prices: repairPrices, loading: pricingLoading } = useRepairPrices();
+    const { reservations } = useReservations();
+    const { quotes } = useQuotes();
+    const { applications: franchiseApplications } = useFranchiseApplications();
+
+    const loading = productsLoading || servicesLoading || shopsLoading || blogLoading || pricingLoading;
+
+    // Sync local state with hooks (optional, but DataContext expects these values in value prop)
+    // Actually, we can just pass the values from hooks directly to the Provider value,
+    // but the Provider value expects state variables.
+    // Let's remove the useState declarations above and use the hook values directly.
+    // But wait, the Provider value object uses `reservations`, `quotes`, etc.
+    // I need to remove the `useState` lines and just use the variables from hooks.
+
+
+    // --- FIRESTORE OPERATIONS ---
+
+    const addReservation = async (newReservationData: Omit<Reservation, 'id' | 'date' | 'status'>) => {
+        try {
+            await addDoc(collection(db, 'reservations'), {
+                ...newReservationData,
+                date: new Date().toISOString().split('T')[0],
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error("Error adding reservation: ", error);
+        }
+    };
+
+    const addQuote = async (newQuoteData: Omit<Quote, 'id' | 'date' | 'status'>) => {
+        try {
+            await addDoc(collection(db, 'quotes'), {
+                ...newQuoteData,
+                date: new Date().toISOString().split('T')[0],
+                status: 'new',
+                createdAt: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error("Error adding quote: ", error);
+        }
+    };
+
+    const addFranchiseApplication = async (applicationData: Omit<FranchiseApplication, 'id' | 'date' | 'status'>) => {
+        try {
+            await addDoc(collection(db, 'franchise_applications'), {
+                ...applicationData,
+                date: new Date().toISOString().split('T')[0],
+                status: 'new',
+                createdAt: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error("Error adding franchise application: ", error);
+        }
+    };
+
+    const updateReservationStatus = async (id: number | string, status: ReservationStatus) => {
+        try {
+            const docRef = doc(db, 'reservations', String(id));
+            await updateDoc(docRef, { status });
+        } catch (error) {
+            console.error("Error updating reservation status: ", error);
+        }
+    };
+
+    const updateQuoteStatus = async (id: number | string, status: QuoteStatus) => {
+        try {
+            const docRef = doc(db, 'quotes', String(id));
+            await updateDoc(docRef, { status });
+        } catch (error) {
+            console.error("Error updating quote status: ", error);
+        }
+    };
+
+    const updateFranchiseApplicationStatus = async (id: number | string, status: FranchiseApplicationStatus) => {
+        try {
+            const docRef = doc(db, 'franchise_applications', String(id));
+            await updateDoc(docRef, { status });
+        } catch (error) {
+            console.error("Error updating franchise application status: ", error);
+        }
+    };
+
+    const addProduct = async (productData: Omit<Product, 'id'>) => {
+        try {
+            await addDoc(collection(db, 'products'), {
+                ...productData,
+                createdAt: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error("Error adding product: ", error);
+        }
+    };
+
+    const updateProduct = async (product: Product) => {
+        try {
+            const { id, ...data } = product;
+            await updateDoc(doc(db, 'products', String(id)), data);
+        } catch (error) {
+            console.error("Error updating product: ", error);
+        }
+    };
+
+    const deleteProduct = async (id: number | string) => {
+        try {
+            await deleteDoc(doc(db, 'products', String(id)));
+        } catch (error) {
+            console.error("Error deleting product: ", error);
+        }
+    };
+
+    const addShop = async (shopData: Omit<Shop, 'id'>) => {
+        try {
+            await addDoc(collection(db, 'shops'), {
+                ...shopData,
+                createdAt: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error("Error adding shop: ", error);
+        }
+    };
+
+    const updateShop = async (shop: Shop) => {
+        try {
+            const { id, ...data } = shop;
+            await updateDoc(doc(db, 'shops', String(id)), data);
+        } catch (error) {
+            console.error("Error updating shop: ", error);
+        }
+    };
+
+    const deleteShop = async (id: number | string) => {
+        try {
+            await deleteDoc(doc(db, 'shops', String(id)));
+        } catch (error) {
+            console.error("Error deleting shop: ", error);
+        }
+    };
+
+    const addService = async (serviceData: Omit<Service, 'id'>) => {
+        try {
+            await addDoc(collection(db, 'services'), {
+                ...serviceData,
+                createdAt: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error("Error adding service: ", error);
+        }
+    };
+
+    const updateService = async (service: Service) => {
+        try {
+            const { id, ...data } = service;
+            await updateDoc(doc(db, 'services', String(id)), data);
+        } catch (error) {
+            console.error("Error updating service: ", error);
+        }
+    };
+
+    const deleteService = async (id: number | string) => {
+        try {
+            await deleteDoc(doc(db, 'services', String(id)));
+        } catch (error) {
+            console.error("Error deleting service: ", error);
+        }
+    };
+
+    // Blog / CMS Methods
+    const addBlogPost = async (postData: Omit<BlogPost, 'id' | 'date'>) => {
+        try {
+            await addDoc(collection(db, 'blog_posts'), {
+                ...postData,
+                date: new Date().toISOString().split('T')[0],
+                createdAt: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error("Error adding blog post: ", error);
+        }
+    };
+
+    const updateBlogPost = async (updatedPost: BlogPost) => {
+        try {
+            const { id, ...data } = updatedPost;
+            await updateDoc(doc(db, 'blog_posts', String(id)), data);
+        } catch (error) {
+            console.error("Error updating blog post: ", error);
+        }
+    };
+
+    const deleteBlogPost = async (id: number | string) => {
+        try {
+            await deleteDoc(doc(db, 'blog_posts', String(id)));
+        } catch (error) {
+            console.error("Error deleting blog post: ", error);
+        }
+    };
+
+    const updateRepairPrice = async (pricing: RepairPricing) => {
+        try {
+            const { id, ...data } = pricing;
+            // Use setDoc with merge: true to create or update
+            await setDoc(doc(db, 'repair_pricing', String(id)), {
+                ...data,
+                updatedAt: new Date().toISOString()
+            }, { merge: true });
+        } catch (error) {
+            console.error("Error updating repair price: ", error);
+        }
+    };
+
+    const value = {
+        reservations,
+        quotes,
+        products,
+        services,
+        shops,
+        franchiseApplications,
+        blogPosts,
+        addReservation,
+        addQuote,
+        addFranchiseApplication,
+        updateReservationStatus,
+        updateQuoteStatus,
+        updateFranchiseApplicationStatus,
+        addProduct,
+        updateProduct,
+        deleteProduct,
+        addShop,
+        updateShop,
+        deleteShop,
+        addService,
+        updateService,
+        deleteService,
+        addBlogPost,
+        updateBlogPost,
+        deleteBlogPost,
+        repairPrices,
+        updateRepairPrice,
+        loading
+    };
+
+    return (
+        <DataContext.Provider value={value}>
+            {children}
+        </DataContext.Provider>
+    );
+};
+

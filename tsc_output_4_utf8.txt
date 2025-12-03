@@ -1,0 +1,11 @@
+﻿src/components/admin/BlogManagement.tsx(101,73): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'number'.
+  Type 'string' is not assignable to type 'number'.
+src/components/admin/ProductManagement.tsx(116,85): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'number'.
+  Type 'string' is not assignable to type 'number'.
+src/components/admin/ProductModal.tsx(378,70): error TS7015: Element implicitly has an 'any' type because index expression is not of type 'number'.
+src/components/admin/ReservationManagement.tsx(63,91): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/components/admin/ReservationManagement.tsx(66,91): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/components/admin/ServiceManagement.tsx(106,77): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'number'.
+  Type 'string' is not assignable to type 'number'.
