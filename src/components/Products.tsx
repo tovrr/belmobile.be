@@ -5,6 +5,9 @@ import ProductCard from '../components/ProductCard';
 import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
 import { MagnifyingGlassIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline';
+import { useParams } from 'next/navigation';
+
+
 
 const Products: React.FC = () => {
     const { products } = useData();
@@ -13,6 +16,13 @@ const Products: React.FC = () => {
     const categories = ['cat_all', 'cat_smartphone', 'cat_tablet', 'cat_computer', 'cat_console', 'cat_smartwatch', 'cat_accessories'];
     const [selectedCategory, setSelectedCategory] = useState('cat_all');
     const [sortOption, setSortOption] = useState<'default' | 'priceAsc' | 'priceDesc'>('default');
+
+    const params = useParams();
+    const slug = params.slug as string[] | undefined;
+
+    const deviceName = slug && slug.length > 0
+        ? `${slug[0].charAt(0).toUpperCase() + slug[0].slice(1)} ${slug.slice(1).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}`
+        : 'Smartphone';
 
     const filteredProducts = useMemo(() => {
         let result = products.filter(product => {
@@ -76,7 +86,7 @@ const Products: React.FC = () => {
                         <div className="flex flex-col gap-4">
                             {/* Search & Sort Row */}
                             <div className="flex gap-3">
-                                <div className="relative flex-grow">
+                                <div className="relative grow">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
                                     </div>
@@ -88,7 +98,7 @@ const Products: React.FC = () => {
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
                                 </div>
-                                <div className="relative flex-shrink-0">
+                                <div className="relative shrink-0">
                                     <select
                                         value={sortOption}
                                         onChange={(e) => setSortOption(e.target.value as any)}
@@ -110,7 +120,7 @@ const Products: React.FC = () => {
                                     <button
                                         key={categoryKey}
                                         onClick={() => setSelectedCategory(categoryKey)}
-                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 flex-shrink-0 border ${selectedCategory === categoryKey
+                                        className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 shrink-0 border ${selectedCategory === categoryKey
                                             ? 'bg-bel-dark dark:bg-white text-white dark:text-slate-900 border-bel-dark dark:border-white shadow-lg'
                                             : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'
                                             }`}
@@ -148,7 +158,8 @@ const Products: React.FC = () => {
                     </div>
                 )}
             </div>
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
+
+
         </div>
     );
 };

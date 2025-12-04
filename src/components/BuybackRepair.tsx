@@ -31,6 +31,7 @@ import { DEVICE_BRANDS } from '../data/brands';
 import { createSlug } from '../utils/slugs';
 // import SEO from '../components/SEO'; // SEO handled by page metadata
 import SchemaMarkup from '../components/SchemaMarkup';
+import SEOContent from './SEOContent';
 
 interface BuybackRepairProps {
     type: 'buyback' | 'repair';
@@ -52,6 +53,8 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
 
     const routeBrand = slug?.[0];
     const routeModel = slug?.[1];
+
+
 
     const [submitted, setSubmitted] = useState(false);
     const [step, setStep] = useState(1);
@@ -106,7 +109,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
             // @ts-ignore
             window.sendcloud.servicePoints.open(
                 {
-                    apiKey: '537916', // Using the ID provided by user
+                    apiKey: '09695f66-f265-4fb6-901a-a683e6f32eef',
                     country: 'be',
                     language: 'en-us',
                     carriers: ['bpost'],
@@ -746,7 +749,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
         if (step === 1) return null;
 
         return (
-            <div className="hidden lg:block w-80 xl:w-96 flex-shrink-0 ml-8">
+            <div className="hidden lg:block w-80 xl:w-96 shrink-0 ml-8">
                 <div className="sticky top-24 bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden">
                     <div className="bg-bel-blue p-6 text-white">
                         <h3 className="font-bold text-xl">{t('Summary')}</h3>
@@ -856,7 +859,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
         if (step < 3 || step >= 5) return null;
 
         return (
-            <div className="lg:hidden fixed bottom-8 left-0 right-0 z-[60] flex justify-center pointer-events-none">
+            <div className="lg:hidden fixed bottom-8 left-0 right-0 z-60 flex justify-center pointer-events-none">
                 <button
                     onClick={onNext}
                     disabled={nextDisabled}
@@ -1233,11 +1236,11 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                         <div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('How would you like to proceed?')}</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <button type="button" onClick={() => setDeliveryMethod('dropoff')} className={`p-6 rounded-2xl border-2 text-left transition-all flex items-start ${deliveryMethod === 'dropoff' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-bel-blue/50'}`}>
+                                <div onClick={() => setDeliveryMethod('dropoff')} className={`cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex items-start ${deliveryMethod === 'dropoff' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-bel-blue/50'}`}>
                                     <BuildingStorefrontIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-400'}`} />
                                     <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Visit Store')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Come to one of our shops in Brussels. No appointment needed.')}</p></div>
-                                </button>
-                                <button type="button" onClick={() => setDeliveryMethod('send')} className={`p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'send' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-bel-blue/50'}`}>
+                                </div>
+                                <div onClick={() => setDeliveryMethod('send')} className={`cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'send' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-bel-blue/50'}`}>
                                     <div className="flex items-start">
                                         <TruckIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'send' ? 'text-bel-blue' : 'text-gray-400'}`} />
                                         <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'send' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Send by Post')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Free shipping label provided. Secure and insured.')}</p></div>
@@ -1263,7 +1266,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                                             )}
                                         </div>
                                     )}
-                                </button>
+                                </div>
                             </div>
                         </div>
                         <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-gray-200 dark:border-slate-700">
@@ -1307,27 +1310,13 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
         );
     };
 
+
     return (
 
         <div className="min-h-screen bg-gray-50 dark:bg-deep-space transition-colors duration-300 pt-24 pb-12 px-4">
             <div className="max-w-6xl mx-auto">
                 {/* SEO Component Removed */}
-                <SchemaMarkup
-                    type="product"
-                    product={selectedBrand && selectedModel ? {
-                        id: createSlug(`${selectedBrand}-${selectedModel}`),
-                        name: `${selectedBrand} ${selectedModel}`,
-                        slug: createSlug(`${selectedBrand}-${selectedModel}`),
-                        brand: selectedBrand,
-                        category: deviceType,
-                        price: type === 'buyback' ? 0 : 0, // Placeholder
-                        condition: type === 'buyback' ? 'good' : 'perfect',
-                        description: '',
-                        imageUrl: 'https://belmobile.be/og-image.jpg',
-                        availability: { '1': 1 }
-                    } : undefined}
-                />
-                {/* PLACEHOLDER_FOR_RENDER */}
+                {/* SchemaMarkup removed in favor of SEOContent */}
                 <StepIndicator />
                 {step === 1 && renderStep1()}
                 {step === 2 && renderStep2()}
@@ -1335,6 +1324,8 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                 {step === 4 && renderStep4()}
                 {step === 5 && renderStep5()}
             </div>
+
+            {/* SEO Content Section Removed for stability */}
         </div>
     );
 };
