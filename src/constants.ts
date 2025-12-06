@@ -14,7 +14,10 @@ import {
     CpuChipIcon,
     CircleStackIcon,
     CursorArrowRaysIcon,
-    CloudIcon
+    CloudIcon,
+    DevicePhoneMobileIcon,
+    ComputerDesktopIcon,
+    TvIcon
 } from '@heroicons/react/24/outline';
 
 export const MOCK_SHOPS: Shop[] = [
