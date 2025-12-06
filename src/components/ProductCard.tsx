@@ -8,6 +8,7 @@ import ReservationModal from './ReservationModal';
 import { useLanguage } from '../hooks/useLanguage';
 import { CameraIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface ProductCardProps {
     product: Product;
@@ -52,11 +53,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
 
 
-                import Image from 'next/image';
 
-                // ... (other imports)
-
-                // Inside component render:
                 {/* Image */}
                 <div className="relative pt-[100%] bg-transparent p-4">
                     {hasImage ? (
