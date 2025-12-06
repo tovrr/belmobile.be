@@ -852,6 +852,12 @@ export const translations: Translations = {
         "What our clients say": "Ce que disent nos clients",
         "Premium Devices": "Appareils Premium",
         "Shop the latest smartphones et accessoires.": "Achetez les derniers smartphones et accessoires.",
+        "Fast, reliable repairs for screens, batteries, and more. We use premium parts to ensure your device feels brand new.": "Réparations rapides et fiables pour écrans, batteries et plus. Nous utilisons des pièces premium garanties.",
+        "Get an instant quote for your old device. We offer competitive prices and immediate payment.": "Obtenez un devis instantané pour votre ancien appareil. Prix compétitifs et paiement immédiat.",
+        "Best Price Guaranteed": "Meilleur Prix Garanti",
+        "Save up to 40%": "Économisez jusqu'à 40%",
+        "Corporate solutions": "Solutions pour entreprises",
+        "Get Offer": "Voir l'offre",
 
         // Price Table
         "Repair Pricing": "Tarifs Réparation",
@@ -1548,6 +1554,12 @@ export const translations: Translations = {
         "What our clients say": "Wat onze klanten zeggen",
         "Premium Toestellen": "Premium Toestellen",
         "Shop the latest smartphones and accessories.": "Koop de nieuwste smartphones en accessoires.",
+        "Fast, reliable repairs for screens, batteries, and more. We use premium parts to ensure your device feels brand new.": "Snelle, betrouwbare reparaties voor schermen, batterijen en meer. Wij gebruiken premium onderdelen.",
+        "Get an instant quote for your old device. We offer competitive prices and immediate payment.": "Ontvang direct een offerte voor uw oude toestel. Scherpe prijzen en directe betaling.",
+        "Best Price Guaranteed": "Beste Prijs Garantie",
+        "Save up to 40%": "Bespaar tot 40%",
+        "Corporate solutions": "Zakelijke oplossingen",
+        "Get Offer": "Bekijk aanbod",
 
         // Price Table
         "Repair Pricing": "Reparatie Prijzen",
