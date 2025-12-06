@@ -102,20 +102,21 @@ export const MOCK_SHOPS: Shop[] = [
     }
 ];
 
-{
-    id: 1,
+export const MOCK_PRODUCTS: Product[] = [
+    {
+        id: 1,
         name: "iPhone 13",
-            price: 599,
-                description: "A15 Bionic chip, advanced dual-camera system.",
-                    imageUrl: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?q=80&w=800&auto=format&fit=crop",
-                        category: "smartphone",
-                            brand: "Apple",
-                                condition: 'perfect',
-                                    capacity: '128GB',
-                                        color: 'Blue',
-                                            slug: 'apple-iphone-13-128gb-blue-perfect',
-                                                availability: { 'schaerbeek': 5, 'anderlecht': 2, 'molenbeek': 0 }
-}
+        price: 599,
+        description: "A15 Bionic chip, advanced dual-camera system.",
+        imageUrl: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?q=80&w=800&auto=format&fit=crop",
+        category: "smartphone",
+        brand: "Apple",
+        condition: 'perfect',
+        capacity: '128GB',
+        color: 'Blue',
+        slug: 'apple-iphone-13-128gb-blue-perfect',
+        availability: { 'schaerbeek': 5, 'anderlecht': 2, 'molenbeek': 0 }
+    }
 ];
 
 export const MOCK_SERVICES: Service[] = [

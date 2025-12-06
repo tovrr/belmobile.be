@@ -1136,7 +1136,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             const isApple = selectedBrand?.toLowerCase() === 'apple';
 
             return (
-                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
+                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
                     <div className="flex-1 animate-fade-in">
                         <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">{t('What needs fixing?')}</h2>
                         <p className="text-gray-500 mb-8">{selectedBrand} {selectedModel}</p>

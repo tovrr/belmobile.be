@@ -1,0 +1,70 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Helper Functions ---
+    
+    // Check if user is logged into Firebase Auth (Admin)
+    // Since we don't have public sign-up, any logged-in user is an Admin.
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // --- Public Content (Read: Everyone, Write: Admin) ---
+    match /products/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /shops/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /services/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /repair_prices/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /blog_posts/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /faq_categories/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // --- User Forms (Create: Everyone, Read/Edit: Admin) ---
+    match /quotes/{document=**} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+    match /reservations/{document=**} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+    match /franchise_applications/{document=**} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+    
+    // --- Reviews (Read/Create: Everyone, Moderate: Admin) ---
+    match /reviews/{document=**} {
+      allow read, create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // --- Settings / Internal ---
+    match /settings/{document=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Lock down everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
