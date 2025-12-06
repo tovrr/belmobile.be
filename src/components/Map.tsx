@@ -125,11 +125,16 @@ const Map: React.FC<MapProps> = ({ shops, center, zoom, selectedShopId, hoveredS
                 iconAnchor: [20, 40] // Bottom center anchor
             });
 
-            const marker = L.marker([shop.coords.lat, shop.coords.lng], { icon })
+            const lat = shop.coords?.lat || (shop as any).coordinates?.lat || 0;
+            const lng = shop.coords?.lng || (shop as any).coordinates?.lng || 0;
+
+            const marker = L.marker([lat, lng], { icon })
                 .addTo(map)
                 .on('click', () => {
                     if (onMarkerClick) onMarkerClick(shop.id);
-                    map.flyTo([shop.coords.lat, shop.coords.lng], 14, {
+                    const lat = shop.coords?.lat || (shop as any).coordinates?.lat || 0;
+                    const lng = shop.coords?.lng || (shop as any).coordinates?.lng || 0;
+                    map.flyTo([lat, lng], 14, {
                         duration: 1.2,
                         easeLinearity: 0.25
                     });
@@ -145,7 +150,9 @@ const Map: React.FC<MapProps> = ({ shops, center, zoom, selectedShopId, hoveredS
         if (selectedShopId && mapRef.current) {
             const shop = shops.find(s => s.id === selectedShopId);
             if (shop) {
-                mapRef.current.flyTo([shop.coords.lat, shop.coords.lng], 14, {
+                const lat = shop.coords?.lat || (shop as any).coordinates?.lat || 0;
+                const lng = shop.coords?.lng || (shop as any).coordinates?.lng || 0;
+                mapRef.current.flyTo([lat, lng], 14, {
                     duration: 1.5
                 });
             }
@@ -158,7 +165,7 @@ const Map: React.FC<MapProps> = ({ shops, center, zoom, selectedShopId, hoveredS
             <div ref={mapContainerRef} className="w-full h-full z-0" />
 
             {/* Floating Actions */}
-            <div className="absolute top-4 right-4 z-[400] flex flex-col gap-2">
+            <div className="absolute top-4 right-4 z-400 flex flex-col gap-2">
                 <button
                     onClick={handleUseLocation}
                     className="bg-white dark:bg-slate-800 text-bel-dark dark:text-white p-3 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors group"

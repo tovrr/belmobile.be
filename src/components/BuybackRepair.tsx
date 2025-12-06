@@ -2,6 +2,9 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useShop } from '../hooks/useShop';
+import Input from './ui/Input';
+import Button from './ui/Button';
+import Select from './ui/Select';
 import { useData } from '../hooks/useData';
 import { db, storage as firebaseStorage } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -24,46 +27,51 @@ import {
     BuildingStorefrontIcon,
     TruckIcon,
     Battery50Icon,
-    FaceSmileIcon
+    FaceSmileIcon,
+    XMarkIcon,
+    CloudArrowUpIcon,
+    DocumentIcon,
+    TrashIcon
 } from '@heroicons/react/24/outline';
 import { DEVICE_TYPES, REPAIR_ISSUES, SEO_CONTENT, MOCK_SHOPS, MOCK_REPAIR_PRICES } from '../constants';
 import { DEVICE_BRANDS } from '../data/brands';
 import { createSlug } from '../utils/slugs';
 // import SEO from '../components/SEO'; // SEO handled by page metadata
 import SchemaMarkup from '../components/SchemaMarkup';
-import SEOContent from './SEOContent';
+import LocalSEOContent from './LocalSEOContent';
 
 interface BuybackRepairProps {
     type: 'buyback' | 'repair';
+    initialShop?: string;
+    initialCategory?: string;
+    initialDevice?: {
+        brand: string;
+        model: string;
+    };
 }
 
-const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
-    const { selectedShop } = useShop();
-    const { addQuote, repairPrices } = useData();
-    const { t } = useLanguage();
+const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initialCategory, initialDevice }) => {
+    const { selectedShop, setSelectedShop } = useShop();
+    const { addQuote, repairPrices, shops } = useData();
+    const { t, language } = useLanguage();
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
     const params = useParams();
 
-    // Parse slug from params
-    const slug = params.slug as string[] | undefined;
-    // const lang = params.lang as string; // We can get lang from params or useLanguage hook
-    const { language: lang } = useLanguage(); // useLanguage hook is better as it syncs with context
+    // Ensure lang is defined
+    const lang = language || params.lang || 'fr';
 
-    const routeBrand = slug?.[0];
-    const routeModel = slug?.[1];
-
-
-
-    const [submitted, setSubmitted] = useState(false);
+    // State
     const [step, setStep] = useState(1);
+    // Transition State
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [deviceType, setDeviceType] = useState<string>(initialCategory || '');
+    const [selectedBrand, setSelectedBrand] = useState<string>(initialDevice?.brand || '');
+    const [selectedModel, setSelectedModel] = useState<string>(initialDevice?.model || '');
+    const [storage, setStorage] = useState<string>('');
 
-    const [deviceType, setDeviceType] = useState('');
-    const [selectedBrand, setSelectedBrand] = useState('');
-    const [selectedModel, setSelectedModel] = useState('');
-
-    const [storage, setStorage] = useState('');
+    // Condition State
     const [turnsOn, setTurnsOn] = useState<boolean | null>(null);
     const [worksCorrectly, setWorksCorrectly] = useState<boolean | null>(null);
     const [isUnlocked, setIsUnlocked] = useState<boolean | null>(null);
@@ -79,6 +87,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
     const [idFile, setIdFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const [selectedScreenQuality, setSelectedScreenQuality] = useState<'generic' | 'oled' | 'original'>('generic');
+    const [shopSelectionError, setShopSelectionError] = useState(false);
 
     // Contact Form State
     const [customerName, setCustomerName] = useState('');
@@ -87,9 +96,22 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
     const [customerAddress, setCustomerAddress] = useState('');
     const [customerCity, setCustomerCity] = useState('');
     const [customerZip, setCustomerZip] = useState('');
+
+    // Submission State
+    const [submitted, setSubmitted] = useState(false);
+
+    // UI State
+    const [isShopListOpen, setIsShopListOpen] = useState(false);
     const [submittedOrder, setSubmittedOrder] = useState<{ id: string, data: any } | null>(null);
+
+    // Service Point State
     const [servicePoint, setServicePoint] = useState<any>(null);
 
+    // URL Params State
+    const [routeBrand, setRouteBrand] = useState<string | null>(null);
+    const [routeModel, setRouteModel] = useState<string | null>(null);
+
+    // SendCloud Script
     useEffect(() => {
         const script = document.createElement('script');
         script.src = "https://embed.sendcloud.sc/spp/1.0.0/api.min.js";
@@ -103,13 +125,58 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
         };
     }, []);
 
+    // Handle initialShop prop - only set if shop is OPEN
+    useEffect(() => {
+        if (initialShop && setSelectedShop && shops.length > 0) {
+            const shop = shops.find(s => createSlug(s.name) === initialShop || s.id === initialShop);
+            // Only set the shop if it exists AND has status 'open' (not coming_soon)
+            if (shop && shop.status === 'open') {
+                setSelectedShop(shop);
+            }
+        }
+    }, [initialShop, setSelectedShop, shops]);
+
+    // Handle initialCategory prop
+    useEffect(() => {
+        if (initialCategory) {
+            setDeviceType(initialCategory);
+        }
+    }, [initialCategory]);
+
+    // Handle initialDevice prop
+    useEffect(() => {
+        // Only run this on mount or if we explicitly want to sync from props, 
+        // but avoid overriding if user has navigated (which we track via local state changes usually)
+        // So we can just rely on searchParams or the 'params' object from next/navigation.
+        // But the component uses 'searchParams.get' for brand/model in the existing code.
+        // We need to adapt this to support the new route structure /lang/service/brand/model
+
+        // Let's check if we have route params from the new dynamic route structure
+        // The 'params' object from useParams() should contain the slug array if we are in [...slug].
+        // But this component is used inside the page.
+
+        // For now, let's just ensure routeBrand/routeModel are set correctly.
+        const pBrand = searchParams.get('brand') || (initialDevice?.brand ? createSlug(initialDevice.brand) : null);
+        const pModel = searchParams.get('model') || (initialDevice?.model ? createSlug(initialDevice.model) : null);
+
+        if (pBrand) setRouteBrand(createSlug(pBrand));
+        if (pModel) setRouteModel(createSlug(pModel));
+
+        // Sync deviceType with category param if present
+        const pCategory = searchParams.get('category');
+        if (pCategory && pCategory !== deviceType) {
+            setDeviceType(pCategory);
+        }
+
+    }, [searchParams, initialDevice, deviceType]);
+
     const openServicePointPicker = () => {
         // @ts-ignore
         if (window.sendcloud) {
             // @ts-ignore
             window.sendcloud.servicePoints.open(
                 {
-                    apiKey: '09695f66-f265-4fb6-901a-a683e6f32eef',
+                    apiKey: process.env.NEXT_PUBLIC_SENDCLOUD_API_KEY,
                     country: 'be',
                     language: 'en-us',
                     carriers: ['bpost'],
@@ -171,6 +238,8 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
         }
     }, [searchParams, lang, typeSlug, router]);
 
+
+
     // --- DYNAMIC DATA LOADING ---
     const loadBrandData = async (brandSlug: string) => {
         setIsLoadingData(true);
@@ -188,71 +257,15 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
         }
     };
 
+    // Trigger data loading when selectedBrand changes
     useEffect(() => {
         if (selectedBrand) {
             loadBrandData(createSlug(selectedBrand));
-        }
-    }, [selectedBrand]);
-
-    // --- ROUTING LOGIC ---
-    useEffect(() => {
-        const categoryParam = searchParams.get('category');
-
-        if (!routeBrand && !routeModel) {
-            setDeviceType('');
-            setSelectedBrand('');
-            setSelectedModel('');
-            setStep(1);
-            setStorage('');
-            setRepairIssues([]);
-            setDeliveryMethod('dropoff');
-            setIban('');
-            setTermsAccepted(false);
-            setCustomerName('');
-            setCustomerEmail('');
-            setCustomerPhone('');
-            setCustomerAddress('');
-            setCustomerCity('');
-            setCustomerZip('');
-            setSubmitted(false);
-            setSubmittedOrder(null);
-            return;
-        }
-
-        if (routeBrand) {
-            let foundType = '';
-            let foundBrand = '';
-
-            for (const [type, brands] of Object.entries(DEVICE_BRANDS)) {
-                const match = brands.find(b => createSlug(b) === routeBrand);
-                if (match) {
-                    if (categoryParam && categoryParam === type) {
-                        foundType = type;
-                        foundBrand = match;
-                        break;
-                    }
-                    if (!foundType) {
-                        foundType = type;
-                        foundBrand = match;
-                    }
-                }
-            }
-
-            if (foundType && foundBrand) {
-                setDeviceType(foundType);
-                setSelectedBrand(foundBrand);
-
-                if (routeModel) {
-                    // Model validation happens after data load
-                } else {
-                    setSelectedModel('');
-                    setStep(2);
-                }
-            } else {
-                router.replace(`/${lang}/${typeSlug}`);
+            if (!selectedModel && step === 1) {
+                setStep(2);
             }
         }
-    }, [type, routeBrand, routeModel, lang, router, searchParams, typeSlug]);
+    }, [selectedBrand, deviceType]);
 
     // --- LOCAL STORAGE PERSISTENCE ---
     useEffect(() => {
@@ -281,7 +294,24 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
         }
 
         if (routeModel && modelsData && Object.keys(modelsData).length > 0) {
-            const categoryModels = modelsData[deviceType];
+            let categoryModels = modelsData[deviceType];
+
+            // Fallback: If category not found or model not in category, search all categories
+            // Also check if searchParams has a category that overrides the current deviceType
+            const pCategory = searchParams.get('category');
+            if (pCategory && pCategory !== deviceType && modelsData[pCategory]) {
+                setDeviceType(pCategory);
+                categoryModels = modelsData[pCategory];
+            } else if (!categoryModels || !Object.keys(categoryModels).some(m => createSlug(m) === routeModel)) {
+                const foundCategory = Object.keys(modelsData).find(cat =>
+                    Object.keys(modelsData[cat]).some(m => createSlug(m) === routeModel)
+                );
+                if (foundCategory) {
+                    setDeviceType(foundCategory);
+                    categoryModels = modelsData[foundCategory];
+                }
+            }
+
             if (categoryModels) {
                 const modelName = Object.keys(categoryModels).find(m => createSlug(m) === routeModel);
                 if (modelName) {
@@ -332,6 +362,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                                 setStep(3);
                             }
                         } else {
+                            // No saved state, but model is selected via URL, so go to Step 3
                             setStep(3);
                         }
                     }
@@ -339,6 +370,12 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                     console.warn(`Model ${routeModel} not found in ${deviceType} for ${selectedBrand}`);
                 }
                 setIsInitialized(true);
+                setIsTransitioning(false);
+
+                // Force step 3 if we have a valid model selected from URL and we are not already on a later step
+                if (modelName && step < 3) {
+                    setStep(3);
+                }
             }
         }
     }, [modelsData, routeModel, deviceType, selectedBrand, searchParams]);
@@ -354,6 +391,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
     }, [turnsOn]);
 
     const handleBrandSelect = (brand: string) => {
+        setIsTransitioning(true);
         setSelectedBrand(brand);
         setSelectedModel('');
         router.push(`/${lang}/${typeSlug}/${createSlug(brand)}?category=${deviceType}`);
@@ -361,10 +399,16 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
 
     const handleModelSelect = (model: string) => {
         setIsInitialized(false);
+        setIsTransitioning(true);
         setSelectedModel(model);
-        const key = `buyback_state_${createSlug(selectedBrand)}_${createSlug(model)}`;
-        localStorage.removeItem(key);
-        router.push(`/${lang}/${typeSlug}/${createSlug(selectedBrand)}/${createSlug(model)}?category=${deviceType}`);
+
+        // Add artificial delay to ensure overlay is visible and transition is smooth
+        setTimeout(() => {
+            const key = `buyback_state_${createSlug(selectedBrand)}_${createSlug(model)}`;
+            localStorage.removeItem(key);
+            router.push(`/${lang}/${typeSlug}/${createSlug(selectedBrand)}/${createSlug(model)}?category=${deviceType}`);
+            if (step < 3) setStep(3);
+        }, 800);
     };
 
     // --- PRICING LOGIC ---
@@ -469,7 +513,40 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
     }, [type, deviceType, selectedBrand, selectedModel, repairIssues, repairPrices, modelsData]);
 
     const handleBack = () => {
-        if (step > 1) setStep(step - 1);
+        if (step > 1) {
+            setIsTransitioning(true);
+
+            setTimeout(() => {
+                let newStep;
+
+                // For repair, step 4 doesn't exist, so going back from step 5 should go to step 3
+                if (type === 'repair' && step === 5) {
+                    newStep = 3;
+                } else {
+                    newStep = step - 1;
+                }
+
+                setStep(newStep);
+
+                // Reset selections when arriving at step 1
+                if (newStep === 1) {
+                    setDeviceType('');
+                    setSelectedBrand('');
+                    setSelectedModel('');
+                    // Clear URL params
+                    router.push(`/${lang}/${typeSlug}`);
+                }
+                // When arriving at step 2 (Brand Selection), ensure URL reflects that (no model)
+                else if (newStep === 2) {
+                    setSelectedModel('');
+                    router.push(`/${lang}/${typeSlug}/${createSlug(selectedBrand)}?category=${deviceType}`);
+                }
+
+                // Ensure transition overlay is removed after the update
+                // The main useEffect tries to handle this, but explicit safety here helps for non-model routes
+                setTimeout(() => setIsTransitioning(false), 100);
+            }, 600);
+        }
     };
 
     const handleNext = () => {
@@ -614,6 +691,17 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Validate shop selection for dropoff delivery
+        if (deliveryMethod === 'dropoff' && !selectedShop) {
+            setShopSelectionError(true);
+            // Scroll to top to show the error
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        setShopSelectionError(false);
+
         setIsUploading(true);
         // ... (Validation logic)
 
@@ -679,7 +767,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                 deliveryMethod,
                 iban: iban || null,
                 idUrl: idUrl || null,
-                shopId: selectedShop?.id || '1',
+                shopId: selectedShop?.id || null, // No fallback - shop is required for dropoff
                 shippingLabelUrl: shippingLabelUrl,
                 trackingNumber: trackingNumber,
                 servicePoint: servicePoint || null
@@ -707,6 +795,16 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
 
 
     // --- UI COMPONENTS ---
+    const TransitionOverlay = () => {
+        if (!isTransitioning) return null;
+
+        return (
+            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl animate-fade-in">
+                <div className="w-16 h-16 border-4 border-bel-blue border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="font-bold text-gray-900 dark:text-white animate-pulse">{t('Loading details...')}</p>
+            </div>
+        );
+    };
 
     const StepIndicator = () => {
         const steps = type === 'buyback' ? [1, 2, 3, 4, 5] : [1, 2, 3, 5];
@@ -723,7 +821,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                 )}
                 <div className="flex items-center space-x-2">
                     {steps.map((s, index) => (
-                        <div key={s} className={`h-2 w-8 rounded-full transition-all duration-300 ${step >= s ? 'bg-bel-blue' : 'bg-gray-200 dark:bg-slate-700'}`} />
+                        <div key={s} className={`h-2 w-8 rounded-full transition-all duration-300 ${step >= s ? 'bg-bel-blue' : 'bg-gray-200 dark:bg-slate-800'}`} />
                     ))}
                 </div>
             </div>
@@ -750,7 +848,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
 
         return (
             <div className="hidden lg:block w-80 xl:w-96 shrink-0 ml-8">
-                <div className="sticky top-24 bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden">
+                <div className="sticky top-24 bg-white dark:bg-slate-900 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-800 overflow-hidden">
                     <div className="bg-bel-blue p-6 text-white">
                         <h3 className="font-bold text-xl">{t('Summary')}</h3>
                         <p className="text-blue-100 text-sm">{selectedBrand} {selectedModel}</p>
@@ -776,7 +874,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                                 </div>
                             )}
                             {!isBuyback && repairIssues.length > 0 && (
-                                <div className="border-t border-gray-100 dark:border-slate-700 pt-3 mt-3">
+                                <div className="border-t border-gray-100 dark:border-slate-800 pt-3 mt-3">
                                     <span className="block text-gray-500 mb-2">{t('Repairs')}</span>
                                     <ul className="space-y-1">
                                         {repairIssues.map(issueId => {
@@ -801,7 +899,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                             )}
                         </div>
 
-                        <div className="bg-gray-50 dark:bg-slate-900/50 rounded-xl p-4 text-center">
+                        <div className="bg-gray-50 dark:bg-slate-950/50 rounded-xl p-4 text-center">
                             <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
                                 {isBuyback ? t('Estimated Value') : t('Total Cost')}
                             </p>
@@ -826,7 +924,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                             {step > 1 && (
                                 <button
                                     onClick={handleBack}
-                                    className="w-full py-3 px-4 rounded-xl font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-700 transition"
+                                    className="w-full py-3 px-4 rounded-xl font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
                                 >
                                     {t('Back')}
                                 </button>
@@ -855,31 +953,30 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                 else estimateDisplay = `€${repairEstimates.standard}`;
             }
         }
-
-        if (step < 3 || step >= 5) return null;
-
         return (
-            <div className="lg:hidden fixed bottom-8 left-0 right-0 z-60 flex justify-center pointer-events-none">
-                <button
-                    onClick={onNext}
-                    disabled={nextDisabled}
-                    className="pointer-events-auto bg-bel-blue text-white font-bold py-4 px-8 rounded-full shadow-2xl shadow-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-lg flex items-center gap-2 transition-all transform hover:scale-105"
-                >
-                    <span>{nextLabel || t('Next')}</span>
+            <div className="lg:hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-xs p-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-full shadow-2xl border border-gray-200 dark:border-slate-800 transition-all duration-300 animate-slide-up">
+                <div className="flex items-center justify-between gap-3 pl-2">
                     {showEstimate && estimateDisplay && (
-                        <>
-                            <span className="w-1 h-1 bg-blue-300 rounded-full mx-1"></span>
-                            <span>{estimateDisplay}</span>
-                        </>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider leading-tight">{isBuyback ? t('Estimated Value') : t('Total Cost')}</span>
+                            <span className="text-lg font-extrabold text-bel-dark dark:text-white leading-tight">{estimateDisplay}</span>
+                        </div>
                     )}
-                    <ChevronRightIcon className="h-5 w-5" />
-                </button>
+                    <button
+                        onClick={onNext}
+                        disabled={nextDisabled}
+                        className={`flex-1 bg-bel-blue text-white font-bold py-2.5 px-6 rounded-full shadow-lg shadow-blue-500/30 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-base flex items-center justify-center gap-2 transition-all ${!showEstimate || !estimateDisplay ? 'w-full' : ''}`}
+                    >
+                        <span>{nextLabel || t('Next')}</span>
+                        <ChevronRightIcon className="h-4 w-4" />
+                    </button>
+                </div>
             </div>
         );
     };
 
     const renderStep1 = () => (
-        <div className="animate-fade-in w-full max-w-4xl mx-auto">
+        <div className="animate-fade-in w-full max-w-4xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
             <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
                 {t(type === 'buyback' ? 'buyback_step1_title' : 'repair_step1_title')}
             </h2>
@@ -890,17 +987,16 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                         onClick={() => { setDeviceType(dt.id); handleNext(); }}
                         className={`group flex flex-col items-center justify-center p-8 rounded-3xl border-2 transition-all duration-300 hover:shadow-xl ${deviceType === dt.id
                             ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20'
-                            : 'border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-bel-blue/50'
+                            : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'
                             }`}
                     >
-                        <div className={`p-4 rounded-2xl mb-4 transition-colors ${deviceType === dt.id ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 group-hover:bg-bel-blue/10 group-hover:text-bel-blue'}`}>
+                        <div className={`p-4 rounded-2xl mb-4 transition-colors ${deviceType === dt.id ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-950 text-gray-600 dark:text-gray-300 group-hover:bg-bel-blue/10 group-hover:text-bel-blue'}`}>
                             <dt.icon className="h-8 w-8" />
                         </div>
                         <span className="font-bold text-gray-900 dark:text-white">{t(dt.label)}</span>
                     </button>
                 ))}
             </div>
-            <MobileBottomBar onNext={() => { }} nextDisabled={true} />
         </div>
     );
 
@@ -910,7 +1006,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
         const availableModels = modelsData[deviceType] ? Object.keys(modelsData[deviceType]) : [];
 
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto">
+            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
                 <div className="flex-1 animate-fade-in">
                     <h2 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">{t('Select Brand & Model')}</h2>
 
@@ -923,7 +1019,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                                     onClick={() => handleBrandSelect(brand)}
                                     className={`py-3 px-4 rounded-xl font-bold text-sm transition-all ${selectedBrand === brand
                                         ? 'bg-bel-blue text-white shadow-lg shadow-blue-200 dark:shadow-none'
-                                        : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-700 hover:border-bel-blue'
+                                        : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-800 hover:border-bel-blue'
                                         }`}
                                 >
                                     {brand}
@@ -936,27 +1032,26 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                         <div className="mb-8 animate-fade-in">
                             <label className="block text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">{t('Model')}</label>
                             {isLoadingData ? (
-                                <div className="flex items-center space-x-2 p-4 bg-gray-50 dark:bg-slate-800 rounded-xl">
+                                <div className="flex items-center space-x-2 p-4 bg-gray-50 dark:bg-slate-900 rounded-xl">
                                     <div className="w-5 h-5 border-2 border-bel-blue border-t-transparent rounded-full animate-spin"></div>
                                     <span className="text-gray-500">{t('Loading models...')}</span>
                                 </div>
                             ) : (
-                                <select
+                                <Select
                                     value={selectedModel}
-                                    onChange={(e) => handleModelSelect(e.target.value)}
-                                    className="w-full p-4 rounded-xl border-2 border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg font-medium focus:border-bel-blue focus:ring-0 transition-colors"
-                                >
-                                    <option value="">{t('Select your model...')}</option>
-                                    {availableModels.map(model => (
-                                        <option key={model} value={model}>{model}</option>
-                                    ))}
-                                </select>
+                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleModelSelect(e.target.value)}
+                                    options={[
+                                        { value: "", label: t('Select your model...') },
+                                        ...availableModels.map(model => ({ value: model, label: model }))
+                                    ]}
+                                    className="text-lg font-medium"
+                                />
                             )}
                         </div>
                     )}
                 </div>
                 <DesktopSidebar onNext={handleNext} nextDisabled={nextDisabled} />
-                <MobileBottomBar onNext={handleNext} nextDisabled={nextDisabled} />
+
             </div>
         );
     };
@@ -970,7 +1065,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
             }
 
             return (
-                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-24 lg:pb-0">
+                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
                     <div className="flex-1 animate-fade-in space-y-8">
                         <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">{t('Functionality & Specs')}</h2>
                         <div>
@@ -980,7 +1075,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                                     <button
                                         key={opt}
                                         onClick={() => setStorage(opt)}
-                                        className={`py-3 rounded-xl font-bold transition-all ${storage === opt ? 'bg-bel-blue text-white' : 'bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700'}`}
+                                        className={`py-3 rounded-xl font-bold transition-all ${storage === opt ? 'bg-bel-blue text-white' : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800'}`}
                                     >
                                         {opt}
                                     </button>
@@ -997,7 +1092,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                             ].map((item, i) => {
                                 const isDisabled = turnsOn === false && item.label !== 'Turns On?';
                                 return (
-                                    <div key={i} className={`flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-200 dark:border-slate-700 ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}>
+                                    <div key={i} className={`flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200 dark:border-slate-800 ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}>
                                         <span className="font-medium text-gray-900 dark:text-white">{t(item.label)}</span>
                                         <div className="flex space-x-2">
                                             <button
@@ -1041,7 +1136,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
             const isApple = selectedBrand?.toLowerCase() === 'apple';
 
             return (
-                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-24 lg:pb-0">
+                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
                     <div className="flex-1 animate-fade-in">
                         <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">{t('What needs fixing?')}</h2>
                         <p className="text-gray-500 mb-8">{selectedBrand} {selectedModel}</p>
@@ -1063,13 +1158,13 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                                 const showScreenOptionsForIssue = isScreenIssue && isSelected && (deviceType === 'smartphone' || isNintendo);
 
                                 return (
-                                    <div key={issue.id} className={`flex flex-col p-4 rounded-2xl border-2 transition-all ${isSelected ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800'} ${showScreenOptionsForIssue ? 'md:col-span-2' : ''}`}>
+                                    <div key={issue.id} className={`flex flex-col p-4 rounded-2xl border-2 transition-all ${isSelected ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900'} ${showScreenOptionsForIssue ? 'md:col-span-2' : ''}`}>
                                         <div className="flex items-center cursor-pointer" onClick={() => toggleRepairIssue(issue.id)}>
-                                            <div className={`p-3 rounded-xl mr-4 ${isSelected ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-700 text-gray-500'}`}><issue.icon className="h-6 w-6" /></div>
+                                            <div className={`p-3 rounded-xl mr-4 ${isSelected ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-800 text-gray-500'}`}><issue.icon className="h-6 w-6" /></div>
                                             <div className="flex-1">
                                                 <div className="flex justify-between items-center">
                                                     <span className={`font-bold ${isSelected ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t(issue.label)}</span>
-                                                    {price && !showScreenOptionsForIssue && <span className="text-sm font-bold bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded text-gray-600 dark:text-gray-300">€{price}</span>}
+                                                    {price && !showScreenOptionsForIssue && <span className="text-sm font-bold bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded text-gray-600 dark:text-gray-300">€{price}</span>}
                                                 </div>
                                                 <p className="text-xs text-gray-500 mt-1">{t(issue.desc)}</p>
                                             </div>
@@ -1077,21 +1172,21 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                                         </div>
                                         {showScreenOptionsForIssue && (
                                             <div className="mt-4 space-y-3 animate-fade-in border-t border-blue-100 dark:border-blue-800 pt-4">
-                                                <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'generic' ? 'border-gray-400 bg-white dark:bg-slate-800' : 'border-transparent hover:bg-white/50'}`}>
+                                                <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'generic' ? 'border-gray-400 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
                                                     <input type="radio" name="screenQuality" value="generic" checked={selectedScreenQuality === 'generic'} onChange={() => setSelectedScreenQuality('generic')} className="w-5 h-5 text-gray-600 focus:ring-gray-500 border-gray-300" />
                                                     <div className="ml-3 flex-1">
                                                         <div className="flex justify-between"><span className="font-bold text-gray-900 dark:text-white">{isNintendo ? t('Touchscreen / Glass Only') : t('Generic / LCD')}</span><span className="font-bold text-gray-900 dark:text-white">€{repairEstimates.standard}</span></div>
                                                     </div>
                                                 </label>
                                                 {(isApple || isNintendo) && (
-                                                    <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'oled' ? 'border-blue-500 bg-white dark:bg-slate-800' : 'border-transparent hover:bg-white/50'}`}>
+                                                    <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'oled' ? 'border-blue-500 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
                                                         <input type="radio" name="screenQuality" value="oled" checked={selectedScreenQuality === 'oled'} onChange={() => setSelectedScreenQuality('oled')} className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300" />
                                                         <div className="ml-3 flex-1">
                                                             <div className="flex justify-between"><span className="font-bold text-gray-900 dark:text-white">{isNintendo ? t('Full LCD Assembly') : t('OLED / Soft')}</span><span className="font-bold text-gray-900 dark:text-white">€{repairEstimates.oled}</span></div>
                                                         </div>
                                                     </label>
                                                 )}
-                                                <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'original' ? 'border-purple-500 bg-white dark:bg-slate-800' : 'border-transparent hover:bg-white/50'}`}>
+                                                <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'original' ? 'border-purple-500 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
                                                     <input type="radio" name="screenQuality" value="original" checked={selectedScreenQuality === 'original'} onChange={() => setSelectedScreenQuality('original')} className="w-5 h-5 text-purple-600 focus:ring-purple-500 border-gray-300" />
                                                     <div className="ml-3 flex-1">
                                                         <div className="flex justify-between"><span className="font-bold text-gray-900 dark:text-white">{t('Original Refurb')}</span><span className="font-bold text-gray-900 dark:text-white">€{repairEstimates.original}</span></div>
@@ -1114,7 +1209,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
     const renderStep4 = () => {
         if (type !== 'buyback') return null;
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-24 lg:pb-0">
+            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
                 <div className="flex-1 animate-fade-in space-y-8">
                     <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">{t('Cosmetic Condition')}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1126,7 +1221,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                                     { id: 'scratches', label: 'Light Scratches', desc: 'Visible scratches but no cracks' },
                                     { id: 'cracked', label: 'Cracked / Broken', desc: 'Glass is cracked or display broken' }
                                 ].map((s: any) => (
-                                    <button key={s.id} onClick={() => setScreenState(s.id)} className={`p-4 rounded-xl border-2 text-left transition-all ${screenState === s.id ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800'}`}>
+                                    <button key={s.id} onClick={() => setScreenState(s.id)} className={`p-4 rounded-xl border-2 text-left transition-all ${screenState === s.id ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900'}`}>
                                         <div className="font-bold text-gray-900 dark:text-white">{t(s.label)}</div>
                                         <div className="text-sm text-gray-500">{t(s.desc)}</div>
                                     </button>
@@ -1142,7 +1237,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                                     { id: 'dents', label: 'Dents', desc: 'Visible dents on the frame' },
                                     { id: 'bent', label: 'Bent / Broken', desc: 'Frame is bent or structural damage' }
                                 ].map((s: any) => (
-                                    <button key={s.id} onClick={() => setBodyState(s.id)} className={`p-4 rounded-xl border-2 text-left transition-all ${bodyState === s.id ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800'}`}>
+                                    <button key={s.id} onClick={() => setBodyState(s.id)} className={`p-4 rounded-xl border-2 text-left transition-all ${bodyState === s.id ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900'}`}>
                                         <div className="font-bold text-gray-900 dark:text-white">{t(s.label)}</div>
                                         <div className="text-sm text-gray-500">{t(s.desc)}</div>
                                     </button>
@@ -1173,14 +1268,14 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
         }
 
         return (
-            <div className="lg:hidden bg-white dark:bg-slate-800 rounded-3xl p-6 mb-8 border border-gray-200 dark:border-slate-700 shadow-sm animate-fade-in">
+            <div className="lg:hidden bg-white dark:bg-slate-900 rounded-3xl p-6 mb-8 border border-gray-200 dark:border-slate-800 shadow-sm animate-fade-in">
                 <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-4">{t('Summary')}</h3>
                 <div className="space-y-2 text-sm mb-6">
                     <div className="flex justify-between"><span className="text-gray-500">{t('Device')}</span><span className="font-medium text-gray-900 dark:text-white">{selectedBrand} {selectedModel}</span></div>
                     {isBuyback && storage && (<div className="flex justify-between"><span className="text-gray-500">{t('Storage')}</span><span className="font-medium text-gray-900 dark:text-white">{storage}</span></div>)}
                     {!isBuyback && repairIssues.length > 0 && (<div className="border-t border-gray-100 dark:border-slate-700 pt-2 mt-2">{repairIssues.map(issueId => { const issue = REPAIR_ISSUES.find(i => i.id === issueId); if (!issue) return null; return (<div key={issueId} className="flex justify-between text-gray-900 dark:text-white"><span>{t(issue.label)}</span></div>); })}</div>)}
                 </div>
-                <div className="bg-gray-50 dark:bg-slate-900/50 rounded-xl p-4 text-center">
+                <div className="bg-gray-50 dark:bg-slate-950/50 rounded-xl p-4 text-center">
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">{isBuyback ? t('Estimated Value') : t('Total Cost')}</p>
                     <div className="text-3xl font-extrabold text-bel-dark dark:text-white">{estimateDisplay}</div>
                 </div>
@@ -1191,12 +1286,12 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
     const renderStep5 = () => {
         if (submitted) {
             return (
-                <div className="animate-fade-in max-w-2xl mx-auto text-center py-12">
+                <div className="animate-fade-in max-w-2xl mx-auto text-center py-12 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
                     <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircleIcon className="h-12 w-12 text-green-600 dark:text-green-400" /></div>
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{t('Request Received!')}</h2>
                     <p className="text-gray-600 dark:text-gray-300 text-lg mb-8">{t('success_description')}</p>
                     {(type === 'buyback' || type === 'repair') && (
-                        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 mb-8 text-left max-w-lg mx-auto border border-gray-200 dark:border-gray-700">
+                        <div className="bg-gray-50 dark:bg-slate-900 rounded-xl p-6 mb-8 text-left max-w-lg mx-auto border border-gray-200 dark:border-slate-800">
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"><span className="bg-bel-blue text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">i</span>{t('success_steps_title')}</h3>
                             <ol className="space-y-4 text-gray-700 dark:text-gray-300">
                                 <li className="flex gap-3"><span className="font-bold text-bel-blue">1.</span><span>{type === 'buyback' ? t('success_step_backup') : t('repair_step_backup')}</span></li>
@@ -1213,7 +1308,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                             </button>
                             {submittedOrder.data.shippingLabelUrl && (
                                 <a
-                                    href={submittedOrder.data.shippingLabelUrl}
+                                    href={`/api/shipping/download-label?url=${encodeURIComponent(submittedOrder.data.shippingLabelUrl)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-2 bg-green-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-green-700 transition shadow-lg shadow-green-200 dark:shadow-none"
@@ -1229,18 +1324,100 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
         }
 
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-24 lg:pb-0">
+            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
                 <MobileSummary />
                 <div className="flex-1 animate-fade-in">
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('How would you like to proceed?')}</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div onClick={() => setDeliveryMethod('dropoff')} className={`cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex items-start ${deliveryMethod === 'dropoff' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-bel-blue/50'}`}>
-                                    <BuildingStorefrontIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-400'}`} />
-                                    <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Visit Store')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Come to one of our shops in Brussels. No appointment needed.')}</p></div>
+                                <div onClick={() => setDeliveryMethod('dropoff')} className={`cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'dropoff' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
+                                    <div className="flex items-start">
+                                        <BuildingStorefrontIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-400'}`} />
+                                        <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Visit Store')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Come to one of our shops in Brussels. No appointment needed.')}</p></div>
+                                    </div>
+                                    {deliveryMethod === 'dropoff' && (
+                                        <div className="mt-4 w-full animate-fade-in">
+                                            {shopSelectionError && !selectedShop && (
+                                                <div className="mb-3 p-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-500 rounded-xl text-red-700 dark:text-red-400 font-medium text-sm">
+                                                    ⚠️ {t('Please select a shop')}
+                                                </div>
+                                            )}
+                                            {!selectedShop ? (
+                                                <div className="space-y-3">
+                                                    {!isShopListOpen ? (
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setIsShopListOpen(true);
+                                                            }}
+                                                            className="w-full py-4 px-6 bg-white dark:bg-slate-900 text-left rounded-xl border-2 border-gray-200 dark:border-slate-700 hover:border-bel-blue transition font-medium text-gray-900 dark:text-white flex items-center justify-between"
+                                                        >
+                                                            <span>{t('Select a shop')}</span>
+                                                            <ChevronRightIcon className="h-5 w-5 text-gray-400" />
+                                                        </button>
+                                                    ) : (
+                                                        <div className="animate-fade-in border-2 border-gray-100 dark:border-slate-800 rounded-xl overflow-hidden">
+                                                            <div className="bg-gray-50 dark:bg-slate-950 px-4 py-3 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center">
+                                                                <span className="font-bold text-sm text-gray-500 uppercase tracking-wider">{t('Available Shops')}</span>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={(e) => { e.stopPropagation(); setIsShopListOpen(false); }}
+                                                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                                                >
+                                                                    <XMarkIcon className="h-5 w-5" />
+                                                                </button>
+                                                            </div>
+                                                            <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-slate-800 max-h-60 overflow-y-auto bg-white dark:bg-slate-900">
+                                                                {shops.filter(s => s.status === 'open').map(shop => (
+                                                                    <button
+                                                                        key={shop.id}
+                                                                        type="button"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setSelectedShop(shop);
+                                                                            setShopSelectionError(false);
+                                                                            setIsShopListOpen(false);
+                                                                        }}
+                                                                        className="w-full py-4 px-6 text-left hover:bg-gray-50 dark:hover:bg-slate-800 transition flex items-center justify-between group"
+                                                                    >
+                                                                        <div>
+                                                                            <div className="font-bold text-gray-900 dark:text-white group-hover:text-bel-blue transition-colors">{shop.name.replace('Belmobile ', '')}</div>
+                                                                            <div className="text-xs text-gray-500 mt-1">{shop.address}</div>
+                                                                        </div>
+                                                                        <ChevronRightIcon className="h-4 w-4 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border-2 border-bel-blue">
+                                                    <div className="flex items-start justify-between">
+                                                        <div>
+                                                            <p className="font-bold text-bel-blue">{selectedShop.name.replace('Belmobile ', '')}</p>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-300">{selectedShop.address}</p>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setSelectedShop(null);
+                                                                setIsShopListOpen(true);
+                                                            }}
+                                                            className="text-sm text-bel-blue hover:text-blue-700 font-medium underline"
+                                                        >
+                                                            {t('Change')}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
-                                <div onClick={() => setDeliveryMethod('send')} className={`cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'send' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-bel-blue/50'}`}>
+                                <div onClick={() => setDeliveryMethod('send')} className={`cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'send' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
                                     <div className="flex items-start">
                                         <TruckIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'send' ? 'text-bel-blue' : 'text-gray-400'}`} />
                                         <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'send' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Send by Post')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Free shipping label provided. Secure and insured.')}</p></div>
@@ -1258,8 +1435,19 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                                                 {servicePoint ? t('Change Service Point') : t('Choose Service Point')}
                                             </button>
                                             {servicePoint && (
-                                                <div className="mt-3 text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-slate-800 p-3 rounded-xl border border-gray-200 dark:border-slate-700">
-                                                    <p className="font-bold text-bel-blue">{servicePoint.name}</p>
+                                                <div className="mt-3 relative text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-slate-900 p-3 rounded-xl border border-gray-200 dark:border-slate-800">
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setServicePoint(null);
+                                                        }}
+                                                        className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
+                                                        title={t('Remove')}
+                                                    >
+                                                        <XMarkIcon className="h-5 w-5" />
+                                                    </button>
+                                                    <p className="font-bold text-bel-blue pr-6">{servicePoint.name}</p>
                                                     <p>{servicePoint.street} {servicePoint.house_number}</p>
                                                     <p>{servicePoint.postal_code} {servicePoint.city}</p>
                                                 </div>
@@ -1269,51 +1457,163 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-gray-200 dark:border-slate-700">
+                        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-gray-200 dark:border-slate-800">
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">{t('Your Details')}</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('Name')}</label><input required name="name" type="text" autoCapitalize="words" value={customerName} onChange={(e) => setCustomerName(e.target.value.replace(/\b\w/g, c => c.toUpperCase()))} className="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" /></div>
-                                <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('Phone')}</label><input required name="phone" type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" /></div>
+                                <Input
+                                    label={t('Name')}
+                                    required
+                                    name="name"
+                                    autoCapitalize="words"
+                                    value={customerName}
+                                    placeholder="John Doe"
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerName(e.target.value.replace(/\b\w/g, c => c.toUpperCase()))}
+                                />
+                                <Input
+                                    label={t('Phone')}
+                                    required
+                                    name="phone"
+                                    type="tel"
+                                    value={customerPhone}
+                                    placeholder="+32 400 00 00 00"
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerPhone(e.target.value)}
+                                />
                             </div>
-                            <div className="mb-6"><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('Email')}</label><input required name="email" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} className="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" /></div>
+                            <div className="mb-6">
+                                <Input
+                                    label={t('Email')}
+                                    required
+                                    name="email"
+                                    type="email"
+                                    value={customerEmail}
+                                    placeholder="john@example.com"
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerEmail(e.target.value)}
+                                />
+                            </div>
                             {deliveryMethod === 'send' && (
                                 <div className="animate-fade-in-up space-y-4 border-t border-gray-100 dark:border-slate-700 pt-4 mb-8">
                                     <h4 className="font-bold text-gray-900 dark:text-white">{t('Shipping Address')}</h4>
-                                    <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('Address')}</label><input required name="address" type="text" autoCapitalize="words" placeholder={t('address_placeholder')} value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value.replace(/\b\w/g, c => c.toUpperCase()))} className="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" /></div>
+                                    <Input
+                                        label={t('Address')}
+                                        required
+                                        name="address"
+                                        autoCapitalize="words"
+                                        placeholder="Rue de la Loi 16"
+                                        value={customerAddress}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerAddress(e.target.value.replace(/\b\w/g, c => c.toUpperCase()))}
+                                    />
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('Postal Code')}</label><input required name="zip" type="text" value={customerZip} onChange={(e) => setCustomerZip(e.target.value)} className="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" /></div>
-                                        <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('City')}</label><input required name="city" type="text" autoCapitalize="words" value={customerCity} onChange={(e) => setCustomerCity(e.target.value.replace(/\b\w/g, c => c.toUpperCase()))} className="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" /></div>
+                                        <Input
+                                            label={t('Postal Code')}
+                                            required
+                                            name="zip"
+                                            value={customerZip}
+                                            placeholder="1000"
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerZip(e.target.value)}
+                                        />
+                                        <Input
+                                            label={t('City')}
+                                            required
+                                            name="city"
+                                            autoCapitalize="words"
+                                            value={customerCity}
+                                            placeholder="Bruxelles"
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerCity(e.target.value.replace(/\b\w/g, c => c.toUpperCase()))}
+                                        />
                                     </div>
                                     {type === 'buyback' && (
                                         <>
-                                            <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('IBAN Number')}</label><input required type="text" value={iban} onChange={(e) => setIban(e.target.value)} placeholder="BE00 0000 0000 0000" className="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" /></div>
-                                            <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('Upload ID Copy')}</label><p className="text-xs text-gray-500 mb-2">{t('id_upload_desc')}</p><input required type="file" accept="image/*,application/pdf" onChange={(e) => setIdFile(e.target.files ? e.target.files[0] : null)} className="w-full p-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" /></div>
+                                            <Input
+                                                label={t('IBAN Number')}
+                                                required
+                                                value={iban}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIban(e.target.value)}
+                                                placeholder="BE00 0000 0000 0000"
+                                            />
+                                            <div>
+                                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 ml-1">{t('Upload ID Copy')}</label>
+                                                <p className="text-xs text-gray-500 mb-3 ml-1">{t('id_upload_desc')}</p>
+
+                                                {!idFile ? (
+                                                    <div className="relative group">
+                                                        <input
+                                                            required
+                                                            type="file"
+                                                            accept="image/*,application/pdf"
+                                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIdFile(e.target.files ? e.target.files[0] : null)}
+                                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                        />
+                                                        <div className="w-full p-6 rounded-xl border-2 border-dashed border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 group-hover:border-bel-blue group-hover:bg-blue-50/50 dark:group-hover:bg-blue-900/20 transition-all flex flex-col items-center justify-center text-center">
+                                                            <div className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                                                                <CloudArrowUpIcon className="h-6 w-6 text-bel-blue" />
+                                                            </div>
+                                                            <p className="text-sm font-bold text-gray-700 dark:text-white mb-1 group-hover:text-bel-blue transition-colors">
+                                                                {t('Click to upload')}
+                                                            </p>
+                                                            <p className="text-xs text-gray-400">
+                                                                PNG, JPG or PDF (max 5MB)
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm animate-fade-in">
+                                                        <div className="flex items-center space-x-3 overflow-hidden">
+                                                            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg shrink-0">
+                                                                <DocumentIcon className="h-5 w-5 text-bel-blue" />
+                                                            </div>
+                                                            <div className="truncate">
+                                                                <p className="text-sm font-bold text-gray-900 dark:text-white truncate max-w-[150px] sm:max-w-xs">{idFile.name}</p>
+                                                                <p className="text-xs text-gray-500">{(idFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setIdFile(null)}
+                                                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                        >
+                                                            <TrashIcon className="h-5 w-5" />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </>
                                     )}
                                 </div>
                             )}
                             {(type === 'buyback' || type === 'repair') && (
-                                <div className="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl border border-gray-200 dark:border-slate-600 mb-6 mt-4 relative z-10">
+                                <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-200 dark:border-slate-700 mb-6 mt-4 relative z-10">
                                     <label className="flex items-start cursor-pointer">
                                         <input type="checkbox" required checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="mt-1 w-5 h-5 text-bel-blue rounded border-gray-300 focus:ring-bel-blue" />
                                         <div className="ml-3"><p className="font-bold text-gray-900 dark:text-white text-sm">{type === 'buyback' ? (selectedBrand?.toLowerCase() === 'apple' ? t('terms_icloud') : t('terms_android')) : t('terms_repair_backup')}</p><p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{t('terms_and_privacy')}</p></div>
                                     </label>
                                 </div>
                             )}
-                            <button type="submit" disabled={!termsAccepted} className={`w-full mt-6 font-bold py-4 rounded-xl transition shadow-lg text-lg ${!termsAccepted ? 'bg-gray-300 dark:bg-slate-600 text-gray-500 cursor-not-allowed' : 'bg-bel-blue text-white hover:bg-blue-700 shadow-blue-200 dark:shadow-none active:scale-95'}`}>{t('Confirm Request')}</button>
+                            <Button
+                                type="submit"
+                                disabled={!termsAccepted}
+                                variant="primary"
+                                className="w-full mt-6"
+                            >
+                                {t('Confirm Request')}
+                            </Button>
                         </div>
                     </form>
                 </div>
                 <DesktopSidebar onNext={() => { }} nextDisabled={true} />
-                <MobileBottomBar onNext={() => { }} nextDisabled={true} showEstimate={false} />
             </div>
         );
     };
 
 
     return (
-
-        <div className="min-h-screen bg-gray-50 dark:bg-deep-space transition-colors duration-300 pt-24 pb-12 px-4">
+        <div className="bg-transparent pt-0 pb-12 px-4 relative min-h-[600px]">
+            {/* Global Transition Overlay - Hoisted to root to prevent unmounting flickers */}
+            {(isTransitioning || isLoadingData) && (
+                <div className="absolute inset-0 z-100 flex flex-col items-center justify-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl animate-fade-in pointer-events-none h-full w-full">
+                    <div className="w-16 h-16 border-4 border-bel-blue border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="font-bold text-gray-900 dark:text-white animate-pulse">{t('Loading details...')}</p>
+                </div>
+            )}
             <div className="max-w-6xl mx-auto">
                 {/* SEO Component Removed */}
                 {/* SchemaMarkup removed in favor of SEOContent */}
@@ -1324,7 +1624,6 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type }) => {
                 {step === 4 && renderStep4()}
                 {step === 5 && renderStep5()}
             </div>
-
             {/* SEO Content Section Removed for stability */}
         </div>
     );

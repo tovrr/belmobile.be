@@ -107,7 +107,7 @@ const AIChatAssistant: React.FC = () => {
 
         try {
             // 2. Construct Rich Context
-            const shopsContext = shops.map(s => `- ${s.name}: ${s.address} (Open: ${s.hours})`).join('\n');
+            const shopsContext = shops.map(s => `- ${s.name}: ${s.address} (Open: ${s.openingHours.join(', ')})`).join('\n');
 
             const servicesContext = services.map(s => `- ${s.name} (${s.type}): ${s.description}`).join('\n');
 
@@ -163,7 +163,7 @@ const AIChatAssistant: React.FC = () => {
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
             {isOpen && (
                 <div className="bg-white w-80 sm:w-96 h-[550px] rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-4 border border-gray-100 animate-fade-in-up ring-1 ring-black/5">
-                    <div className="bg-white p-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-bel-blue to-blue-700">
+                    <div className="bg-white p-4 border-b border-gray-100 flex justify-between items-center bg-linear-to-r from-bel-blue to-blue-700">
                         <div className="flex items-center text-white">
                             <div className="p-1.5 bg-white/20 rounded-lg mr-3">
                                 <SparklesIcon className="h-5 w-5 text-bel-yellow" />
@@ -230,24 +230,24 @@ const AIChatAssistant: React.FC = () => {
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
-                                placeholder={t('ai_placeholder')}
-                                className="flex-1 pl-4 pr-12 py-3 bg-gray-100 border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-bel-blue/20 focus:border-bel-blue transition-all text-sm placeholder-gray-400 outline-none text-gray-900"
+                                placeholder="Type a message..."
+                                className="flex-1 p-3 bg-gray-100 border-0 rounded-xl focus:ring-2 focus:ring-bel-blue focus:bg-white transition-all text-sm"
                             />
                             <button
                                 type="submit"
-                                disabled={isLoading || !input.trim()}
-                                className="absolute right-2 p-1.5 bg-bel-blue text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                                disabled={!input.trim() || isLoading}
+                                className="p-3 bg-bel-blue text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
                             >
-                                <PaperAirplaneIcon className="h-4 w-4" />
+                                <PaperAirplaneIcon className="h-5 w-5" />
                             </button>
                         </div>
                     </form>
-                </div >
+                </div>
             )}
 
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`group p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-105 border-4 border-white ${isOpen ? 'bg-gray-100 text-gray-600' : 'bg-gradient-to-br from-bel-blue to-blue-600 text-white'
+                className={`group p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-105 border-4 border-white ${isOpen ? 'bg-gray-100 text-gray-600' : 'bg-linear-to-br from-bel-blue to-blue-600 text-white'
                     }`}
             >
                 {isOpen ? (
@@ -262,7 +262,7 @@ const AIChatAssistant: React.FC = () => {
                     </div>
                 )}
             </button>
-        </div >
+        </div>
     );
 };
 

@@ -1,33 +1,41 @@
-import StoreLocator from '../../../components/StoreLocator';
+import React from 'react';
 import { Metadata } from 'next';
+import Link from 'next/link';
+import Hreflang from '../../../components/seo/Hreflang';
+import StoresLayout from '../../../components/stores/StoresLayout';
 
-type Props = {
-    params: Promise<{ lang: string }>
-};
+interface PageProps {
+    params: Promise<{
+        lang: string;
+    }>;
+}
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { lang } = await params;
-    const titles: Record<string, string> = {
-        en: 'Our Stores | Belmobile',
-        fr: 'Nos Magasins | Belmobile',
-        nl: 'Onze Winkels | Belmobile'
-    };
-    const descriptions: Record<string, string> = {
-        en: 'Find a Belmobile store near you.',
-        fr: 'Trouvez un magasin Belmobile près de chez vous.',
-        nl: 'Vind een Belmobile winkel bij u in de buurt.'
-    };
-
     return {
-        title: titles[lang] || titles['en'],
-        description: descriptions[lang] || descriptions['en'],
+        title: 'Our Stores - Belmobile',
+        description: 'Find a Belmobile store near you in Brussels. Expert repair and buyback services.',
     };
 }
 
-export function generateStaticParams() {
-    return [];
-}
+export default async function StoresPage({ params }: PageProps) {
+    const { lang } = await params;
 
-export default function StoresPage() {
-    return <StoreLocator />;
+    const hreflangSlugs = {
+        fr: 'magasins',
+        nl: 'winkels',
+        en: 'stores'
+    };
+
+    return (
+        <div className="min-h-screen bg-transparent">
+            <Hreflang
+                slugs={hreflangSlugs}
+                baseUrl="https://belmobile.be"
+            />
+
+            {/* Full width layout for Map + Sidebar */}
+            <StoresLayout lang={lang} />
+        </div>
+    );
 }

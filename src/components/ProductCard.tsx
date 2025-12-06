@@ -46,19 +46,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 onClick={handleCardClick}
                 whileHover={{ y: -8 }}
                 transition={{ type: "spring", stiffness: 300 }}
-                className="group bg-white dark:bg-slate-800 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full relative cursor-pointer overflow-hidden border border-transparent hover:border-bel-blue/20"
+                className="group bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full relative cursor-pointer overflow-hidden border border-white/10 hover:border-bel-blue/50"
             >
 
 
 
 
+                import Image from 'next/image';
+
+                // ... (other imports)
+
+                // Inside component render:
                 {/* Image */}
-                <div className="relative pt-[100%] bg-white dark:bg-slate-800">
+                <div className="relative pt-[100%] bg-transparent p-4">
                     {hasImage ? (
-                        <img
-                            className="absolute inset-0 w-full h-full object-contain p-2 sm:p-6 group-hover:scale-105 transition-transform duration-500"
+                        <Image
+                            className="object-contain p-2 sm:p-6 group-hover:scale-105 transition-transform duration-500"
                             src={product.imageUrl}
                             alt={localizedName}
+                            fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                             onError={() => setImgError(true)}
                         />
                     ) : (
@@ -69,7 +76,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 </div>
 
                 {/* Content */}
-                <div className="p-3 sm:p-5 flex flex-col flex-grow">
+                <div className="p-3 sm:p-5 flex flex-col grow">
                     {/* Title: Brand + Model + Capacity */}
                     <h3 className="text-sm sm:text-xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2 text-center leading-tight">
                         {product.brand} {localizedName}
@@ -89,7 +96,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
 
 
-                    <div className="mt-auto flex flex-col sm:flex-row items-center justify-between pt-2 sm:pt-4 border-t border-gray-50 dark:border-slate-700 gap-2 sm:gap-0">
+                    <div className="mt-auto flex flex-col sm:flex-row items-center justify-between pt-2 sm:pt-4 border-t border-white/10 gap-2 sm:gap-0">
                         <div className="flex flex-col items-center sm:items-start">
                             <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-0.5 hidden sm:block">{t('Price')}</span>
                             <span className="text-lg sm:text-2xl font-extrabold text-bel-blue dark:text-blue-400">€{product.price}</span>
@@ -113,8 +120,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {isModalOpen && selectedShop && (
                 <ReservationModal
                     product={product}
-                    shop={selectedShop}
                     onClose={() => setIsModalOpen(false)}
+                    initialShop={selectedShop}
                 />
             )}
         </>
@@ -122,4 +129,3 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 };
 
 export default ProductCard;
-

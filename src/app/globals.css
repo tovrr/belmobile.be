@@ -5,6 +5,9 @@
 @source "../hooks";
 @source ".";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+
 @theme {
   --color-bel-blue: #4338ca;
   --color-bel-yellow: #eab308;
@@ -16,10 +19,25 @@
   --color-glass-white: rgba(255, 255, 255, 0.7);
   --color-glass-dark: rgba(15, 23, 42, 0.7);
 
-  --font-sans: "Inter", sans-serif;
+  --font-sans: var(--font-inter), "Inter", sans-serif;
 
   --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.3);
   --shadow-glow-accent: 0 0 20px rgba(234, 179, 8, 0.3);
+
+  /* Semantic Tokens */
+  --color-primary: var(--color-bel-blue);
+  --color-primary-hover: #3730a3;
+  /* darker shade manually defined or use scale */
+  --color-secondary: var(--color-electric-violet);
+  --color-accent: var(--color-bel-yellow);
+
+  --color-surface-light: #ffffff;
+  --color-surface-dark: var(--color-deep-space);
+
+  --radius-default: 0.75rem;
+  /* rounded-xl */
+  --radius-lg: 1.5rem;
+  /* rounded-3xl */
 
   --animate-fade-in-up: fadeInUp 0.5s ease-out;
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -66,6 +84,16 @@ textarea {
   transition-duration: 300ms;
 }
 
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background: linear-gradient(to bottom right, #0f172a, #020617, #1e1b4b);
+  color: white;
+  min-height: 100vh;
+}
+
 .glass-panel {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);
@@ -83,4 +111,27 @@ textarea {
 .dark .leaflet-control-zoom-out,
 .dark .leaflet-control-attribution {
   filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+/* Safe Area Utilities */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* SendCloud Service Point Picker Overrides */
+/* On desktop, force it to be a modal instead of full screen */
+@media (min-width: 768px) {
+  iframe[src*="sendcloud"] {
+    width: 90vw !important;
+    height: 85vh !important;
+    max-width: 1100px !important;
+    max-height: 800px !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 0 0 100vw rgba(0, 0, 0, 0.7), 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+    z-index: 10000 !important;
+  }
 }

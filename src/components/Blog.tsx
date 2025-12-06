@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
 import { CalendarDaysIcon, UserIcon } from '@heroicons/react/24/outline';
@@ -11,20 +12,28 @@ const Blog: React.FC = () => {
     const { language, t } = useLanguage();
     const { blogPosts } = useData();
 
-    // Merge mock posts with Firestore posts, prioritizing mock posts (new content)
-    // and removing duplicates based on ID or Slug if possible, but for now just simple concatenation
-    // filtering out any Firestore posts that might match the Mock IDs to avoid exact duplicates
+    // Merge mock posts with Firestore posts
     const displayPosts = [
         ...MOCK_BLOG_POSTS,
         ...blogPosts.filter(bp => !MOCK_BLOG_POSTS.some(mp => mp.id === bp.id || mp.slug === bp.slug))
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-12 transition-colors duration-300">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-bel-dark dark:text-white mb-4">{t('Blog')}</h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-400">{t('Recent News & Tips')}</p>
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pt-32 pb-20 relative overflow-hidden">
+            {/* Background Gradients */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                <div className="absolute top-0 left-[-20%] w-[50%] h-[50%] bg-primary/20 rounded-full blur-[120px] mix-blend-screen dark:mix-blend-overlay" />
+                <div className="absolute bottom-0 right-[-20%] w-[50%] h-[50%] bg-bel-yellow/10 rounded-full blur-[120px] mix-blend-screen dark:mix-blend-overlay" />
+            </div>
+
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div className="text-center mb-16">
+                    <h1 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-linear-to-r from-primary to-bel-blue mb-6">
+                        {t('Blog')}
+                    </h1>
+                    <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
+                        {t('Recent News & Tips')}
+                    </p>
                 </div>
 
                 {displayPosts.length > 0 ? (
@@ -45,50 +54,63 @@ const Blog: React.FC = () => {
                             const localizedCategory = categoryTrans !== categoryKey ? categoryTrans : post.category;
 
                             return (
-                                <article key={post.id} className="bg-white dark:bg-slate-800 rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-gray-100 dark:border-slate-700 flex flex-col">
-                                    <div className="h-48 overflow-hidden bg-gray-100 dark:bg-slate-700">
-                                        <img
-                                            src={post.imageUrl}
-                                            alt={localizedTitle}
-                                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                                        />
-                                    </div>
-                                    <div className="p-6 flex-1 flex flex-col">
-                                        <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-3 space-x-4">
-                                            <span className="flex items-center">
-                                                <CalendarDaysIcon className="h-4 w-4 mr-1" />
-                                                {post.date}
-                                            </span>
-                                            <span className="flex items-center">
-                                                <UserIcon className="h-4 w-4 mr-1" />
-                                                {post.author}
-                                            </span>
+                                <Link
+                                    href={`/${language}/blog/${post.id}`}
+                                    key={post.id}
+                                    className="group"
+                                >
+                                    <article className="h-full glass-panel dark:bg-slate-900/40 rounded-3xl overflow-hidden hover:scale-[1.02] transition-all duration-300 border border-white/20 dark:border-white/5 hover:border-primary/50 dark:hover:border-primary/50 shadow-lg hover:shadow-primary/10 flex flex-col">
+                                        <div className="h-56 overflow-hidden relative">
+                                            <div className="absolute inset-0 bg-linear-to-t from-slate-900/60 to-transparent z-10" />
+                                            {post.imageUrl && (
+                                                <Image
+                                                    src={post.imageUrl}
+                                                    alt={localizedTitle}
+                                                    fill
+                                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                />
+                                            )}
+                                            <div className="absolute top-4 left-4 z-20">
+                                                <span className="inline-block bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-primary dark:text-cyber-citron text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+                                                    {localizedCategory}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <span className="inline-block bg-blue-50 dark:bg-blue-900/30 text-bel-blue dark:text-blue-300 text-xs font-bold px-2 py-1 rounded-md mb-3 w-fit">
-                                            {localizedCategory}
-                                        </span>
-                                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2">
-                                            <Link href={`/${language}/blog/${post.id}`} className="hover:text-bel-blue dark:hover:text-blue-400 transition-colors">
+
+                                        <div className="p-8 flex flex-col grow">
+                                            <div className="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 mb-4 space-x-4">
+                                                <span className="flex items-center">
+                                                    <CalendarDaysIcon className="h-4 w-4 mr-1.5 text-primary dark:text-bel-blue" />
+                                                    {post.date}
+                                                </span>
+                                                <span className="flex items-center">
+                                                    <UserIcon className="h-4 w-4 mr-1.5 text-primary dark:text-bel-blue" />
+                                                    {post.author}
+                                                </span>
+                                            </div>
+
+                                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-primary dark:group-hover:text-cyber-citron transition-colors">
                                                 {localizedTitle}
-                                            </Link>
-                                        </h2>
-                                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3 flex-grow">
-                                            {localizedExcerpt}
-                                        </p>
-                                        <Link
-                                            href={`/${language}/blog/${post.id}`}
-                                            className="inline-block text-bel-blue dark:text-blue-400 font-bold hover:underline mt-auto"
-                                        >
-                                            {t('Read More')} &rarr;
-                                        </Link>
-                                    </div>
-                                </article>
+                                            </h2>
+
+                                            <p className="text-gray-600 dark:text-gray-400 text-sm mb-6 line-clamp-3 leading-relaxed grow">
+                                                {localizedExcerpt}
+                                            </p>
+
+                                            <div className="flex items-center text-primary dark:text-cyber-citron font-bold text-sm mt-auto group-hover:translate-x-2 transition-transform duration-300">
+                                                {t('Read More')}
+                                                <span className="ml-2">→</span>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </Link>
                             );
                         })}
                     </div>
                 ) : (
-                    <div className="text-center py-20 text-gray-500">
-                        {t('No articles found.')}
+                    <div className="glass-panel p-12 rounded-3xl text-center">
+                        <p className="text-gray-500 dark:text-gray-400 text-lg">{t('No articles found.')}</p>
                     </div>
                 )}
             </div>

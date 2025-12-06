@@ -5,12 +5,19 @@ import React from 'react';
 export interface Shop {
     id: number | string;
     name: string;
+    slugs: { [lang: string]: string };
     address: string;
+    city?: string;
+    zip?: string;
     phone: string;
-    hours: string;
+    email: string;
+    openingHours: string[];
     coords: { lat: number; lng: number };
     status: 'open' | 'coming_soon';
-    gmbUrl?: string;
+    googleMapUrl?: string;
+    description?: string;
+    photos?: string[];
+    services?: string[];
 }
 
 export interface Product {

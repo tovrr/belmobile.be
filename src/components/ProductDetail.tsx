@@ -1,17 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useData } from '../hooks/useData';
 import { useShop } from '../hooks/useShop';
 import { useLanguage } from '../hooks/useLanguage';
+import dynamic from 'next/dynamic';
 import { ArrowLeftIcon, CheckCircleIcon, ShieldCheckIcon, TruckIcon } from '@heroicons/react/24/outline';
-import ReservationModal from '../components/ReservationModal';
+const ReservationModal = dynamic(() => import('../components/ReservationModal'), { ssr: false });
 import SchemaMarkup from '../components/SchemaMarkup';
 import ConditionGuide from '../components/ConditionGuide';
 import { getLocalizedProduct } from '../utils/localization';
+import { Button } from './ui';
 
-const ProductDetail: React.FC = () => {
+import { Product } from '../types';
+
+interface ProductDetailProps {
+    initialProduct?: Product;
+}
+
+const ProductDetail: React.FC<ProductDetailProps> = ({ initialProduct }) => {
     const params = useParams();
     // params.slug might be string or string[] depending on route. 
     // In [category]/[slug], it is string.
@@ -23,7 +31,7 @@ const ProductDetail: React.FC = () => {
     const { t, language } = useLanguage();
     const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
 
-    const product = products.find(p => p.slug === slug);
+    const product = initialProduct || products.find(p => p.slug === slug);
 
     if (loading) {
         return (
@@ -38,12 +46,12 @@ const ProductDetail: React.FC = () => {
             <div className="min-h-screen pt-24 pb-12 px-4 flex flex-col items-center justify-center text-center">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{t('Product not found')}</h1>
                 <p className="text-gray-600 dark:text-gray-400 mb-8">{t('The product you are looking for does not exist.')}</p>
-                <button
+                <Button
                     onClick={() => router.push(`/${language}/${language === 'fr' ? 'produits' : language === 'nl' ? 'producten' : 'products'}`)}
-                    className="bg-bel-blue text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition"
+                    variant="primary"
                 >
                     {t('Back to Products')}
-                </button>
+                </Button>
             </div>
         );
     }
@@ -51,11 +59,7 @@ const ProductDetail: React.FC = () => {
     const { name: localizedName, description: localizedDescription } = getLocalizedProduct(product, language as 'en' | 'fr' | 'nl');
 
     const handleReserve = () => {
-        if (selectedShop) {
-            setIsReservationModalOpen(true);
-        } else {
-            alert(t('Please select a shop first'));
-        }
+        setIsReservationModalOpen(true);
     };
 
     // Smart Title Construction
@@ -71,6 +75,22 @@ const ProductDetail: React.FC = () => {
 
     const fullTitle = `${showBrand ? product.brand + ' ' : ''}${localizedName}`;
 
+    // Availability Logic
+    const isAvailable = useMemo(() => {
+        if (selectedShop) {
+            return (product.availability?.[selectedShop.id.toString()] || 0) > 0;
+        }
+        // If no shop selected, check if available ANYWHERE
+        return Object.values(product.availability || {}).some(qty => qty > 0);
+    }, [product, selectedShop]);
+
+    const stockText = useMemo(() => {
+        if (!selectedShop) return null;
+        const stock = product.availability?.[selectedShop.id.toString()] || 0;
+        if (stock > 0) return t('In stock at {0} ({1} left)', selectedShop.name, stock);
+        return t('Out of stock at {0}', selectedShop.name);
+    }, [product, selectedShop, t]);
+
     return (
         <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
             <SchemaMarkup
@@ -83,21 +103,30 @@ const ProductDetail: React.FC = () => {
                 ]}
             />
 
-            <button
+            <Button
+                variant="ghost"
                 onClick={() => router.back()}
-                className="flex items-center text-gray-500 hover:text-bel-blue mb-8 transition"
+                className="mb-8 pl-0 hover:pl-2"
+                icon={<ArrowLeftIcon className="h-5 w-5 mr-2" />}
             >
-                <ArrowLeftIcon className="h-5 w-5 mr-2" />
                 {t('Back')}
-            </button>
+            </Button>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                import Image from 'next/image';
+
+                // ... (imports remain the same, just adding Image to existing imports or new line)
+
+                // Inside component:
                 {/* Image Section */}
-                <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-slate-700 flex items-center justify-center h-[500px]">
-                    <img
+                <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-white/10 flex items-center justify-center h-[500px] relative overflow-hidden">
+                    <Image
                         src={product.imageUrl}
                         alt={localizedName}
-                        className="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-500"
+                        fill
+                        className="object-contain p-4 hover:scale-105 transition-transform duration-500"
+                        priority
+                        sizes="(max-width: 768px) 100vw, 50vw"
                     />
                 </div>
 
@@ -135,12 +164,12 @@ const ProductDetail: React.FC = () => {
 
                     {/* Specs Grid */}
                     <div className="grid grid-cols-2 gap-4 mb-8">
-                        <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-700">
+                        <div className="bg-gray-50 dark:bg-surface-dark/50 p-4 rounded-xl border border-gray-100 dark:border-white/10">
                             <span className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('Color')}</span>
                             <span className="font-bold text-gray-900 dark:text-white">{t(product.color || 'N/A')}</span>
                         </div>
                         {product.category !== 'accessories' && (
-                            <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-700">
+                            <div className="bg-gray-50 dark:bg-surface-dark/50 p-4 rounded-xl border border-gray-100 dark:border-white/10">
                                 <span className="block text-sm text-gray-500 dark:text-gray-400 mb-1">{t('Condition')}</span>
                                 <span className="font-bold text-gray-900 dark:text-white">{t(product.condition || 'Good')}</span>
                             </div>
@@ -163,12 +192,19 @@ const ProductDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    <button
+                    <Button
                         onClick={handleReserve}
-                        className="w-full bg-bel-blue text-white text-lg font-bold py-4 rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 dark:shadow-none transform active:scale-95"
+                        disabled={!isAvailable}
+                        variant={isAvailable ? 'primary' : 'secondary'} // Use secondary for disabled look if needed, or rely on disabled prop
+                        className="w-full text-lg py-4 h-auto" // Override height for bigger CTA
                     >
-                        {t('Reserve This Device')}
-                    </button>
+                        {isAvailable ? t('Reserve This Device') : t('Out of Stock')}
+                    </Button>
+                    {stockText && (
+                        <p className={`text-center mt-2 text-sm font-medium ${isAvailable ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                            {stockText}
+                        </p>
+                    )}
                 </div>
             </div>
 
@@ -181,10 +217,10 @@ const ProductDetail: React.FC = () => {
             }
 
             {
-                isReservationModalOpen && selectedShop && (
+                isReservationModalOpen && (
                     <ReservationModal
                         product={product}
-                        shop={selectedShop}
+                        initialShop={selectedShop || null}
                         onClose={() => setIsReservationModalOpen(false)}
                     />
                 )

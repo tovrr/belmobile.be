@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const LOCALES = ['en', 'fr', 'nl'];
-const DEFAULT_LOCALE = 'en';
+import { i18n } from './i18n-config';
+
+const LOCALES = i18n.locales;
+const DEFAULT_LOCALE = i18n.defaultLocale;
 
 // Path Translations Map (Localized -> Canonical)
 const PATH_TRANSLATIONS: Record<string, Record<string, string>> = {
@@ -57,6 +59,7 @@ export function middleware(request: NextRequest) {
             pathname.startsWith('/_next') ||
             pathname.startsWith('/api') ||
             pathname.startsWith('/admin') || // Exclude admin routes
+            pathname.startsWith('/migrate') || // Exclude migration route
             pathname.includes('.') // files like favicon.ico
         ) {
             return NextResponse.next();

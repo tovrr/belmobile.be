@@ -29,61 +29,76 @@ import {
 
 export const MOCK_SHOPS: Shop[] = [
     {
-        id: 1,
+        id: 'schaerbeek',
         name: 'Belmobile Liedts',
         address: 'Rue Gallait 4, 1030 Schaerbeek',
         phone: '0484/83.75.60',
-        hours: 'Tue-Sat: 10:30 - 19:00\nFri: 10:30-12:30 & 14:30-19:00\nMon, Sun: Closed',
+        email: 'schaerbeek@belmobile.be',
+        openingHours: ['Tue-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Mon, Sun: Closed'],
+        slugs: { fr: 'schaerbeek', nl: 'schaarbeek', en: 'schaerbeek' },
         coords: { lat: 50.867210, lng: 4.369310 },
         status: 'open',
-        gmbUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Liedts+Rue+Gallait+4+1030+Schaerbeek'
+        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Liedts+Rue+Gallait+4+1030+Schaerbeek'
     },
     {
-        id: 2,
+        id: 'anderlecht',
         name: 'Belmobile Bara',
         address: 'Rue Lambert Crickx 12, 1070 Anderlecht',
         phone: '02/275.98.67',
-        hours: 'Mon-Sat: 10:30 - 19:00\nFri: 10:30-12:30 & 14:30-19:00\nSun: Closed',
+        email: 'anderlecht@belmobile.be',
+        openingHours: ['Mon-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Sun: Closed'],
+        slugs: { fr: 'anderlecht', nl: 'anderlecht', en: 'anderlecht' },
         coords: { lat: 50.840820, lng: 4.337250 },
         status: 'open',
-        gmbUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Bara+Rue+Lambert+Crickx+12+1070+Anderlecht'
+        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Bara+Rue+Lambert+Crickx+12+1070+Anderlecht'
     },
     {
-        id: 3,
+        id: 'molenbeek',
         name: 'Belmobile Tour & Taxis',
         address: 'Rue Ulens 88, 1080 Molenbeek-Saint-Jean',
         phone: '02/306.76.56',
-        hours: 'Mon-Sat: 10:30 - 19:00\nFri: 10:30-12:30 & 14:30-19:00\nSun: Closed',
+        email: 'molenbeek@belmobile.be',
+        openingHours: ['Mon-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Sun: Closed'],
+        slugs: { fr: 'molenbeek', nl: 'molenbeek', en: 'molenbeek' },
         coords: { lat: 50.865650, lng: 4.331420 },
         status: 'open',
-        gmbUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis+Rue+Ulens+88+1080+Molenbeek'
+        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis+Rue+Ulens+88+1080+Molenbeek'
     },
     {
         id: 4,
         name: 'Belmobile Antwerpen',
         address: 'Antwerpen Region',
         phone: 'Coming Soon',
-        hours: 'Coming Soon',
+        email: 'antwerpen@belmobile.be',
+        openingHours: ['Coming Soon'],
+        slugs: { fr: 'antwerpen', nl: 'antwerpen', en: 'antwerp' },
         coords: { lat: 51.2194, lng: 4.4025 },
-        status: 'coming_soon'
+        status: 'coming_soon',
+        googleMapUrl: ''
     },
     {
         id: 5,
         name: 'Belmobile Gent',
         address: 'Gent Region',
         phone: 'Coming Soon',
-        hours: 'Coming Soon',
+        email: 'gent@belmobile.be',
+        openingHours: ['Coming Soon'],
+        slugs: { fr: 'gand', nl: 'gent', en: 'ghent' },
         coords: { lat: 51.0543, lng: 3.7174 },
-        status: 'coming_soon'
+        status: 'coming_soon',
+        googleMapUrl: ''
     },
     {
         id: 6,
         name: 'Belmobile Hasselt',
         address: 'Hasselt Region',
         phone: 'Coming Soon',
-        hours: 'Coming Soon',
+        email: 'hasselt@belmobile.be',
+        openingHours: ['Coming Soon'],
+        slugs: { fr: 'hasselt', nl: 'hasselt', en: 'hasselt' },
         coords: { lat: 50.9307, lng: 5.3325 },
-        status: 'coming_soon'
+        status: 'coming_soon',
+        googleMapUrl: ''
     }
 ];
 

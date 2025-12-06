@@ -3,17 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useShop } from '../hooks/useShop';
-import { useData } from '../hooks/useData';
 import { NAV_LINKS } from '../constants';
-import { BuildingStorefrontIcon, Bars3Icon, XMarkIcon, ChevronDownIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../hooks/useLanguage';
 
 const Header: React.FC = () => {
-    const { selectedShop, setSelectedShop } = useShop();
-    const { shops, loading } = useData();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isShopSelectorOpen, setIsShopSelectorOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
     const { language, t } = useLanguage();
@@ -29,25 +24,10 @@ const Header: React.FC = () => {
 
     useEffect(() => {
         setIsMenuOpen(false);
-        setIsShopSelectorOpen(false);
     }, [pathname]);
 
     const toggleMenu = () => {
-        if (!isMenuOpen) setIsShopSelectorOpen(false);
         setIsMenuOpen(!isMenuOpen);
-    };
-
-    const toggleShopSelector = () => {
-        if (!isShopSelectorOpen) setIsMenuOpen(false);
-        setIsShopSelectorOpen(!isShopSelectorOpen);
-    };
-
-    const handleShopSelect = (shopId: number | string) => {
-        const shop = shops.find(s => s.id === shopId);
-        if (shop) {
-            setSelectedShop(shop);
-        }
-        setIsShopSelectorOpen(false);
     };
 
     const handleLanguageChange = (newLang: 'en' | 'fr' | 'nl') => {
@@ -90,8 +70,6 @@ const Header: React.FC = () => {
         const newPath = '/' + segments.join('/');
         router.push(newPath + search);
     };
-
-    const activeShops = shops.filter(s => s.status !== 'coming_soon');
 
     return (
         <>
@@ -173,48 +151,6 @@ const Header: React.FC = () => {
                                         {l}
                                     </button>
                                 ))}
-                            </div>
-
-                            {/* Shop Selector */}
-                            <div className="relative">
-                                <button
-                                    onClick={toggleShopSelector}
-                                    disabled={loading}
-                                    className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 border ${selectedShop
-                                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-gray-200 dark:border-slate-700 hover:border-bel-blue dark:hover:border-blue-400 shadow-sm'
-                                        : 'bg-cyber-citron text-slate-900 border-transparent hover:bg-yellow-400'
-                                        } ${loading ? 'opacity-75 cursor-wait' : ''}`}
-                                >
-                                    <BuildingStorefrontIcon className="h-4 w-4" />
-                                    <span className="hidden sm:inline max-w-[100px] truncate">
-                                        {loading ? t('Loading...') : selectedShop ? selectedShop.name.replace('Belmobile ', '') : t('Select Shop')}
-                                    </span>
-                                    {!loading && <ChevronDownIcon className="h-3 w-3" />}
-                                </button>
-
-                                {isShopSelectorOpen && (
-                                    <div className="absolute right-0 mt-4 w-64 p-2 rounded-2xl shadow-2xl animate-fade-in-up origin-top-right z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-                                        <div className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
-                                            {t('Select a Shop')}
-                                        </div>
-                                        {activeShops.map(shop => (
-                                            <button
-                                                key={shop.id}
-                                                onClick={() => handleShopSelect(shop.id)}
-                                                className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-all mb-1 flex items-center justify-between group ${selectedShop?.id === shop.id
-                                                    ? 'bg-electric-indigo text-white shadow-lg shadow-indigo-500/30'
-                                                    : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
-                                                    }`}
-                                            >
-                                                <div className="flex flex-col">
-                                                    <span className="font-bold">{shop.name}</span>
-                                                    <span className={`text-xs ${selectedShop?.id === shop.id ? 'text-indigo-100' : 'text-slate-400'}`}>{shop.address}</span>
-                                                </div>
-                                                {selectedShop?.id === shop.id && <div className="w-2 h-2 bg-cyber-citron rounded-full animate-pulse"></div>}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
 
                             {/* Mobile Toggle */}

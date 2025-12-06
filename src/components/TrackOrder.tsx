@@ -5,6 +5,8 @@ import { useLanguage } from '../hooks/useLanguage';
 import { MagnifyingGlassIcon, CheckCircleIcon, ClockIcon, WrenchScrewdriverIcon, TruckIcon, CurrencyEuroIcon, ClipboardDocumentCheckIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import Input from './ui/Input';
+import Button from './ui/Button';
 
 const TrackOrder: React.FC = () => {
     const { t } = useLanguage();
@@ -98,44 +100,32 @@ const TrackOrder: React.FC = () => {
 
                 <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xl border border-gray-100 dark:border-slate-800">
                     <form onSubmit={handleCheckStatus} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                                {t('Order ID')}
-                            </label>
-                            <div className="relative">
-                                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                <input
-                                    type="text"
-                                    value={orderId}
-                                    onChange={(e) => setOrderId(e.target.value)}
-                                    placeholder="e.g. 7A2B9C"
-                                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:ring-2 focus:ring-bel-blue outline-none transition-all"
-                                    required
-                                />
-                            </div>
-                        </div>
+                        <Input
+                            label={t('Order ID')}
+                            value={orderId}
+                            onChange={(e) => setOrderId(e.target.value)}
+                            placeholder="e.g. 7A2B9C"
+                            required
+                            leftIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                        />
 
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-                                {t('Email')}
-                            </label>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="name@example.com"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 focus:ring-2 focus:ring-bel-blue outline-none transition-all"
-                                required
-                            />
-                        </div>
+                        <Input
+                            label={t('Email')}
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="name@example.com"
+                            required
+                        />
 
-                        <button
+                        <Button
                             type="submit"
-                            disabled={loading}
-                            className="w-full bg-bel-blue text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 dark:shadow-none disabled:opacity-50"
+                            isLoading={loading}
+                            variant="primary"
+                            className="w-full"
                         >
-                            {loading ? 'Checking...' : t('Check Status')}
-                        </button>
+                            {t('Check Status')}
+                        </Button>
                     </form>
 
                     {error && (

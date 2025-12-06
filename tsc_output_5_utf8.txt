@@ -1,1 +1,0 @@
-﻿src/components/admin/ProductModal.tsx(378,70): error TS7015: Element implicitly has an 'any' type because index expression is not of type 'number'.

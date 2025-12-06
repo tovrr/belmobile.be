@@ -5,6 +5,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useTheme } from '../hooks/useTheme';
 import { PaperAirplaneIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import Input from './ui/Input';
 
 const POPULAR_REPAIRS = [
     { name: 'iPhone 15 Pro Max', brand: 'Apple', model: 'iPhone 15 Pro Max', category: 'smartphone' },
@@ -95,10 +96,10 @@ const Footer: React.FC = () => {
             ></div>
 
             {/* Gradient Overlay for Sleek Look */}
-            <div className="absolute inset-0 z-0 bg-gradient-to-t from-slate-950 via-slate-950/90 to-slate-950/40 pointer-events-none"></div>
+            <div className="absolute inset-0 z-0 bg-linear-to-t from-slate-950 via-slate-950/90 to-slate-950/40 pointer-events-none"></div>
 
             {/* Gradient Top Border */}
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-electric-indigo to-transparent shadow-[0_0_15px_rgba(99,102,241,0.8)] z-10"></div>
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-linear-to-r from-transparent via-electric-indigo to-transparent shadow-[0_0_15px_rgba(99,102,241,0.8)] z-10"></div>
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-12">
@@ -131,20 +132,22 @@ const Footer: React.FC = () => {
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubscribe} className="relative">
-                                    <input
+                                    <Input
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder={t('newsletter_placeholder')}
                                         required
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-electric-indigo focus:border-transparent outline-none transition-all backdrop-blur-sm"
+                                        className="bg-white/5 border-white/10 placeholder-slate-500 text-white backdrop-blur-sm focus:ring-electric-indigo"
+                                        rightElement={
+                                            <button
+                                                type="submit"
+                                                className="p-1.5 bg-electric-indigo rounded-lg text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/30"
+                                            >
+                                                <PaperAirplaneIcon className="h-4 w-4" />
+                                            </button>
+                                        }
                                     />
-                                    <button
-                                        type="submit"
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-electric-indigo rounded-lg text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/30"
-                                    >
-                                        <PaperAirplaneIcon className="h-4 w-4" />
-                                    </button>
                                 </form>
                             )}
                         </div>
@@ -161,7 +164,7 @@ const Footer: React.FC = () => {
 
                     {/* Services Column (Span 2) */}
                     <div className="lg:col-span-2">
-                        <h4 className="font-bold text-white uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('Services')}</h4>
+                        <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('Services')}</h4>
                         <ul className="space-y-4 text-sm text-slate-400">
                             <li><Link href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Repair')}</Link></li>
                             <li><Link href={`/${language}/${language === 'fr' ? 'rachat' : language === 'nl' ? 'inkoop' : 'buyback'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Buyback')}</Link></li>
@@ -174,7 +177,7 @@ const Footer: React.FC = () => {
 
                     {/* Support Column (Span 3) */}
                     <div className="lg:col-span-3">
-                        <h4 className="font-bold text-white uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('Support')}</h4>
+                        <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('Support')}</h4>
                         <ul className="space-y-4 text-sm text-slate-400">
                             <li><Link href={`/${language}/contact`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Contact Us')}</Link></li>
                             <li><Link href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Store Locator')}</Link></li>
@@ -186,7 +189,7 @@ const Footer: React.FC = () => {
 
                     {/* Legal Column (Span 3) */}
                     <div className="lg:col-span-3">
-                        <h4 className="font-bold text-white uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('Legal')}</h4>
+                        <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('Legal')}</h4>
                         <ul className="space-y-4 text-sm text-slate-400">
                             <li><Link href={`/${language}/terms`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Terms of Service')}</Link></li>
                             <li><Link href={`/${language}/privacy`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Privacy Policy')}</Link></li>
@@ -197,7 +200,7 @@ const Footer: React.FC = () => {
                 </div>
 
                 {/* Popular Repairs (Integrated with Spacing) */}
-                <div className="border-t border-white/10 pt-8 mb-12">
+                <div className="border-t border-white/10 pt-8 mb-8">
                     <h4 className="text-sm font-bold text-cyber-citron uppercase tracking-widest mb-6 text-center md:text-left">
                         {t('Popular Repairs')}
                     </h4>
@@ -212,6 +215,43 @@ const Footer: React.FC = () => {
                                 {t('Repair')} {item.name}
                             </Link>
                         ))}
+                    </div>
+                </div>
+
+                {/* Locations */}
+                <div className="border-t border-white/10 pt-8 mb-12">
+                    <h4 className="text-sm font-bold text-cyber-citron uppercase tracking-widest mb-6 text-center md:text-left">
+                        {language === 'fr' ? 'Nos Magasins' : language === 'nl' ? 'Onze Winkels' : 'Our Stores'}
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <Link
+                            href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/schaerbeek`}
+                            className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
+                            Schaerbeek
+                        </Link>
+                        <Link
+                            href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/molenbeek`}
+                            className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
+                            Molenbeek
+                        </Link>
+                        <Link
+                            href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/anderlecht`}
+                            className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
+                            Anderlecht
+                        </Link>
+                        <Link
+                            href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}/smartphone/${language === 'fr' ? 'bruxelles' : language === 'nl' ? 'brussel' : 'brussels'}`}
+                            className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
+                            {language === 'fr' ? 'Bruxelles (Hub)' : language === 'nl' ? 'Brussel (Hub)' : 'Brussels (Hub)'}
+                        </Link>
                     </div>
                 </div>
 

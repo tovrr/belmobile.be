@@ -70,7 +70,7 @@ export const seedRepairPricing = async () => {
     const batch = writeBatch(db);
 
     MOCK_REPAIR_PRICES.forEach(price => {
-        const docRef = doc(collection(db, 'repair_pricing'), price.id);
+        const docRef = doc(collection(db, 'repair_prices'), price.id);
         batch.set(docRef, price);
     });
 

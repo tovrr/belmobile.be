@@ -14,13 +14,28 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
     const { updateQuoteStatus, shops } = useData();
     const shopName = shops.find(s => s.id === quote.shopId)?.name || 'Unknown Shop';
 
+
+
+    const [currentStatus, setCurrentStatus] = React.useState(quote.status);
+    const [isUpdating, setIsUpdating] = React.useState(false);
+
+    // Sync state if prop changes externally (though selectedQuote in parent is likely static)
+    React.useEffect(() => {
+        setCurrentStatus(quote.status);
+    }, [quote.status]);
+
     const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newStatus = e.target.value as 'new' | 'processing' | 'responded' | 'closed';
+        setCurrentStatus(newStatus); // Update UI immediately
+        setIsUpdating(true);
         try {
             await updateQuoteStatus(quote.id, newStatus);
         } catch (error) {
             console.error("Failed to update status:", error);
             alert("Failed to update status");
+            setCurrentStatus(quote.status); // Revert on error
+        } finally {
+            setIsUpdating(false);
         }
     };
 
@@ -117,13 +132,17 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
                     )}
 
                     <div className="pt-4">
-                        <label htmlFor="status" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Update Status</label>
+                        <label htmlFor="status" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                            Update Status
+                            {isUpdating && <span className="ml-2 text-xs text-bel-blue animate-pulse">Updating...</span>}
+                        </label>
                         <select
                             id="status"
                             name="status"
-                            value={quote.status}
+                            value={currentStatus}
                             onChange={handleStatusChange}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition"
+                            disabled={isUpdating}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition disabled:opacity-50"
                         >
                             <option value="new">New</option>
                             <option value="processing">Processing</option>

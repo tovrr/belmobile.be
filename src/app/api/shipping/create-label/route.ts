@@ -28,19 +28,23 @@ export async function POST(request: Request) {
             email: customer.email,
             telephone: customer.phone,
             request_label: true,
-            shipment: {
-                id: 8 // Default to bpost (need to verify ID, usually 8 or similar for bpost in BE)
-            }
+            // shipment: {
+            //     id: 8 // User suggested rules might be in play. Letting SendCloud decide.
+            // }
         };
 
         // If service point is selected, add it
         if (servicePoint) {
-            parcelData.to_service_point = servicePoint.id;
-            // When sending to a service point, the address fields should technically be the service point's?
-            // SendCloud usually handles this via 'to_service_point' ID.
-            // But we might need to ensure the 'address' fields are still provided (maybe customer's or service point's).
-            // Usually for service point delivery, you provide the customer's info + service point ID.
+            // Ensure ID is an integer
+            const spId = parseInt(servicePoint.id);
+            if (!isNaN(spId)) {
+                parcelData.to_service_point = spId;
+            } else {
+                console.warn('Invalid Service Point ID (not a number):', servicePoint.id);
+            }
         }
+
+        console.log('Sending Parcel Data to SendCloud:', JSON.stringify(parcelData, null, 2));
 
         const response = await fetch('https://panel.sendcloud.sc/api/v2/parcels', {
             method: 'POST',
@@ -53,11 +57,12 @@ export async function POST(request: Request) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            console.error('SendCloud API Error:', errorData);
+            console.error('SendCloud API Error Full:', JSON.stringify(errorData, null, 2));
             return NextResponse.json({ error: 'Failed to create label', details: errorData }, { status: response.status });
         }
 
         const data = await response.json();
+        console.log('SendCloud Success Response:', JSON.stringify(data, null, 2));
         const parcel = data.parcel;
 
         return NextResponse.json({

@@ -5,6 +5,9 @@ import { useLanguage } from '../hooks/useLanguage';
 import { useData } from '../hooks/useData';
 import { FranchiseApplication } from '../types';
 import { CheckCircleIcon, BuildingStorefrontIcon, UserGroupIcon, TruckIcon, ChartBarIcon, ArrowRightIcon, BanknotesIcon, BoltIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import Input from './ui/Input';
+import Textarea from './ui/Textarea';
+import Button from './ui/Button';
 
 const InfoCard: React.FC<{ icon: React.ElementType, title: string, description: string }> = ({ icon: Icon, title, description }) => (
     <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-md flex flex-col items-center text-center border border-gray-100 dark:border-slate-700 transition-all hover:shadow-xl hover:-translate-y-1 duration-300 h-full">
@@ -72,7 +75,7 @@ const Franchise: React.FC = () => {
             <div className="relative bg-slate-900 overflow-hidden">
                 <div className="absolute inset-0">
                     <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1600&auto=format&fit=crop" className="w-full h-full object-cover opacity-10" alt="Mobile Shop Business" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 to-slate-900"></div>
+                    <div className="absolute inset-0 bg-linear-to-b from-slate-900/90 to-slate-900"></div>
                 </div>
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32 text-center relative z-10">
                     <div className="inline-flex items-center px-4 py-2 rounded-full bg-bel-blue/20 border border-blue-500/30 text-blue-300 text-xs font-bold tracking-widest uppercase mb-8 backdrop-blur-md animate-fade-in-up">
@@ -162,7 +165,7 @@ const Franchise: React.FC = () => {
                             <ul className="space-y-4">
                                 {['req_investment', 'req_passion', 'req_experience', 'req_commitment'].map(key => (
                                     <li key={key} className="flex items-start p-3 bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700">
-                                        <div className="bg-green-100 dark:bg-green-900/30 rounded-full p-1 mr-3 mt-0.5 flex-shrink-0">
+                                        <div className="bg-green-100 dark:bg-green-900/30 rounded-full p-1 mr-3 mt-0.5 shrink-0">
                                             <CheckCircleIcon className="h-4 w-4 text-green-600 dark:text-green-400" />
                                         </div>
                                         <span className="text-gray-700 dark:text-gray-300 font-medium">{t(key)}</span>
@@ -199,7 +202,7 @@ const Franchise: React.FC = () => {
 
                     <div className="bg-white dark:bg-slate-800 p-8 sm:p-12 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-slate-700 relative overflow-hidden">
                         {/* Decorative gradient blob */}
-                        <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-bel-blue via-electric-indigo to-cyber-citron"></div>
+                        <div className="absolute top-0 right-0 w-full h-2 bg-linear-to-r from-bel-blue via-electric-indigo to-cyber-citron"></div>
 
                         {submitted ? (
                             <div className="text-center py-16">
@@ -212,27 +215,44 @@ const Franchise: React.FC = () => {
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-8">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div>
-                                        <label htmlFor="name" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">{t('Full Name')}</label>
-                                        <input type="text" name="name" id="name" required autoComplete="name" className="w-full px-5 py-4 border border-gray-200 dark:border-slate-600 rounded-2xl focus:ring-2 focus:ring-electric-indigo outline-none transition-all bg-gray-50 dark:bg-slate-700 dark:text-white focus:bg-white" placeholder="John Doe" />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="email" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">{t('Email')}</label>
-                                        <input type="email" name="email" id="email" required autoComplete="email" className="w-full px-5 py-4 border border-gray-200 dark:border-slate-600 rounded-2xl focus:ring-2 focus:ring-electric-indigo outline-none transition-all bg-gray-50 dark:bg-slate-700 dark:text-white focus:bg-white" placeholder="john@example.com" />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="phone" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">{t('Phone Number')}</label>
-                                        <input type="tel" name="phone" id="phone" required autoComplete="tel" className="w-full px-5 py-4 border border-gray-200 dark:border-slate-600 rounded-2xl focus:ring-2 focus:ring-electric-indigo outline-none transition-all bg-gray-50 dark:bg-slate-700 dark:text-white focus:bg-white" placeholder="+32 400 00 00 00" />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="location" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">{t('Location Preference')}</label>
-                                        <input type="text" name="location" id="location" placeholder="e.g., Antwerp, Ghent" required className="w-full px-5 py-4 border border-gray-200 dark:border-slate-600 rounded-2xl focus:ring-2 focus:ring-electric-indigo outline-none transition-all bg-gray-50 dark:bg-slate-700 dark:text-white focus:bg-white" />
-                                    </div>
+                                    <Input
+                                        label={t('Full Name')}
+                                        name="name"
+                                        id="name"
+                                        required
+                                        autoComplete="name"
+                                        placeholder="John Doe"
+                                    />
+                                    <Input
+                                        label={t('Email')}
+                                        name="email"
+                                        id="email"
+                                        type="email"
+                                        required
+                                        autoComplete="email"
+                                        placeholder="john@example.com"
+                                    />
+                                    <Input
+                                        label={t('Phone Number')}
+                                        name="phone"
+                                        id="phone"
+                                        type="tel"
+                                        required
+                                        autoComplete="tel"
+                                        placeholder="+32 400 00 00 00"
+                                    />
+                                    <Input
+                                        label={t('Location Preference')}
+                                        name="location"
+                                        id="location"
+                                        required
+                                        placeholder="e.g., Antwerp, Ghent"
+                                    />
                                 </div>
                                 <div>
-                                    <label htmlFor="investment" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">{t('Investment Capacity')}</label>
+                                    <label htmlFor="investment" className="block text-sm font-bold text-gray-700 dark:text-gray-300 ml-1 mb-2">{t('Investment Capacity')}</label>
                                     <div className="relative">
-                                        <select id="investment" name="investment" required className="w-full px-5 py-4 border border-gray-200 dark:border-slate-600 rounded-2xl focus:ring-2 focus:ring-electric-indigo outline-none transition-all bg-gray-50 dark:bg-slate-700 dark:text-white focus:bg-white appearance-none cursor-pointer">
+                                        <select id="investment" name="investment" required className="w-full px-4 py-3 bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-bel-blue focus:border-transparent transition-all dark:text-white appearance-none cursor-pointer">
                                             <option value="">{t('Select an amount...')}</option>
                                             <option>€50,000 - €100,000</option>
                                             <option>€100,000 - €150,000</option>
@@ -244,14 +264,24 @@ const Franchise: React.FC = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <label htmlFor="background" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">{t('Background & Experience')}</label>
-                                    <textarea name="background" id="background" rows={4} placeholder={t('Tell us briefly about your professional background...')} required className="w-full px-5 py-4 border border-gray-200 dark:border-slate-600 rounded-2xl focus:ring-2 focus:ring-electric-indigo outline-none transition-all bg-gray-50 dark:bg-slate-700 dark:text-white focus:bg-white"></textarea>
+                                    <Textarea
+                                        label={t('Background & Experience')}
+                                        name="background"
+                                        id="background"
+                                        rows={4}
+                                        placeholder={t('Tell us briefly about your professional background...')}
+                                        required
+                                    />
                                 </div>
                                 <div className="pt-6">
-                                    <button type="submit" className="w-full bg-electric-indigo text-white font-bold py-5 px-6 rounded-2xl hover:bg-indigo-700 transition-all duration-300 text-xl shadow-xl shadow-indigo-500/30 transform active:scale-[0.98] flex items-center justify-center group">
+                                    <Button
+                                        type="submit"
+                                        variant="primary"
+                                        className="w-full py-4 text-lg"
+                                        icon={<PaperAirplaneIcon className="h-6 w-6 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />}
+                                    >
                                         {t('Submit Application')}
-                                        <PaperAirplaneIcon className="h-6 w-6 ml-3 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
-                                    </button>
+                                    </Button>
                                     <p className="text-center text-xs text-gray-400 mt-6">{t('By submitting this form, you agree to our privacy policy.')}</p>
                                 </div>
                             </form>

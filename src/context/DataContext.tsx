@@ -57,6 +57,7 @@ interface DataContextType {
     deleteBlogPost: (id: number | string) => void;
     updateRepairPrice: (pricing: RepairPricing) => void;
     loading: boolean;
+    loadingShops: boolean;
 }
 
 export const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -268,7 +269,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             const { id, ...data } = pricing;
             // Use setDoc with merge: true to create or update
-            await setDoc(doc(db, 'repair_pricing', String(id)), {
+            await setDoc(doc(db, 'repair_prices', String(id)), {
                 ...data,
                 updatedAt: new Date().toISOString()
             }, { merge: true });
@@ -305,7 +306,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         deleteBlogPost,
         repairPrices,
         updateRepairPrice,
-        loading
+        loading,
+        loadingShops: shopsLoading
     };
 
     return (

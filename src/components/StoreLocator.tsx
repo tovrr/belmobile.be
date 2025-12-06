@@ -19,7 +19,21 @@ const Map = dynamic(() => import('../components/Map'), {
 });
 
 // Helper to check if shop is open based on Brussels Time
-const isShopOpen = (hoursString: string): boolean => {
+const isShopOpen = (hoursInput: any): boolean => {
+    // Safety check: return false if hoursInput is undefined or empty
+    if (!hoursInput) return false;
+
+    let hoursString = '';
+    if (Array.isArray(hoursInput)) {
+        hoursString = hoursInput.join('\n');
+    } else if (typeof hoursInput === 'string') {
+        hoursString = hoursInput;
+    } else {
+        return false;
+    }
+
+    if (hoursString.trim().length === 0) return false;
+
     if (hoursString.includes('Coming Soon') || (hoursString.includes('Closed') && !hoursString.includes(':'))) return false;
 
     // 1. Get Brussels Time using Intl for robustness across browsers/timezones
@@ -42,22 +56,36 @@ const isShopOpen = (hoursString: string): boolean => {
 
     const currentHour = parseFloat(currentHourStr) + parseFloat(currentMinuteStr) / 60;
 
-    // 2. Check for explicit closing days
+    // 2. Find the line for the current day
     const lines = hoursString.split('\n');
-    const isExplicitlyClosed = lines.some(line => line.includes(currentDay!) && line.toLowerCase().includes('closed'));
+    const todayLine = lines.find(line => line.includes(currentDay));
 
-    if (isExplicitlyClosed) return false;
+    if (!todayLine) return false; // No info for today -> assume closed
 
-    // 3. Friday Specific Logic (Prayer Break: 12:30 - 14:30)
-    if (currentDay === 'Fri') {
-        const isMorningShift = currentHour >= 10.5 && currentHour < 12.5;
-        const isAfternoonShift = currentHour >= 14.5 && currentHour < 19; // Until 19:00
-        return isMorningShift || isAfternoonShift;
-    }
+    if (todayLine.toLowerCase().includes('closed')) return false;
 
-    // 4. Standard Hours (10:30 - 19:00)
-    if (currentHour >= 10.5 && currentHour < 19) {
-        return true;
+    // 3. Parse hours from the line (e.g., "Mon: 10:30 - 19:00" or "Fri: 10:30 - 12:30, 14:30 - 19:00")
+    // Remove the day part
+    const timePart = todayLine.replace(currentDay + ':', '').trim();
+
+    // Split by comma for multiple ranges
+    const ranges = timePart.split(',');
+
+    for (const range of ranges) {
+        const [startStr, endStr] = range.split('-').map(s => s.trim());
+        if (!startStr || !endStr) continue;
+
+        const parseTime = (timeStr: string) => {
+            const [h, m] = timeStr.split(':').map(parseFloat);
+            return h + m / 60;
+        };
+
+        const start = parseTime(startStr);
+        const end = parseTime(endStr);
+
+        if (currentHour >= start && currentHour < end) {
+            return true;
+        }
     }
 
     return false;
@@ -80,8 +108,15 @@ const translateHours = (hours: string, t: (key: string) => string): string => {
     return translated;
 };
 
-const StoreLocator: React.FC = () => {
-    const { shops, loading } = useData();
+interface StoreLocatorProps {
+    shops?: any[];
+    className?: string;
+    zoom?: number;
+}
+
+const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className, zoom }) => {
+    const { shops: contextShops, loadingShops } = useData();
+    const shops = propShops || contextShops;
     const { t, language } = useLanguage();
     const [selectedShopId, setSelectedShopId] = useState<number | string | null>(null);
     const [filter, setFilter] = useState<'all' | 'open'>('all');
@@ -98,7 +133,7 @@ const StoreLocator: React.FC = () => {
     // Filter logic
     const filteredShops = useMemo(() => {
         if (filter === 'open') {
-            return shops.filter(s => s.status === 'open' && isShopOpen(s.hours));
+            return shops.filter(s => s.status === 'open' && isShopOpen(s.openingHours || (s as any).hours));
         }
         return shops;
     }, [shops, filter]);
@@ -124,7 +159,7 @@ const StoreLocator: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col-reverse lg:flex-row h-[calc(100vh-64px)] bg-gray-50 dark:bg-deep-space overflow-hidden">
+        <div className={`flex flex-col-reverse lg:flex-row bg-gray-50 dark:bg-deep-space overflow-hidden ${className || 'h-[calc(100vh-64px)]'}`}>
             <SchemaMarkup type="organization" shops={shops} />
 
             {/* LEFT SIDE: LIST */}
@@ -166,7 +201,7 @@ const StoreLocator: React.FC = () => {
 
                 {/* Scrollable List */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
-                    {loading ? (
+                    {loadingShops ? (
                         <div className="flex flex-col items-center justify-center h-full text-center p-8">
                             <div className="w-8 h-8 border-2 border-bel-blue border-t-transparent rounded-full animate-spin mb-4"></div>
                             <p className="text-gray-500 dark:text-gray-400 font-medium">{t('Loading stores...')}</p>
@@ -183,7 +218,7 @@ const StoreLocator: React.FC = () => {
                         </div>
                     ) : (
                         filteredShops.map(shop => {
-                            const isOpen = shop.status === 'open' ? isShopOpen(shop.hours) : false;
+                            const isOpen = shop.status === 'open' ? isShopOpen(shop.openingHours || (shop as any).hours) : false;
                             const isSelected = selectedShopId === shop.id;
                             const isComingSoon = shop.status === 'coming_soon';
                             const isHoursExpanded = expandedHoursId === shop.id;
@@ -212,13 +247,13 @@ const StoreLocator: React.FC = () => {
                                             </h3>
 
                                             {/* Status Badge */}
-                                            <div className="flex items-center mt-1 mb-3">
+                                            <div className="flex flex-col mt-1 mb-3">
                                                 {isComingSoon ? (
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500 self-start">
                                                         {t('Coming Soon')}
                                                     </span>
                                                 ) : (
-                                                    <span className={`inline-flex items-center text-xs font-bold ${isOpen ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
+                                                    <span className={`inline-flex items-center text-xs font-bold ${isOpen ? 'text-green-600 dark:text-green-400' : 'text-red-500'} self-start`}>
                                                         <span className={`w-2 h-2 rounded-full mr-2 ${isOpen ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
                                                         {isOpen ? t('Open Now') : t('Closed')}
                                                     </span>
@@ -252,15 +287,15 @@ const StoreLocator: React.FC = () => {
                                         <>
                                             <div className="space-y-2 mb-5">
                                                 <p className="text-sm text-gray-600 dark:text-gray-300 flex items-start">
-                                                    <MapPinIcon className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5 text-gray-400" />
+                                                    <MapPinIcon className="h-4 w-4 mr-2 shrink-0 mt-0.5 text-gray-400" />
                                                     {shop.address}
                                                 </p>
                                                 <p className="text-sm text-gray-600 dark:text-gray-300 flex items-center">
-                                                    <PhoneIcon className="h-4 w-4 mr-2 flex-shrink-0 text-gray-400" />
+                                                    <PhoneIcon className="h-4 w-4 mr-2 shrink-0 text-gray-400" />
                                                     {shop.phone}
                                                 </p>
                                                 <div className="text-sm text-gray-600 dark:text-gray-300 flex items-start">
-                                                    <ClockIcon className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5 text-gray-400" />
+                                                    <ClockIcon className="h-4 w-4 mr-2 shrink-0 mt-0.5 text-gray-400" />
                                                     <div className="flex-1">
                                                         <div
                                                             className="flex justify-between items-start group/hours cursor-pointer"
@@ -269,10 +304,21 @@ const StoreLocator: React.FC = () => {
                                                             <span className="whitespace-pre-line">
                                                                 <span className="font-medium text-gray-700 dark:text-gray-200 mr-1">{t('Today')}:</span>
                                                                 {(() => {
-                                                                    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                                                                    const today = days[new Date().getDay()];
-                                                                    const lines = shop.hours.split('\n');
-                                                                    const todayLine = lines.find(line => line.startsWith(today));
+                                                                    const today = new Intl.DateTimeFormat('en-US', {
+                                                                        timeZone: 'Europe/Brussels',
+                                                                        weekday: 'short'
+                                                                    }).format(new Date());
+
+                                                                    let lines: string[] = [];
+                                                                    if (shop.openingHours && Array.isArray(shop.openingHours)) {
+                                                                        lines = shop.openingHours;
+                                                                    } else if ((shop as any).hours) {
+                                                                        lines = (shop as any).hours.split('\n');
+                                                                    }
+
+                                                                    if (lines.length === 0) return t('Hours not available');
+
+                                                                    const todayLine = lines.find(line => line.includes(today));
                                                                     const hoursOnly = todayLine ? todayLine.replace(today + ':', '').trim() : lines[0];
                                                                     return translateHours(hoursOnly, t);
                                                                 })()}
@@ -284,11 +330,27 @@ const StoreLocator: React.FC = () => {
 
                                                         {isHoursExpanded && (
                                                             <div className="mt-2 pt-2 border-t border-gray-200 dark:border-slate-700 text-xs animate-fade-in-up">
-                                                                {shop.hours.split('\n').map((line, i) => (
-                                                                    <div key={i} className={`py-0.5 ${line.includes(new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(new Date())) ? 'font-bold text-bel-blue dark:text-blue-400' : 'text-gray-600 dark:text-gray-300'}`}>
-                                                                        {translateHours(line, t)}
-                                                                    </div>
-                                                                ))}
+                                                                {(() => {
+                                                                    let lines: string[] = [];
+                                                                    if (shop.openingHours && Array.isArray(shop.openingHours)) {
+                                                                        lines = shop.openingHours;
+                                                                    } else if ((shop as any).hours) {
+                                                                        lines = (shop as any).hours.split('\n');
+                                                                    }
+
+                                                                    return lines.map((line, i) => {
+                                                                        const brusselsDay = new Intl.DateTimeFormat('en-US', {
+                                                                            timeZone: 'Europe/Brussels',
+                                                                            weekday: 'short'
+                                                                        }).format(new Date());
+
+                                                                        return (
+                                                                            <div key={i} className={`py-0.5 ${line.includes(brusselsDay) ? 'font-bold text-bel-blue dark:text-blue-400' : 'text-gray-600 dark:text-gray-300'}`}>
+                                                                                {translateHours(line, t)}
+                                                                            </div>
+                                                                        );
+                                                                    });
+                                                                })()}
                                                             </div>
                                                         )}
                                                     </div>

@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import ProductCard from '../components/ProductCard';
 import { useData } from '../hooks/useData';
+import { useShop } from '../hooks/useShop';
 import { useLanguage } from '../hooks/useLanguage';
 import { MagnifyingGlassIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline';
 import { useParams } from 'next/navigation';
@@ -10,8 +11,9 @@ import { useParams } from 'next/navigation';
 
 
 const Products: React.FC = () => {
-    const { products } = useData();
+    const { products, shops } = useData();
     const { t } = useLanguage();
+    const { selectedShop, setSelectedShop } = useShop();
     const [searchTerm, setSearchTerm] = useState('');
     const categories = ['cat_all', 'cat_smartphone', 'cat_tablet', 'cat_computer', 'cat_console', 'cat_smartwatch', 'cat_accessories'];
     const [selectedCategory, setSelectedCategory] = useState('cat_all');
@@ -23,6 +25,9 @@ const Products: React.FC = () => {
     const deviceName = slug && slug.length > 0
         ? `${slug[0].charAt(0).toUpperCase() + slug[0].slice(1)} ${slug.slice(1).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}`
         : 'Smartphone';
+
+    // Active shops (open only)
+    const activeShops = shops.filter(s => s.status === 'open');
 
     const filteredProducts = useMemo(() => {
         let result = products.filter(product => {
@@ -45,7 +50,14 @@ const Products: React.FC = () => {
             const matchesCategory = selectedCategory === 'cat_all' ||
                 (product.category && product.category === targetCategory);
 
-            return matchesSearch && matchesCategory;
+            // Shop Availability Filter
+            let matchesShop = true;
+            if (selectedShop) {
+                const stock = product.availability?.[selectedShop.id.toString()] || 0;
+                matchesShop = stock > 0;
+            }
+
+            return matchesSearch && matchesCategory && matchesShop;
         });
 
         if (sortOption === 'priceAsc') {
@@ -55,7 +67,7 @@ const Products: React.FC = () => {
         }
 
         return result;
-    }, [products, searchTerm, selectedCategory, sortOption]);
+    }, [products, searchTerm, selectedCategory, sortOption, selectedShop]);
 
     const productSchema = products.map(product => ({
         "@context": "https://schema.org",
@@ -72,9 +84,9 @@ const Products: React.FC = () => {
     }));
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-deep-space pb-20 transition-colors duration-300">
+        <div className="min-h-screen bg-transparent pb-20 transition-colors duration-300">
             {/* Header & Controls */}
-            <div className="bg-white dark:bg-deep-space/95 backdrop-blur-sm shadow-sm border-b border-gray-100 dark:border-white/5 sticky top-0 z-30">
+            <div className="bg-slate-900/60 backdrop-blur-xl shadow-lg border-b border-white/10 sticky top-0 z-30">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex flex-col gap-6">
                         <div className="flex justify-between items-center">
@@ -84,6 +96,32 @@ const Products: React.FC = () => {
 
                         {/* Mobile: Search & Categories Stack */}
                         <div className="flex flex-col gap-4">
+
+                            {/* Shop Selector Tabs */}
+                            <div className="flex overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar space-x-2">
+                                <button
+                                    onClick={() => setSelectedShop(null)}
+                                    className={`whitespace-nowrap px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 shrink-0 border ${!selectedShop
+                                        ? 'bg-bel-blue text-white border-bel-blue shadow-md'
+                                        : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-700 hover:border-bel-blue'
+                                        }`}
+                                >
+                                    {t('All Shops')}
+                                </button>
+                                {activeShops.map(shop => (
+                                    <button
+                                        key={shop.id}
+                                        onClick={() => setSelectedShop(shop)}
+                                        className={`whitespace-nowrap px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 shrink-0 border ${selectedShop?.id === shop.id
+                                            ? 'bg-bel-blue text-white border-bel-blue shadow-md'
+                                            : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-700 hover:border-bel-blue'
+                                            }`}
+                                    >
+                                        {shop.name}
+                                    </button>
+                                ))}
+                            </div>
+
                             {/* Search & Sort Row */}
                             <div className="flex gap-3">
                                 <div className="relative grow">
@@ -92,7 +130,7 @@ const Products: React.FC = () => {
                                     </div>
                                     <input
                                         type="text"
-                                        className="block w-full pl-10 pr-3 py-3 border-none bg-gray-100 dark:bg-slate-800 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-bel-blue focus:bg-white dark:focus:bg-slate-800 transition-all placeholder-gray-500"
+                                        className="block w-full pl-10 pr-3 py-3 border border-white/10 bg-slate-900/50 text-white rounded-xl text-sm focus:ring-2 focus:ring-bel-blue focus:bg-slate-800 transition-all placeholder-gray-400"
                                         placeholder={t('Search...')}
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -102,7 +140,7 @@ const Products: React.FC = () => {
                                     <select
                                         value={sortOption}
                                         onChange={(e) => setSortOption(e.target.value as any)}
-                                        className="appearance-none block w-full pl-3 pr-8 py-3 border-none bg-gray-100 dark:bg-slate-800 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-bel-blue focus:bg-white dark:focus:bg-slate-800 cursor-pointer font-medium text-gray-700"
+                                        className="appearance-none block w-full pl-3 pr-8 py-3 border border-white/10 bg-slate-900/50 text-white rounded-xl text-sm focus:ring-2 focus:ring-bel-blue focus:bg-slate-800 cursor-pointer font-medium"
                                     >
                                         <option value="default">{t('sort_featured')}</option>
                                         <option value="priceAsc">{t('sort_low_high')}</option>
@@ -148,9 +186,9 @@ const Products: React.FC = () => {
                             <MagnifyingGlassIcon className="h-10 w-10 text-gray-300 dark:text-gray-500" />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('No products found')}</h3>
-                        <p className="text-gray-500 dark:text-gray-400 mb-6">{t('Try adjusting your search filters.')}</p>
+                        <p className="text-gray-500 dark:text-gray-400 mb-6">{t('Try adjusting your search filters or shop selection.')}</p>
                         <button
-                            onClick={() => { setSearchTerm(''); setSelectedCategory('cat_all'); }}
+                            onClick={() => { setSearchTerm(''); setSelectedCategory('cat_all'); setSelectedShop(null); }}
                             className="text-bel-blue dark:text-blue-400 font-bold hover:underline"
                         >
                             {t('Clear all filters')}

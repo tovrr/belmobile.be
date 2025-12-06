@@ -87,7 +87,7 @@ export const useRepairPrices = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsub = onSnapshot(collection(db, 'repair_pricing'), (snapshot) => {
+        const unsub = onSnapshot(collection(db, 'repair_prices'), (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as RepairPricing));
             setPrices(data);
             setLoading(false);

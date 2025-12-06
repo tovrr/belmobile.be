@@ -20,7 +20,7 @@ const Home: React.FC = () => {
     };
 
     return (
-        <div className="bg-gray-50 dark:bg-deep-space transition-colors duration-300">
+        <div className="bg-transparent transition-colors duration-300">
             <Hero />
 
             {/* Trust Signals - Glass Strip */}
@@ -30,7 +30,7 @@ const Home: React.FC = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 1, duration: 0.8 }}
-                        className="glass-panel bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20 dark:border-white/5"
+                        className="glass-panel bg-slate-900/60 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/10"
                     >
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-700">
                             {[
@@ -64,7 +64,7 @@ const Home: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 grid-rows-2 gap-6 h-auto md:h-[600px]">
 
                         {/* Box 1: Repair (Large Vertical) */}
-                        <Link href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}`} className="group relative md:row-span-2 bg-white dark:bg-slate-800 rounded-[2rem] p-8 border border-slate-100 dark:border-slate-700 overflow-hidden hover:shadow-2xl transition-all duration-500">
+                        <Link href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}`} className="group relative md:row-span-2 bg-slate-900/60 backdrop-blur-xl rounded-4xl p-8 border border-white/10 overflow-hidden hover:shadow-2xl transition-all duration-500">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] -mr-32 -mt-32 transition-all group-hover:bg-blue-500/20"></div>
                             <div className="relative z-10 h-full flex flex-col">
                                 <div className="bg-blue-100 dark:bg-blue-900/30 w-14 h-14 rounded-2xl flex items-center justify-center text-electric-indigo mb-6">
@@ -84,8 +84,8 @@ const Home: React.FC = () => {
                         </Link>
 
                         {/* Box 2: Buyback (Wide Horizontal) */}
-                        <Link href={`/${language}/${language === 'fr' ? 'rachat' : language === 'nl' ? 'inkoop' : 'buyback'}`} className="group relative md:col-span-2 bg-slate-900 dark:bg-black rounded-[2rem] p-8 border border-slate-800 overflow-hidden hover:shadow-2xl transition-all duration-500">
-                            <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-slate-800 z-0"></div>
+                        <Link href={`/${language}/${language === 'fr' ? 'rachat' : language === 'nl' ? 'inkoop' : 'buyback'}`} className="group relative md:col-span-2 bg-slate-900/60 backdrop-blur-xl rounded-4xl p-8 border border-white/10 overflow-hidden hover:shadow-2xl transition-all duration-500">
+                            <div className="absolute inset-0 bg-linear-to-r from-slate-900 to-slate-800 z-0"></div>
                             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between h-full gap-8">
                                 <div className="flex-1">
                                     <span className="inline-block px-3 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full mb-4 uppercase tracking-wider">{t('Best Price Guaranteed')}</span>
@@ -104,7 +104,7 @@ const Home: React.FC = () => {
                         </Link>
 
                         {/* Box 3: Shop (Small) */}
-                        <Link href={`/${language}/${language === 'fr' ? 'produits' : language === 'nl' ? 'producten' : 'products'}`} className="group relative bg-cyber-citron rounded-[2rem] p-8 overflow-hidden hover:shadow-2xl transition-all duration-500">
+                        <Link href={`/${language}/${language === 'fr' ? 'produits' : language === 'nl' ? 'producten' : 'products'}`} className="group relative bg-cyber-citron rounded-4xl p-8 overflow-hidden hover:shadow-2xl transition-all duration-500">
                             <div className="relative z-10 h-full flex flex-col justify-between">
                                 <div>
                                     <h3 className="text-2xl font-bold text-slate-900 mb-2">{t('Shop Refurbished')}</h3>
@@ -119,7 +119,7 @@ const Home: React.FC = () => {
                         </Link>
 
                         {/* Box 4: Business (Small) */}
-                        <Link href={`/${language}/business`} className="group relative bg-white dark:bg-slate-800 rounded-[2rem] p-8 border border-slate-100 dark:border-slate-700 overflow-hidden hover:shadow-2xl transition-all duration-500">
+                        <Link href={`/${language}/business`} className="group relative bg-slate-900/60 backdrop-blur-xl rounded-4xl p-8 border border-white/10 overflow-hidden hover:shadow-2xl transition-all duration-500">
                             <div className="relative z-10 h-full flex flex-col justify-between">
                                 <div>
                                     <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t('Business')}</h3>

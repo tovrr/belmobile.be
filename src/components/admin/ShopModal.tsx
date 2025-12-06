@@ -22,13 +22,19 @@ const ShopModal: React.FC<ShopModalProps> = ({ onClose, shop }) => {
             name: formData.get('name') as string,
             address: formData.get('address') as string,
             phone: formData.get('phone') as string,
-            hours: formData.get('hours') as string,
+            openingHours: (formData.get('hours') as string).split('\n').map(line => line.trim()).filter(line => line.length > 0),
+            slugs: {
+                fr: formData.get('slug_fr') as string,
+                nl: formData.get('slug_nl') as string,
+                en: formData.get('slug_en') as string,
+            },
             coords: {
                 lat: Number(formData.get('lat')),
                 lng: Number(formData.get('lng')),
             },
             status: 'open', // Default status
-            gmbUrl: formData.get('gmbUrl') as string,
+            googleMapUrl: formData.get('googleMapUrl') as string,
+            email: formData.get('email') as string,
         };
 
         try {
@@ -58,6 +64,23 @@ const ShopModal: React.FC<ShopModalProps> = ({ onClose, shop }) => {
                         <label htmlFor="name" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Shop Name</label>
                         <input type="text" name="name" id="name" defaultValue={shop?.name} required className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" />
                     </div>
+
+                    {/* Slugs Section */}
+                    <div className="grid grid-cols-3 gap-2">
+                        <div>
+                            <label htmlFor="slug_fr" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Slug (FR)</label>
+                            <input type="text" name="slug_fr" id="slug_fr" defaultValue={shop?.slugs?.fr} required className="w-full px-3 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition text-sm" />
+                        </div>
+                        <div>
+                            <label htmlFor="slug_nl" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Slug (NL)</label>
+                            <input type="text" name="slug_nl" id="slug_nl" defaultValue={shop?.slugs?.nl} required className="w-full px-3 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition text-sm" />
+                        </div>
+                        <div>
+                            <label htmlFor="slug_en" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Slug (EN)</label>
+                            <input type="text" name="slug_en" id="slug_en" defaultValue={shop?.slugs?.en} required className="w-full px-3 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition text-sm" />
+                        </div>
+                    </div>
+
                     <div>
                         <label htmlFor="address" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Address</label>
                         <input type="text" name="address" id="address" defaultValue={shop?.address} required className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" />
@@ -67,12 +90,16 @@ const ShopModal: React.FC<ShopModalProps> = ({ onClose, shop }) => {
                         <input type="text" name="phone" id="phone" defaultValue={shop?.phone} required className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" />
                     </div>
                     <div>
-                        <label htmlFor="gmbUrl" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Google My Business URL</label>
-                        <input type="url" name="gmbUrl" id="gmbUrl" defaultValue={shop?.gmbUrl} placeholder="https://maps.app.goo.gl/..." className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" />
+                        <label htmlFor="email" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                        <input type="email" name="email" id="email" defaultValue={shop?.email} required className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" />
+                    </div>
+                    <div>
+                        <label htmlFor="googleMapUrl" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Google My Business URL</label>
+                        <input type="url" name="googleMapUrl" id="googleMapUrl" defaultValue={shop?.googleMapUrl} placeholder="https://maps.app.goo.gl/..." className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" />
                     </div>
                     <div>
                         <label htmlFor="hours" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Hours (One per line)</label>
-                        <textarea name="hours" id="hours" rows={5} defaultValue={shop?.hours} required className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" placeholder="Mon-Fri: 10:00 - 19:00&#10;Sat: 10:00 - 18:00&#10;Sun: Closed" />
+                        <textarea name="hours" id="hours" rows={5} defaultValue={shop?.openingHours?.join('\n')} required className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" placeholder="Mon-Fri: 10:00 - 19:00&#10;Sat: 10:00 - 18:00&#10;Sun: Closed" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
