@@ -113,7 +113,7 @@ const Hero: React.FC = () => {
                         transition={{ duration: 1, delay: 0.4 }}
                         className="relative lg:h-[600px] flex items-center justify-center perspective-1000"
                     >
-                        <div className="relative w-full max-w-md aspect-[4/5] rounded-[3rem] bg-gradient-to-br from-slate-900 to-black p-3 shadow-2xl transform rotate-y-12 hover:rotate-y-0 transition-transform duration-700 ease-out border-4 border-slate-800">
+                        <div className="relative w-full max-w-[320px] aspect-[9/19] rounded-[3rem] bg-gradient-to-br from-slate-900 to-black p-3 shadow-2xl transform rotate-y-12 hover:rotate-y-0 transition-transform duration-700 ease-out border-4 border-slate-800">
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-2xl z-20"></div>
                             <div className="w-full h-full rounded-[2.5rem] overflow-hidden bg-slate-800 relative">
                                 <img
