@@ -49,7 +49,27 @@ interface PageProps {
 
 // Helper to parse route params
 const parseRouteParams = (slug: string[], lang: string) => {
-    const serviceSlug = slug[0];
+    let serviceSlug = slug[0];
+    const storePrefixes = ['magasins', 'winkels', 'stores'];
+    const isStoreRoute = storePrefixes.includes(serviceSlug);
+
+    // If it's a store route (e.g. /fr/magasins/bruxelles), default to 'repair' service context
+    if (isStoreRoute) {
+        // Find the 'repair' service to use as context
+        const repairService = SERVICES.find(s => s.id === 'repair');
+        if (!repairService) return null; // Should never happen
+
+        // Return mostly empty structure but populated service and location parsing
+        // We shift the slug checking: slug[1] becomes the location
+        const locationSlug = slug[1];
+        if (!locationSlug) return null; // /magasins/ without location -> 404 (or handle generic list?)
+
+        const location = findLocation(locationSlug, lang);
+        if (!location) return null;
+
+        return { service: repairService, location, device: null, deviceModel: null, deviceCategory: null, isStoreRoute: true };
+    }
+
     const service = findService(serviceSlug, lang);
 
     if (!service) return null;
