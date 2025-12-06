@@ -1,6 +1,7 @@
 import React, { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import { translations } from '../../../../utils/translations';
 import { SERVICES } from '../../../../data/services';
 import SchemaOrg from '../../../../components/seo/SchemaOrg';
 import Hreflang from '../../../../components/seo/Hreflang';
@@ -77,6 +78,8 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
         return notFound();
     }
 
+    const t = (key: string) => translations[lang as 'en' | 'fr' | 'nl']?.[key] || key;
+
     const hreflangSlugs = {
         fr: shop.slugs?.fr || String(shop.id),
         nl: shop.slugs?.nl || String(shop.id),
@@ -91,6 +94,22 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
     const repairLink = repairService ? `/${lang}/${repairService.slugs[lang as keyof typeof repairService.slugs]}/smartphone/${shop.slugs?.[lang as keyof typeof shop.slugs] || shop.id}` : `/${lang}/reparation`;
     const buybackLink = buybackService ? `/${lang}/${buybackService.slugs[lang as keyof typeof buybackService.slugs]}/smartphone/${shop.slugs?.[lang as keyof typeof shop.slugs] || shop.id}` : `/${lang}/rachat`;
     const productsLink = productsService ? `/${lang}/${productsService.slugs[lang as keyof typeof productsService.slugs]}` : `/${lang}/produits`;
+
+    // Helper to translate opening hours
+    const translateHours = (hours: string[]) => {
+        if (!hours) return [];
+        return hours.map(h => {
+            let translated = h;
+            if (lang === 'fr') {
+                translated = translated.replace('Mon', 'Lun').replace('Tue', 'Mar').replace('Wed', 'Mer').replace('Thu', 'Jeu').replace('Fri', 'Ven').replace('Sat', 'Sam').replace('Sun', 'Dim').replace('Closed', 'Fermé');
+            } else if (lang === 'nl') {
+                translated = translated.replace('Mon', 'Ma').replace('Tue', 'Di').replace('Wed', 'Wo').replace('Thu', 'Do').replace('Fri', 'Vr').replace('Sat', 'Za').replace('Sun', 'Zo').replace('Closed', 'Gesloten');
+            }
+            return translated;
+        });
+    };
+
+    const translatedHours = translateHours(shop.openingHours);
 
     return (
         <div className="min-h-screen bg-transparent pb-12">
@@ -130,7 +149,7 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
                                         ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                                         : 'bg-yellow-100 text-yellow-800'
                                         }`}>
-                                        {shop.status === 'open' ? 'Open Now' : 'Coming Soon'}
+                                        {shop.status === 'open' ? t('Open Now') : t('Coming Soon')}
                                     </span>
                                     <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-2">
                                         {shop.name}
@@ -156,7 +175,7 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                         </svg>
-                                        Call
+                                        {t('Call')}
                                     </a>
                                     <a
                                         href={shop.googleMapUrl || '#'}
@@ -167,34 +186,34 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0121 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7" />
                                         </svg>
-                                        Navigate
+                                        {t('Directions')}
                                     </a>
                                 </div>
 
                                 {/* Services */}
                                 <div className="mb-8">
-                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Services</h2>
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('Services')}</h2>
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <a href={repairLink} className="group p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800 hover:border-blue-300 transition-all">
                                             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center mb-3 text-blue-600 dark:text-blue-300 group-hover:scale-110 transition-transform">
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                             </div>
-                                            <h3 className="font-bold text-gray-900 dark:text-white">Repair</h3>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Screen, battery & more</p>
+                                            <h3 className="font-bold text-gray-900 dark:text-white">{t('Repair')}</h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('expert_repair_short') || t('Expert Repair')}</p>
                                         </a>
                                         <a href={buybackLink} className="group p-4 bg-green-50 dark:bg-green-900/10 rounded-2xl border border-green-100 dark:border-green-800 hover:border-green-300 transition-all">
                                             <div className="w-10 h-10 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center mb-3 text-green-600 dark:text-green-300 group-hover:scale-110 transition-transform">
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                             </div>
-                                            <h3 className="font-bold text-gray-900 dark:text-white">Buyback</h3>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Get cash for devices</p>
+                                            <h3 className="font-bold text-gray-900 dark:text-white">{t('Buyback')}</h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('Device Buyback')}</p>
                                         </a>
                                         <a href={productsLink} className="group p-4 bg-purple-50 dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-800 hover:border-purple-300 transition-all">
                                             <div className="w-10 h-10 bg-purple-100 dark:bg-purple-800 rounded-full flex items-center justify-center mb-3 text-purple-600 dark:text-purple-300 group-hover:scale-110 transition-transform">
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                                             </div>
-                                            <h3 className="font-bold text-gray-900 dark:text-white">Shop</h3>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Refurbished & New</p>
+                                            <h3 className="font-bold text-gray-900 dark:text-white">{t('Shop Refurbished') || t('Shop')}</h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('Premium Devices')}</p>
                                         </a>
                                     </div>
                                 </div>
@@ -206,10 +225,10 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
                                 <div className="bg-slate-800/50 p-6 rounded-3xl border border-white/10">
                                     <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        Opening Hours
+                                        {t('chat_demo_hours') ? t('Opening Hours') || 'Opening Hours' : 'Opening Hours'}
                                     </h3>
                                     <ul className="space-y-3 text-sm">
-                                        {shop.openingHours && shop.openingHours.map((hour, index) => (
+                                        {translatedHours && translatedHours.map((hour, index) => (
                                             <li key={index} className="flex justify-between items-center pb-2 border-b border-gray-200 dark:border-slate-600 last:border-0 last:pb-0">
                                                 <span className="text-gray-600 dark:text-slate-300">{hour}</span>
                                             </li>
@@ -219,7 +238,7 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
 
                                 {/* Contact Info Card */}
                                 <div className="bg-slate-800/50 p-6 rounded-3xl border border-white/10">
-                                    <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">Contact</h3>
+                                    <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4">{t('Contact')}</h3>
                                     <div className="space-y-4">
                                         <a href={`mailto:${shop.email}`} className="flex items-center gap-3 text-gray-600 dark:text-slate-300 hover:text-bel-blue transition-colors">
                                             <div className="w-8 h-8 bg-white dark:bg-slate-600 rounded-full flex items-center justify-center shadow-sm">

@@ -40,11 +40,41 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         };
     }
 
+    const baseUrl = 'https://belmobile.be';
+    const currentPath = `/${lang}`; // Base path for alternates - needs refinement if we want deep linking per lang
+
     return {
         title: `${product.brand ? product.brand + ' ' : ''}${product.name} | Belmobile`,
         description: `Buy ${product.brand} ${product.name} at Belmobile. Certified refurbished with 1 year warranty.`,
         openGraph: {
-            images: [product.imageUrl],
+            title: `${product.brand ? product.brand + ' ' : ''}${product.name}`,
+            description: `Buy ${product.brand} ${product.name} at Belmobile. Certified refurbished with 1 year warranty.`,
+            url: `${baseUrl}/${lang}/buy/${product.category}/${slug}`,
+            siteName: 'Belmobile',
+            images: [
+                {
+                    url: product.imageUrl,
+                    width: 800,
+                    height: 800,
+                    alt: product.name,
+                },
+            ],
+            type: 'website', // Changing to website as 'product' type in OG is often complex, but let's try to add product-specific tags if supported or keep generic
+        },
+        other: {
+            'product:price:amount': product.price.toString(),
+            'product:price:currency': 'EUR',
+            'product:condition': product.condition || 'refurbished',
+            'product:availability': 'instock', // Simplified availability for metadata
+            'product:brand': product.brand || 'Belmobile',
+        },
+        alternates: {
+            canonical: `${baseUrl}/${lang}/buy/${product.category}/${slug}`,
+            languages: {
+                'en': `${baseUrl}/en/buy/${product.category}/${slug}`,
+                'fr': `${baseUrl}/fr/buy/${product.category}/${slug}`,
+                'nl': `${baseUrl}/nl/buy/${product.category}/${slug}`,
+            },
         },
     };
 }

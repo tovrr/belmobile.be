@@ -11,9 +11,10 @@ interface SchemaProps {
     breadcrumbs?: { name: string; item: string }[];
     faqItems?: { question: string; answer: string }[];
     shops?: any[]; // Using any[] to avoid circular dependency with Shop type if not imported, but better to import Shop
+    isAvailable?: boolean;
 }
 
-const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, breadcrumbs, faqItems, shops = MOCK_SHOPS }) => {
+const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, breadcrumbs, faqItems, shops = MOCK_SHOPS, isAvailable = true }) => {
     const { language } = useLanguage();
 
     // 1. Organization Schema (Brand Authority) - Always present on Home
@@ -78,14 +79,14 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
         "description": product.description,
         "brand": {
             "@type": "Brand",
-            "name": product.brand
+            "name": product.brand || "Belmobile"
         },
         "offers": {
             "@type": "Offer",
             "url": `https://belmobile.be/${language}/buy/${product.category}/${product.slug}`,
             "priceCurrency": "EUR",
             "price": product.price,
-            "availability": "https://schema.org/InStock",
+            "availability": isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
             "itemCondition": product.condition === 'perfect' ? "https://schema.org/RefurbishedCondition" : "https://schema.org/UsedCondition"
         }
     } : null;

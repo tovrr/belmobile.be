@@ -48,7 +48,7 @@ export default function VisualSitemap() {
                     <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-white/5">
                         <div className="flex items-center mb-6 text-primary dark:text-cyber-citron">
                             <BuildingStorefrontIcon className="h-6 w-6 mr-3" />
-                            <h2 className="text-xl font-bold">Main Pages</h2>
+                            <h2 className="text-xl font-bold">{t('Main Pages')}</h2>
                         </div>
                         <ul className="space-y-3">
                             {mainLinks.map((link, idx) => (
@@ -79,7 +79,7 @@ export default function VisualSitemap() {
 
                                     {/* Nested Brands for Service */}
                                     <ul className="pl-4 mt-2 space-y-2 border-l-2 border-gray-100 dark:border-white/5">
-                                        {Object.entries(DEVICE_BRANDS).map(([type, brands]) => (
+                                        {Object.values(DEVICE_BRANDS).map((brands) => (
                                             brands.slice(0, 5).map(brand => (
                                                 <li key={`${service.id}-${brand}`}>
                                                     <Link
@@ -102,16 +102,16 @@ export default function VisualSitemap() {
                     <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-white/5">
                         <div className="flex items-center mb-6 text-primary dark:text-cyber-citron">
                             <MapPinIcon className="h-6 w-6 mr-3" />
-                            <h2 className="text-xl font-bold">{t('Locations')}</h2>
+                            <h2 className="text-xl font-bold">{t('Our Stores')}</h2>
                         </div>
                         <ul className="space-y-3">
-                            {LOCATIONS.map((location) => (
+                            {LOCATIONS.filter(l => !l.isHub).map((location) => (
                                 <li key={location.id}>
                                     <Link
                                         href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${location.slugs[language as keyof typeof location.slugs]}`}
                                         className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors block"
                                     >
-                                        {location.name[language as keyof typeof location.name]}
+                                        {location.name}
                                     </Link>
                                 </li>
                             ))}

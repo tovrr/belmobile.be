@@ -60,7 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         <Image
                             className="object-contain p-2 sm:p-6 group-hover:scale-105 transition-transform duration-500"
                             src={product.imageUrl}
-                            alt={localizedName}
+                            alt={language === 'fr' ? product.altText_fr || localizedName : language === 'nl' ? product.altText_nl || localizedName : product.altText || localizedName}
                             fill
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                             onError={() => setImgError(true)}

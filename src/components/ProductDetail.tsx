@@ -7,6 +7,7 @@ import { useShop } from '../hooks/useShop';
 import { useLanguage } from '../hooks/useLanguage';
 import dynamic from 'next/dynamic';
 import { ArrowLeftIcon, CheckCircleIcon, ShieldCheckIcon, TruckIcon } from '@heroicons/react/24/outline';
+import Image from 'next/image';
 const ReservationModal = dynamic(() => import('../components/ReservationModal'), { ssr: false });
 import SchemaMarkup from '../components/SchemaMarkup';
 import ConditionGuide from '../components/ConditionGuide';
@@ -32,6 +33,22 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ initialProduct }) => {
     const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
 
     const product = initialProduct || products.find(p => p.slug === slug);
+
+    const isAvailable = useMemo(() => {
+        if (!product) return false;
+        if (selectedShop) {
+            return (product.availability?.[selectedShop.id.toString()] || 0) > 0;
+        }
+        // If no shop selected, check if available ANYWHERE
+        return Object.values(product.availability || {}).some(qty => qty > 0);
+    }, [product, selectedShop]);
+
+    const stockText = useMemo(() => {
+        if (!product || !selectedShop) return null;
+        const stock = product.availability?.[selectedShop.id.toString()] || 0;
+        if (stock > 0) return t('In stock at {0} ({1} left)', selectedShop.name, stock);
+        return t('Out of stock at {0}', selectedShop.name);
+    }, [product, selectedShop, t]);
 
     if (loading) {
         return (
@@ -70,32 +87,19 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ initialProduct }) => {
     const brandLower = product.brand?.toLowerCase() || '';
 
     const showBrand = !nameLower.includes(brandLower);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const showCapacity = product.capacity && !nameLower.includes(capacityLower);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const showColor = product.color && !nameLower.includes(colorLower);
 
     const fullTitle = `${showBrand ? product.brand + ' ' : ''}${localizedName}`;
-
-    // Availability Logic
-    const isAvailable = useMemo(() => {
-        if (selectedShop) {
-            return (product.availability?.[selectedShop.id.toString()] || 0) > 0;
-        }
-        // If no shop selected, check if available ANYWHERE
-        return Object.values(product.availability || {}).some(qty => qty > 0);
-    }, [product, selectedShop]);
-
-    const stockText = useMemo(() => {
-        if (!selectedShop) return null;
-        const stock = product.availability?.[selectedShop.id.toString()] || 0;
-        if (stock > 0) return t('In stock at {0} ({1} left)', selectedShop.name, stock);
-        return t('Out of stock at {0}', selectedShop.name);
-    }, [product, selectedShop, t]);
 
     return (
         <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
             <SchemaMarkup
                 type="product"
                 product={product}
+                isAvailable={isAvailable}
                 breadcrumbs={[
                     { name: t('Home'), item: `https://belmobile.be/${language}` },
                     { name: t('Products'), item: `https://belmobile.be/${language}/${language === 'fr' ? 'produits' : language === 'nl' ? 'producten' : 'products'}` },
@@ -113,16 +117,11 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ initialProduct }) => {
             </Button>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                import Image from 'next/image';
-
-                // ... (imports remain the same, just adding Image to existing imports or new line)
-
-                // Inside component:
                 {/* Image Section */}
                 <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-lg border border-gray-100 dark:border-white/10 flex items-center justify-center h-[500px] relative overflow-hidden">
                     <Image
-                        src={product.imageUrl}
-                        alt={localizedName}
+                        src={product.imageUrl || '/placeholder.svg'}
+                        alt={language === 'fr' ? product.altText_fr || localizedName : language === 'nl' ? product.altText_nl || localizedName : product.altText || localizedName}
                         fill
                         className="object-contain p-4 hover:scale-105 transition-transform duration-500"
                         priority

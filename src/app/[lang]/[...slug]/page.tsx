@@ -12,6 +12,7 @@ import { Shop } from '../../../types';
 import { DEVICE_TYPES, MOCK_REPAIR_PRICES } from '../../../constants';
 import StoreLocator from '../../../components/StoreLocator';
 import DynamicSEOContent from '../../../components/seo/DynamicSEOContent';
+import { getKeywordsForPage, generateMetaKeywords } from '../../../utils/seo-keywords';
 
 // Helper to find service from slug
 const findService = (slug: string, lang: string) => {
@@ -102,93 +103,9 @@ const parseRouteParams = (slug: string[], lang: string) => {
 };
 
 export async function generateStaticParams() {
-    const languages = ['en', 'fr', 'nl'];
-    const serviceSlugs = SERVICES.flatMap(s => Object.values(s.slugs));
-
-    // Base combinations
-    const locations = LOCATIONS;
-    const deviceTypes = DEVICE_TYPES.map(d => d.id);
-    const brands = Object.values(DEVICE_BRANDS).flat();
-
-    // Extract models from MOCK_REPAIR_PRICES
-    // ID format: 'brand-model-slug' -> we need to reconstruct what createSlug(model) would be.
-    // Actually, MOCK_REPAIR_PRICES ids are like 'apple-iphone-13'.
-    // The route parser expects 'apple' and 'iphone-13' as separate segments if 'apple' is the brand.
-    const models = MOCK_REPAIR_PRICES.map(p => {
-        const parts = p.id.split('-');
-        const brand = parts[0];
-        const modelSlug = parts.slice(1).join('-');
-        return { brand, modelSlug };
-    });
-
-    const params: { lang: string; slug: string[] }[] = [];
-
-    // Helper to add param
-    const add = (lang: string, parts: string[]) => {
-        params.push({ lang, slug: parts });
-    };
-
-    for (const lang of languages) {
-        // Only generate for Repair and Buyback services
-        const targetServices = SERVICES.filter(s => ['repair', 'buyback'].includes(s.id));
-
-        for (const service of targetServices) {
-            const sSlug = service.slugs[lang as keyof typeof service.slugs];
-
-            // 1. Service Home: /repair
-            add(lang, [sSlug]);
-
-            // 2. Service + Location: /repair/brussels
-            for (const loc of locations) {
-                const lSlug = loc.slugs[lang as keyof typeof loc.slugs];
-                add(lang, [sSlug, lSlug]);
-            }
-
-            // 3. Service + Category: /repair/smartphone
-            for (const type of deviceTypes) {
-                // Determine translated category slug if possible, or just use ID if that's what logic expects.
-                // Looking at parseRouteParams: it matches 'segment' against DEVICE_TYPES[i].id.
-                // So we use the ID.
-                add(lang, [sSlug, type]);
-
-                // Service + Category + Location
-                for (const loc of locations) {
-                    const lSlug = loc.slugs[lang as keyof typeof loc.slugs];
-                    add(lang, [sSlug, type, lSlug]);
-                }
-            }
-
-            // 4. Service + Brand: /repair/apple
-            for (const brand of brands) {
-                const bSlug = createSlug(brand);
-                add(lang, [sSlug, bSlug]);
-
-                // Service + Brand + Location
-                for (const loc of locations) {
-                    const lSlug = loc.slugs[lang as keyof typeof loc.slugs];
-                    add(lang, [sSlug, bSlug, lSlug]);
-                }
-            }
-
-            // 5. Service + Model (+ Brand implicit): /repair/apple/iphone-13
-            // logic: findDevice(segment[0]) -> Brand. segment[1] -> Model.
-            for (const { brand, modelSlug } of models) {
-                const bSlug = createSlug(brand); // e.g. 'apple'
-                // modelSlug is already slugified in our map above from MOCK_REPAIR_PRICES id
-
-                // Route: /repair/apple/iphone-13
-                add(lang, [sSlug, bSlug, modelSlug]);
-
-                // Route: /repair/apple/iphone-13/brussels
-                for (const loc of locations) {
-                    const lSlug = loc.slugs[lang as keyof typeof loc.slugs];
-                    add(lang, [sSlug, bSlug, modelSlug, lSlug]);
-                }
-            }
-        }
-    }
-
-    return params;
+    // Return empty array to generate pages on-demand (ISR)
+    // This dramatically speeds up build times and avoids static generation errors
+    return [];
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -197,7 +114,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!routeData) return {};
 
-    const { service, location, device, deviceModel } = routeData;
+    const { service, location, device, deviceModel, deviceCategory } = routeData;
     const isRepair = service.id === 'repair';
 
     // Construct Title
@@ -208,41 +125,116 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const formattedModel = deviceModel ? slugToDisplayName(deviceModel) : '';
     // Capitalize brand name (e.g., "apple" -> "Apple")
     const formattedBrand = device ? device.value.charAt(0).toUpperCase() + device.value.slice(1) : '';
-    const deviceName = device ? `${formattedBrand} ${formattedModel}`.trim() : (isRepair ? 'Smartphone' : 'Device');
+
+    // Construct concise Device Name for Titles (prefer Model only if recognizable, else Brand + Model)
+    // For major brands like Apple/Samsung, Model name usually suffices (iPhone 13, Galaxy S23)
+    // But to be safe and concise: if we have a model, use it. If not, use Brand + 'Device'.
+    let displayDeviceName = formattedModel;
+    if (!displayDeviceName) {
+        displayDeviceName = formattedBrand ? `${formattedBrand} Appareil` : (isRepair ? 'Smartphone' : 'Appareil');
+        if (lang === 'nl') displayDeviceName = formattedBrand ? `${formattedBrand} Toestel` : (isRepair ? 'Smartphone' : 'Toestel');
+        if (lang === 'en') displayDeviceName = formattedBrand ? `${formattedBrand} Device` : (isRepair ? 'Smartphone' : 'Device');
+    } else {
+        // Optimization: If model doesn't start with Brand, we might want to prepend it ONLY if it's generic.
+        // But "iPhone", "Galaxy", "Pixel" are strong enough.
+        // Let's keep it simple: Use the Model Name as the primary identifier.
+        // Example: "iPhone 11" instead of "Apple iPhone 11"
+    }
+
+    // Full name for description (can be longer)
+    const fullDeviceName = device ? `${formattedBrand} ${formattedModel}`.trim() : displayDeviceName;
+
     const locationName = location ? location.name.replace('Belmobile ', '') : '';
+
+    // Construct Title & Description using "Golden Formula" & CSV Insights
+    // Formula: [Service] [Device] [Location] - [Value Prop]
+
+    // Value Props (Rotated or selected based on priority)
+    const valuePropFr = isRepair ? "Prix & RDV 30 min" : "Meilleur Prix & Cash";
+    const valuePropNl = isRepair ? "Prijs & Klaar in 30 min" : "Beste Prijs & Cash";
+    const valuePropEn = isRepair ? "Price & 30 min Service" : "Best Price & Cash";
+
+    // Keywords generation
+    const keywordsList = getKeywordsForPage(lang, service.id, device?.value, deviceModel || undefined, deviceCategory || undefined);
+    const keywords = generateMetaKeywords(keywordsList);
 
     if (lang === 'fr') {
         if (isRepair) {
-            title = `Réparation ${deviceName} ${location ? `à ${locationName}` : ''} | Belmobile`;
-            description = `Faites réparer votre ${deviceName} chez Belmobile${location ? ` à ${locationName}` : ''}. Service rapide en 30 min, garantie 1 an. Écran, batterie et plus.`;
+            title = `Réparation ${displayDeviceName} ${locationName || 'Bruxelles'} - ${valuePropFr}`;
+            description = `Réparation professionnelle de votre ${fullDeviceName} chez Belmobile ${locationName || 'à Bruxelles'}. Remplacement écran/batterie en 30 min. Pièces de qualité & Garantie 1 an.`;
         } else {
-            title = `Rachat ${deviceName} ${location ? `à ${locationName}` : ''} - Meilleur Prix | Belmobile`;
-            description = `Vendez votre ${deviceName} au meilleur prix chez Belmobile${location ? ` à ${locationName}` : ''}. Estimation immédiate et paiement cash.`;
+            title = `Rachat ${displayDeviceName} ${locationName || 'Bruxelles'} - ${valuePropFr}`;
+            description = `Vendez votre ${fullDeviceName} au meilleur prix chez Belmobile ${locationName || 'Bruxelles'}. Estimation immédiate et paiement cash. Recyclage éco-responsable.`;
         }
     } else if (lang === 'nl') {
         if (isRepair) {
-            title = `Reparatie ${deviceName} ${location ? `in ${locationName}` : ''} | Belmobile`;
-            description = `Laat uw ${deviceName} repareren bij Belmobile${location ? ` in ${locationName}` : ''}. Snelle service in 30 min, 1 jaar garantie. Scherm, batterij en meer.`;
+            title = `Reparatie ${displayDeviceName} ${locationName || 'Brussel'} - ${valuePropNl}`;
+            description = `Professionele reparatie van uw ${fullDeviceName} bij Belmobile ${locationName || 'Brussel'}. Scherm/batterij vervangen in 30 min. 1 jaar garantie.`;
         } else {
-            title = `Inkoop ${deviceName} ${location ? `in ${locationName}` : ''} - Beste Prijs | Belmobile`;
-            description = `Verkoop uw ${deviceName} voor de beste prijs bij Belmobile${location ? ` in ${locationName}` : ''}. Directe schatting en contante betaling.`;
+            title = `Inkoop ${displayDeviceName} ${locationName || 'Brussel'} - ${valuePropNl}`;
+            description = `Verkoop uw ${fullDeviceName} voor de beste prijs bij Belmobile ${locationName || 'Brussel'}. Directe schatting en contante betaling.`;
         }
     } else {
         if (isRepair) {
-            title = `${deviceName} Repair ${location ? `in ${locationName}` : ''} | Belmobile`;
-            description = `Get your ${deviceName} repaired at Belmobile${location ? ` in ${locationName}` : ''}. Fast service in 30 min, 1 year warranty. Screen, battery and more.`;
+            title = `${displayDeviceName} Repair ${locationName || 'Brussels'} - ${valuePropEn}`;
+            description = `Professional repair of your ${fullDeviceName} at Belmobile ${locationName || 'Brussels'}. Screen/battery replacement in 30 min. 1 year warranty.`;
         } else {
-            title = `Sell ${deviceName} ${location ? `in ${locationName}` : ''} - Best Price | Belmobile`;
-            description = `Sell your ${deviceName} for the best price at Belmobile${location ? ` in ${locationName}` : ''}. Instant quote and cash payment.`;
+            title = `Sell ${displayDeviceName} ${locationName || 'Brussels'} - ${valuePropEn}`;
+            description = `Sell your ${fullDeviceName} for the best price at Belmobile ${locationName || 'Brussels'}. Instant quote and cash payment. Eco-friendly recycling.`;
         }
     }
+
+    const baseUrl = 'https://belmobile.be';
+    const currentUrl = `${baseUrl}/${lang}/${slug.join('/')}`;
+    const ogImage = device && device.value ? `${baseUrl}/images/brands/${device.value.toLowerCase()}.jpg` : `${baseUrl}/og-image.jpg`; // Fallback to generic
 
     return {
         title,
         description,
+        keywords,
         alternates: {
-            canonical: `https://belmobile.be/${lang}/${slug.join('/')}`
-        }
+            canonical: currentUrl,
+            languages: {
+                // simple construction, could be better
+                'en': `${baseUrl}/en/${slug.join('/')}`,
+                'fr': `${baseUrl}/fr/${slug.join('/')}`,
+                'nl': `${baseUrl}/nl/${slug.join('/')}`,
+            }
+        },
+        openGraph: {
+            title,
+            description,
+            url: currentUrl,
+            siteName: 'Belmobile',
+            locale: lang,
+            type: 'website',
+            images: [
+                {
+                    url: ogImage,
+                    width: 1200,
+                    height: 630,
+                    alt: title,
+                }
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: [ogImage],
+            creator: '@belmobile', // Optional
+        },
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                'max-video-preview': -1,
+                'max-image-preview': 'large',
+                'max-snippet': -1,
+            },
+        },
     };
 }
 

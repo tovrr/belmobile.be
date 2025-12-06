@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy, where, DocumentData } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { Product, Shop, Service, BlogPost, RepairPricing } from '../types';
 
 export const useProducts = () => {
@@ -106,6 +106,10 @@ export const useReservations = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!auth.currentUser) {
+            setLoading(false);
+            return;
+        }
         const q = query(collection(db, 'reservations'), orderBy('date', 'desc'));
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -116,7 +120,7 @@ export const useReservations = () => {
             setLoading(false);
         });
         return () => unsub();
-    }, []);
+    }, [auth.currentUser]);
 
     return { reservations, loading };
 };
@@ -126,6 +130,10 @@ export const useQuotes = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!auth.currentUser) {
+            setLoading(false);
+            return;
+        }
         const q = query(collection(db, 'quotes'), orderBy('date', 'desc'));
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -136,7 +144,7 @@ export const useQuotes = () => {
             setLoading(false);
         });
         return () => unsub();
-    }, []);
+    }, [auth.currentUser]);
 
     return { quotes, loading };
 };
@@ -146,6 +154,10 @@ export const useFranchiseApplications = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!auth.currentUser) {
+            setLoading(false);
+            return;
+        }
         const unsub = onSnapshot(collection(db, 'franchise_applications'), (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setApplications(data);
@@ -155,7 +167,7 @@ export const useFranchiseApplications = () => {
             setLoading(false);
         });
         return () => unsub();
-    }, []);
+    }, [auth.currentUser]);
 
     return { applications, loading };
 };

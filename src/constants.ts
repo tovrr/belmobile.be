@@ -1,29 +1,19 @@
 
 import { Shop, Product, Service, Reservation, Quote, NavLink, AdminStat, ChartData, FranchiseApplication, BlogPost, Review, FAQCategory, RepairPricing } from './types';
 import {
-    ChartBarIcon,
     CubeIcon,
     PhoneIcon,
     DocumentTextIcon,
     BuildingStorefrontIcon,
     WrenchScrewdriverIcon,
-    DevicePhoneMobileIcon,
-    DeviceTabletIcon,
-    ComputerDesktopIcon,
-    TvIcon,
-    ClockIcon,
     Battery50Icon,
     BoltIcon,
     CameraIcon,
-    NoSymbolIcon,
     SpeakerWaveIcon,
-    UserGroupIcon,
     SparklesIcon,
     CpuChipIcon,
     CircleStackIcon,
     CursorArrowRaysIcon,
-    QuestionMarkCircleIcon,
-    NewspaperIcon,
     CloudIcon
 } from '@heroicons/react/24/outline';
 
@@ -220,11 +210,11 @@ export const MOCK_FAQ_CATEGORIES: FAQCategory[] = [
 
 
 export const DEVICE_TYPES = [
-    { id: 'smartphone', label: 'Smartphone', icon: DevicePhoneMobileIcon },
-    { id: 'tablet', label: 'Tablet', icon: DeviceTabletIcon },
-    { id: 'laptop', label: 'Laptop', icon: ComputerDesktopIcon },
-    { id: 'console', label: 'Gaming Console', icon: TvIcon },
-    { id: 'smartwatch', label: 'Smartwatch', icon: ClockIcon },
+    { id: 'smartphone', label: 'Smartphone', icon: '/images/devices/smartphone.svg' },
+    { id: 'tablet', label: 'Tablet', icon: '/images/devices/tablet.svg' },
+    { id: 'laptop', label: 'Laptop', icon: '/images/devices/laptop.svg' },
+    { id: 'console', label: 'Gaming Console', icon: '/images/devices/console.svg' },
+    { id: 'smartwatch', label: 'Smartwatch', icon: '/images/devices/smartwatch.svg' },
 ];
 
 export const REPAIR_ISSUES = [

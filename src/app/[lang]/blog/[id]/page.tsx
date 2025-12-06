@@ -16,20 +16,20 @@ interface PageProps {
 
 // Cached helper to fetch all posts (Firestore + Mock)
 const getAllPosts = cache(async (): Promise<BlogPostType[]> => {
-    try {
-        const snapshot = await getDocs(collection(db, 'blog_posts'));
-        const firestorePosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as BlogPostType));
+    // try {
+    //     const snapshot = await getDocs(collection(db, 'blog_posts'));
+    //     const firestorePosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as BlogPostType));
 
-        // Merge Mock and Firestore posts (deduplicating by ID)
-        const allPosts = [
-            ...MOCK_BLOG_POSTS,
-            ...firestorePosts.filter(fp => !MOCK_BLOG_POSTS.some(mp => mp.id === fp.id))
-        ];
-        return allPosts;
-    } catch (error) {
-        console.error("Error fetching blog posts for SSG:", error);
-        return MOCK_BLOG_POSTS;
-    }
+    //     // Merge Mock and Firestore posts (deduplicating by ID)
+    //     const allPosts = [
+    //         ...MOCK_BLOG_POSTS,
+    //         ...firestorePosts.filter(fp => !MOCK_BLOG_POSTS.some(mp => mp.id === fp.id))
+    //     ];
+    //     return allPosts;
+    // } catch (error) {
+    //     console.error("Error fetching blog posts for SSG:", error);
+    return MOCK_BLOG_POSTS;
+    // }
 });
 
 async function getPost(id: string): Promise<BlogPostType | undefined> {

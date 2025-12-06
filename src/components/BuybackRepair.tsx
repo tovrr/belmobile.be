@@ -39,6 +39,8 @@ import { createSlug } from '../utils/slugs';
 // import SEO from '../components/SEO'; // SEO handled by page metadata
 import SchemaMarkup from '../components/SchemaMarkup';
 import LocalSEOContent from './LocalSEOContent';
+import { getDeviceImage } from '../data/deviceImages';
+import Image from 'next/image';
 
 interface BuybackRepairProps {
     type: 'buyback' | 'repair';
@@ -849,9 +851,26 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         return (
             <div className="hidden lg:block w-80 xl:w-96 shrink-0 ml-8">
                 <div className="sticky top-24 bg-white dark:bg-slate-900 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-800 overflow-hidden">
-                    <div className="bg-bel-blue p-6 text-white">
-                        <h3 className="font-bold text-xl">{t('Summary')}</h3>
-                        <p className="text-blue-100 text-sm">{selectedBrand} {selectedModel}</p>
+                    <div className="bg-bel-blue p-6 text-white text-center">
+                        <h3 className="font-bold text-xl mb-2">{t('Summary')}</h3>
+                        {(() => {
+                            const specificImage = selectedModel ? getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`)) : null;
+                            const brandImage = selectedBrand ? getDeviceImage(createSlug(selectedBrand)) : null;
+                            const displayImage = specificImage || brandImage;
+                            const isFallback = !specificImage;
+
+                            return displayImage && (
+                                <div className="relative w-32 h-32 mx-auto mb-3 bg-white/20 rounded-xl p-2 backdrop-blur-sm shadow-inner">
+                                    <Image
+                                        src={displayImage}
+                                        alt={`${selectedBrand} ${selectedModel} ${t(type === 'buyback' ? 'Buyback' : 'Repair')}`}
+                                        fill
+                                        className={`object-contain transition-all ${isFallback ? 'brightness-0 invert p-4 opacity-90' : 'hover:scale-105'}`}
+                                    />
+                                </div>
+                            );
+                        })()}
+                        <p className="text-blue-100 text-sm font-medium">{selectedBrand} {selectedModel}</p>
                     </div>
                     <div className="p-6 space-y-6">
                         <div className="space-y-3 text-sm">
@@ -990,8 +1009,13 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                             : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'
                             }`}
                     >
-                        <div className={`p-4 rounded-2xl mb-4 transition-colors ${deviceType === dt.id ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-950 text-gray-600 dark:text-gray-300 group-hover:bg-bel-blue/10 group-hover:text-bel-blue'}`}>
-                            <dt.icon className="h-8 w-8" />
+                        <div className={`relative w-16 h-16 p-4 rounded-2xl mb-4 transition-all duration-300 ${deviceType === dt.id ? 'bg-bel-blue scale-110 shadow-lg shadow-blue-500/30' : 'bg-transparent'}`}>
+                            <Image
+                                src={dt.icon as any}
+                                alt={t(dt.label)}
+                                fill
+                                className={`object-contain p-2 transition-all duration-300 ${deviceType === dt.id ? 'brightness-0 invert' : 'opacity-60 dark:invert dark:opacity-80 group-hover:opacity-100'}`}
+                            />
                         </div>
                         <span className="font-bold text-gray-900 dark:text-white">{t(dt.label)}</span>
                     </button>
@@ -1017,12 +1041,25 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                 <button
                                     key={brand}
                                     onClick={() => handleBrandSelect(brand)}
-                                    className={`py-3 px-4 rounded-xl font-bold text-sm transition-all ${selectedBrand === brand
+                                    className={`group py-4 px-4 rounded-xl font-bold text-sm transition-all flex flex-col items-center justify-center gap-3 h-32 ${selectedBrand === brand
                                         ? 'bg-bel-blue text-white shadow-lg shadow-blue-200 dark:shadow-none'
-                                        : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-800 hover:border-bel-blue'
+                                        : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-800 hover:border-bel-blue hover:bg-blue-50/50 dark:hover:bg-slate-800'
                                         }`}
                                 >
-                                    {brand}
+                                    {getDeviceImage(createSlug(brand)) && (
+                                        <div className="relative w-12 h-12">
+                                            <Image
+                                                src={getDeviceImage(createSlug(brand))!}
+                                                alt={`${brand} ${t(type === 'buyback' ? 'Buyback' : 'Repair')}`}
+                                                fill
+                                                className={`object-contain transition-all duration-300 ${selectedBrand === brand
+                                                    ? 'brightness-0 invert'
+                                                    : 'opacity-40 grayscale dark:invert dark:opacity-60 group-hover:opacity-100 group-hover:grayscale-0'
+                                                    }`}
+                                            />
+                                        </div>
+                                    )}
+                                    <span>{brand}</span>
                                 </button>
                             ))}
                         </div>
@@ -1052,7 +1089,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                 </div>
                 <DesktopSidebar onNext={handleNext} nextDisabled={nextDisabled} />
 
-            </div>
+            </div >
         );
     };
 
@@ -1270,6 +1307,16 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         return (
             <div className="lg:hidden bg-white dark:bg-slate-900 rounded-3xl p-6 mb-8 border border-gray-200 dark:border-slate-800 shadow-sm animate-fade-in">
                 <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-4">{t('Summary')}</h3>
+                {(selectedModel && getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`))) && (
+                    <div className="relative w-full h-48 mb-4 bg-gray-50 dark:bg-slate-950 rounded-xl p-4">
+                        <Image
+                            src={getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`))!}
+                            alt={`${selectedBrand} ${selectedModel}`}
+                            fill
+                            className="object-contain"
+                        />
+                    </div>
+                )}
                 <div className="space-y-2 text-sm mb-6">
                     <div className="flex justify-between"><span className="text-gray-500">{t('Device')}</span><span className="font-medium text-gray-900 dark:text-white">{selectedBrand} {selectedModel}</span></div>
                     {isBuyback && storage && (<div className="flex justify-between"><span className="text-gray-500">{t('Storage')}</span><span className="font-medium text-gray-900 dark:text-white">{storage}</span></div>)}

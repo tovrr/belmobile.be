@@ -30,6 +30,9 @@ export interface Product {
     description_nl?: string;
     price: number;
     imageUrl: string;
+    altText?: string;
+    altText_fr?: string;
+    altText_nl?: string;
     category?: string;
     brand?: string;
     condition?: 'perfect' | 'very_good' | 'good';

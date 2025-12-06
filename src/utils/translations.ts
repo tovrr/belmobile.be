@@ -41,6 +41,10 @@ export const translations: Translations = {
 
         // Header & Nav
         "Products": "Products",
+        "Services": "Services",
+        "Careers": "Careers",
+        "Legal": "Legal",
+        "Our Stores": "Our Stores",
         "Repair": "Repair",
         "Buyback": "Buyback",
         "Blog": "Blog",
@@ -191,10 +195,12 @@ export const translations: Translations = {
         "View Full Price List": "View Full Price List",
 
         // Trust Signals
-        "trust_warranty": "6-Month Warranty",
+        "trust_warranty": "1-Year Warranty",
         "trust_warranty_desc": "All repairs and refurbished devices are backed by our guarantee.",
         "trust_speed": "30-Min Repairs",
         "trust_speed_desc": "Most screen and battery replacements are done while you wait.",
+        "badge_warranty_time": "1 Year",
+        "happy_customers": "1500+ Happy Customers",
         "trust_eco": "Eco-Friendly",
         "trust_eco_desc": "We recycle 99% of e-waste and use sustainable parts.",
 
@@ -205,7 +211,7 @@ export const translations: Translations = {
         "Repairs": "Repairs",
         "Buyback & Sales": "Buyback & Sales",
         "faq_q1": "Do you offer a warranty?",
-        "faq_a1": "Yes, we offer a 6-month warranty on all repairs and a 1-year warranty on refurbished devices.",
+        "faq_a1": "Yes, we offer a 1-year warranty on all repairs and refurbished devices.",
         "faq_q2": "How long does a screen repair take?",
         "faq_a2": "Most screen replacements are completed within 30 minutes while you wait.",
         "faq_q3": "Do I need an appointment?",
@@ -329,7 +335,7 @@ export const translations: Translations = {
         "seo_buyback_title": "Sell your {0} {1} for the Best Price",
         "seo_buyback_desc": "Get an instant quote for your {1}. We offer the highest buyback rates in Brussels for {0} devices. Simple, fast, and paid instantly via bank transfer.",
         "seo_feature1_title": "Why Choose Us?",
-        "seo_feature1_desc": "6 month warranty on all {1} repairs. Screen replacement in 30 minutes on site.",
+        "seo_feature1_desc": "1 year warranty on all {1} repairs. Screen replacement in 30 minutes on site.",
         "seo_feature2_title": "Our Expertise",
         "seo_feature2_desc": "Broken screen? Weak battery? We know {0} devices inside out. Visit our stores in Schaerbeek, Anderlecht or Molenbeek.",
         "You are reserving the {0} at {1}.": "You are reserving the {0} at {1}.",
@@ -354,7 +360,7 @@ export const translations: Translations = {
         "High quality 3rd party display.": "High quality 3rd party display.",
         "OEM specification display.": "OEM specification display.",
         "Standard brightness": "Standard brightness",
-        "6 Month Warranty": "6 Month Warranty",
+        "6 Month Warranty": "1 Year Warranty",
         "Original Colors & Brightness": "Original Colors & Brightness",
         "Reinforced Glass": "Reinforced Glass",
         "1 Year Warranty": "1 Year Warranty",
@@ -598,7 +604,7 @@ export const translations: Translations = {
         "terms_section_1_title": "1. General Conditions",
         "terms_section_1_content": "By accessing this website, you agree to be bound by these terms and conditions...",
         "terms_section_2_title": "2. Repairs & Warranty",
-        "terms_section_2_content": "We provide a 6-month warranty on all repairs, covering the specific part replaced...",
+        "terms_section_2_content": "We provide a 1-year warranty on all repairs, covering the specific part replaced...",
         "terms_section_3_title": "3. Buyback Policy",
         "terms_section_3_content": "Buyback quotes are estimates until physical inspection. We reserve the right to adjust...",
         "terms_section_4_title": "4. Privacy Policy",
@@ -687,8 +693,10 @@ export const translations: Translations = {
 
         // Sitemap
         "Main Navigation": "Main Navigation",
+        "Main Pages": "Main Pages",
         "Information": "Information",
         "Legal": "Legal",
+        "Locations": "Locations",
 
         // Blog
         "Recent News & Tips": "Recent News & Tips",
@@ -732,7 +740,7 @@ export const translations: Translations = {
         "cookies_content": "We use cookies to enhance your experience on our website.\n\n1. What are cookies? Cookies are small text files stored on your device.\n2. How we use them: We use cookies for analytics, remembering your preferences, and ensuring the site functions correctly.\n3. Your choices: You can manage your cookie preferences in your browser settings.",
 
         "warranty_title": "Warranty Information",
-        "warranty_content": "Our warranty covers defects in materials and workmanship.\n\n1. Repairs: We offer a 6-month warranty on all repairs.\n2. Refurbished Devices: We offer a 1-year warranty on all refurbished devices.\n3. Exclusions: The warranty does not cover accidental damage, water damage, or unauthorized repairs.",
+        "warranty_content": "Our warranty covers defects in materials and workmanship.\n\n1. Repairs: We offer a 1-year warranty on all repairs.\n2. Refurbished Devices: We offer a 1-year warranty on all refurbished devices.\n3. Exclusions: The warranty does not cover accidental damage, water damage, or unauthorized repairs.",
 
         // Track Order
         "Track Your Order": "Track Your Order",
@@ -749,7 +757,48 @@ export const translations: Translations = {
         "Received": "Received",
         "Inspected": "Inspected",
         "Payment Sent": "Payment Sent",
-        "Order not found. Please check your details.": "Order not found. Please check your details."
+        "Order not found. Please check your details.": "Order not found. Please check your details.",
+        "expert_repair_short": "Screen, battery & more",
+        "Refurbished & New": "Refurbished & New",
+
+        // Cookies & Warranty
+        "Cookie Policy": "Cookie Policy",
+        "How we use cookies and similar technologies.": "How we use cookies and similar technologies.",
+        "What are Cookies?": "What are Cookies?",
+        "Cookies are small text files that are stored on your device when you visit a website. They help us remember your preferences and improve your experience.": "Cookies are small text files that are stored on your device when you visit a website. They help us remember your preferences and improve your experience.",
+        "Types of Cookies We Use": "Types of Cookies We Use",
+        "Essential Cookies": "Essential Cookies",
+        "Necessary for the website to function.": "Necessary for the website to function.",
+        "Analytics Cookies": "Analytics Cookies",
+        "Help us understand how visitors interact with the site.": "Help us understand how visitors interact with the site.",
+        "Marketing Cookies": "Marketing Cookies",
+        "Used to deliver relevant advertisements.": "Used to deliver relevant advertisements.",
+        "Warranty Info": "Warranty Info",
+        "Warranty Information": "Warranty Information",
+        "Details about our product and repair warranties.": "Details about our product and repair warranties.",
+        "Repair Warranty": "Repair Warranty",
+        "We offer a 1-year warranty on all our repairs. This covers defects in parts and workmanship.": "We offer a 1-year warranty on all our repairs. This covers defects in parts and workmanship.",
+        "Device Warranty": "Device Warranty",
+        "Refurbished devices come with a 1-year warranty. Brand new devices come with the standard manufacturer warranty (usually 2 years).": "Refurbished devices come with a 1-year warranty. Brand new devices come with the standard manufacturer warranty (usually 2 years).",
+        "Exclusions": "Exclusions",
+        "The warranty does not cover accidental damage, such as water damage or cracked screens caused by drops.": "The warranty does not cover accidental damage, such as water damage or cracked screens caused by drops.",
+
+        // Product Page Filters & Titles
+        "sort_featured": "Featured",
+        "sort_low_high": "Price: Low to High",
+        "sort_high_low": "Price: High to Low",
+        "cat_all": "All",
+        "cat_smartphone": "Smartphones",
+        "cat_tablet": "Tablets",
+        "cat_computer": "Computers",
+        "cat_console": "Consoles",
+        "cat_smartwatch": "Smartwatches",
+        "cat_accessories": "Accessories",
+        "No products found": "No products found",
+        "Try adjusting your search filters or shop selection.": "Try adjusting your search filters or shop selection.",
+        "Clear all filters": "Clear all filters",
+        "All Shops": "All Shops",
+        "Search...": "Search...",
     },
     fr: {
         // Meta Tags
@@ -796,6 +845,11 @@ export const translations: Translations = {
         "Select Shop": "Choisir Magasin",
         "Help Center": "Centre d'aide",
         "Home": "Accueil",
+        "Services": "Services",
+        "Careers": "Carrières",
+        "Legal": "Information Légale",
+        "Our Stores": "Nos Magasins",
+        "Support": "Support",
         "Repair Service": "Service de Réparation",
         "Shop Refurbished": "Boutique Reconditionné",
         "Contact Us": "Contactez-nous",
@@ -870,10 +924,12 @@ export const translations: Translations = {
         "View Full Price List": "Voir la liste complète des tarifs",
 
         // Trust Signals
-        "trust_warranty": "Garantie 6 Mois Incluse",
+        "trust_warranty": "Garantie 1 An Incluse",
         "trust_warranty_desc": "Toutes réparations et appareils reconditionnés garantis.",
         "trust_speed": "Réparation 30 Min",
         "trust_speed_desc": "La plupart des écrans et batteries changés sur place.",
+        "badge_warranty_time": "1 An",
+        "happy_customers": "1500+ Clients Satisfaits",
         "trust_eco": "Éco-Responsable",
         "trust_eco_desc": "Nous recyclons 99% des déchets électroniques.",
 
@@ -1025,7 +1081,7 @@ export const translations: Translations = {
         "seo_buyback_title": "Vendez votre {0} {1} au Meilleur Prix",
         "seo_buyback_desc": "Obtenez une offre instantanée pour votre {1}. Nous offrons les meilleurs taux de reprise à Bruxelles pour les appareils {0}. Simple, rapide et payé instantanément.",
         "seo_feature1_title": "Pourquoi Nous Choisir ?",
-        "seo_feature1_desc": "Garantie de 6 mois sur toutes les réparations {1}. Remplacement d'écran en 30 minutes sur place.",
+        "seo_feature1_desc": "Garantie 1 an sur toutes les réparations {1}. Remplacement d'écran en 30 minutes sur place.",
         "seo_feature2_title": "Notre Expertise",
         "seo_feature2_desc": "Écran cassé, batterie faible ? Nous connaissons les {0} par cœur. Visitez nos magasins à Schaerbeek, Anderlecht ou Molenbeek.",
         "You are reserving the {0} at {1}.": "Vous réservez le {0} à {1}.",
@@ -1292,7 +1348,7 @@ export const translations: Translations = {
         "cookies_content": "Nous utilisons des cookies pour améliorer votre expérience sur notre site.\n\n1. Qu'est-ce qu'un cookie ? Ce sont de petits fichiers texte stockés sur votre appareil.\n2. Utilisation : Nous les utilisons pour les analyses, vos préférences et le bon fonctionnement du site.\n3. Vos choix : Vous pouvez gérer vos préférences de cookies dans les paramètres de votre navigateur.",
 
         "warranty_title": "Informations de Garantie",
-        "warranty_content": "Notre garantie couvre les défauts de matériaux et de fabrication.\n\n1. Réparations : Nous offrons une garantie de 6 mois sur toutes les réparations.\n2. Appareils Reconditionnés : Nous offrons une garantie d'un an sur tous les appareils reconditionnés.\n3. Exclusions : La garantie ne couvre pas les dommages accidentels, l'oxydation ou les réparations non autorisées.",
+        "warranty_content": "Notre garantie couvre les défauts de matériaux et de fabrication.\n\n1. Réparations : Nous offrons une garantie d'un an sur toutes les réparations.\n2. Appareils Reconditionnés : Nous offrons une garantie d'un an sur tous les appareils reconditionnés.\n3. Exclusions : La garantie ne couvre pas les dommages accidentels, l'oxydation ou les réparations non autorisées.",
 
         // Track Order
         "Track Your Order": "Suivre votre Commande",
@@ -1434,8 +1490,10 @@ export const translations: Translations = {
 
         // Sitemap
         "Main Navigation": "Navigation Principale",
+        "Main Pages": "Pages Principales",
         "Information": "Informations",
         "Legal": "Légal",
+        "Locations": "Nos Magasins",
 
         // Blog
         "Recent News & Tips": "Actualités & Conseils",
@@ -1457,7 +1515,56 @@ export const translations: Translations = {
         "blog_title_3": "Téléphone Tombé dans l'Eau ? Faites Ceci Immédiatement !",
         "blog_excerpt_3": "Pas de panique. Suivez ces étapes immédiates pour augmenter les chances de sauver votre appareil endommagé par l'eau.",
         "blog_content_3": "1. Éteignez-le. 2. Retirez SIM/SD. 3. Séchez l'extérieur. 4. N'utilisez PAS de riz (c'est un mythe). 5. Apportez-le chez Belmobile ASAP.",
-        "blog_category_3": "Réparation"
+        "blog_category_3": "Réparation",
+        "expert_repair_short": "Écran, batterie et plus",
+        "Refurbished & New": "Reconditionné & Neuf",
+        "Open Now": "Ouvert",
+        "Coming Soon": "Bientôt",
+        "Opening Hours": "Heures d'ouverture",
+        "Directions": "Itinéraire",
+        "Call": "Appeler",
+        "Premium Devices": "Appareils Premium",
+        "Shop Refurbished": "Acheter Reconditionné",
+        "Device Buyback": "Rachat d'appareil",
+
+        // Cookies & Warranty
+        "Cookie Policy": "Politique de Cookies",
+        "How we use cookies and similar technologies.": "Comment nous utilisons les cookies et technologies similaires.",
+        "What are Cookies?": "Que sont les Cookies ?",
+        "Cookies are small text files that are stored on your device when you visit a website. They help us remember your preferences and improve your experience.": "Les cookies sont de petits fichiers texte stockés sur votre appareil lors de votre visite. Ils nous aident à mémoriser vos préférences.",
+        "Types of Cookies We Use": "Types de cookies utilisés",
+        "Essential Cookies": "Cookies Essentiels",
+        "Necessary for the website to function.": "Nécessaires au fonctionnement du site.",
+        "Analytics Cookies": "Cookies Analytiques",
+        "Help us understand how visitors interact with the site.": "Nous aident à comprendre comment les visiteurs interagissent avec le site.",
+        "Marketing Cookies": "Cookies Marketing",
+        "Used to deliver relevant advertisements.": "Utilisés pour fournir des publicités pertinentes.",
+        "Warranty Info": "Info Garantie",
+        "Warranty Information": "Informations de Garantie",
+        "Details about our product and repair warranties.": "Détails sur nos garanties produits et réparations.",
+        "Repair Warranty": "Garantie Réparation",
+        "We offer a 1-year warranty on all our repairs. This covers defects in parts and workmanship.": "Nous offrons 1 an de garantie sur toutes nos réparations (pièces et main d'œuvre).",
+        "Device Warranty": "Garantie Appareil",
+        "Refurbished devices come with a 1-year warranty. Brand new devices come with the standard manufacturer warranty (usually 2 years).": "Les appareils reconditionnés ont 1 an de garantie. Les neufs ont la garantie constructeur standard (2 ans).",
+        "Exclusions": "Exclusions",
+        "The warranty does not cover accidental damage, such as water damage or cracked screens caused by drops.": "La garantie ne couvre pas les dommages accidentels (chutes, eau, écran cassé).",
+
+        // Product Page Filters & Titles
+        "sort_featured": "En vedette",
+        "sort_low_high": "Prix : Croissant",
+        "sort_high_low": "Prix : Décroissant",
+        "cat_all": "Tout",
+        "cat_smartphone": "Smartphones",
+        "cat_tablet": "Tablettes",
+        "cat_computer": "Ordinateurs",
+        "cat_console": "Consoles",
+        "cat_smartwatch": "Montres Connectées",
+        "cat_accessories": "Accessoires",
+        "No products found": "Aucun produit trouvé",
+        "Try adjusting your search filters or shop selection.": "Essayez d'ajuster vos filtres ou la sélection de magasin.",
+        "Clear all filters": "Effacer les filtres",
+        "All Shops": "Tous les Magasins",
+        "Search...": "Rechercher...",
     },
     nl: {
         // Meta Tags
@@ -1489,6 +1596,10 @@ export const translations: Translations = {
 
         // Header & Nav
         "Products": "Producten",
+        "Services": "Diensten",
+        "Careers": "Vacatures",
+        "Legal": "Juridisch",
+        "Our Stores": "Onze Winkels",
         "Repair": "Reparatie",
         "Buyback": "Inkoop",
         "Blog": "Blog",
@@ -1572,7 +1683,7 @@ export const translations: Translations = {
         "View Full Price List": "Bekijk volledige prijslijst",
 
         // Trust Signals
-        "trust_warranty": "6 Maanden Garantie",
+        "trust_warranty": "1 Jaar Garantie",
         "trust_warranty_desc": "Garantie op alle reparaties en refurbished toestellen.",
         "trust_speed": "30 Min Reparatie",
         "trust_speed_desc": "De meeste schermen en batterijen klaar terwijl u wacht.",
@@ -1586,7 +1697,7 @@ export const translations: Translations = {
         "Repairs": "Reparaties",
         "Buyback & Sales": "Terugkoop & Verkoop",
         "faq_q1": "Bieden jullie garantie?",
-        "faq_a1": "Ja, 6 maanden garantie op reparaties en 1 jaar op refurbished.",
+        "faq_a1": "Ja, 1 jaar garantie op alle reparaties en refurbished toestellen.",
         "faq_q2": "Hoe lang duurt een schermreparatie?",
         "faq_a2": "De meeste schermvervangingen zijn binnen 30 minuten klaar.",
         "faq_q3": "Heb ik een afspraak nodig?",
@@ -1717,7 +1828,7 @@ export const translations: Translations = {
         "seo_buyback_title": "Verkoop uw {0} {1} voor de Beste Prijs",
         "seo_buyback_desc": "Krijg direct een offerte voor uw {1}. Wij bieden de hoogste terugkoopprijzen in Brussel voor {0} toestellen. Simpel, snel en direct betaald.",
         "seo_feature1_title": "Waarom Ons Kiezen?",
-        "seo_feature1_desc": "6 maanden garantie op alle {1} reparaties. Schermvervanging in 30 minuten ter plaatse.",
+        "seo_feature1_desc": "1 jaar garantie op alle {1} reparaties. Schermvervanging in 30 minuten ter plaatse.",
         "seo_feature2_title": "Onze Expertise",
         "seo_feature2_desc": "Gebroken scherm? Zwakke batterij? Wij kennen {0} toestellen door en door. Bezoek onze winkels in Schaarbeek, Anderlecht of Molenbeek.",
         "Op": "Op",
@@ -1752,7 +1863,7 @@ export const translations: Translations = {
         "Hoogwaardig scherm van derden.": "Hoogwaardig scherm van derden.",
         "Scherm met OEM-specificaties.": "Scherm met OEM-specificaties.",
         "Standaard helderheid": "Standaard helderheid",
-        "6 Maanden Garantie": "6 Maanden Garantie",
+        "6 Maanden Garantie": "1 Jaar Garantie",
         "Originele kleuren & helderheid": "Originele kleuren & helderheid",
         "Versterkt glas": "Versterkt glas",
         "1 Jaar Garantie": "1 Jaar Garantie",
@@ -1989,14 +2100,15 @@ export const translations: Translations = {
         "cookies_content": "We gebruiken cookies om uw ervaring op onze website te verbeteren.\n\n1. Wat zijn cookies? Dit zijn kleine tekstbestanden die op uw apparaat worden opgeslagen.\n2. Hoe we ze gebruiken: We gebruiken cookies voor analyses en voorkeuren.\n3. Uw keuzes: U kunt uw cookievoorkeuren beheren in uw browserinstellingen.",
 
         "warranty_title": "Garantie-informatie",
-        "warranty_content": "Onze garantie dekt materiaal- en fabricagefouten.\n\n1. Reparaties: We bieden 6 maanden garantie op alle reparaties.\n2. Gereviseerde apparaten: We bieden 1 jaar garantie op alle gereviseerde apparaten.\n3. Uitsluitingen: De garantie dekt geen accidentele schade, waterschade of ongeautoriseerde reparaties.",
+        "warranty_content": "Onze garantie dekt materiaal- en fabricagefouten.\n\n1. Reparaties: We bieden 1 jaar garantie op alle reparaties.\n2. Gereviseerde apparaten: We bieden 1 jaar garantie op alle gereviseerde apparaten.\n3. Uitsluitingen: De garantie dekt geen accidentele schade, waterschade of ongeautoriseerde reparaties.",
 
         // Track Order
         "Track Your Order": "Volg uw Bestelling",
         "Enter your order details below to check the status of your repair or buyback.": "Voer hieronder uw bestelgegevens in om de status van uw reparatie of inkoop te controleren.",
         "Order ID": "Bestelnummer",
         "Check Status": "Status Controleren",
-        "Order Status": "Bestelstatus",
+        "badge_warranty_time": "1 Jaar",
+        "happy_customers": "1500+ Tevreden Klanten",
         "Status": "Status",
         "Date": "Datum",
 
@@ -2159,8 +2271,10 @@ export const translations: Translations = {
 
         // Sitemap
         "Main Navigation": "Hoofdnavigatie",
+        "Main Pages": "Hoofdpagina's",
         "Information": "Informatie",
         "Legal": "Juridisch",
+        "Locations": "Locaties",
 
         // Blog
         "Recent News & Tips": "Nieuws & Tips",
@@ -2182,6 +2296,55 @@ export const translations: Translations = {
         "blog_title_3": "Telefoon in Water Gevallen? Doe Dit Onmiddellijk!",
         "blog_excerpt_3": "Geen paniek. Volg deze onmiddellijke stappen om de kans te vergroten dat uw waterschade-toestel gered wordt.",
         "blog_content_3": "1. Zet hem uit. 2. Verwijder SIM/SD. 3. Droog buitenkant. 4. Gebruik GEEN rijst (dat is een mythe). 5. Breng hem z.s.m. naar Belmobile.",
-        "blog_category_3": "Reparatie"
+        "blog_category_3": "Reparatie",
+        "expert_repair_short": "Scherm, batterij en meer",
+        "Refurbished & New": "Refurbished & Nieuw",
+        "Open Now": "Nu Open",
+        "Coming Soon": "Binnenkort",
+        "Opening Hours": "Openingsuren",
+        "Directions": "Routebeschrijving",
+        "Call": "Bellen",
+        "Premium Devices": "Premium Toestellen",
+        "Shop Refurbished": "Koop Refurbished",
+        "Device Buyback": "Toestel Inkoop",
+
+        // Cookies & Warranty
+        "Cookie Policy": "Cookiebeleid",
+        "How we use cookies and similar technologies.": "Hoe wij cookies en vergelijkbare technologieën gebruiken.",
+        "What are Cookies?": "Wat zijn cookies?",
+        "Cookies are small text files that are stored on your device when you visit a website. They help us remember your preferences and improve your experience.": "Cookies zijn kleine tekstbestanden die op uw apparaat worden opgeslagen. Ze helpen ons uw voorkeuren te onthouden.",
+        "Types of Cookies We Use": "Soorten cookies die we gebruiken",
+        "Essential Cookies": "Essentiële cookies",
+        "Necessary for the website to function.": "Noodzakelijk voor het functioneren van de website.",
+        "Analytics Cookies": "Analytische cookies",
+        "Help us understand how visitors interact with the site.": "Helpen ons begrijpen hoe bezoekers de site gebruiken.",
+        "Marketing Cookies": "Marketingcookies",
+        "Used to deliver relevant advertisements.": "Gebruikt om relevante advertenties te tonen.",
+        "Warranty Info": "Garantie Info",
+        "Warranty Information": "Garantie Informatie",
+        "Details about our product and repair warranties.": "Details over onze product- en reparatiegaranties.",
+        "Repair Warranty": "Reparatiegarantie",
+        "We offer a 1-year warranty on all our repairs. This covers defects in parts and workmanship.": "Wij bieden 1 jaar garantie op alle reparaties (onderdelen en arbeid).",
+        "Device Warranty": "Toestelgarantie",
+        "Refurbished devices come with a 1-year warranty. Brand new devices come with the standard manufacturer warranty (usually 2 years).": "Refurbished toestellen hebben 1 jaar garantie. Nieuwe toestellen hebben de standaard fabrieksgarantie (2 jaar).",
+        "Exclusions": "Uitsluitingen",
+        "The warranty does not cover accidental damage, such as water damage or cracked screens caused by drops.": "De garantie dekt geen val-, stoot- of waterschade.",
+
+        // Product Page Filters & Titles
+        "sort_featured": "Uitgelicht",
+        "sort_low_high": "Prijs: Laag naar Hoog",
+        "sort_high_low": "Prijs: Hoog naar Laag",
+        "cat_all": "Alles",
+        "cat_smartphone": "Smartphones",
+        "cat_tablet": "Tablets",
+        "cat_computer": "Computers",
+        "cat_console": "Consoles",
+        "cat_smartwatch": "Smartwatches",
+        "cat_accessories": "Accessoires",
+        "No products found": "Geen producten gevonden",
+        "Try adjusting your search filters or shop selection.": "Probeer uw filters of winkelselectie aan te passen.",
+        "Clear all filters": "Wis filters",
+        "All Shops": "Alle Winkels",
+        "Search...": "Zoeken...",
     }
 };

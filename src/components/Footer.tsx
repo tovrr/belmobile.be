@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useLanguage } from '../hooks/useLanguage';
 import { useTheme } from '../hooks/useTheme';
+import { LOCATIONS } from '../data/locations';
 import { PaperAirplaneIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import Input from './ui/Input';
 
@@ -221,37 +222,19 @@ const Footer: React.FC = () => {
                 {/* Locations */}
                 <div className="border-t border-white/10 pt-8 mb-12">
                     <h4 className="text-sm font-bold text-cyber-citron uppercase tracking-widest mb-6 text-center md:text-left">
-                        {language === 'fr' ? 'Nos Magasins' : language === 'nl' ? 'Onze Winkels' : 'Our Stores'}
+                        {t('Our Stores')}
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Link
-                            href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/schaerbeek`}
-                            className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
-                        >
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
-                            Schaerbeek
-                        </Link>
-                        <Link
-                            href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/molenbeek`}
-                            className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
-                        >
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
-                            Molenbeek
-                        </Link>
-                        <Link
-                            href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/anderlecht`}
-                            className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
-                        >
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
-                            Anderlecht
-                        </Link>
-                        <Link
-                            href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}/smartphone/${language === 'fr' ? 'bruxelles' : language === 'nl' ? 'brussel' : 'brussels'}`}
-                            className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
-                        >
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
-                            {language === 'fr' ? 'Bruxelles (Hub)' : language === 'nl' ? 'Brussel (Hub)' : 'Brussels (Hub)'}
-                        </Link>
+                        {LOCATIONS.map((loc) => (
+                            <Link
+                                key={loc.id}
+                                href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${loc.slugs[language] || loc.slugs.en}`}
+                                className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
+                            >
+                                <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
+                                {loc.name.replace('Belmobile ', '')}
+                            </Link>
+                        ))}
                     </div>
                 </div>
 
