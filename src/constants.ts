@@ -102,118 +102,20 @@ export const MOCK_SHOPS: Shop[] = [
     }
 ];
 
-export const MOCK_PRODUCTS: Product[] = [
-    {
-        id: 1,
+{
+    id: 1,
         name: "iPhone 13",
-        price: 599,
-        description: "A15 Bionic chip, advanced dual-camera system.",
-        imageUrl: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?q=80&w=800&auto=format&fit=crop",
-        category: "smartphone",
-        brand: "Apple",
-        condition: 'perfect',
-        capacity: '128GB',
-        color: 'Blue',
-        slug: 'apple-iphone-13-128gb-blue-perfect',
-        availability: { 1: 5, 2: 2, 3: 0 }
-    },
-    {
-        id: 2,
-        name: "iPhone 13",
-        price: 649,
-        description: "A15 Bionic chip, advanced dual-camera system.",
-        imageUrl: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?q=80&w=800&auto=format&fit=crop",
-        category: "smartphone",
-        brand: "Apple",
-        condition: 'very_good',
-        capacity: '256GB',
-        color: 'Midnight',
-        slug: 'apple-iphone-13-256gb-midnight-very-good',
-        availability: { 1: 2, 2: 0, 3: 1 }
-    },
-    {
-        id: 3,
-        name: "iPhone 15 Pro Max",
-        price: 1299,
-        description: "Titanium design, A17 Pro chip.",
-        imageUrl: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=800&auto=format&fit=crop",
-        category: "smartphone",
-        brand: "Apple",
-        condition: 'perfect',
-        capacity: '256GB',
-        color: 'Natural Titanium',
-        slug: 'apple-iphone-15-pro-max-256gb-natural-titanium-perfect',
-        availability: { 1: 10, 2: 5, 3: 8 }
-    },
-    {
-        id: 4,
-        name: "Samsung Galaxy S23 Ultra",
-        price: 1199,
-        description: "200MP camera, embedded S Pen.",
-        imageUrl: "https://images.unsplash.com/photo-1675802525546-2092c422c958?q=80&w=800&auto=format&fit=crop",
-        category: "smartphone",
-        brand: "Samsung",
-        condition: 'good',
-        capacity: '512GB',
-        color: 'Phantom Black',
-        slug: 'samsung-galaxy-s23-ultra-512gb-phantom-black-good',
-        availability: { 1: 3, 2: 3, 3: 3 }
-    },
-    {
-        id: 5,
-        name: "PlayStation 5",
-        price: 450,
-        description: "Next-gen gaming console.",
-        imageUrl: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?q=80&w=800&auto=format&fit=crop",
-        category: "console",
-        brand: "Sony",
-        condition: 'perfect',
-        capacity: '825GB',
-        color: 'White',
-        slug: 'sony-playstation-5-825gb-white-perfect',
-        availability: { 1: 2, 2: 1, 3: 0 }
-    },
-    {
-        id: 6,
-        name: "MacBook Air M2",
-        price: 950,
-        description: "Supercharged by M2.",
-        imageUrl: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=800&auto=format&fit=crop",
-        category: "computer",
-        brand: "Apple",
-        condition: 'very_good',
-        capacity: '256GB',
-        color: 'Midnight',
-        slug: 'apple-macbook-air-m2-256gb-midnight-very-good',
-        availability: { 1: 1, 2: 0, 3: 1 }
-    },
-    {
-        id: 7,
-        name: "Apple Watch Series 9",
-        price: 350,
-        description: "Smarter, brighter, and mightier.",
-        imageUrl: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?q=80&w=800&auto=format&fit=crop",
-        category: "smartwatch",
-        brand: "Apple",
-        condition: 'perfect',
-        capacity: '45mm',
-        color: 'Midnight',
-        slug: 'apple-watch-series-9-45mm-midnight-perfect',
-        availability: { 1: 4, 2: 4, 3: 4 }
-    },
-    {
-        id: 8,
-        name: "USB-C Fast Charger",
-        price: 25,
-        description: "20W USB-C Power Adapter.",
-        imageUrl: "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?q=80&w=800&auto=format&fit=crop",
-        category: "accessories",
-        brand: "Belmobile",
-        condition: 'perfect',
-        color: 'White',
-        slug: 'belmobile-usb-c-fast-charger-white-perfect',
-        availability: { 1: 20, 2: 15, 3: 10 }
-    }
+            price: 599,
+                description: "A15 Bionic chip, advanced dual-camera system.",
+                    imageUrl: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?q=80&w=800&auto=format&fit=crop",
+                        category: "smartphone",
+                            brand: "Apple",
+                                condition: 'perfect',
+                                    capacity: '128GB',
+                                        color: 'Blue',
+                                            slug: 'apple-iphone-13-128gb-blue-perfect',
+                                                availability: { 'schaerbeek': 5, 'anderlecht': 2, 'molenbeek': 0 }
+}
 ];
 
 export const MOCK_SERVICES: Service[] = [
