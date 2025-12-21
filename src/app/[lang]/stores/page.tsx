@@ -1,6 +1,5 @@
 import React from 'react';
 import { Metadata } from 'next';
-import Link from 'next/link';
 import Hreflang from '../../../components/seo/Hreflang';
 import StoresLayout from '../../../components/stores/StoresLayout';
 
@@ -43,12 +42,17 @@ export default async function StoresPage({ params }: PageProps) {
         en: 'stores'
     };
 
+    const pageTitle = lang === 'fr' ? 'Nos Magasins à Bruxelles' : lang === 'nl' ? 'Onze Winkels in Brussel' : 'Our Stores in Brussels';
+
     return (
         <div className="min-h-screen bg-transparent">
             <Hreflang
                 slugs={hreflangSlugs}
                 baseUrl="https://belmobile.be"
             />
+
+            {/* Hidden H1 for SEO consistency */}
+            <h1 className="sr-only">{pageTitle}</h1>
 
             {/* Full width layout for Map + Sidebar */}
             <StoresLayout lang={lang} />

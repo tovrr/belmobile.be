@@ -43,8 +43,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             },
         },
         openGraph: {
-            title: meta.title,
-            description: meta.description,
+            title: meta.title ?? '',
+            description: meta.description ?? '',
             url: `${baseUrl}/${lang}`,
             siteName: 'Belmobile',
             locale: lang,

@@ -3,45 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   async redirects() {
     return [
-      // Legacy Pricing Redirects
-      {
-        source: '/pages/tarifs-reparation-iphone-11',
-        destination: '/fr/reparation/apple/iphone-11',
-        permanent: true,
-      },
-      {
-        source: '/pages/reparation-iphone-x',
-        destination: '/fr/reparation/apple/iphone-x',
-        permanent: true,
-      },
-      {
-        source: '/pages/reparation-playstation-5',
-        destination: '/fr/reparation/game-console/sony/playstation-5',
-        permanent: true,
-      },
-
-      // --- STATIC PAGES ---
-      {
-        source: '/pages/contactez-nous',
-        destination: '/fr/contact',
-        permanent: true,
-      },
-      {
-        source: '/pages/jobs',
-        destination: '/fr/jobs',
-        permanent: true,
-      },
-      {
-        source: '/pages/avis-des-clients',
-        destination: '/fr', // Redirect to home or specific reviews section if available
-        permanent: true,
-      },
-      {
-        source: '/pages/entreprises',
-        destination: '/fr/business',
-        permanent: true,
-      },
-
       // --- COLLECTIONS ---
       {
         source: '/collections/:slug*',
@@ -57,6 +18,18 @@ const nextConfig: NextConfig = {
       },
 
       // --- REPAIR (Explicit & Regex) ---
+      // 0. Tarifs Support (Legacy)
+      {
+        source: '/pages/tarifs-reparation-iphone-:slug',
+        destination: '/fr/reparation/apple/iphone-:slug',
+        permanent: true,
+      },
+      {
+        source: '/pages/tarifs-reparation-ipad-:slug',
+        destination: '/fr/reparation/apple/ipad-:slug',
+        permanent: true,
+      },
+
       // 1. Apple Devices
       {
         source: '/pages/reparation-iphone-:slug', // Removed * to fix build error
@@ -137,86 +110,7 @@ const nextConfig: NextConfig = {
         destination: '/fr/rachat',
         permanent: true,
       },
-      // Exact matches for base paths without slug
-      {
-        source: '/pages/recyclage-iphone',
-        destination: '/fr/rachat/apple', // Broad redirect to Apple buyback
-        permanent: true,
-      },
-      {
-        source: '/nl/pages/recyclage-iphone',
-        destination: '/nl/inkoop/apple',
-        permanent: true,
-      },
-
       // --- UNMAPPED / SPECIFIC PAGES ---
-      // Dutch Mappings
-      {
-        source: '/nl/pages/inkoop-ipad-brussel',
-        destination: '/nl/inkoop/apple/ipad',
-        permanent: true,
-      },
-      {
-        source: '/nl/pages/rachat-macbook-bruxelles',
-        destination: '/nl/inkoop/apple/macbook',
-        permanent: true,
-      },
-      {
-        source: '/nl/pages/verkopen',
-        destination: '/nl/inkoop',
-        permanent: true,
-      },
-      {
-        source: '/nl/pages/winkel-informatica-brussel',
-        destination: '/nl/contact',
-        permanent: true,
-      },
-      {
-        source: '/nl/pages/avis-des-clients',
-        destination: '/nl',
-        permanent: true,
-      },
-      {
-        source: '/nl/pages/jobs',
-        destination: '/nl/jobs',
-        permanent: true,
-      },
-      // Service Specifics
-      {
-        source: '/pages/desoxydation-smartphone-bruxelles',
-        destination: '/fr/reparation', // General repair
-        permanent: true,
-      },
-      {
-        source: '/pages/microsolderen-moederbord-iphone', // Hypothetical based on patterns
-        destination: '/fr/reparation',
-        permanent: true,
-      },
-      {
-        source: '/nl/pages/iphone-moederbord-microsolderen-brussel',
-        destination: '/nl/reparatie',
-        permanent: true,
-      },
-      {
-        source: '/pages/reparations-pc-portable-laptop',
-        destination: '/fr/reparation/computer',
-        permanent: true,
-      },
-      {
-        source: '/pages/activation-sim',
-        destination: '/fr/contact', // Service likely in-store
-        permanent: true,
-      },
-      {
-        source: '/pages/ups-access-point-belmobile-be',
-        destination: '/fr/contact',
-        permanent: true,
-      },
-      {
-        source: '/nl/pages/ups-access-point-belmobile-be',
-        destination: '/nl/contact',
-        permanent: true,
-      },
       // Blogs (Dutch)
       {
         source: '/nl/blogs/hightech-blog/:slug*',

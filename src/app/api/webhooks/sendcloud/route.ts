@@ -1,60 +1,57 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/firebase';
-import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { updateDoc, doc } from 'firebase/firestore';
+import crypto from 'crypto';
 
-export async function POST(request: Request) {
+interface SendCloudPayload {
+    action: string;
+    parcel: {
+        id: number;
+        status: {
+            id: number;
+            message: string;
+        };
+        tracking_url: string;
+        order_number: string;
+    };
+}
+
+export async function POST(request: NextRequest) {
     try {
-        const payload = await request.json();
-        console.log('SendCloud Webhook Payload:', payload);
+        const signature = request.headers.get('x-sendcloud-signature');
+        const webhookSecret = process.env.SENDCLOUD_WEBHOOK_SECRET;
+        let payload: SendCloudPayload;
 
-        // SendCloud payload structure for parcel updates usually includes:
-        // parcel: { id, status, tracking_number, tracking_url, ... }
-        // or just the fields directly depending on the specific webhook event.
-        // We'll assume a standard structure or handle the fields we need.
+        // Verify signature if secret is configured
+        if (webhookSecret && signature) {
+            const body = await request.text();
+            const computedSignature = crypto
+                .createHmac('sha256', webhookSecret)
+                .update(body)
+                .digest('hex');
+
+            if (computedSignature !== signature) {
+                console.error('[WEBHOOK] Invalid signature from SendCloud');
+                return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+            }
+            payload = JSON.parse(body);
+        } else if (webhookSecret && !signature) {
+            console.error('[WEBHOOK] Missing signature while secret is configured');
+            return NextResponse.json({ error: 'Missing signature' }, { status: 401 });
+        } else {
+            payload = await request.json();
+        }
 
         const { parcel, action } = payload;
 
         if (action === 'parcel_status_changed' && parcel) {
             const { id: sendcloudParcelId, status, tracking_url, order_number } = parcel;
 
-            // Find the quote/order associated with this parcel
-            // We might have stored the SendCloud Parcel ID or we can look up by order number (quote ID)
-
-            let quoteDoc = null;
-
-            // Strategy 1: Look up by Quote ID if 'order_number' matches our Quote ID
             if (order_number) {
-                const quoteRef = doc(db, 'quotes', order_number);
-                // We can't verify existence easily without reading, but updateDoc fails if not found? 
-                // Better to query if we are not sure order_number is exactly the ID.
-                // Let's try to query by ID first.
-                // actually doc() creates a reference.
-            }
-
-            // Strategy 2: Query by a stored 'sendcloudParcelId' if we saved it (we haven't yet).
-            // Strategy 3: Query by 'id' (Quote ID) assuming order_number is the Quote ID.
-
-            if (order_number) {
-                const q = query(collection(db, 'quotes'), where('id', '==', order_number));
-                // Note: 'id' field in our docs is usually the doc ID, but we also store it as a field sometimes?
-                // In our previous code: const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // So 'id' is the doc ID.
-
-                // If order_number IS the doc ID:
                 const docRef = doc(db, 'quotes', order_number);
 
-                // Map SendCloud status to our status
-                // SendCloud statuses: 'announced', 'unannounced', 'created', 'sent', 'arrived', 'out_for_delivery', 'delivered', 'cancelled', 'error'
-
-                let newStatus = 'processing';
-                if (status.id === 11 || status.message === 'Delivered') { // 11 is often delivered
-                    newStatus = 'closed'; // or 'completed'
-                } else if (status.message === 'Out for delivery') {
-                    newStatus = 'processing';
-                }
-
                 await updateDoc(docRef, {
-                    shippingStatus: status.message, // Store the specific shipping status
+                    shippingStatus: status.message,
                     trackingUrl: tracking_url,
                     sendcloudParcelId: sendcloudParcelId,
                     lastUpdate: new Date().toISOString()

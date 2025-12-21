@@ -1,4 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="20" fill="#4338ca" />
-  <text x="50" y="70" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle">B</text>
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: scale(0.6) translate(6.5px, -5px); }
+            50% { opacity: 0.6; transform: scale(0.7) translate(5.5px, -4px); }
+        }
+        .star {
+            animation: twinkle 3s ease-in-out infinite;
+            transform-origin: center;
+        }
+    </style>
+    <!-- Smartphone Outline -->
+    <rect x="6.5" y="3" width="11" height="19" rx="2" stroke="#eab308" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M10.5 4.5h3" stroke="#eab308" stroke-width="1.5" stroke-linecap="round"/>
+    
+    <!-- Single Top-Right Star (Animated) -->
+    <!-- Note: Transform is handled in CSS for animation, base path is centered-ish -->
+    <path class="star" d="M12 2L14.39 8.26L21 10.5L14.39 12.74L12 19L9.61 12.74L3 10.5L9.61 8.26L12 2Z" fill="#eab308" style="transform-box: fill-box; transform-origin: center;" />
 </svg>

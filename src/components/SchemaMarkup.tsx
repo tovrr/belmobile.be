@@ -2,19 +2,19 @@
 
 import React from 'react';
 import { useLanguage } from '../hooks/useLanguage';
-import { MOCK_SHOPS } from '../constants';
-import { Product, FAQItem } from '../types';
+import { SHOPS } from '../constants';
+import { Product, Shop } from '../types';
 
 interface SchemaProps {
     type?: 'organization' | 'product' | 'breadcrumb' | 'faq' | 'article';
     product?: Product;
     breadcrumbs?: { name: string; item: string }[];
     faqItems?: { question: string; answer: string }[];
-    shops?: any[]; // Using any[] to avoid circular dependency with Shop type if not imported, but better to import Shop
+    shops?: Shop[];
     isAvailable?: boolean;
 }
 
-const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, breadcrumbs, faqItems, shops = MOCK_SHOPS, isAvailable = true }) => {
+const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, breadcrumbs, faqItems, shops = SHOPS, isAvailable = true }) => {
     const { language } = useLanguage();
 
     // 1. Organization Schema (Brand Authority) - Always present on Home
@@ -125,7 +125,7 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
         "image": product.imageUrl,
         "author": {
             "@type": "Person",
-            "name": (product as any).author || "Belmobile Team"
+            "name": (product as Product & { author?: string }).author || "Belmobile Team"
         },
         "publisher": {
             "@type": "Organization",
@@ -135,7 +135,7 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
                 "url": "https://belmobile.be/logo.png"
             }
         },
-        "datePublished": (product as any).date || new Date().toISOString(),
+        "datePublished": (product as Product & { date?: string }).date || new Date().toISOString(),
         "description": product.description
     } : null;
 

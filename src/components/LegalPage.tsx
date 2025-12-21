@@ -13,13 +13,11 @@ const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
 
     const getIcon = () => {
         switch (type) {
-            case 'privacy': return LockClosedIcon;
-            case 'cookies': return DocumentTextIcon;
-            case 'warranty': return ShieldCheckIcon;
+            case 'privacy': return <LockClosedIcon className="h-12 w-12" />;
+            case 'cookies': return <DocumentTextIcon className="h-12 w-12" />;
+            case 'warranty': return <ShieldCheckIcon className="h-12 w-12" />;
         }
     };
-
-    const Icon = getIcon();
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-12 transition-colors duration-300">
@@ -28,7 +26,7 @@ const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
                 <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg p-8 sm:p-12 border border-gray-100 dark:border-slate-700">
                     <div className="flex items-center justify-center mb-8">
                         <div className="bg-bel-blue/10 dark:bg-blue-900/20 p-4 rounded-full text-bel-blue dark:text-blue-400">
-                            <Icon className="h-12 w-12" />
+                            {getIcon()}
                         </div>
                     </div>
 

@@ -8,6 +8,7 @@ import { CheckCircleIcon, BuildingStorefrontIcon, UserGroupIcon, TruckIcon, Char
 import Input from './ui/Input';
 import Textarea from './ui/Textarea';
 import Button from './ui/Button';
+import Image from 'next/image';
 
 const InfoCard: React.FC<{ icon: React.ElementType, title: string, description: string }> = ({ icon: Icon, title, description }) => (
     <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-md flex flex-col items-center text-center border border-gray-100 dark:border-slate-700 transition-all hover:shadow-xl hover:-translate-y-1 duration-300 h-full">
@@ -74,7 +75,13 @@ const Franchise: React.FC = () => {
             {/* Hero Section - Landing Page Style */}
             <div className="relative bg-slate-900 overflow-hidden">
                 <div className="absolute inset-0">
-                    <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1600&auto=format&fit=crop" className="w-full h-full object-cover opacity-10" alt="Mobile Shop Business" />
+                    <Image
+                        src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1600&auto=format&fit=crop"
+                        fill
+                        className="object-cover opacity-10"
+                        alt="Mobile Shop Business"
+                        priority
+                    />
                     <div className="absolute inset-0 bg-linear-to-b from-slate-900/90 to-slate-900"></div>
                 </div>
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32 text-center relative z-10">

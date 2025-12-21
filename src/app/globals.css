@@ -20,6 +20,7 @@
   --color-glass-dark: rgba(15, 23, 42, 0.7);
 
   --font-sans: var(--font-inter), "Inter", sans-serif;
+  --font-heading: var(--font-manrope), "Manrope", sans-serif;
 
   --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.3);
   --shadow-glow-accent: 0 0 20px rgba(234, 179, 8, 0.3);
@@ -84,6 +85,15 @@ textarea {
   transition-duration: 300ms;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+}
+
 :root {
   color-scheme: dark;
 }
@@ -134,4 +144,29 @@ body {
     box-shadow: 0 0 0 100vw rgba(0, 0, 0, 0.7), 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
     z-index: 10000 !important;
   }
+}
+
+/* Hide Number Input Spinners */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spinner {
+  -moz-appearance: textfield;
+}
+
+/* Strict SR-Only Compliance */
+.sr-only {
+  position: absolute !important;
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(50%);
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  margin: -1px;
+  padding: 0;
 }

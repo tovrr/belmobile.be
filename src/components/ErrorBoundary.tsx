@@ -1,5 +1,5 @@
 'use client';
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { ErrorInfo, ReactNode } from 'react';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 interface Props {

@@ -1,119 +1,87 @@
-import React from 'react';
-import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import BuybackRepair from '../../../components/BuybackRepair';
-import SchemaOrg from '../../../components/seo/SchemaOrg';
-import Hreflang from '../../../components/seo/Hreflang';
-import { LOCATIONS } from '../../../data/locations';
-import { SERVICES } from '../../../data/services';
-import { DEVICE_BRANDS } from '../../../data/brands';
-import { createSlug, slugToDisplayName } from '../../../utils/slugs';
-import { Shop } from '../../../types';
-import { DEVICE_TYPES, MOCK_REPAIR_PRICES } from '../../../constants';
-import StoreLocator from '../../../components/StoreLocator';
-import DynamicSEOContent from '../../../components/seo/DynamicSEOContent';
-import { getKeywordsForPage, generateMetaKeywords } from '../../../utils/seo-keywords';
+import { notFound } from 'next/navigation';
 
-// Helper to find service from slug
-const findService = (slug: string, lang: string) => {
-    return SERVICES.find(s =>
-        s.id === slug ||
-        Object.values(s.slugs).includes(slug)
-    );
-};
+import { SERVICES } from '@/data/services';
+import { LOCATIONS, Location } from '@/data/locations';
+import { MOCK_REPAIR_PRICES, DEVICE_TYPES } from '@/constants';
+import { createSlug, slugToDisplayName } from '@/utils/slugs';
+import { getKeywordsForPage, generateMetaKeywords } from '@/utils/seo-keywords';
+import { DEVICE_BRANDS } from '@/data/brands';
+import { Shop } from '@/types';
 
-// Helper to find location from slug
-const findLocation = (slug: string, lang: string) => {
-    return LOCATIONS.find(l =>
-        l.id === slug ||
-        Object.values(l.slugs).includes(slug)
-    );
-};
+import BuybackRepair from '@/components/BuybackRepair';
+import DynamicSEOContent from '@/components/seo/DynamicSEOContent';
+import Hreflang from '@/components/seo/Hreflang';
+import SchemaOrg from '@/components/seo/SchemaOrg';
+import StoreLocator from '@/components/StoreLocator';
 
-// Helper to find device (brand or model) from slug
+interface PageProps {
+    params: Promise<{ lang: string; slug: string[] }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
 const findDevice = (slug: string) => {
-    // Check brands
     for (const [type, brands] of Object.entries(DEVICE_BRANDS)) {
-        const brand = brands.find(b => createSlug(b) === slug);
-        if (brand) return { type: 'brand', value: brand, deviceType: type };
+        const found = (brands as string[]).find(b => createSlug(b) === slug);
+        if (found) return { value: found, deviceType: type };
     }
     return null;
 };
 
-interface PageProps {
-    params: Promise<{
-        lang: string;
-        slug: string[];
-    }>;
-}
-
-// Helper to parse route params
-const parseRouteParams = (slug: string[], lang: string) => {
-    let serviceSlug = slug[0];
-    const storePrefixes = ['magasins', 'winkels', 'stores'];
-    const isStoreRoute = storePrefixes.includes(serviceSlug);
-
-    // If it's a store route (e.g. /fr/magasins/bruxelles), default to 'repair' service context
-    if (isStoreRoute) {
-        // Find the 'repair' service to use as context
-        const repairService = SERVICES.find(s => s.id === 'repair');
-        if (!repairService) return null; // Should never happen
-
-        // Return mostly empty structure but populated service and location parsing
-        // We shift the slug checking: slug[1] becomes the location
-        const locationSlug = slug[1];
-        if (!locationSlug) return null; // /magasins/ without location -> 404 (or handle generic list?)
-
-        const location = findLocation(locationSlug, lang);
-        if (!location) return null;
-
-        return { service: repairService, location, device: null, deviceModel: null, deviceCategory: null, isStoreRoute: true };
-    }
-
-    const service = findService(serviceSlug, lang);
+const parseRouteParams = (slug: string[]) => {
+    const firstSegment = slug[0];
+    const service = SERVICES.find(s => Object.values(s.slugs).includes(firstSegment));
 
     if (!service) return null;
 
-    let location = null;
-    let device = null;
-    let deviceModel = null;
-    let deviceCategory: string | null = null;
+    let location: Location | undefined;
+    let device: { value: string, deviceType: string } | undefined;
+    let deviceModel: string | undefined;
+    let deviceCategory: string | undefined;
 
-    const lastSegment = slug[slug.length - 1];
-    const possibleLocation = findLocation(lastSegment, lang);
+    const segments = [...slug.slice(1)];
 
-    if (possibleLocation) {
-        location = possibleLocation;
-        const deviceSegments = slug.slice(1, slug.length - 1);
-        if (deviceSegments.length > 0) {
-            const segment = deviceSegments[0];
-            const foundDevice = findDevice(segment);
-            if (foundDevice) {
-                device = foundDevice;
-                if (deviceSegments.length > 1) {
-                    deviceModel = deviceSegments[1];
-                }
-            } else {
-                const foundCategory = DEVICE_TYPES.find(t => t.id === segment);
-                if (foundCategory) {
-                    deviceCategory = foundCategory.id;
+    // 1. Check for location (as a standalone segment or suffix)
+    if (segments.length > 0) {
+        // Try standalone first (e.g., /apple/iphone/molenbeek)
+        const last = segments[segments.length - 1];
+        const foundLoc = LOCATIONS.find(l => Object.values(l.slugs).includes(last));
+        if (foundLoc) {
+            location = foundLoc;
+            segments.pop();
+        } else {
+            // Try suffix (e.g., /apple/iphone-molenbeek)
+            for (const seg of segments) {
+                const foundSuffixLoc = LOCATIONS.find(l =>
+                    Object.values(l.slugs).some(s => seg.endsWith(`-${s}`))
+                );
+                if (foundSuffixLoc) {
+                    location = foundSuffixLoc;
+                    // Clean the segment where we found the location
+                    const locSlug = Object.values(foundSuffixLoc.slugs).find(s => seg.endsWith(`-${s}`));
+                    if (locSlug) {
+                        const index = segments.indexOf(seg);
+                        segments[index] = seg.replace(`-${locSlug}`, '');
+                    }
+                    break;
                 }
             }
         }
-    } else {
-        const deviceSegments = slug.slice(1);
-        if (deviceSegments.length > 0) {
-            const segment = deviceSegments[0];
-            const foundDevice = findDevice(segment);
-            if (foundDevice) {
-                device = foundDevice;
-                if (deviceSegments.length > 1) {
-                    deviceModel = deviceSegments[1];
-                }
-            } else {
-                const foundCategory = DEVICE_TYPES.find(t => t.id === segment);
-                if (foundCategory) {
-                    deviceCategory = foundCategory.id;
+    }
+
+    // 2. Parse device/model/category from remaining segments
+    if (segments.length > 0) {
+        const seg1 = segments[0];
+        const foundCat = DEVICE_TYPES.find(d => d.id === seg1);
+        if (foundCat) {
+            deviceCategory = foundCat.id;
+        } else {
+            const foundDev = findDevice(seg1);
+            if (foundDev) {
+                device = foundDev;
+                deviceCategory = foundDev.deviceType;
+                if (segments.length > 1) {
+                    deviceModel = segments[1];
                 }
             }
         }
@@ -122,15 +90,50 @@ const parseRouteParams = (slug: string[], lang: string) => {
     return { service, location, device, deviceModel, deviceCategory };
 };
 
-export async function generateStaticParams() {
-    // Return empty array to generate pages on-demand (ISR)
-    // This dramatically speeds up build times and avoids static generation errors
-    return [];
-}
+
+
+// Helper functions for Title Generation
+const getRepairSuffix = (lang: string, isHomeConsole: boolean, isPortableConsole: boolean) => {
+    if (isHomeConsole) {
+        if (lang === 'fr') return ': Prix HDMI & Nettoyage';
+        if (lang === 'nl') return ': Prijs HDMI & Reiniging';
+        return ': HDMI & Cleaning Price';
+    }
+    if (isPortableConsole) {
+        if (lang === 'fr') return ': Prix Écran & Joystick';
+        if (lang === 'nl') return ': Prijs Scherm & Joystick';
+        return ': Screen & Joystick Price';
+    }
+    if (lang === 'fr') return ': Prix Écran & Batterie';
+    if (lang === 'nl') return ': Prijs Scherm & Batterij';
+    return ': Screen & Battery Price';
+};
+
+const getBuybackSuffix = (lang: string) => {
+    if (lang === 'fr') return ': Meilleur Prix de Reprise';
+    if (lang === 'nl') return ': Beste Inruilprijs';
+    return ': Best Trade-in Price';
+};
+
+const getRepairServicesText = (lang: string, isHomeConsole: boolean, isPortableConsole: boolean) => {
+    if (isHomeConsole) {
+        if (lang === 'fr') return "la réparation HDMI et le nettoyage";
+        if (lang === 'nl') return "HDMI-reparatie en reiniging";
+        return "HDMI repair and cleaning";
+    }
+    if (isPortableConsole) {
+        if (lang === 'fr') return "la réparation d'écran et de joystick (drift)";
+        if (lang === 'nl') return "schermreparatie en joystick (drift)";
+        return "screen & joystick (drift) repair";
+    }
+    if (lang === 'fr') return "le remplacement d'écran et de batterie";
+    if (lang === 'nl') return "scherm- en batterijvervanging";
+    return "screen & battery replacement";
+};
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { lang, slug } = await params;
-    const routeData = parseRouteParams(slug, lang);
+    const routeData = parseRouteParams(slug);
 
     if (!routeData) return {};
 
@@ -151,9 +154,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // But to be safe and concise: if we have a model, use it. If not, use Brand + 'Device'.
     let displayDeviceName = formattedModel;
     if (!displayDeviceName) {
-        displayDeviceName = formattedBrand ? `${formattedBrand} Appareil` : (isRepair ? 'Smartphone' : 'Appareil');
-        if (lang === 'nl') displayDeviceName = formattedBrand ? `${formattedBrand} Toestel` : (isRepair ? 'Smartphone' : 'Toestel');
-        if (lang === 'en') displayDeviceName = formattedBrand ? `${formattedBrand} Device` : (isRepair ? 'Smartphone' : 'Device');
+        displayDeviceName = formattedBrand || (isRepair ? 'Smartphone' : (lang === 'fr' ? 'Appareil' : lang === 'nl' ? 'Toestel' : 'Device'));
     } else {
         // Optimization: If model doesn't start with Brand, we might want to prepend it ONLY if it's generic.
         // But "iPhone", "Galaxy", "Pixel" are strong enough.
@@ -170,43 +171,66 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Formula: [Service] [Device] [Location] - [Value Prop]
 
     // Value Props (Rotated or selected based on priority)
-    const valuePropFr = isRepair ? "Prix & RDV 30 min" : "Meilleur Prix & Cash";
-    const valuePropNl = isRepair ? "Prijs & Klaar in 30 min" : "Beste Prijs & Cash";
-    const valuePropEn = isRepair ? "Price & 30 min Service" : "Best Price & Cash";
-
     // Keywords generation
     const keywordsList = getKeywordsForPage(lang, service.id, device?.value, deviceModel || undefined, deviceCategory || undefined);
     const keywords = generateMetaKeywords(keywordsList);
 
+    // Check for Console (Home & Portable) to adjust meta props
+    const isHomeConsole = deviceCategory === 'console_home';
+    const isPortableConsole = deviceCategory === 'console_portable';
+
+
+
     if (lang === 'fr') {
         if (isRepair) {
-            title = `Réparation ${displayDeviceName} ${locationName || 'Bruxelles'} - ${valuePropFr}`;
-            description = `Réparation professionnelle de votre ${fullDeviceName} chez Belmobile ${locationName || 'à Bruxelles'}. Remplacement écran/batterie en 30 min. Pièces de qualité & Garantie 1 an.`;
+            title = `Réparation ${displayDeviceName} ${locationName || 'Bruxelles'} ${getRepairSuffix('fr', isHomeConsole, isPortableConsole)}`;
+            description = `Réparation ${displayDeviceName} à ${locationName || 'Bruxelles'}. Découvrez nos tarifs pour ${getRepairServicesText('fr', isHomeConsole, isPortableConsole)}. Service rapide en 30 min, sans rendez-vous. Garantie 1 an.`;
         } else {
-            title = `Rachat ${displayDeviceName} ${locationName || 'Bruxelles'} - ${valuePropFr}`;
-            description = `Vendez votre ${fullDeviceName} au meilleur prix chez Belmobile ${locationName || 'Bruxelles'}. Estimation immédiate et paiement cash. Recyclage éco-responsable.`;
+            title = `Rachat ${displayDeviceName} ${locationName || 'Bruxelles'} ${getBuybackSuffix('fr')}`;
+            description = `Vendez votre ${fullDeviceName} au meilleur prix chez Belmobile à ${locationName || 'Bruxelles'}. Estimation immédiate et paiement cash. Offre de reprise sérieuse et écologique.`;
         }
     } else if (lang === 'nl') {
         if (isRepair) {
-            title = `Reparatie ${displayDeviceName} ${locationName || 'Brussel'} - ${valuePropNl}`;
-            description = `Professionele reparatie van uw ${fullDeviceName} bij Belmobile ${locationName || 'Brussel'}. Scherm/batterij vervangen in 30 min. 1 jaar garantie.`;
+            title = `Reparatie ${displayDeviceName} ${locationName || 'Brussel'} ${getRepairSuffix('nl', isHomeConsole, isPortableConsole)}`;
+            description = `Reparatie ${displayDeviceName} in ${locationName || 'Brussel'}. Bekijk onze prijzen voor ${getRepairServicesText('nl', isHomeConsole, isPortableConsole)}. Klaar in 30 min, zonder afspraak. 1 jaar garantie.`;
         } else {
-            title = `Inkoop ${displayDeviceName} ${locationName || 'Brussel'} - ${valuePropNl}`;
-            description = `Verkoop uw ${fullDeviceName} voor de beste prijs bij Belmobile ${locationName || 'Brussel'}. Directe schatting en contante betaling.`;
+            // Updated to "Verkoop uw" (Sell your) for better user intent matching
+            title = `Verkoop uw ${displayDeviceName} ${locationName || 'Brussel'} ${getBuybackSuffix('nl')}`;
+            description = `Verkoop uw ${fullDeviceName} voor de beste prijs bij Belmobile in ${locationName || 'Brussel'}. Directe schatting en contante betaling.`;
         }
     } else {
         if (isRepair) {
-            title = `${displayDeviceName} Repair ${locationName || 'Brussels'} - ${valuePropEn}`;
-            description = `Professional repair of your ${fullDeviceName} at Belmobile ${locationName || 'Brussels'}. Screen/battery replacement in 30 min. 1 year warranty.`;
+            title = `${displayDeviceName} Repair ${locationName || 'Brussels'} ${getRepairSuffix('en', isHomeConsole, isPortableConsole)}`;
+            description = `Professional ${displayDeviceName} repair in ${locationName || 'Brussels'}. Check our prices for ${getRepairServicesText('en', isHomeConsole, isPortableConsole)}. Done in 30 min. 1 Year Warranty.`;
         } else {
-            title = `Sell ${displayDeviceName} ${locationName || 'Brussels'} - ${valuePropEn}`;
-            description = `Sell your ${fullDeviceName} for the best price at Belmobile ${locationName || 'Brussels'}. Instant quote and cash payment. Eco-friendly recycling.`;
+            title = `Sell ${displayDeviceName} ${locationName || 'Brussels'} ${getBuybackSuffix('en')}`;
+            description = `Sell your ${fullDeviceName} for the best price at Belmobile in ${locationName || 'Brussels'}. Instant quote and cash payment. Eco-friendly recycling.`;
         }
     }
 
     const baseUrl = 'https://belmobile.be';
     const currentUrl = `${baseUrl}/${lang}/${slug.join('/')}`;
-    const ogImage = device && device.value ? `${baseUrl}/images/brands/${device.value.toLowerCase()}.jpg` : `${baseUrl}/og-image.jpg`; // Fallback to generic
+
+    // Dynamic OG Image Strategy via API Route
+    // We construct the URL with title and subtitle params
+
+    // Create a cleaner, punchier title for social media keys
+    let ogDisplayTitle = '';
+    if (lang === 'fr') ogDisplayTitle = isRepair ? `Réparation ${displayDeviceName}` : `Rachat ${displayDeviceName}`;
+    else if (lang === 'nl') ogDisplayTitle = isRepair ? `Reparatie ${displayDeviceName}` : `Verkoop ${displayDeviceName}`;
+    else ogDisplayTitle = isRepair ? `${displayDeviceName} Repair` : `Sell ${displayDeviceName}`;
+
+    const ogTitle = encodeURIComponent(ogDisplayTitle);
+
+    // Create a subtitle based on valid props
+    const ogSubtitleText = isRepair
+        ? (lang === 'fr' ? 'En 30 minutes • Garantie 1 An' : lang === 'nl' ? 'In 30 minuten • 1 Jaar Garantie' : 'Done within 30 minutes • 1 Year Warranty')
+        : (lang === 'fr' ? 'Meilleur Prix Garanti • Paiement Cash' : lang === 'nl' ? 'Beste Prijs Garantie • Direct Cash' : 'Best Price Guaranteed • Instant Cash');
+    const ogSubtitle = encodeURIComponent(ogSubtitleText);
+
+    // const ogImage = device && device.value ? `${baseUrl}/images/brands/${device.value.toLowerCase()}.jpg` : `${baseUrl}/og-image.jpg`; 
+    // Use API Route
+    const ogImage = `${baseUrl}/api/og?title=${ogTitle}&subtitle=${ogSubtitle}`;
 
     return {
         title,
@@ -262,7 +286,12 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
     const { lang, slug } = await params;
     const resolvedSearchParams = await searchParams;
 
-    const routeData = parseRouteParams(slug, lang);
+    // Filter out asset paths that might have fallen through
+    if (slug.some(s => ['cdn', 'checkouts', 'images', 'assets', 'static'].includes(s))) {
+        return notFound();
+    }
+
+    const routeData = parseRouteParams(slug);
 
     if (!routeData) {
         return notFound();
@@ -276,7 +305,9 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
 
     // 3. Construct Props for BuybackRepair
     const type = service.id === 'repair' ? 'repair' : 'buyback';
-    const initialShop = location ? location.id : undefined;
+    // Fix for Hub Pages: Do not pass the Hub ID (e.g., 'bruxelles') as initialShop.
+    // This allows the wizard to remain "neutral" so the user can choose a specific store (Schaerbeek, etc.) later.
+    const initialShop = location && !location.isHub ? location.id : undefined;
     const initialDevice = device ? {
         brand: device.value,
         model: deviceModel || ''
@@ -321,6 +352,52 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
         }));
     }
 
+
+    // 6. Generate Page Title (H1)
+    const isRepair = service.id === 'repair';
+
+
+
+
+    // Display Name Logic
+    const formattedModel = deviceModel ? slugToDisplayName(deviceModel) : '';
+    const formattedBrand = device ? device.value.charAt(0).toUpperCase() + device.value.slice(1) : '';
+
+    let displayDeviceName = formattedModel;
+    if (!displayDeviceName) {
+        displayDeviceName = formattedBrand || (isRepair ? 'Smartphone' : (lang === 'fr' ? 'Appareil' : lang === 'nl' ? 'Toestel' : 'Device'));
+    }
+
+    const locationName = location ? location.name.replace('Belmobile ', '') : '';
+
+    // Helper to format location string with preposition or simple space if needed
+    // For titles, often "Title City" is enough. For sentences, "Title in City" needed.
+    const titleLocationSuffix = locationName ? ` ${locationName}` : '';
+
+    let pageTitle = '';
+    if (lang === 'fr') {
+        pageTitle = isRepair ? `Réparation ${displayDeviceName}${titleLocationSuffix}` : `Rachat ${displayDeviceName}${titleLocationSuffix}`;
+    } else if (lang === 'nl') {
+        pageTitle = isRepair ? `Reparatie ${displayDeviceName}${titleLocationSuffix}` : `Verkoop uw ${displayDeviceName}${titleLocationSuffix}`;
+    } else {
+        pageTitle = isRepair ? `${displayDeviceName} Repair${titleLocationSuffix}` : `Sell ${displayDeviceName}${titleLocationSuffix}`;
+    }
+
+
+
+    // Calculate minPrice for SchemaOrg
+    let minPrice: number | undefined;
+    if (device && deviceModel && service.id === 'repair') {
+        const pricingSlug = createSlug(`${device.value} ${deviceModel}`);
+        const pricing = MOCK_REPAIR_PRICES.find(p => p.id === pricingSlug);
+        if (pricing) {
+            const prices = Object.values(pricing).filter(v => typeof v === 'number' && v > 0) as number[];
+            if (prices.length > 0) {
+                minPrice = Math.min(...prices);
+            }
+        }
+    }
+
     return (
         <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-950 dark:to-indigo-950 transition-colors duration-500">
             <Hreflang
@@ -333,6 +410,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                 service={service}
                 device={device?.value}
                 deviceModel={deviceModel || undefined}
+                price={minPrice}
             />
 
             <div className="container mx-auto px-4 py-8">
@@ -340,9 +418,9 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                 {/* Hub Map (Only for Hub pages) */}
                 {isHub && (
                     <div className="mb-8">
-                        <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white text-center">
+                        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white text-center">
                             {lang === 'fr' ? 'Nos magasins à Bruxelles' : lang === 'nl' ? 'Onze winkels in Brussel' : 'Our Stores in Brussels'}
-                        </h1>
+                        </h2>
                         <StoreLocator
                             shops={hubShops}
                             className="h-[500px] rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700"
@@ -351,7 +429,9 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                     </div>
                 )}
 
-                {/* Main Conversion Tool */}
+                {/* Invisible H1 for SEO ("The Hack") */}
+                <h1 className="sr-only">{pageTitle}</h1>
+
                 <div className="mt-8">
                     <BuybackRepair
                         type={type}

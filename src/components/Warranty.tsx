@@ -10,24 +10,17 @@ const Warranty: React.FC = () => {
 
     return (
         <LegalPageLayout
-            title={t('Warranty Information')}
-            description={t('Details about our product and repair warranties.')}
+            title={t('warranty_title')}
+            description={t('warranty_content').split('\n')[0]}
             icon={ClipboardDocumentCheckIcon}
         >
-            <section>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('Repair Warranty')}</h2>
-                <p>{t('We offer a 1-year warranty on all our repairs. This covers defects in parts and workmanship.')}</p>
-            </section>
-
-            <section>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('Device Warranty')}</h2>
-                <p>{t('Refurbished devices come with a 1-year warranty. Brand new devices come with the standard manufacturer warranty (usually 2 years).')}</p>
-            </section>
-
-            <section>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('Exclusions')}</h2>
-                <p>{t('The warranty does not cover accidental damage, such as water damage or cracked screens caused by drops.')}</p>
-            </section>
+            <div className="prose dark:prose-invert max-w-none">
+                {t('warranty_content').split('\n').map((line, index) => (
+                    <p key={index} className="mb-4 text-slate-600 dark:text-slate-300">
+                        {line}
+                    </p>
+                ))}
+            </div>
         </LegalPageLayout>
     );
 };

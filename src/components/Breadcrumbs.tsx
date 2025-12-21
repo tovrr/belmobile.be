@@ -7,11 +7,12 @@ import { ChevronRightIcon, HomeIcon } from '@heroicons/react/24/solid';
 import { DEVICE_TYPES } from '../constants';
 import { DEVICE_BRANDS } from '../data/brands';
 import { SEARCH_INDEX } from '../data/search-index';
-import { createSlug } from '../utils/slugs';
+import { createSlug, slugToDisplayName } from '../utils/slugs';
 import { useData } from '../hooks/useData';
 import { getLocalizedProduct } from '../utils/localization';
+import { Product } from '../types';
 
-const getDisplayName = (slug: string, t: (key: string) => string, products: any[], language: string) => {
+const getDisplayName = (slug: string, t: (key: string) => string, products: Product[], language: string) => {
     // 0. Check Dynamic Products (Best for casing like "iPhone")
     const product = products.find(p => p.slug === slug);
     if (product) {
@@ -24,7 +25,7 @@ const getDisplayName = (slug: string, t: (key: string) => string, products: any[
     if (deviceType) return t(deviceType.label);
 
     // 2. Check Brands
-    for (const [typeKey, brands] of Object.entries(DEVICE_BRANDS)) {
+    for (const brands of Object.values(DEVICE_BRANDS)) {
         const brandName = brands.find(b => createSlug(b) === slug);
         if (brandName) return brandName;
     }
@@ -38,8 +39,8 @@ const getDisplayName = (slug: string, t: (key: string) => string, products: any[
     const translation = t(slug);
     if (translation && translation !== slug) return translation;
 
-    // 5. Fallback to capitalization/translation (replace hyphens with spaces)
-    return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    // 5. Fallback to centralized slug utility (strips SEO suffixes and capitalizes)
+    return slugToDisplayName(slug);
 };
 
 const Breadcrumbs: React.FC = () => {

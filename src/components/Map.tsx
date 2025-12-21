@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Shop } from '../types';
 import { PaperAirplaneIcon } from '@heroicons/react/24/solid';
-import { MapPinIcon } from '@heroicons/react/24/outline';
 
 interface MapProps {
     shops: Shop[];
@@ -20,7 +19,6 @@ const Map: React.FC<MapProps> = ({ shops, center, zoom, selectedShopId, hoveredS
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<L.Map | null>(null);
     const markersRef = useRef<{ [key: string]: L.Marker }>({});
-    const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
     // Initialize Map
     useEffect(() => {
@@ -39,7 +37,7 @@ const Map: React.FC<MapProps> = ({ shops, center, zoom, selectedShopId, hoveredS
             // Add Zoom Control to bottom right
             L.control.zoom({ position: 'bottomright' }).addTo(mapRef.current);
         }
-    }, []); // Run once
+    }, [center, zoom]); // Run twice
 
     // Handle User Location
     const handleUseLocation = () => {
@@ -51,7 +49,6 @@ const Map: React.FC<MapProps> = ({ shops, center, zoom, selectedShopId, hoveredS
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
-                setUserLocation([latitude, longitude]);
 
                 if (mapRef.current) {
                     mapRef.current.flyTo([latitude, longitude], 13, {
@@ -125,16 +122,16 @@ const Map: React.FC<MapProps> = ({ shops, center, zoom, selectedShopId, hoveredS
                 iconAnchor: [20, 40] // Bottom center anchor
             });
 
-            const lat = shop.coords?.lat || (shop as any).coordinates?.lat || 0;
-            const lng = shop.coords?.lng || (shop as any).coordinates?.lng || 0;
+            const lat = shop.coords?.lat || 0;
+            const lng = shop.coords?.lng || 0;
 
             const marker = L.marker([lat, lng], { icon })
                 .addTo(map)
                 .on('click', () => {
                     if (onMarkerClick) onMarkerClick(shop.id);
-                    const lat = shop.coords?.lat || (shop as any).coordinates?.lat || 0;
-                    const lng = shop.coords?.lng || (shop as any).coordinates?.lng || 0;
-                    map.flyTo([lat, lng], 14, {
+                    const lat2 = shop.coords?.lat || 0;
+                    const lng2 = shop.coords?.lng || 0;
+                    map.flyTo([lat2, lng2], 14, {
                         duration: 1.2,
                         easeLinearity: 0.25
                     });
@@ -150,8 +147,8 @@ const Map: React.FC<MapProps> = ({ shops, center, zoom, selectedShopId, hoveredS
         if (selectedShopId && mapRef.current) {
             const shop = shops.find(s => s.id === selectedShopId);
             if (shop) {
-                const lat = shop.coords?.lat || (shop as any).coordinates?.lat || 0;
-                const lng = shop.coords?.lng || (shop as any).coordinates?.lng || 0;
+                const lat = shop.coords?.lat || 0;
+                const lng = shop.coords?.lng || 0;
                 mapRef.current.flyTo([lat, lng], 14, {
                     duration: 1.5
                 });

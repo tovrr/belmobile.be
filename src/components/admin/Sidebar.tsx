@@ -3,7 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChartPieIcon, CubeIcon, WrenchScrewdriverIcon, BuildingStorefrontIcon, PhoneIcon, DocumentTextIcon, UserGroupIcon, NewspaperIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import {
+    ChartPieIcon, CubeIcon, WrenchScrewdriverIcon, BuildingStorefrontIcon, PhoneIcon, DocumentTextIcon,
+    Cog6ToothIcon, UserGroupIcon, NewspaperIcon, XMarkIcon
+} from '@heroicons/react/24/outline';
 
 const adminNavLinks = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: ChartPieIcon },
@@ -14,7 +17,10 @@ const adminNavLinks = [
     { name: 'Quotes', path: '/admin/quotes', icon: DocumentTextIcon },
     { name: 'Franchise', path: '/admin/franchise', icon: UserGroupIcon },
     { name: 'Content & SEO', path: '/admin/content', icon: NewspaperIcon },
+    { name: 'Content & SEO', path: '/admin/content', icon: NewspaperIcon },
     { name: 'Repair Pricing', path: '/admin/repair-pricing', icon: WrenchScrewdriverIcon },
+    { name: 'Integrations', path: '/admin/integrations', icon: CubeIcon },
+    { name: 'Settings', path: '/admin/settings', icon: Cog6ToothIcon },
 ];
 
 interface SidebarProps {
@@ -53,7 +59,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     </button>
 
                     {/* Header */}
-                    <div className="h-24 flex items-center justify-center border-b border-white/10 flex-shrink-0">
+                    <div className="h-24 flex items-center justify-center border-b border-white/10 shrink-0">
                         <span className="text-2xl font-black text-white tracking-tight">
                             BEL<span className="text-electric-indigo">ADMIN</span>
                         </span>
@@ -92,9 +98,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     </nav>
 
                     {/* User Profile Snippet */}
-                    <div className="p-4 border-t border-white/10 bg-black/20 flex-shrink-0">
+                    <div className="p-4 border-t border-white/10 bg-black/20 shrink-0">
                         <div className="flex items-center">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-electric-indigo to-purple-500 p-0.5">
+                            <div className="w-10 h-10 rounded-full bg-linear-to-tr from-electric-indigo to-purple-500 p-0.5">
                                 <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-xs font-bold text-white">AD</div>
                             </div>
                             <div className="ml-3">

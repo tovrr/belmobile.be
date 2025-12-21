@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, query, orderBy, where, DocumentData } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db, auth } from '../firebase';
-import { Product, Shop, Service, BlogPost, RepairPricing } from '../types';
+import { Product, Shop, Service, BlogPost, RepairPricing, RepairPriceRecord, Reservation, Quote, FranchiseApplication } from '../types';
 
 export const useProducts = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -11,7 +11,7 @@ export const useProducts = () => {
 
     useEffect(() => {
         const unsub = onSnapshot(collection(db, 'products'), (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as Product));
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
             setProducts(data);
             setLoading(false);
         }, (error) => {
@@ -30,8 +30,16 @@ export const useShops = () => {
 
     useEffect(() => {
         const unsub = onSnapshot(collection(db, 'shops'), (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as Shop));
-            setShops(data);
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Shop));
+
+            // Priority Sort: Liedts (schaerbeek) always first
+            const sortedData = [...data].sort((a, b) => {
+                if (a.id === 'schaerbeek') return -1;
+                if (b.id === 'schaerbeek') return 1;
+                return 0;
+            });
+
+            setShops(sortedData);
             setLoading(false);
         }, (error) => {
             console.error("Error fetching shops:", error);
@@ -49,7 +57,7 @@ export const useServices = () => {
 
     useEffect(() => {
         const unsub = onSnapshot(collection(db, 'services'), (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as Service));
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Service));
             setServices(data);
             setLoading(false);
         }, (error) => {
@@ -69,7 +77,7 @@ export const useBlogPosts = () => {
     useEffect(() => {
         const q = query(collection(db, 'blog_posts'), orderBy('date', 'desc'));
         const unsub = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as BlogPost));
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
             setPosts(data);
             setLoading(false);
         }, (error) => {
@@ -87,14 +95,40 @@ export const useRepairPrices = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsub = onSnapshot(collection(db, 'repair_prices'), (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as RepairPricing));
-            setPrices(data);
+        const unsub = onSnapshot(collection(db, 'repair_prices'), (snap) => {
+            const pricesRaw = snap.docs.map(d => ({ id: d.id, ...d.data() } as RepairPriceRecord));
+
+            // Standardize into the pricing format
+            const aggregated: Record<string, RepairPricing> = {};
+
+            pricesRaw.forEach(record => {
+                const { deviceId, issueId, variants, price, isActive = true } = record;
+                if (!deviceId || !isActive) return;
+
+                if (!aggregated[deviceId]) aggregated[deviceId] = { id: deviceId };
+
+                // Construct logic-friendly keys
+                if (issueId === 'screen' && variants?.quality) {
+                    let q = variants.quality.toLowerCase();
+                    if (q === 'generic-lcd') q = 'generic';
+                    if (q === 'oled-soft') q = 'oled';
+                    if (q === 'original-refurb' || q === 'service-pack' || q === 'original-service-pack') q = 'original';
+                    aggregated[deviceId][`screen_${q}`] = price;
+                } else if (issueId === 'screen' && variants?.position) {
+                    aggregated[deviceId][`screen_${variants.position.toLowerCase()}`] = price;
+                } else {
+                    aggregated[deviceId][issueId] = price;
+                }
+            });
+
+            const finalPrices: RepairPricing[] = Object.values(aggregated);
+            setPrices(finalPrices);
             setLoading(false);
         }, (error) => {
-            console.error("Error fetching repair prices:", error);
+            console.error("Error fetching 'repair_prices':", error);
             setLoading(false);
         });
+
         return () => unsub();
     }, []);
 
@@ -102,17 +136,17 @@ export const useRepairPrices = () => {
 };
 
 export const useReservations = () => {
-    const [reservations, setReservations] = useState<any[]>([]);
+    const [reservations, setReservations] = useState<Reservation[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!auth.currentUser) {
-            setLoading(false);
-            return;
+            const timeoutId = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(timeoutId);
         }
         const q = query(collection(db, 'reservations'), orderBy('date', 'desc'));
         const unsub = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reservation));
             setReservations(data);
             setLoading(false);
         }, (error) => {
@@ -120,23 +154,23 @@ export const useReservations = () => {
             setLoading(false);
         });
         return () => unsub();
-    }, [auth.currentUser]);
+    }, []);
 
     return { reservations, loading };
 };
 
 export const useQuotes = () => {
-    const [quotes, setQuotes] = useState<any[]>([]);
+    const [quotes, setQuotes] = useState<Quote[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!auth.currentUser) {
-            setLoading(false);
-            return;
+            const timeoutId = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(timeoutId);
         }
         const q = query(collection(db, 'quotes'), orderBy('date', 'desc'));
         const unsub = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Quote));
             setQuotes(data);
             setLoading(false);
         }, (error) => {
@@ -144,22 +178,22 @@ export const useQuotes = () => {
             setLoading(false);
         });
         return () => unsub();
-    }, [auth.currentUser]);
+    }, []);
 
     return { quotes, loading };
 };
 
 export const useFranchiseApplications = () => {
-    const [applications, setApplications] = useState<any[]>([]);
+    const [applications, setApplications] = useState<FranchiseApplication[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!auth.currentUser) {
-            setLoading(false);
-            return;
+            const timeoutId = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(timeoutId);
         }
         const unsub = onSnapshot(collection(db, 'franchise_applications'), (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FranchiseApplication));
             setApplications(data);
             setLoading(false);
         }, (error) => {
@@ -167,8 +201,7 @@ export const useFranchiseApplications = () => {
             setLoading(false);
         });
         return () => unsub();
-    }, [auth.currentUser]);
+    }, []);
 
     return { applications, loading };
 };
-

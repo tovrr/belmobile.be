@@ -46,10 +46,10 @@ const ServiceManagement: React.FC = () => {
                                 try {
                                     const { collection, doc, writeBatch } = await import('firebase/firestore');
                                     const { db } = await import('../../firebase');
-                                    const { MOCK_SERVICES } = await import('../../constants');
+                                    const { MOCK_SERVICES } = await import('../../data/mock-admin');
 
                                     const batch = writeBatch(db);
-                                    MOCK_SERVICES.forEach(service => {
+                                    MOCK_SERVICES.forEach((service: Service) => {
                                         const docRef = doc(collection(db, 'services'), String(service.id));
                                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                         const { id, ...data } = service;

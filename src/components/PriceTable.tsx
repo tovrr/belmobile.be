@@ -72,7 +72,6 @@ const PriceTable: React.FC = () => {
                                 const slug = createSlug(`${item.brand} ${item.model}`);
                                 const pricing = repairPrices.find(p => p.id === slug);
                                 const fallback = MOCK_REPAIR_PRICES.find(p => p.id === slug);
-                                const source = pricing || fallback;
 
                                 // Use dynamic price if available, otherwise fallback to estimate
                                 // Fix: Check override -> fallback -> generic

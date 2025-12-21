@@ -56,7 +56,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ product, initialSho
 
     return (
         <div className="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-100 p-4 backdrop-blur-sm animate-fade-in">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-4xl relative transition-all duration-300 border border-gray-100 dark:border-slate-800 flex flex-col max-h-[90vh]">
+            <div className="bg-white/90 dark:bg-slate-900/90 glass-panel rounded-3xl shadow-2xl w-full max-w-4xl relative transition-all duration-300 flex flex-col max-h-[90vh]">
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 z-10 p-2 bg-gray-100 dark:bg-slate-800 rounded-full text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"

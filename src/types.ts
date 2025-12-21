@@ -13,7 +13,7 @@ export interface Shop {
     email: string;
     openingHours: string[];
     coords: { lat: number; lng: number };
-    status: 'open' | 'coming_soon';
+    status: 'open' | 'coming_soon' | 'temporarily_closed';
     googleMapUrl?: string;
     description?: string;
     photos?: string[];
@@ -102,7 +102,8 @@ export interface FranchiseApplication {
 
 export interface BlogPost {
     id: number | string;
-    slug: string;
+    slug: string; // Default slug (usually FR or primary)
+    slugs?: { [lang: string]: string }; // Localized slugs
     title: string;
     excerpt: string;
     content: string;
@@ -155,21 +156,99 @@ export interface MapProps {
     zoom: number;
 }
 
+export interface RepairIssue {
+    id: string;
+    label: string;
+    description?: string;
+    base: number;
+    devices: string[];
+    brands?: string[];
+    iconType: 'heroicon' | 'url';
+    icon: string;
+}
+
 export interface RepairPricing {
     id: string; // model slug
     screen_generic?: number;
     screen_oled?: number;
     screen_original?: number;
-    battery?: number;
-    charging?: number;
-    hdmi?: number;
-    cleaning?: number;
-    disc?: number;
-    storage?: number;
-    joystick?: number;
-    card_reader?: number;
-    keyboard?: number;
-    trackpad?: number;
-    other?: number;
-    updatedAt?: any;
+    [key: string]: number | string | boolean | undefined; // Allow dynamic issue keys
+}
+
+// --- NEW ARCHITECTURE TYPES ---
+
+export interface RepairDimension {
+    key: string; // e.g., 'quality', 'position'
+    label: string; // e.g., 'Quality', 'Position'
+    options: string[]; // e.g., ['Generic', 'OLED', 'Original'], ['Top', 'Bottom']
+}
+
+export interface RepairIssueDefinition {
+    id: string; // e.g., 'screen'
+    label: string; // e.g., 'Screen Replacement'
+    icon: string; // HeroIcon name
+    description?: string;
+    basePrice?: number; // Default base price
+    defaultDimensions?: RepairDimension[]; // Default variations (can be overridden by device)
+    brands?: string[]; // Optional: Restrict to specific brands (e.g. ['Apple'])
+    devices?: string[]; // Optional: Restrict to specific device types (e.g. ['smartphone', 'tablet'])
+}
+
+export interface DeviceCategoryDefinition {
+    id: string; // e.g., 'smartphone', 'console_portable'
+    label: string;
+    supportedIssues: string[]; // IDs of issues supported by this category
+    issueOverrides?: {
+        [issueId: string]: {
+            dimensions?: RepairDimension[]; // Override dimensions for this category
+        }
+    };
+}
+
+export interface GlobalRepairSettings {
+    issues: Record<string, RepairIssueDefinition>; // Map of all possible issues
+    categories: Record<string, DeviceCategoryDefinition>; // Map of device categories
+}
+
+// The stored pricing record in Firestore 'repair_pricing_v2'
+export interface RepairPriceRecord {
+    id?: string;
+    deviceId: string;
+    issueId: string;
+    variants?: Record<string, string>; // e.g. { color: 'black', quality: 'original' }
+    price: number;
+    currency: string;
+    partCost?: number; // Part cost (Expert Mode)
+    laborMinutes?: number; // Labor time (Expert Mode)
+    isActive: boolean;
+    isManual?: boolean; // Manual edit flag for priority boost
+    migrationSource?: string; // Original legacy doc ID
+    updatedAt: string;
+}
+
+// -- Buyback Types --
+export type BuybackCondition = 'new' | 'like-new' | 'good' | 'fair' | 'damaged';
+
+export interface BuybackPriceRecord {
+    id?: string;
+    deviceId: string; // "apple-iphone-13"
+    storage: string; // "128gb", "256gb"
+    condition: BuybackCondition;
+    price: number; // The offer price we give to the customer
+    marketValue?: number; // The "Like New" Resale Value used for calculation
+    currency: string;
+    updatedAt: string;
+}
+
+// -- Product (Sales) Types --
+export type ProductCondition = 'new' | 'like-new' | 'good' | 'fair';
+
+export interface ProductPriceRecord {
+    id?: string;
+    deviceId: string;
+    storage: string;
+    condition: ProductCondition;
+    price: number; // Selling price
+    currency: string;
+    updatedAt: string;
 }

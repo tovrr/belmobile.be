@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { useLanguage } from '../hooks/useLanguage';
-import { motion } from 'framer-motion';
 import { SparklesIcon, UserGroupIcon, RocketLaunchIcon, HeartIcon } from '@heroicons/react/24/outline';
 
 const Careers: React.FC = () => {

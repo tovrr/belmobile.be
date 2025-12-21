@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { NAV_LINKS } from '../constants';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, PhoneIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../hooks/useLanguage';
+
+import Logo from './Logo';
 
 const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,7 +25,11 @@ const Header: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        setIsMenuOpen(false);
+        // Close menu when route changes
+        const handleRouteChange = () => setIsMenuOpen(false);
+        // Use a small timeout to avoid conflict with current render cycle
+        const timer = setTimeout(handleRouteChange, 10);
+        return () => clearTimeout(timer);
     }, [pathname]);
 
     const toggleMenu = () => {
@@ -79,7 +85,7 @@ const Header: React.FC = () => {
                     className={`
                         relative w-full max-w-6xl rounded-full transition-all duration-500
                         ${scrolled || isMenuOpen
-                            ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-glow border border-white/20 dark:border-white/10 px-6 py-3'
+                            ? 'glass-panel shadow-glow px-6 py-3'
                             : 'bg-transparent px-6 py-4'
                         }
                     `}
@@ -87,12 +93,7 @@ const Header: React.FC = () => {
                     <div className="flex items-center justify-between">
                         {/* Logo */}
                         <Link href={`/${language}`} className="flex flex-col group leading-none">
-                            <div className="flex items-center">
-                                <span className={`text-xl font-bold tracking-tight transition-colors ${scrolled ? 'text-slate-900 dark:text-white' : 'text-slate-900 dark:text-white'}`}>
-                                    BELMOBILE<span className="text-cyber-citron">.BE</span>
-                                </span>
-                            </div>
-                            <span className="text-[0.65rem] font-bold tracking-[0.2em] text-slate-500 uppercase mt-0.5 group-hover:text-cyber-citron transition-colors">BUYBACK & REPAIR</span>
+                            <Logo variant="dark" />
                         </Link>
 
                         {/* Desktop Nav */}
@@ -125,7 +126,7 @@ const Header: React.FC = () => {
                                         href={href}
                                         className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${isActive
                                             ? 'bg-white dark:bg-slate-700 text-electric-indigo dark:text-indigo-300 shadow-sm scale-105'
-                                            : 'text-slate-600 dark:text-slate-300 hover:text-electric-indigo dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-700/50'
+                                            : 'text-slate-600 dark:text-slate-300 hover:text-electric-indigo dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-700/50 hover:scale-105'
                                             }`
                                         }
                                     >
@@ -137,25 +138,22 @@ const Header: React.FC = () => {
 
                         {/* Actions */}
                         <div className="flex items-center space-x-3">
-                            {/* Language Selector - Desktop */}
-                            <div className="hidden md:flex items-center bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur-md rounded-full px-1.5 py-1 border border-white/10">
-                                {(['en', 'fr', 'nl'] as const).map(l => (
-                                    <button
-                                        key={l}
-                                        onClick={() => handleLanguageChange(l)}
-                                        className={`px-2.5 py-1 text-[10px] font-bold rounded-full transition-all uppercase ${language === l
-                                            ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                                            }`}
-                                    >
-                                        {l}
-                                    </button>
-                                ))}
+                            {/* Call Support CTA - Desktop */}
+                            <div className="hidden md:flex items-center gap-3">
+                                <span className="hidden lg:block text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('need_help')}</span>
+                                <a
+                                    href="tel:+3222759867"
+                                    className="flex items-center gap-2 bg-electric-indigo/90 hover:bg-electric-indigo text-white rounded-full px-4 py-2 transition-all shadow-lg hover:shadow-indigo-500/30 font-bold text-sm tracking-wide group"
+                                >
+                                    <PhoneIcon className="h-4 w-4 group-hover:animate-pulse" aria-hidden="true" />
+                                    <span>{t('call_support')}</span>
+                                </a>
                             </div>
 
                             {/* Mobile Toggle */}
                             <button
                                 onClick={toggleMenu}
+                                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                                 className="md:hidden p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-700 dark:text-white backdrop-blur-sm transition-colors"
                             >
                                 {isMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}

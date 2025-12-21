@@ -24,7 +24,18 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+    // Unified 'repair_pricing' collection (Legacy/Backup)
+    match /repair_pricing/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // --- Active Pricing Collections ---
     match /repair_prices/{document=**} {
+      allow read: if true;
+      allow write: if true; // TEMPORARY DEBUG
+    }
+    match /buyback_pricing/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
     }
@@ -59,7 +70,8 @@ service cloud.firestore {
 
     // --- Settings / Internal ---
     match /settings/{document=**} {
-      allow read, write: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin();
     }
     
     // Lock down everything else

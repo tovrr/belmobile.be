@@ -14,6 +14,7 @@ const Contact: React.FC = () => {
     const { shops, loadingShops } = useData();
     const { t } = useLanguage();
     const [submitted, setSubmitted] = useState(false);
+    const [honeypot, setHoneypot] = useState('');
 
     // Sort shops: Active shops first, Coming Soon last
     const sortedShops = useMemo(() => {
@@ -26,6 +27,13 @@ const Contact: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (honeypot) {
+            console.warn("Spam detected via honeypot");
+            setSubmitted(true);
+            return;
+        }
+
         const formData = new FormData(e.currentTarget);
         const name = formData.get('name') as string;
         const email = formData.get('email') as string;
@@ -84,6 +92,16 @@ const Contact: React.FC = () => {
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-6">
+                                    <div style={{ display: 'none' }} aria-hidden="true">
+                                        <input
+                                            type="text"
+                                            name="hp_name"
+                                            tabIndex={-1}
+                                            autoComplete="off"
+                                            value={honeypot}
+                                            onChange={(e) => setHoneypot(e.target.value)}
+                                        />
+                                    </div>
                                     <div className="flex items-center gap-4 mb-8">
                                         <div className="w-12 h-12 rounded-2xl bg-bel-blue/10 flex items-center justify-center text-bel-blue dark:text-blue-400">
                                             <EnvelopeIcon className="w-6 h-6" />
@@ -147,7 +165,7 @@ const Contact: React.FC = () => {
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 gap-6">
-                                {sortedShops.map((shop, idx) => (
+                                {sortedShops.map((shop) => (
                                     <div
                                         key={shop.id}
                                         className={`
@@ -197,7 +215,7 @@ const Contact: React.FC = () => {
                                         {shop.status !== 'coming_soon' && (
                                             <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 flex gap-4">
                                                 <a
-                                                    href={(shop as any).gmbUrl || `https://www.google.com/maps?q=${shop.coords?.lat},${shop.coords?.lng}`}
+                                                    href={shop.googleMapUrl || `https://www.google.com/maps?q=${shop.coords?.lat},${shop.coords?.lng}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex-1 py-2.5 px-4 rounded-xl bg-gray-50 dark:bg-slate-700/50 text-bel-dark dark:text-white font-semibold text-center hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-sm"

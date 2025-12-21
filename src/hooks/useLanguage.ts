@@ -38,6 +38,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode; initialLanguage?:
         if (initialLanguage && initialLanguage !== language) {
             setLanguageState(initialLanguage);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialLanguage]);
 
     const setLanguage = (lang: Language) => {

@@ -2,11 +2,11 @@
 // Maps URL slugs (e.g., 'iphone-11') to their Brand and Category
 // This allows us to redirect /pages/reparation-iphone-11 -> /repair/apple/iphone-11 instantly
 
-export const SEARCH_INDEX: Record<string, { brand: string, category: string, model: string }> = {
+export const SEARCH_INDEX: Record<string, { brand: string, category: string, model: string, keywords?: string[] }> = {
     // Apple Smartphones
     'iphone-17-pro-max': { brand: 'Apple', category: 'smartphone', model: 'iPhone 17 Pro Max' },
     'iphone-17-pro': { brand: 'Apple', category: 'smartphone', model: 'iPhone 17 Pro' },
-    'iphone-17-plus': { brand: 'Apple', category: 'smartphone', model: 'iPhone 17 Plus' },
+    'iphone-air': { brand: 'Apple', category: 'smartphone', model: 'iPhone Air' },
     'iphone-17': { brand: 'Apple', category: 'smartphone', model: 'iPhone 17' },
     'iphone-16-pro-max': { brand: 'Apple', category: 'smartphone', model: 'iPhone 16 Pro Max' },
     'iphone-16-pro': { brand: 'Apple', category: 'smartphone', model: 'iPhone 16 Pro' },
@@ -69,17 +69,20 @@ export const SEARCH_INDEX: Record<string, { brand: string, category: string, mod
     'galaxy-tab-s9-ultra': { brand: 'Samsung', category: 'tablet', model: 'Galaxy Tab S9 Ultra' },
 
     // Consoles
-    'playstation-5': { brand: 'Sony', category: 'console', model: 'PlayStation 5 (Disc)' },
-    'playstation-5-disc': { brand: 'Sony', category: 'console', model: 'PlayStation 5 (Disc)' },
-    'playstation-5-digital': { brand: 'Sony', category: 'console', model: 'PlayStation 5 (Digital)' },
-    'playstation-4': { brand: 'Sony', category: 'console', model: 'PlayStation 4 Slim' },
-    'playstation-4-pro': { brand: 'Sony', category: 'console', model: 'PlayStation 4 Pro' },
-    'playstation-4-slim': { brand: 'Sony', category: 'console', model: 'PlayStation 4 Slim' },
-    'nintendo-switch': { brand: 'Nintendo', category: 'console', model: 'Switch V2' },
-    'switch-oled': { brand: 'Nintendo', category: 'console', model: 'Switch OLED' },
-    'switch-v2': { brand: 'Nintendo', category: 'console', model: 'Switch V2' },
-    'switch-lite': { brand: 'Nintendo', category: 'console', model: 'Switch Lite' },
-    '3ds-xl': { brand: 'Nintendo', category: 'console', model: '3DS XL' },
-    'xbox-series-x': { brand: 'Xbox', category: 'console', model: 'Xbox Series X' },
-    'xbox-series-s': { brand: 'Xbox', category: 'console', model: 'Xbox Series S' }
+    'playstation-5': { brand: 'Sony', category: 'console_home', model: 'PlayStation 5 (Disc)', keywords: ['ps5', 'sony', 'console', 'game'] },
+    'playstation-5-disc': { brand: 'Sony', category: 'console_home', model: 'PlayStation 5 (Disc)', keywords: ['ps5', 'sony', 'console', 'game'] },
+    'playstation-5-digital': { brand: 'Sony', category: 'console_home', model: 'PlayStation 5 (Digital)', keywords: ['ps5', 'digital', 'sony', 'console'] },
+    'playstation-5-pro': { brand: 'Sony', category: 'console_home', model: 'PlayStation 5 Pro', keywords: ['ps5', 'pro', 'sony', 'console', 'game'] },
+    'playstation-5-slim': { brand: 'Sony', category: 'console_home', model: 'PlayStation 5 Slim', keywords: ['ps5', 'slim', 'sony', 'console', 'game'] },
+    'playstation-5-slim-digital': { brand: 'Sony', category: 'console_home', model: 'PlayStation 5 Slim (Digital)', keywords: ['ps5', 'slim', 'digital', 'sony', 'console'] },
+    'playstation-4': { brand: 'Sony', category: 'console_home', model: 'PlayStation 4 Slim', keywords: ['ps4', 'sony', 'console'] },
+    'playstation-4-pro': { brand: 'Sony', category: 'console_home', model: 'PlayStation 4 Pro', keywords: ['ps4', 'pro', 'sony'] },
+    'playstation-4-slim': { brand: 'Sony', category: 'console_home', model: 'PlayStation 4 Slim', keywords: ['ps4', 'slim', 'sony'] },
+    'nintendo-switch': { brand: 'Nintendo', category: 'console_portable', model: 'Switch V2', keywords: ['switch', 'joycon', 'nintendo'] },
+    'switch-oled': { brand: 'Nintendo', category: 'console_portable', model: 'Switch OLED', keywords: ['switch', 'oled', 'nintendo'] },
+    'switch-v2': { brand: 'Nintendo', category: 'console_portable', model: 'Switch V2', keywords: ['switch', 'nintendo'] },
+    'switch-lite': { brand: 'Nintendo', category: 'console_portable', model: 'Switch Lite', keywords: ['switch', 'lite', 'nintendo'] },
+    '3ds-xl': { brand: 'Nintendo', category: 'console_portable', model: '3DS XL', keywords: ['3ds', 'nintendo', 'ds'] },
+    'xbox-series-x': { brand: 'Microsoft', category: 'console_home', model: 'Xbox Series X', keywords: ['xbox', 'series x', 'microsoft'] },
+    'xbox-series-s': { brand: 'Microsoft', category: 'console_home', model: 'Xbox Series S', keywords: ['xbox', 'series s', 'microsoft'] }
 };

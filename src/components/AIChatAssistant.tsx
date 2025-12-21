@@ -38,14 +38,16 @@ const AIChatAssistant: React.FC = () => {
     // Effect to update the welcome message if the language changes
     useEffect(() => {
         const welcomeText = t('ai_welcome_message');
-        setMessages(prev => {
-            // Only reset/update if the conversation hasn't really started yet 
-            // (i.e., there is only 1 message and it is from the bot)
-            if (prev.length === 1 && prev[0].sender === 'bot') {
-                return [{ id: 1, text: welcomeText, sender: 'bot' }];
-            }
-            return prev;
-        });
+        // Use a timeout to avoid synchronous setState during effect execution
+        const timer = setTimeout(() => {
+            setMessages(prev => {
+                if (prev.length === 1 && prev[0].sender === 'bot' && prev[0].text !== welcomeText) {
+                    return [{ id: 1, text: welcomeText, sender: 'bot' }];
+                }
+                return prev;
+            });
+        }, 0);
+        return () => clearTimeout(timer);
     }, [language, t]);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -59,9 +61,12 @@ const AIChatAssistant: React.FC = () => {
         scrollToBottom();
     }, [messages, isOpen]);
 
-    const runDemoMode = () => {
+    const runDemoMode = (textOverride?: string) => {
+        // Use override or current input (safety fallback)
+        const textToProcess = textOverride || input;
+
         setTimeout(() => {
-            const lowerInput = input.toLowerCase();
+            const lowerInput = textToProcess.toLowerCase();
             let responseText = t('chat_demo_intro');
 
             if (lowerInput.includes('repair') || lowerInput.includes('fix') || lowerInput.includes('broken')) {
@@ -89,19 +94,21 @@ const AIChatAssistant: React.FC = () => {
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!input.trim()) return;
+        const userText = input; // Capture immediately
+        if (!userText.trim()) return;
 
-        const userMessage: Message = { id: Date.now(), text: input, sender: 'user' };
+        const userMessage: Message = { id: Date.now(), text: userText, sender: 'user' };
         setMessages(prev => [...prev, userMessage]);
         setInput('');
         setIsLoading(true);
 
         // Check for API Key availability
-        // Check for API Key availability
         const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
-        if (!apiKey) {
-            runDemoMode();
+        // Robust check for invalid/placeholder keys
+        if (!apiKey || apiKey.length < 20 || apiKey.includes('YOUR_KEY')) {
+            console.warn("AI Chat: Invalid or missing API Key. Switching to Demo Mode.");
+            runDemoMode(userText);
             return;
         }
 
@@ -146,16 +153,16 @@ const AIChatAssistant: React.FC = () => {
                 systemInstruction: systemInstruction
             });
 
-            const result = await model.generateContent(userMessage.text);
+            const result = await model.generateContent(userText);
             const response = await result.response;
             const text = response.text();
 
             setMessages(prev => [...prev, { id: Date.now() + 1, text, sender: 'bot' }]);
             setIsLoading(false);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Assistant Error:", error);
             // Fallback to demo mode if API fails
-            runDemoMode();
+            runDemoMode(userText);
         }
     };
 

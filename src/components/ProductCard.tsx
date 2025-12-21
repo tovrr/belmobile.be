@@ -6,7 +6,7 @@ import { Product } from '../types';
 import { useShop } from '../hooks/useShop';
 import ReservationModal from './ReservationModal';
 import { useLanguage } from '../hooks/useLanguage';
-import { CameraIcon, BoltIcon } from '@heroicons/react/24/outline';
+import { CameraIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 

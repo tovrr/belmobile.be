@@ -1,6 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyAdminToken } from '@/lib/auth';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+    if (!verifyAdminToken(request)) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const { searchParams } = new URL(request.url);
     const labelUrl = searchParams.get('url');
 
@@ -18,7 +22,6 @@ export async function GET(request: Request) {
 
         const auth = Buffer.from(`${publicKey}:${secretKey}`).toString('base64');
 
-        console.log(`Downloading label from: ${labelUrl}`);
         const response = await fetch(labelUrl, {
             headers: {
                 'Authorization': `Basic ${auth}`
@@ -31,7 +34,6 @@ export async function GET(request: Request) {
         }
 
         const pdfBuffer = await response.arrayBuffer();
-        console.log(`Successfully fetched PDF, size: ${pdfBuffer.byteLength} bytes`);
 
         return new NextResponse(pdfBuffer, {
             headers: {

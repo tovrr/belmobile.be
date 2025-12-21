@@ -10,24 +10,17 @@ const Privacy: React.FC = () => {
 
     return (
         <LegalPageLayout
-            title={t('Privacy Policy')}
-            description={t('Your privacy is important to us. This policy explains how we handle your data.')}
+            title={t('privacy_title')}
+            description={t('privacy_content').split('\n')[0]} // First line as desc
             icon={LockClosedIcon}
         >
-            <section>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('Data Collection')}</h2>
-                <p>{t('We collect information you provide directly to us, such as when you create an account, make a purchase, or contact support.')}</p>
-            </section>
-
-            <section>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('Use of Information')}</h2>
-                <p>{t('We use the information we collect to operate, maintain, and improve our services, to process transactions, and to communicate with you.')}</p>
-            </section>
-
-            <section>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('Data Sharing')}</h2>
-                <p>{t('We do not share your personal information with third parties except as described in this policy or with your consent.')}</p>
-            </section>
+            <div className="prose dark:prose-invert max-w-none">
+                {t('privacy_content').split('\n').map((line, index) => (
+                    <p key={index} className="mb-4 text-slate-600 dark:text-slate-300">
+                        {line}
+                    </p>
+                ))}
+            </div>
         </LegalPageLayout>
     );
 };

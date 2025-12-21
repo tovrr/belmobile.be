@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { CheckCircleIcon, StarIcon } from '@heroicons/react/24/solid';
 
@@ -10,12 +10,12 @@ interface ConditionGuideProps {
 const ConditionGuide: React.FC<ConditionGuideProps> = ({ currentCondition = 'good' }) => {
     const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState<'perfect' | 'very_good' | 'good'>(currentCondition);
+    const [prevCondition, setPrevCondition] = useState(currentCondition);
 
-    useEffect(() => {
-        if (currentCondition) {
-            setActiveTab(currentCondition);
-        }
-    }, [currentCondition]);
+    if (currentCondition !== prevCondition) {
+        setPrevCondition(currentCondition);
+        setActiveTab(currentCondition);
+    }
 
     const conditions = ['perfect', 'very_good', 'good'] as const;
 
@@ -37,8 +37,8 @@ const ConditionGuide: React.FC<ConditionGuideProps> = ({ currentCondition = 'goo
                         key={condition}
                         onClick={() => setActiveTab(condition)}
                         className={`px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center space-x-2 ${activeTab === condition
-                                ? 'bg-bel-blue text-white shadow-lg scale-105'
-                                : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                            ? 'bg-bel-blue text-white shadow-lg scale-105'
+                            : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                             }`}
                     >
                         <StarIcon className={`h-5 w-5 ${activeTab === condition ? 'text-yellow-300' : 'text-gray-400'}`} />
@@ -61,21 +61,21 @@ const ConditionGuide: React.FC<ConditionGuideProps> = ({ currentCondition = 'goo
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                         <div className="flex items-start">
-                            <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                            <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-3 shrink-0" />
                             <div>
                                 <span className="block font-bold text-gray-900 dark:text-white text-sm">{t('condition_functionality_label')}</span>
                                 <span className="text-gray-600 dark:text-gray-400 text-sm">{t(`condition_${activeTab}_functionality`)}</span>
                             </div>
                         </div>
                         <div className="flex items-start">
-                            <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                            <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-3 shrink-0" />
                             <div>
                                 <span className="block font-bold text-gray-900 dark:text-white text-sm">{t('condition_housing_label')}</span>
                                 <span className="text-gray-600 dark:text-gray-400 text-sm">{t(`condition_${activeTab}_housing`)}</span>
                             </div>
                         </div>
                         <div className="flex items-start">
-                            <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                            <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-3 shrink-0" />
                             <div>
                                 <span className="block font-bold text-gray-900 dark:text-white text-sm">{t('condition_display_label')}</span>
                                 <span className="text-gray-600 dark:text-gray-400 text-sm">{t(`condition_${activeTab}_display`)}</span>
@@ -84,21 +84,21 @@ const ConditionGuide: React.FC<ConditionGuideProps> = ({ currentCondition = 'goo
                     </div>
                     <div className="space-y-4">
                         <div className="flex items-start">
-                            <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                            <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-3 shrink-0" />
                             <div>
                                 <span className="block font-bold text-gray-900 dark:text-white text-sm">{t('condition_battery_label')}</span>
                                 <span className="text-gray-600 dark:text-gray-400 text-sm">{t(`condition_${activeTab}_battery`)}</span>
                             </div>
                         </div>
                         <div className="flex items-start">
-                            <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                            <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-3 shrink-0" />
                             <div>
                                 <span className="block font-bold text-gray-900 dark:text-white text-sm">{t('condition_content_label')}</span>
                                 <span className="text-gray-600 dark:text-gray-400 text-sm">{t(`condition_${activeTab}_content`)}</span>
                             </div>
                         </div>
                         <div className="flex items-start">
-                            <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                            <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 mr-3 shrink-0" />
                             <div>
                                 <span className="block font-bold text-gray-900 dark:text-white text-sm">{t('condition_packaging_label')}</span>
                                 <span className="text-gray-600 dark:text-gray-400 text-sm">{t(`condition_${activeTab}_packaging`)}</span>

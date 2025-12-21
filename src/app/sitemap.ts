@@ -3,6 +3,7 @@ import { SERVICES } from '../data/services';
 import { LOCATIONS } from '../data/locations';
 import { DEVICE_BRANDS } from '../data/brands';
 import { createSlug } from '../utils/slugs';
+import { MOCK_BLOG_POSTS } from '../constants';
 
 // Import Models
 import { MODELS as AppleModels } from '../data/models/apple';
@@ -22,7 +23,7 @@ import { MODELS as XboxModels } from '../data/models/xbox';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be';
 
-const MODEL_DATA: Record<string, any> = {
+const MODEL_DATA: Record<string, Record<string, Record<string, number>>> = {
     'apple': AppleModels,
     'samsung': SamsungModels,
     'google': GoogleModels,
@@ -136,6 +137,43 @@ export default function sitemap(): MetadataRoute.Sitemap {
                         }
                     }
                 });
+            });
+        });
+    });
+
+    // 3. Blog
+    languages.forEach(lang => {
+        sitemap.push({
+            url: `${BASE_URL}/${lang}/blog`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.7,
+        });
+
+        MOCK_BLOG_POSTS.forEach(post => {
+            sitemap.push({
+                url: `${BASE_URL}/${lang}/blog/${post.slugs?.[lang] || post.slug || post.id}`,
+                lastModified: new Date(),
+                changeFrequency: 'monthly',
+                priority: 0.6,
+            });
+        });
+    });
+
+    // 4. Other Static Pages
+    const staticPages = [
+        'stores', 'contact', 'faq', 'legal', 'privacy',
+        'terms', 'warranty', 'jobs', 'careers', 'franchise',
+        'business', 'track-order'
+    ];
+
+    languages.forEach(lang => {
+        staticPages.forEach(page => {
+            sitemap.push({
+                url: `${BASE_URL}/${lang}/${page}`,
+                lastModified: new Date(),
+                changeFrequency: 'monthly',
+                priority: 0.5,
             });
         });
     });

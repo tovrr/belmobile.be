@@ -5,6 +5,7 @@ import { useData } from '../../hooks/useData';
 import { PencilIcon, TrashIcon, PlusIcon, ArchiveBoxIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 import ProductModal from './ProductModal';
 import { Product } from '../../types';
+import Image from 'next/image';
 
 const ProductManagement: React.FC = () => {
     const { products, deleteProduct } = useData();
@@ -79,8 +80,8 @@ const ProductManagement: React.FC = () => {
                                     <tr key={product.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-700/50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="h-12 w-12 rounded-xl bg-gray-100 dark:bg-slate-700 overflow-hidden flex-shrink-0 border border-gray-200 dark:border-slate-600">
-                                                    <img src={product.imageUrl} alt="" className="h-full w-full object-cover" />
+                                                <div className="h-12 w-12 rounded-xl bg-gray-100 dark:bg-slate-700 overflow-hidden shrink-0 border border-gray-200 dark:border-slate-600 relative">
+                                                    <Image src={product.imageUrl} alt="" fill className="object-cover" />
                                                 </div>
                                                 <div>
                                                     <div className="font-bold text-gray-900 dark:text-white">{product.name}</div>

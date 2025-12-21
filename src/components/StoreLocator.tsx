@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Shop } from '../types';
 import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
 import Link from 'next/link';
@@ -18,8 +19,8 @@ const Map = dynamic(() => import('../components/Map'), {
     loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Loading Map...</div>
 });
 
-// Helper to check if shop is open based on Brussels Time
-const isShopOpen = (hoursInput: any): boolean => {
+// Helper to check if shop is open based on Brussels Time, supporting day ranges
+const isShopOpen = (hoursInput: string | string[] | undefined): boolean => {
     // Safety check: return false if hoursInput is undefined or empty
     if (!hoursInput) return false;
 
@@ -33,10 +34,9 @@ const isShopOpen = (hoursInput: any): boolean => {
     }
 
     if (hoursString.trim().length === 0) return false;
-
     if (hoursString.includes('Coming Soon') || (hoursString.includes('Closed') && !hoursString.includes(':'))) return false;
 
-    // 1. Get Brussels Time using Intl for robustness across browsers/timezones
+    // 1. Get Brussels Time
     const formatter = new Intl.DateTimeFormat('en-US', {
         timeZone: 'Europe/Brussels',
         weekday: 'short',
@@ -56,17 +56,40 @@ const isShopOpen = (hoursInput: any): boolean => {
 
     const currentHour = parseFloat(currentHourStr) + parseFloat(currentMinuteStr) / 60;
 
-    // 2. Find the line for the current day
+    // 2. Parse all lines and expand ranges
     const lines = hoursString.split('\n');
-    const todayLine = lines.find(line => line.includes(currentDay));
+    const daysMap: { [key: string]: number } = { 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6, 'Sun': 7 };
 
-    if (!todayLine) return false; // No info for today -> assume closed
+    let todayLine = lines.find(line => line.includes(currentDay));
 
+    if (!todayLine) {
+        // Try to handle "Mon-Sat" ranges
+        for (const line of lines) {
+            const dayPart = line.split(':')[0]; // "Mon-Sat"
+            if (dayPart.includes('-')) {
+                const [startDay, endDay] = dayPart.split('-').map(d => d.trim());
+                const startIdx = daysMap[startDay];
+                const endIdx = daysMap[endDay];
+                const currentIdx = daysMap[currentDay];
+
+                if (startIdx && endIdx && currentIdx && currentIdx >= startIdx && currentIdx <= endIdx) {
+                    todayLine = line; // Found usage logic match
+                    // Fix the line for parsing: replace "Mon-Sat" with currentDay e.g. "Wed"
+                    // so the parser below works transparently
+                    // actually logic below does partial replacement.
+                    // Let's just pass the line.
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!todayLine) return false; // Still no info -> closed
     if (todayLine.toLowerCase().includes('closed')) return false;
 
-    // 3. Parse hours from the line (e.g., "Mon: 10:30 - 19:00" or "Fri: 10:30 - 12:30, 14:30 - 19:00")
-    // Remove the day part
-    const timePart = todayLine.replace(currentDay + ':', '').trim();
+    // 3. Parse hours
+    // Remove the day part (everything before first colon)
+    const timePart = todayLine.substring(todayLine.indexOf(':') + 1).trim();
 
     // Split by comma for multiple ranges
     const ranges = timePart.split(',');
@@ -109,12 +132,12 @@ const translateHours = (hours: string, t: (key: string) => string): string => {
 };
 
 interface StoreLocatorProps {
-    shops?: any[];
+    shops?: Shop[];
     className?: string;
     zoom?: number;
 }
 
-const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className, zoom }) => {
+const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className }) => {
     const { shops: contextShops, loadingShops } = useData();
     const shops = propShops || contextShops;
     const { t, language } = useLanguage();
@@ -133,7 +156,7 @@ const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className
     // Filter logic
     const filteredShops = useMemo(() => {
         if (filter === 'open') {
-            return shops.filter(s => s.status === 'open' && isShopOpen(s.openingHours || (s as any).hours));
+            return shops.filter(s => s.status === 'open' && isShopOpen(s.openingHours));
         }
         return shops;
     }, [shops, filter]);
@@ -170,7 +193,7 @@ const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className
                 {/* Header & Filters */}
                 <div className="p-6 border-b border-gray-100 dark:border-white/5 bg-white dark:bg-deep-space sticky top-0 z-20">
                     <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-2xl font-extrabold text-bel-dark dark:text-white tracking-tight">{t('Our Stores')}</h1>
+                        <h2 className="text-2xl font-extrabold text-bel-dark dark:text-white tracking-tight">{t('Our Stores')}</h2>
                         <span className="text-xs font-semibold px-2 py-1 bg-gray-100 dark:bg-slate-800 rounded-md text-gray-500 dark:text-gray-400">
                             {t('locations_count', filteredShops.length)}
                         </span>
@@ -218,7 +241,7 @@ const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className
                         </div>
                     ) : (
                         filteredShops.map(shop => {
-                            const isOpen = shop.status === 'open' ? isShopOpen(shop.openingHours || (shop as any).hours) : false;
+                            const isOpen = shop.status === 'open' ? isShopOpen(shop.openingHours) : false;
                             const isSelected = selectedShopId === shop.id;
                             const isComingSoon = shop.status === 'coming_soon';
                             const isHoursExpanded = expandedHoursId === shop.id;
@@ -249,12 +272,16 @@ const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className
                                             {/* Status Badge */}
                                             <div className="flex flex-col mt-1 mb-3">
                                                 {isComingSoon ? (
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500 self-start">
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-400 self-start shadow-sm">
                                                         {t('Coming Soon')}
                                                     </span>
+                                                ) : shop.status === 'temporarily_closed' ? (
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400 self-start shadow-sm">
+                                                        {t('Temporarily Closed')}
+                                                    </span>
                                                 ) : (
-                                                    <span className={`inline-flex items-center text-xs font-bold ${isOpen ? 'text-green-600 dark:text-green-400' : 'text-red-500'} self-start`}>
-                                                        <span className={`w-2 h-2 rounded-full mr-2 ${isOpen ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
+                                                    <span className={`inline-flex items-center text-[11px] font-bold uppercase tracking-wide px-3 py-1 rounded-full shadow-sm ${isOpen ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'} self-start`}>
+                                                        <span className={`w-1.5 h-1.5 rounded-full mr-2 ${isOpen ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
                                                         {isOpen ? t('Open Now') : t('Closed')}
                                                     </span>
                                                 )}
@@ -312,8 +339,6 @@ const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className
                                                                     let lines: string[] = [];
                                                                     if (shop.openingHours && Array.isArray(shop.openingHours)) {
                                                                         lines = shop.openingHours;
-                                                                    } else if ((shop as any).hours) {
-                                                                        lines = (shop as any).hours.split('\n');
                                                                     }
 
                                                                     if (lines.length === 0) return t('Hours not available');
@@ -334,8 +359,6 @@ const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className
                                                                     let lines: string[] = [];
                                                                     if (shop.openingHours && Array.isArray(shop.openingHours)) {
                                                                         lines = shop.openingHours;
-                                                                    } else if ((shop as any).hours) {
-                                                                        lines = (shop as any).hours.split('\n');
                                                                     }
 
                                                                     return lines.map((line, i) => {
@@ -359,7 +382,7 @@ const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className
 
                                             <div className="flex gap-3">
                                                 <a
-                                                    href={shop.gmbUrl || `https://www.google.com/maps?q=${shop.coords.lat},${shop.coords.lng}`}
+                                                    href={shop.googleMapUrl || `https://www.google.com/maps?q=${shop.coords.lat},${shop.coords.lng}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     onClick={(e) => e.stopPropagation()}

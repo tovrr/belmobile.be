@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useData } from '../../hooks/useData';
 import { Shop } from '../../types';
 
@@ -82,7 +83,7 @@ const StoresList: React.FC<StoresListProps> = ({ lang, shops: propShops, compact
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {sortedShops.map(shop => {
+            {sortedShops.map((shop, index) => {
                 // Fallback for slugs if missing in old data
                 const shopSlug = shop.slugs?.[lang] || shop.id;
 
@@ -95,10 +96,13 @@ const StoresList: React.FC<StoresListProps> = ({ lang, shops: propShops, compact
                         <div className="h-48 bg-slate-800/50 relative">
                             {/* Placeholder Image - could be replaced with shop.photos[0] if available */}
                             {shop.photos && shop.photos.length > 0 ? (
-                                <img
+                                <Image
                                     src={shop.photos[0]}
                                     alt={shop.name}
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    className="object-cover"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    priority={index < 3}
                                 />
                             ) : (
                                 <div className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-slate-500 font-bold text-xl">
@@ -107,7 +111,7 @@ const StoresList: React.FC<StoresListProps> = ({ lang, shops: propShops, compact
                             )}
 
                             {shop.status === 'coming_soon' && (
-                                <div className="absolute top-4 right-4 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                                <div className="absolute top-4 right-4 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow-md z-10">
                                     Coming Soon
                                 </div>
                             )}

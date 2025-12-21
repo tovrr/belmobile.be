@@ -2,7 +2,7 @@ import React from 'react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import Breadcrumbs from '../../components/Breadcrumbs';
-import AIChatAssistant from '../../components/AIChatAssistant';
+import AIChatAssistantWrapper from '../../components/AIChatAssistantWrapper';
 import { Providers } from '../../components/Providers';
 
 export async function generateStaticParams() {
@@ -22,11 +22,11 @@ export default async function LangLayout({
             <div className="min-h-screen flex flex-col font-sans text-slate-900 dark:text-white bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
                 <Header />
                 <Breadcrumbs />
-                <main className="flex-grow">
+                <main className="grow">
                     {children}
                 </main>
                 <Footer />
-                <AIChatAssistant />
+                <AIChatAssistantWrapper />
             </div>
         </Providers>
     );

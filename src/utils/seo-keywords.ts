@@ -28,21 +28,73 @@ export const getKeywordsForPage = (
     }
 
     // 3. Device Specifics
-    if (brand) keywords.push(brand);
-    if (model) {
-        keywords.push(model);
-        // "iPhone 11" specific combos (High Volume)
-        if (model.toLowerCase().includes('iphone 11')) {
-            if (lang === 'fr') keywords.push('écran iphone 11', 'batterie iphone 11', 'réparation iphone 11');
-            if (lang === 'nl') keywords.push('iphone 11 scherm', 'iphone 11 batterij');
+    if (brand) {
+        keywords.push(brand);
+        if (lang === 'fr') keywords.push(`réparation ${brand} bruxelles`);
+        if (lang === 'nl') keywords.push(`reparatie ${brand} brussel`);
+
+        // Generic Apple -> iPhone association
+        if (brand.toLowerCase() === 'apple') {
+            keywords.push('iphone', 'ipad', 'macbook');
+            if (lang === 'fr') keywords.push('réparation iphone bruxelles', 'réparation écran iphone');
+            if (lang === 'nl') keywords.push('iphone reparatie brussel', 'iphone scherm repareren');
         }
     }
 
+    if (model) {
+        keywords.push(model);
+
+        // General iPhone Logic (High Volume)
+        if (model.toLowerCase().includes('iphone')) {
+            keywords.push('iphone', 'apple iphone');
+            if (lang === 'fr') keywords.push(`réparation ${model} bruxelles`, 'écran iphone', 'batterie iphone', 'face id');
+            if (lang === 'nl') keywords.push(`reparatie ${model} brussel`, 'iphone scherm', 'iphone batterij');
+        }
+
+        // Console variations
+        if (model.toLowerCase().includes('playstation 5')) keywords.push('ps5', 'sony ps5', 'playstation 5', 'dualsense');
+        if (model.toLowerCase().includes('playstation 4')) keywords.push('ps4', 'sony ps4', 'dualshock 4');
+        if (model.toLowerCase().includes('switch')) keywords.push('nintendo switch', 'joycon', 'joy-con', 'drift');
+    }
+
+    // Console Category Specific
+    if (category && (category.includes('console') || category === 'game-console')) {
+        keywords.push('console', 'gaming');
+        if (lang === 'fr') keywords.push('hdmi', 'port hdmi', 'surchauffe', 'nettoyage console', 'manette', 'réparation console bruxelles');
+        if (lang === 'nl') keywords.push('hdmi poort', 'oververhitting', 'console reiniging', 'controller', 'console reparatie brussel');
+        if (lang === 'en') keywords.push('hdmi port', 'overheating', 'console cleaning', 'controller');
+    }
+
+    // 4. Location Combinations
     // 4. Location Combinations
     keywords.push(location);
+
     if (lang === 'fr') {
-        keywords.push(`réparation ${brand || 'téléphone'} ${location}`);
         keywords.push('magasin gsm bruxelles');
+
+        if (serviceId === 'buyback' || !serviceId) {
+            keywords.push('rachat gsm bruxelles', 'vendre gsm bruxelles', 'reprise mobile bruxelles', 'vendre iphone bruxelles');
+            keywords.push(`rachat ${brand || 'smartphone'} ${location}`);
+        }
+
+        if (serviceId === 'repair' || !serviceId) {
+            keywords.push(`réparation ${brand || 'smartphone'} ${location}`);
+            keywords.push('réparation iphone bruxelles', 'réparation écran bruxelles');
+        }
+    }
+
+    if (lang === 'nl') {
+        keywords.push('gsm winkel brussel');
+
+        if (serviceId === 'buyback' || !serviceId) {
+            keywords.push('gsm inkoop brussel', 'gsm verkopen brussel', 'iphone verkopen brussel');
+            keywords.push(`inkoop ${brand || 'smartphone'} ${location}`);
+        }
+
+        if (serviceId === 'repair' || !serviceId) {
+            keywords.push(`reparatie ${brand || 'smartphone'} ${location}`);
+            keywords.push('gsm winkel brussel', 'iphone reparatie brussel', 'scherm reparatie brussel');
+        }
     }
 
     return [...new Set(keywords)]; // Remove duplicates

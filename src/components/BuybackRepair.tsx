@@ -1,46 +1,42 @@
-'use client';
+﻿'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useShop } from '../hooks/useShop';
 import Input from './ui/Input';
 import Button from './ui/Button';
 import Select from './ui/Select';
+import { getRepairProfileForModel } from '../config/repair-profiles';
 import { useData } from '../hooks/useData';
 import { db, storage as firebaseStorage } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { jsPDF } from 'jspdf';
-import { Quote } from '../types';
+
+import { usePublicPricing } from '../hooks/usePublicPricing';
 import { useLanguage } from '../hooks/useLanguage';
-import { useRouter, useSearchParams, useParams, usePathname } from 'next/navigation';
+import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import {
     CheckCircleIcon,
     ArrowLeftIcon,
-    SparklesIcon,
     MagnifyingGlassIcon,
     ChevronRightIcon,
     DevicePhoneMobileIcon,
-    ComputerDesktopIcon,
-    TvIcon,
-    PuzzlePieceIcon,
-    PencilSquareIcon,
     BuildingStorefrontIcon,
     TruckIcon,
-    Battery50Icon,
-    FaceSmileIcon,
     XMarkIcon,
     CloudArrowUpIcon,
     DocumentIcon,
     TrashIcon
 } from '@heroicons/react/24/outline';
-import { DEVICE_TYPES, REPAIR_ISSUES, SEO_CONTENT, MOCK_SHOPS, MOCK_REPAIR_PRICES } from '../constants';
+import { DEVICE_TYPES, REPAIR_ISSUES } from '../constants';
 import { DEVICE_BRANDS } from '../data/brands';
 import { createSlug } from '../utils/slugs';
 // import SEO from '../components/SEO'; // SEO handled by page metadata
-import SchemaMarkup from '../components/SchemaMarkup';
-import LocalSEOContent from './LocalSEOContent';
+
 import { getDeviceImage } from '../data/deviceImages';
+import { SEARCH_INDEX } from '../data/search-index';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface BuybackRepairProps {
     type: 'buyback' | 'repair';
@@ -50,14 +46,34 @@ interface BuybackRepairProps {
         brand: string;
         model: string;
     };
+    hideStep1Title?: boolean;
 }
 
-const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initialCategory, initialDevice }) => {
+// --- ANIMATION WRAPPER ---
+const StepWrapper = ({ children, stepKey }: { children: React.ReactNode, stepKey: number }) => {
+    // Critical LCP Fix: Don't animate opacity for the first step on mount.
+    // This allows SSR content to be visible immediately.
+    const isFirstStep = stepKey === 1;
+    return (
+        <motion.div
+            key={stepKey}
+            initial={isFirstStep ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="w-full"
+        >
+            {children}
+        </motion.div>
+    );
+};
+
+const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initialCategory, initialDevice, hideStep1Title }) => {
     const { selectedShop, setSelectedShop } = useShop();
-    const { addQuote, repairPrices, shops } = useData();
+    const { shops } = useData();
     const { t, language } = useLanguage();
     const searchParams = useSearchParams();
-    const pathname = usePathname();
+
     const router = useRouter();
     const params = useParams();
 
@@ -65,7 +81,13 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     const lang = language || params.lang || 'fr';
 
     // State
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(() => {
+        const isGenericModel = initialDevice?.model && ['iphone', 'ipad', 'galaxy', 'pixels', 'switch'].includes(initialDevice.model.toLowerCase());
+        if (initialDevice?.model && !isGenericModel) return 3;
+        if (initialDevice?.brand) return 2;
+        if (initialCategory) return 2;
+        return 1;
+    });
     // Transition State
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [deviceType, setDeviceType] = useState<string>(initialCategory || '');
@@ -86,11 +108,14 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     const [deliveryMethod, setDeliveryMethod] = useState<'dropoff' | 'send'>('dropoff');
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [iban, setIban] = useState('');
+    const [honeypot, setHoneypot] = useState('');
     const [idFile, setIdFile] = useState<File | null>(null);
-    const [isUploading, setIsUploading] = useState(false);
-    const [selectedScreenQuality, setSelectedScreenQuality] = useState<'generic' | 'oled' | 'original'>('generic');
+
+    const [selectedScreenQuality, setSelectedScreenQuality] = useState<'generic' | 'oled' | 'original' | ''>('');
     const [shopSelectionError, setShopSelectionError] = useState(false);
 
+    // Dynamic Pricing Hook
+    const { repairPrices: dynamicRepairPrices, buybackPrices: dynamicBuybackPrices, deviceImage: dynamicImage, loading: pricesLoading } = usePublicPricing(selectedModel ? createSlug(`${selectedBrand} ${selectedModel}`) : '');
     // Contact Form State
     const [customerName, setCustomerName] = useState('');
     const [customerEmail, setCustomerEmail] = useState('');
@@ -103,16 +128,23 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     const [submitted, setSubmitted] = useState(false);
 
     // UI State
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState<{ brand: string; model: string; category: string }[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
     const [isShopListOpen, setIsShopListOpen] = useState(false);
-    const [submittedOrder, setSubmittedOrder] = useState<{ id: string, data: any } | null>(null);
+    const [submittedOrder, setSubmittedOrder] = useState<{ id: string, data: Record<string, unknown> } | null>(null);
 
     // Service Point State
-    const [servicePoint, setServicePoint] = useState<any>(null);
+    const [servicePoint, setServicePoint] = useState<{ name: string; street: string; house_number: string; postal_code: string; city: string;[key: string]: unknown } | null>(null);
 
     // URL Params State
-    const [routeBrand, setRouteBrand] = useState<string | null>(null);
-    const [routeModel, setRouteModel] = useState<string | null>(null);
+    // URL Params State
 
+
+    // Refs
+    const modelSelectRef = useRef<HTMLDivElement>(null);
+
+    // SendCloud Script
     // SendCloud Script
     useEffect(() => {
         const script = document.createElement('script');
@@ -121,11 +153,32 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         document.body.appendChild(script);
 
         return () => {
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
+            document.body.removeChild(script);
         };
     }, []);
+
+    // Normalize Selected Model from Slug to Display Name
+    // This ensures consistency between URL slugs (e.g. 'galaxy-s22') and Select options ('Galaxy S22')
+    useEffect(() => {
+        if (!selectedModel || !deviceType) return;
+
+        const normalizeModel = async () => {
+            if (!selectedBrand) return;
+            try {
+                // Use SEARCH_INDEX to map Slug -> Model Name
+                const searchItem = SEARCH_INDEX[createSlug(`${selectedBrand} ${selectedModel}`)];
+                if (searchItem && searchItem.model && searchItem.model !== selectedModel) {
+                    setSelectedModel(searchItem.model);
+                }
+            } catch (e) {
+                console.error("Error normalizing model", e);
+            }
+        };
+
+        normalizeModel();
+    }, [selectedModel, selectedBrand, deviceType]);
+
+
 
     // Handle initialShop prop - only set if shop is OPEN
     useEffect(() => {
@@ -140,10 +193,12 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
 
     // Handle initialCategory prop
     useEffect(() => {
-        if (initialCategory) {
+        const pCategory = searchParams.get('category');
+        // Only verify/set initialCategory if URL doesn't forbid it or override it
+        if (initialCategory && !pCategory) {
             setDeviceType(initialCategory);
         }
-    }, [initialCategory]);
+    }, [initialCategory, searchParams]);
 
     // Handle initialDevice prop
     useEffect(() => {
@@ -157,12 +212,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         // The 'params' object from useParams() should contain the slug array if we are in [...slug].
         // But this component is used inside the page.
 
-        // For now, let's just ensure routeBrand/routeModel are set correctly.
-        const pBrand = searchParams.get('brand') || (initialDevice?.brand ? createSlug(initialDevice.brand) : null);
-        const pModel = searchParams.get('model') || (initialDevice?.model ? createSlug(initialDevice.model) : null);
 
-        if (pBrand) setRouteBrand(createSlug(pBrand));
-        if (pModel) setRouteModel(createSlug(pModel));
 
         // Sync deviceType with category param if present
         const pCategory = searchParams.get('category');
@@ -173,9 +223,9 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     }, [searchParams, initialDevice, deviceType]);
 
     const openServicePointPicker = () => {
-        // @ts-ignore
+        // @ts-expect-error -- External script not typed
         if (window.sendcloud) {
-            // @ts-ignore
+            // @ts-expect-error -- External script not typed
             window.sendcloud.servicePoints.open(
                 {
                     apiKey: process.env.NEXT_PUBLIC_SENDCLOUD_API_KEY,
@@ -183,7 +233,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                     language: 'en-us',
                     carriers: ['bpost'],
                 },
-                (servicePointObject: any) => {
+                (servicePointObject: { name: string; street: string; house_number: string; postal_code: string; city: string;[key: string]: unknown }) => {
                     console.log('Selected service point:', servicePointObject);
                     setServicePoint(servicePointObject);
                     // Update address fields with service point data
@@ -191,12 +241,36 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                     setCustomerCity(servicePointObject.city);
                     setCustomerZip(servicePointObject.postal_code);
                 },
-                (errors: any) => {
+                (errors: unknown) => {
                     console.error('Service Point Picker errors:', errors);
                 }
             );
         } else {
             console.error('SendCloud script not loaded');
+        }
+    };
+
+    const downloadLabel = async (labelUrl: string) => {
+        try {
+            const response = await fetch(`/api/shipping/download-label?url=${encodeURIComponent(labelUrl)}`, {
+                headers: {
+                    'X-Admin-Token': process.env.NEXT_PUBLIC_ADMIN_API_KEY || ''
+                }
+            });
+            if (!response.ok) throw new Error('Download failed');
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `shipping-label-${Date.now()}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err) {
+            console.error('Error downloading label:', err);
+            alert('Failed to download shipping label. Please try again.');
         }
     };
 
@@ -243,21 +317,35 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
 
 
     // --- DYNAMIC DATA LOADING ---
-    const loadBrandData = async (brandSlug: string) => {
+    const loadedBrandRef = useRef<string | null>(null);
+
+    const loadBrandData = useCallback(async (brandSlug: string) => {
+        // Prevent infinite loops / redundant fetches
+        if (loadedBrandRef.current === brandSlug) return;
+
+        loadedBrandRef.current = brandSlug;
         setIsLoadingData(true);
+
         try {
-            const module = await import(`../data/models/${brandSlug}`);
-            setModelsData(module.MODELS);
-            setSpecsData(module.SPECS);
+            const brandModule = await import(`../data/models/${brandSlug}`);
+
+            if (brandModule && brandModule.MODELS) {
+                setModelsData(brandModule.MODELS);
+                setSpecsData(brandModule.SPECS || {});
+            } else {
+                console.warn(`Module for ${brandSlug} is missing MODELS export`);
+                setModelsData({});
+                setSpecsData({});
+            }
         } catch (error) {
             console.error(`Failed to load data for ${brandSlug}:`, error);
-            console.error(`Failed to load data for ${brandSlug}`, error);
+            loadedBrandRef.current = null;
             setModelsData({});
             setSpecsData({});
         } finally {
             setIsLoadingData(false);
         }
-    };
+    }, []);
 
     // Trigger data loading when selectedBrand changes
     useEffect(() => {
@@ -267,7 +355,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                 setStep(2);
             }
         }
-    }, [selectedBrand, deviceType]);
+    }, [selectedBrand, deviceType, step, selectedModel, loadBrandData]);
 
     // --- LOCAL STORAGE PERSISTENCE ---
     useEffect(() => {
@@ -290,6 +378,8 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
 
     // Handle Model Selection from URL after Data Load & Restore State
     useEffect(() => {
+        const routeModel = searchParams.get('model') || (initialDevice?.model ? createSlug(initialDevice.model) : null);
+
         if (!routeModel) {
             setIsInitialized(true);
             return;
@@ -306,7 +396,10 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                 categoryModels = modelsData[pCategory];
             } else if (!categoryModels || !Object.keys(categoryModels).some(m => createSlug(m) === routeModel)) {
                 const foundCategory = Object.keys(modelsData).find(cat =>
-                    Object.keys(modelsData[cat]).some(m => createSlug(m) === routeModel)
+                    Object.keys(modelsData[cat]).some(m => {
+                        const slug = createSlug(m);
+                        return slug === routeModel || slug.startsWith(routeModel);
+                    })
                 );
                 if (foundCategory) {
                     setDeviceType(foundCategory);
@@ -315,9 +408,21 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             }
 
             if (categoryModels) {
-                const modelName = Object.keys(categoryModels).find(m => createSlug(m) === routeModel);
-                if (modelName) {
-                    setSelectedModel(modelName);
+                // Find exact match first
+                const exactModel = Object.keys(categoryModels).find(m => createSlug(m) === routeModel);
+
+                // Fuzzy match fallback (e.g. 'playstation-5' matching 'playstation-5-disc')
+                // AVOID fuzzy match for generic series names to prevent jumping to first model
+                const isGeneric = ['iphone', 'ipad', 'galaxy', 'pixels', 'switch'].includes(routeModel.toLowerCase());
+                const fuzzyModel = (!exactModel && !isGeneric)
+                    ? Object.keys(categoryModels).find(m => createSlug(m).startsWith(routeModel))
+                    : undefined;
+
+                const finalModelName = exactModel || fuzzyModel;
+                const isExactMatch = !!exactModel;
+
+                if (finalModelName) {
+                    setSelectedModel(finalModelName);
 
                     const pStorage = searchParams.get('storage');
                     const pCondition = searchParams.get('condition');
@@ -329,17 +434,17 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                             setBatteryHealth('normal'); setFaceIdWorking(true);
                             setScreenState('flawless'); setBodyState('flawless');
                             setStep(5);
-                        } else {
+                        } else if (isExactMatch) {
                             setStep(3);
                         }
                     } else {
-                        const key = `buyback_state_${createSlug(selectedBrand)}_${createSlug(modelName)}`;
+                        const key = `buyback_state_${createSlug(selectedBrand)}_${createSlug(finalModelName)}`;
                         const savedState = localStorage.getItem(key);
 
                         if (savedState) {
                             try {
                                 const parsed = JSON.parse(savedState);
-                                setStep(parsed.step || 3);
+                                setStep(parsed.step || (isExactMatch ? 3 : 2));
                                 if (parsed.storage !== undefined) setStorage(parsed.storage);
                                 if (parsed.turnsOn !== undefined) setTurnsOn(parsed.turnsOn);
                                 if (parsed.worksCorrectly !== undefined) setWorksCorrectly(parsed.worksCorrectly);
@@ -361,11 +466,15 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                 if (parsed.customerZip !== undefined) setCustomerZip(parsed.customerZip);
                             } catch (e) {
                                 console.error('Failed to parse saved state', e);
-                                setStep(3);
+                                if (isExactMatch) setStep(3);
+                                else setStep(2);
                             }
-                        } else {
-                            // No saved state, but model is selected via URL, so go to Step 3
+                        } else if (isExactMatch) {
+                            // No saved state, but model is selected via URL and is EXACT, so go to Step 3
                             setStep(3);
+                        } else {
+                            // Generic model or fuzzy match, stay on Step 2
+                            setStep(2);
                         }
                     }
                 } else {
@@ -374,13 +483,13 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                 setIsInitialized(true);
                 setIsTransitioning(false);
 
-                // Force step 3 if we have a valid model selected from URL and we are not already on a later step
-                if (modelName && step < 3) {
+                // Final safety: Force step 3 ONLY if it's an EXACT match
+                if (finalModelName && isExactMatch && step < 3) {
                     setStep(3);
                 }
             }
         }
-    }, [modelsData, routeModel, deviceType, selectedBrand, searchParams]);
+    }, [modelsData, deviceType, selectedBrand, searchParams, initialDevice, step]);
 
     // --- LOGIC: RESET STATES IF DOES NOT TURN ON ---
     useEffect(() => {
@@ -393,83 +502,175 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     }, [turnsOn]);
 
     const handleBrandSelect = (brand: string) => {
-        setIsTransitioning(true);
+        setIsTransitioning(false); // Disable overlay transition for smoother feel
         setSelectedBrand(brand);
         setSelectedModel('');
         router.push(`/${lang}/${typeSlug}/${createSlug(brand)}?category=${deviceType}`);
     };
 
+    // Auto-scroll to model selector when data is ready (UX improvement for mobile)
+    useEffect(() => {
+        if (step === 2 && selectedBrand && !isLoadingData) {
+            // Small timeout to ensure DOM layout is finalized after loading spinner disappears
+            const timer = setTimeout(() => {
+                modelSelectRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [step, selectedBrand, isLoadingData]);
+
+    // --- SEARCH LOGIC ---
+    // --- SEARCH LOGIC ---
+    useEffect(() => {
+        if (searchTerm.length > 2) {
+            setIsSearching(true);
+            const results = Object.values(SEARCH_INDEX).filter((item) =>
+                (item.keywords || []).some((k: string) => k.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                item.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                item.model.toLowerCase().includes(searchTerm.toLowerCase())
+            ).slice(0, 5);
+            setSearchResults(results);
+        } else {
+            setIsSearching(false);
+            setSearchResults([]);
+        }
+    }, [searchTerm]);
+
+    const handleSearchSelect = (item: { brand: string; model: string; category: string }) => {
+        setDeviceType(item.category);
+        setSearchTerm('');
+
+        // Directly handle navigation with item data to avoid stale state
+        setIsTransitioning(false);
+        setSelectedBrand(item.brand);
+        setSelectedModel('');
+
+        if (item.model) {
+            setSelectedModel(item.model);
+            setTimeout(() => {
+                const key = `buyback_state_${createSlug(item.brand)}_${createSlug(item.model)}`;
+                localStorage.removeItem(key);
+                router.push(`/${lang}/${typeSlug}/${createSlug(item.brand)}/${createSlug(item.model)}?category=${item.category}`);
+                if (step < 3) setStep(3);
+            }, 100);
+        } else {
+            router.push(`/${lang}/${typeSlug}/${createSlug(item.brand)}?category=${item.category}`);
+        }
+    };
+
     const handleModelSelect = (model: string) => {
         setIsInitialized(false);
-        setIsTransitioning(true);
+        // setIsTransitioning(true); // Removed to stop "new page" effect
         setSelectedModel(model);
 
-        // Add artificial delay to ensure overlay is visible and transition is smooth
+        // Reduced delay since we don't have the transition overlay
         setTimeout(() => {
             const key = `buyback_state_${createSlug(selectedBrand)}_${createSlug(model)}`;
             localStorage.removeItem(key);
             router.push(`/${lang}/${typeSlug}/${createSlug(selectedBrand)}/${createSlug(model)}?category=${deviceType}`);
             if (step < 3) setStep(3);
-        }, 800);
+        }, 100);
     };
 
     // --- PRICING LOGIC ---
-    const getSingleIssuePrice = (issueId: string) => {
+    const getSingleIssuePrice = useCallback((issueId: string) => {
         if (!deviceType || !selectedBrand || !selectedModel) return null;
-        const slug = createSlug(`${selectedBrand} ${selectedModel}`);
-        const override = repairPrices.find(p => p.id === slug);
-        const fallback = MOCK_REPAIR_PRICES.find(p => p.id === slug);
 
-        if (override || fallback) {
-            const pricingSource = override || fallback;
-            // Simplified check for brevity, assuming structure matches
-            if (issueId === 'screen') return pricingSource?.screen_generic;
-            // ... (Add other fields if needed, or rely on generic logic below if missing)
-            // For now, let's just return if found in either
-            const val = (pricingSource as any)?.[issueId];
-            if (val !== undefined) return val;
+        // 1. Dynamic Price (Admin Dashboard)
+        if (dynamicRepairPrices) {
+            // Special handling for screen to show "From X" (lowest price)
+            if (issueId === 'screen') {
+                const prices: number[] = [];
+                if (dynamicRepairPrices['screen_generic'] !== undefined) prices.push(dynamicRepairPrices['screen_generic']);
+                if (dynamicRepairPrices['screen_oled'] !== undefined) prices.push(dynamicRepairPrices['screen_oled']);
+                if (dynamicRepairPrices['screen_original'] !== undefined) prices.push(dynamicRepairPrices['screen_original']);
+
+                // If we have variant prices, return the lowest valid positive one
+                const validPrices = prices.filter(p => p > 0);
+                if (validPrices.length > 0) {
+                    return Math.min(...validPrices);
+                }
+
+                // FALLBACK: If we have explicit "Call Us" (0) prices but no positive prices, return 0.
+                // This ensures we don't hide the issue if it's "Call Us" only.
+                const callUsPrices = prices.filter(p => p === 0);
+                if (callUsPrices.length > 0) {
+                    return 0; // "From Call Us"
+                }
+
+                // If only -1 exists, we return null (issue hidden).
+                return null;
+            }
+
+            // Standard check
+            if (dynamicRepairPrices[issueId] !== undefined) {
+                return dynamicRepairPrices[issueId];
+            }
         }
 
-        const modelValue = modelsData[deviceType]?.[selectedModel] || 200;
-        const issueData = REPAIR_ISSUES.find(i => i.id === issueId);
-        if (!issueData || issueId === 'other') return null;
+        return null;
+    }, [deviceType, selectedBrand, selectedModel, dynamicRepairPrices]);
 
-        let tierMultiplier = 1;
-        if (modelValue > 800) tierMultiplier = 2.5;
-        else if (modelValue > 400) tierMultiplier = 1.8;
-        else if (modelValue > 200) tierMultiplier = 1.2;
+    // AUTO-SELECT SCREEN QUALITY
+    useEffect(() => {
+        if (type === 'repair' && repairIssues.includes('screen') && !selectedScreenQuality && dynamicRepairPrices) {
+            // Auto-select based on priority and availability
+            if (dynamicRepairPrices.screen_generic !== undefined && dynamicRepairPrices.screen_generic >= 0) {
+                setSelectedScreenQuality('generic');
+            } else if (dynamicRepairPrices.screen_oled !== undefined && dynamicRepairPrices.screen_oled >= 0) {
+                setSelectedScreenQuality('oled');
+            } else if (dynamicRepairPrices.screen_original !== undefined && dynamicRepairPrices.screen_original >= 0) {
+                setSelectedScreenQuality('original');
+            }
+        } else if (!repairIssues.includes('screen') && selectedScreenQuality) {
+            // Optional: Reset quality if screen is deselected?
+            // User might want to keep selection if they re-select, but let's clear to stay clean.
+            setSelectedScreenQuality('');
+        }
+    }, [repairIssues, type, selectedScreenQuality, dynamicRepairPrices]);
 
-        return Math.round(issueData.base * tierMultiplier);
-    };
 
     const buybackEstimate = useMemo(() => {
         if (type !== 'buyback' || !selectedBrand || !selectedModel || !deviceType) return 0;
-        const brandCatalog = modelsData[deviceType];
-        let price = brandCatalog?.[selectedModel] || 0;
 
-        if (storage === '256GB') price += 20;
-        if (storage === '512GB') price += 50;
-        if (storage === '1TB') price += 80;
-        if (storage === '2TB') price += 120;
+        // Dynamic Pricing
+        if (dynamicBuybackPrices && dynamicBuybackPrices.length > 0) {
+            // Find price for storage
+            const storageMatch = dynamicBuybackPrices.find(p => p.storage === storage);
+            let baseParamsPrice = storageMatch ? storageMatch.price : Math.max(...dynamicBuybackPrices.map(p => p.price));
 
-        if (turnsOn === false) price *= 0.10;
-        else if (worksCorrectly === false) price *= 0.50;
-        if (isUnlocked === false) price *= 0.20;
+            // CRITICAL: Deduct exact repair cost if damaged
+            // Get Repair Prices for this device
+            const screenRepairPrice = getSingleIssuePrice('screen') || 100; // Fallback
+            const backRepairPrice = getSingleIssuePrice('back_glass') || 80;
+            const batteryRepairPrice = getSingleIssuePrice('battery') || 60;
+            // const cameraRepairPrice = getSingleIssuePrice('camera_rear') || 80;
 
-        if (selectedBrand === 'Apple' && (deviceType === 'smartphone' || deviceType === 'tablet')) {
-            if (batteryHealth === 'service') price -= 40;
-            if (faceIdWorking === false) price -= 50;
+            // Apply condition deductions
+            if (turnsOn === false) baseParamsPrice = 0; // Dead device = Recycle only (or very low)
+            else if (worksCorrectly === false) baseParamsPrice *= 0.50; // Generic logic fault
+            if (isUnlocked === false) baseParamsPrice = 0; // Locked = 0
+
+            // Specific Penalties
+            if (selectedBrand === 'Apple' && (deviceType === 'smartphone' || deviceType === 'tablet')) {
+                if (batteryHealth === 'service') baseParamsPrice -= batteryRepairPrice;
+                if (faceIdWorking === false) baseParamsPrice -= 150; // Hard to fix
+            }
+
+            if (screenState === 'scratches') baseParamsPrice -= (screenRepairPrice * 0.3); // Polishing or discount
+            if (screenState === 'cracked') baseParamsPrice -= screenRepairPrice; // Full repair cost
+
+            if (bodyState === 'scratches') baseParamsPrice -= 20;
+            if (bodyState === 'dents') baseParamsPrice -= backRepairPrice; // Needs housing
+            if (bodyState === 'bent') baseParamsPrice -= (backRepairPrice + 40);
+
+            // Camera issues (implied from 'worksCorrectly' if granular, but here generic)
+
+            return Math.max(0, Math.round(baseParamsPrice));
         }
 
-        if (screenState === 'scratches') price -= 30;
-        if (screenState === 'cracked') price -= 100;
-        if (bodyState === 'scratches') price -= 20;
-        if (bodyState === 'dents') price -= 50;
-        if (bodyState === 'bent') price -= 80;
-
-        price = price * 0.48;
-        return Math.max(0, Math.round(price));
-    }, [type, deviceType, selectedBrand, selectedModel, storage, turnsOn, worksCorrectly, isUnlocked, batteryHealth, faceIdWorking, screenState, bodyState, modelsData]);
+        return 0;
+    }, [type, deviceType, selectedBrand, selectedModel, storage, turnsOn, worksCorrectly, isUnlocked, batteryHealth, faceIdWorking, screenState, bodyState, dynamicBuybackPrices, getSingleIssuePrice]);
 
     const repairEstimates = useMemo(() => {
         if (type !== 'repair' || !selectedModel || repairIssues.length === 0) return { standard: 0, original: 0, oled: 0, hasScreen: false };
@@ -477,28 +678,62 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         let standardTotal = 0;
         let originalTotal = 0;
         let oledTotal = 0;
+
+        let isStandardValid = true;
+        let isOriginalValid = true;
+        let isOledValid = true;
+
         let hasScreen = false;
 
         repairIssues.forEach(issueId => {
             const basePrice = getSingleIssuePrice(issueId);
-            if (basePrice !== null) {
+            if (basePrice !== null && basePrice !== undefined) {
                 if (issueId === 'screen') {
                     hasScreen = true;
-                    const slug = createSlug(`${selectedBrand} ${selectedModel}`);
-                    const override = repairPrices.find(p => p.id === slug);
-                    const fallback = MOCK_REPAIR_PRICES.find(p => p.id === slug);
-                    const pricingSource = override || fallback;
+                    const d = dynamicRepairPrices;
 
-                    if (pricingSource) {
-                        standardTotal += (pricingSource.screen_generic !== undefined ? pricingSource.screen_generic : basePrice);
-                        oledTotal += (pricingSource.screen_oled !== undefined ? pricingSource.screen_oled : (basePrice * 1.3));
-                        originalTotal += (pricingSource.screen_original !== undefined ? pricingSource.screen_original : (basePrice * 1.6));
+                    let pGeneric, pOled, pOriginal;
+
+                    if (d) {
+                        pGeneric = (d.screen_generic !== undefined && d.screen_generic >= 0) ? d.screen_generic : -1;
+                        pOled = (d.screen_oled !== undefined && d.screen_oled >= 0) ? d.screen_oled : -1;
+                        pOriginal = (d.screen_original !== undefined && d.screen_original >= 0) ? d.screen_original : -1;
                     } else {
-                        standardTotal += basePrice;
-                        oledTotal += (basePrice * 1.3);
-                        originalTotal += (basePrice * 1.6);
+                        pGeneric = basePrice;
+                        pOled = -1;
+                        pOriginal = -1;
                     }
+
+                    // Standard / Generic
+                    if (pGeneric >= 0) {
+                        if (pGeneric === 0) isStandardValid = false;
+                        standardTotal += pGeneric;
+                    } else {
+                        isStandardValid = false; // Screen required but standard not available
+                    }
+
+                    // OLED
+                    if (pOled >= 0) {
+                        if (pOled === 0) isOledValid = false;
+                        oledTotal = (oledTotal === 0 ? pOled : oledTotal + pOled);
+                    } else {
+                        isOledValid = false;
+                    }
+
+                    // Original
+                    if (pOriginal >= 0) {
+                        if (pOriginal === 0) isOriginalValid = false;
+                        originalTotal = (originalTotal === 0 ? pOriginal : originalTotal + pOriginal);
+                    } else {
+                        isOriginalValid = false;
+                    }
+
                 } else {
+                    if (basePrice === 0) {
+                        isStandardValid = false;
+                        isOledValid = false;
+                        isOriginalValid = false;
+                    }
                     standardTotal += basePrice;
                     oledTotal += basePrice;
                     originalTotal += basePrice;
@@ -507,12 +742,12 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         });
 
         return {
-            standard: Math.round(standardTotal),
-            oled: Math.round(oledTotal),
-            original: Math.round(originalTotal),
+            standard: isStandardValid ? Math.round(standardTotal) : -1,
+            oled: isOledValid ? Math.round(oledTotal) : -1,
+            original: isOriginalValid ? Math.round(originalTotal) : -1,
             hasScreen
         };
-    }, [type, deviceType, selectedBrand, selectedModel, repairIssues, repairPrices, modelsData]);
+    }, [type, selectedModel, repairIssues, dynamicRepairPrices, getSingleIssuePrice]);
 
     const handleBack = () => {
         if (step > 1) {
@@ -551,8 +786,28 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         }
     };
 
+    // --- DEFAULTS FOR BUYBACK STEP 3 ---
+    useEffect(() => {
+        if (step === 3 && type === 'buyback' && selectedModel) {
+            const options = specsData[selectedModel] || ['64GB', '128GB', '256GB'];
+            // Select max storage (last option) if not set
+            if (!storage) setStorage(options[options.length - 1]);
+
+            // Set "Best Case" defaults if not set
+            if (turnsOn === null) setTurnsOn(true);
+            if (worksCorrectly === null) setWorksCorrectly(true);
+            if (isUnlocked === null) setIsUnlocked(true);
+
+            if (selectedBrand?.toLowerCase() === 'apple' && (deviceType === 'smartphone' || deviceType === 'tablet')) {
+                if (faceIdWorking === null) setFaceIdWorking(true);
+                if (!batteryHealth) setBatteryHealth('normal');
+            }
+        }
+    }, [step, type, selectedModel, specsData, selectedBrand, deviceType, storage, turnsOn, worksCorrectly, isUnlocked, faceIdWorking, batteryHealth]);
+
     const handleNext = () => {
         setStep(step + 1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const toggleRepairIssue = (id: string) => {
@@ -569,130 +824,211 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         return await getDownloadURL(storageRef);
     };
 
-    const generatePDF = (orderId: string, data: any) => {
+    const generatePDF = (orderId: string, data: Record<string, unknown>) => {
         const doc = new jsPDF();
-        const lineHeight = 10;
-        let y = 20;
 
-        // Header
-        doc.setFontSize(22);
-        doc.setTextColor(67, 56, 202); // Belmobile Blue
-        doc.text('Belmobile.be', 20, y);
-        y += lineHeight;
+        // --- DESIGN CONSTANTS ---
+        const primaryColor = [67, 56, 202]; // Belmobile Blue (#4338ca)
+        const lightGray = [245, 247, 250];
+        const lineHeight = 7;
+        let y = 0;
 
-        doc.setFontSize(16);
+        // --- HELPER FUNCTIONS ---
+        const addSectionTitle = (title: string, yPos: number) => {
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(30, 30, 30);
+            doc.text(title.toUpperCase(), 20, yPos);
+            doc.setDrawColor(200, 200, 200);
+            doc.line(20, yPos + 2, 190, yPos + 2);
+            return yPos + 10;
+        };
+
+        const addField = (label: string, value: string, yPos: number, xOffset: number = 20) => {
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(100, 100, 100);
+            doc.text(label + ':', xOffset, yPos);
+
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(0, 0, 0);
+            // Handle long text wrapping if necessary? simplified for now
+            doc.text(value || '-', xOffset + 40, yPos);
+        };
+
+        // --- HEADER ---
+        // Blue Background
+        doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+        doc.rect(0, 0, 210, 40, 'F');
+
+        // Logo / Title
+        doc.setFontSize(26);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Belmobile.be', 20, 25);
+
+        // Document Type
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${t('Summary')} - ${type === 'buyback' ? t('Buyback') : t('Repair')}`, 190, 25, { align: 'right' });
+
+        y = 60;
+
+        // --- ORDER INFO ---
+        const formattedOrderId = `ORD-${new Date().getFullYear()}-${orderId.substring(0, 6).toUpperCase()}`;
+        const orderDate = new Date().toLocaleDateString(lang === 'fr' ? 'fr-BE' : lang === 'nl' ? 'nl-BE' : 'en-US');
+
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`${t('Order ID')}:`, 20, 50);
+        doc.setFont('helvetica', 'bold');
         doc.setTextColor(0, 0, 0);
-        doc.text(`${t('Summary')} - ${type === 'buyback' ? t('Buyback') : t('Repair')}`, 20, y);
-        y += lineHeight * 1.5;
+        doc.text(formattedOrderId, 80, 50);
 
-        // Order Details
-        doc.setFontSize(12);
-        doc.text(`${t('Order ID')}: ${orderId}`, 20, y);
-        y += lineHeight;
-        doc.text(`${t('Date')}: ${new Date().toLocaleDateString()}`, 20, y);
-        y += lineHeight * 1.5;
-
-        // Customer Info
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text(t('Customer Details'), 20, y);
-        y += lineHeight;
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
-        doc.text(`${t('Name')}: ${data.name || ''}`, 20, y);
-        y += lineHeight;
-        doc.text(`${t('Email')}: ${data.email || ''}`, 20, y);
-        y += lineHeight;
-        doc.text(`${t('Phone')}: ${data.phone || ''}`, 20, y);
-        y += lineHeight;
-        if (data.deliveryMethod === 'send') {
-            doc.text(`${t('Address')}: ${data.address || ''}, ${data.zip || ''} ${data.city || ''}`, 20, y);
-            y += lineHeight;
-        }
-        if (data.iban) {
-            doc.text(`${t('IBAN')}: ${data.iban}`, 20, y);
-            y += lineHeight;
-        }
-        y += lineHeight;
-
-        // Device Info
-        doc.setFontSize(14);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`${t('Date')}:`, 140, 50);
         doc.setFont('helvetica', 'bold');
-        doc.text(t('Device Details'), 20, y);
+        doc.setTextColor(0, 0, 0);
+        doc.text(orderDate, 155, 50);
+
+        // --- CUSTOMER DETAILS ---
+        // Use data object but fallback to state variables to ensure data presence
+        const cName = (data.customerName as string) || (data.name as string) || customerName || '';
+        const cEmail = (data.customerEmail as string) || (data.email as string) || customerEmail || '';
+        const cPhone = (data.customerPhone as string) || (data.phone as string) || customerPhone || '';
+        const cAddress = (data.customerAddress as string) || (data.address as string) || customerAddress || '';
+        const cZip = (data.customerZip as string) || (data.zip as string) || customerZip || '';
+        const cCity = (data.customerCity as string) || (data.city as string) || customerCity || '';
+        const cIban = (data.iban as string) || iban || '';
+
+        y = addSectionTitle(t('Customer Details'), y);
+
+        addField(t('Name'), cName, y);
         y += lineHeight;
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
-        doc.text(`${t('Device')}: ${data.brand} ${data.model}`, 20, y);
+        addField(t('Email'), cEmail, y);
         y += lineHeight;
-        if (data.storage) {
-            doc.text(`${t('Storage')}: ${data.storage}`, 20, y);
+        addField(t('Phone'), cPhone, y);
+        y += lineHeight;
+
+        if (deliveryMethod === 'send') {
+            addField(t('Address'), `${cAddress}, ${cZip} ${cCity}`, y);
             y += lineHeight;
         }
 
-        // Issues / Condition
-        if (type === 'repair' && data.issues) {
-            doc.text(`${t('Repairs')}:`, 20, y);
-            y += lineHeight;
-            data.issues.forEach((issue: string) => {
-                const issueLabel = REPAIR_ISSUES.find(i => i.id === issue)?.label || issue;
-                doc.text(`- ${t(issueLabel)}`, 30, y);
-                y += lineHeight;
-            });
-        } else if (type === 'buyback' && data.condition) {
-            doc.text(`${t('Condition')}:`, 20, y);
-            y += lineHeight;
-            doc.text(`- ${t('Screen')}: ${t(data.condition.screen)}`, 30, y);
-            y += lineHeight;
-            doc.text(`- ${t('Body')}: ${t(data.condition.body)}`, 30, y);
+        if (cIban) {
+            addField(t('IBAN'), cIban, y);
             y += lineHeight;
         }
+        y += 5; // Spacer
+
+        // --- DEVICE DETAILS ---
+        y = addSectionTitle(t('Device Details'), y);
+
+        addField(t('Device'), `${selectedBrand} ${selectedModel} ${(data.category as string) || deviceType || ''}`, y);
         y += lineHeight;
 
-        // Price
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
+        if (data.storage || storage) {
+            addField(t('Storage'), (data.storage as string) || storage, y);
+            y += lineHeight;
+        }
+
+        // Issues / Condition Logic
+        if (type === 'repair') {
+            // Using state repairIssues directly as well
+            const dIssues = data.issues as string[] | undefined;
+            const issuesToPrint = (dIssues && dIssues.length > 0) ? dIssues : repairIssues;
+
+            if (issuesToPrint && issuesToPrint.length > 0) {
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(100, 100, 100);
+                doc.text(t('Repairs') + ':', 20, y);
+
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(0, 0, 0);
+
+                issuesToPrint.forEach((issue: string, index: number) => {
+                    const issueLabel = REPAIR_ISSUES.find(i => i.id === issue)?.label || issue;
+                    // Indented listing
+                    if (index === 0) doc.text(`- ${t(issueLabel)}`, 60, y);
+                    else doc.text(`- ${t(issueLabel)}`, 60, y + (index * lineHeight));
+                });
+                y += (issuesToPrint.length * lineHeight);
+            }
+        } else if (type === 'buyback') {
+            // Condition
+            // Condition
+            const dCondition = data.condition as { screen?: string; body?: string } | undefined;
+            addField(t('Screen'), t(screenState as string || dCondition?.screen || '-'), y);
+            y += lineHeight;
+            addField(t('Body'), t(bodyState as string || dCondition?.body || '-'), y);
+            y += lineHeight;
+        }
+        y += 5;
+
+        // --- FINANCIAL SUMMARY ---
+        // Light background box for price
+        doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
+        doc.setDrawColor(220, 220, 220);
+        doc.roundedRect(20, y, 170, 25, 3, 3, 'FD');
+
         const priceLabel = type === 'buyback' ? t('Estimated Value') : t('Total Cost');
-        doc.text(`${priceLabel}: €${data.price}`, 20, y);
-        y += lineHeight * 2;
+        const priceValue = (data.price as number) || (type === 'buyback' ? buybackEstimate : repairEstimates.original || repairEstimates.standard || 0);
 
-        // Next Steps
-        doc.setFontSize(14);
-        doc.text(t('Next Steps'), 20, y);
-        y += lineHeight;
         doc.setFontSize(12);
-        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        doc.text(priceLabel.toUpperCase(), 30, y + 16);
+
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(67, 56, 202); // Blue
+        doc.text(`\u20AC${Math.round(priceValue)}`, 160, y + 16, { align: 'right' });
+
+        y += 40;
+
+        // --- NEXT STEPS ---
+        y = addSectionTitle(t('Next Steps'), y);
 
         const step1 = type === 'buyback' ? t('success_step_backup') : t('repair_step_backup');
         const step2 = type === 'buyback'
-            ? (data.deliveryMethod === 'send' ? t('success_step_post') : t('success_step_shop'))
-            : (data.deliveryMethod === 'send' ? t('repair_step_post') : t('repair_step_shop'));
+            ? (deliveryMethod === 'send' ? t('success_step_post') : t('success_step_shop'))
+            : (deliveryMethod === 'send' ? t('repair_step_post') : t('repair_step_shop'));
         const step3 = type === 'buyback'
-            ? (data.deliveryMethod === 'send' ? t('success_step_payment_post') : t('success_step_payment_shop'))
-            : (data.deliveryMethod === 'send' ? t('repair_step_payment_post') : t('repair_step_payment_shop'));
+            ? (deliveryMethod === 'send' ? t('success_step_payment_post') : t('success_step_payment_shop'))
+            : (deliveryMethod === 'send' ? t('repair_step_payment_post') : t('repair_step_payment_shop'));
 
-        const splitStep1 = doc.splitTextToSize(`1. ${step1}`, 170);
-        doc.text(splitStep1, 20, y);
-        y += lineHeight * splitStep1.length + 2;
-
-        const splitStep2 = doc.splitTextToSize(`2. ${step2}`, 170);
-        doc.text(splitStep2, 20, y);
-        y += lineHeight * splitStep2.length + 2;
-
-        const splitStep3 = doc.splitTextToSize(`3. ${step3}`, 170);
-        doc.text(splitStep3, 20, y);
-        y += lineHeight * splitStep3.length + 2;
-
-        // Footer
-        y += lineHeight;
         doc.setFontSize(10);
-        doc.setFont('helvetica', 'italic');
-        doc.text(t('Thank you for choosing Belmobile.be'), 20, y);
+        doc.setTextColor(60, 60, 60);
+        doc.setFont('helvetica', 'normal');
 
-        doc.save(`belmobile-order-${orderId}.pdf`);
+        const nextSteps = [`1. ${step1}`, `2. ${step2}`, `3. ${step3}`];
+        nextSteps.forEach(stepText => {
+            const splitText = doc.splitTextToSize(stepText, 170);
+            doc.text(splitText, 20, y);
+            y += (splitText.length * 5) + 3;
+        });
+
+        // --- FOOTER ---
+        const pageHeight = doc.internal.pageSize.height;
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text('Belmobile.be - Your Expert in Mobile Services', 105, pageHeight - 15, { align: 'center' });
+        doc.text('www.belmobile.be', 105, pageHeight - 10, { align: 'center' });
+
+        doc.save(`Belmobile_Order_${formattedOrderId}.pdf`);
     };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (honeypot) {
+            console.warn("Spam detected via honeypot");
+            setSubmitted(true);
+            window.scrollTo(0, 0);
+            return;
+        }
 
         // Validate shop selection for dropoff delivery
         if (deliveryMethod === 'dropoff' && !selectedShop) {
@@ -704,11 +1040,11 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
 
         setShopSelectionError(false);
 
-        setIsUploading(true);
+
         // ... (Validation logic)
 
         const formData = new FormData(e.target as HTMLFormElement);
-        const data: any = Object.fromEntries(formData.entries());
+        const data = Object.fromEntries(formData.entries()) as Record<string, FormDataEntryValue>;
 
         try {
             let idUrl = '';
@@ -724,15 +1060,18 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                 try {
                     const shippingResponse = await fetch('/api/shipping/create-label', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Admin-Token': process.env.NEXT_PUBLIC_ADMIN_API_KEY || ''
+                        },
                         body: JSON.stringify({
                             customer: {
-                                name: data.name,
-                                email: data.email,
-                                phone: data.phone,
-                                address: data.address,
-                                city: data.city,
-                                zip: data.zip,
+                                name: (data.name as string),
+                                email: (data.email as string),
+                                phone: (data.phone as string),
+                                address: (data.address as string),
+                                city: (data.city as string),
+                                zip: (data.zip as string),
                             },
                             servicePoint: servicePoint
                         })
@@ -751,12 +1090,12 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             }
 
             const orderData = {
-                customerName: data.name || '',
-                customerEmail: data.email || '',
-                customerPhone: data.phone || '',
-                customerAddress: data.address || null,
-                customerCity: data.city || null,
-                customerZip: data.zip || null,
+                customerName: (data.name as string) || '',
+                customerEmail: (data.email as string) || '',
+                customerPhone: (data.phone as string) || '',
+                customerAddress: (data.address as string) || null,
+                customerCity: (data.city as string) || null,
+                customerZip: (data.zip as string) || null,
                 brand: selectedBrand || '',
                 model: selectedModel || '',
                 type,
@@ -791,59 +1130,99 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             console.error('Error submitting form:', error);
             alert('Error submitting form.');
         } finally {
-            setIsUploading(false);
         }
     };
 
 
     // --- UI COMPONENTS ---
-    const TransitionOverlay = () => {
-        if (!isTransitioning) return null;
 
-        return (
-            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl animate-fade-in">
-                <div className="w-16 h-16 border-4 border-bel-blue border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p className="font-bold text-gray-900 dark:text-white animate-pulse">{t('Loading details...')}</p>
-            </div>
-        );
-    };
 
     const StepIndicator = () => {
-        const steps = type === 'buyback' ? [1, 2, 3, 4, 5] : [1, 2, 3, 5];
+        // Dynamic labels based on type
+        const getLabel = (id: number) => {
+            if (id === 1) return t('Device');
+            if (id === 2) return t('Model');
+            if (id === 3) return type === 'buyback' ? t('Specs') : t('Diagnostics');
+            if (id === 4) return type === 'buyback' ? t('Condition') : t('Details');
+            if (id === 5) return t('Summary');
+            return '';
+        };
+
+        const currentSteps = type === 'buyback' ? [1, 2, 3, 4, 5] : [1, 2, 3, 5];
+        const currentStepIndex = currentSteps.indexOf(step);
+        // Fallback for transition states where step might not be in array (unlikely but safe)
+        const safeIndex = currentStepIndex === -1 ? 0 : currentStepIndex;
 
         return (
-            <div className="flex items-center justify-center mb-8 relative">
+            <div className="flex flex-col w-full max-w-3xl mx-auto mb-8">
+                <div className="flex justify-between items-center relative z-10">
+                    {currentSteps.map((s, index) => {
+                        // Check completion based on index, not just raw step value, 
+                        // to handle the 4-step sequence correctly.
+                        const isCompleted = safeIndex > index;
+                        const isCurrent = safeIndex === index;
+
+                        return (
+                            <div key={s} className="flex flex-col items-center">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${isCurrent ? 'bg-bel-blue border-bel-blue text-white scale-110 shadow-lg shadow-blue-500/30' :
+                                    isCompleted ? 'bg-bel-blue border-bel-blue text-white' :
+                                        'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 text-gray-400'
+                                    }`}>
+                                    {isCompleted ? <CheckCircleIcon className="w-5 h-5" /> : (index + 1)}
+                                </div>
+                                <span className={`mt-2 text-xs font-medium transition-colors duration-300 ${isCurrent ? 'text-bel-blue' : isCompleted ? 'text-bel-blue' : 'text-gray-400'
+                                    }`}>
+                                    {getLabel(s)}
+                                </span>
+                            </div>
+                        );
+                    })}
+                    {/* Connecting Lines */}
+                    <div className="absolute top-4 left-0 w-full h-0.5 bg-gray-100 dark:bg-slate-800 -z-10" />
+                    <div
+                        className="absolute top-4 left-0 h-0.5 bg-bel-blue transition-all duration-500 -z-10"
+                        style={{ width: `${(safeIndex / (currentSteps.length - 1)) * 100}%` }}
+                    />
+                </div>
+
                 {step > 1 && (
                     <button
                         onClick={handleBack}
-                        className="lg:hidden absolute left-0 p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                        className="lg:hidden absolute top-0 left-0 p-4 text-gray-500"
                     >
                         <ArrowLeftIcon className="h-6 w-6" />
                     </button>
                 )}
-                <div className="flex items-center space-x-2">
-                    {steps.map((s, index) => (
-                        <div key={s} className={`h-2 w-8 rounded-full transition-all duration-300 ${step >= s ? 'bg-bel-blue' : 'bg-gray-200 dark:bg-slate-800'}`} />
-                    ))}
-                </div>
             </div>
         );
     };
 
-    const DesktopSidebar = ({ onNext, nextDisabled, nextLabel }: any) => {
+    const DesktopSidebar = ({ onNext, nextDisabled, nextLabel }: { onNext: () => void; nextDisabled?: boolean; nextLabel?: string }) => {
         const isBuyback = type === 'buyback';
-        let estimateDisplay = null;
+        let estimateDisplay: React.ReactNode = null;
 
         if (isBuyback) {
-            estimateDisplay = buybackEstimate > 0 ? `€${buybackEstimate}` : '-';
+            estimateDisplay = <>&euro;{buybackEstimate}</>;
         } else {
-            if (repairIssues.includes('other')) estimateDisplay = t('Diagnostic');
-            else if (repairEstimates.hasScreen) {
-                if (selectedScreenQuality === 'original') estimateDisplay = `€${repairEstimates.original}`;
-                else if (selectedScreenQuality === 'oled') estimateDisplay = `€${repairEstimates.oled}`;
-                else estimateDisplay = `€${repairEstimates.standard}`;
+            // For Repairs
+            if (repairIssues.length === 0) {
+                estimateDisplay = <>&euro;0</>;
+            } else if (repairIssues.includes('other')) {
+                estimateDisplay = t('Diagnostic');
+            } else {
+                // If it has screen, check selected quality price
+                if (repairEstimates.hasScreen && selectedScreenQuality) {
+                    if (selectedScreenQuality === 'original') estimateDisplay = repairEstimates.original > 0 ? <>&euro;{repairEstimates.original}</> : <span className="text-lg text-bel-blue dark:text-blue-400">{t('contact_for_price')}</span>;
+                    else if (selectedScreenQuality === 'oled') estimateDisplay = repairEstimates.oled > 0 ? <>&euro;{repairEstimates.oled}</> : <span className="text-lg text-bel-blue dark:text-blue-400">{t('contact_for_price')}</span>;
+                    else if (selectedScreenQuality === 'generic') estimateDisplay = repairEstimates.standard > 0 ? <>&euro;{repairEstimates.standard}</> : <span className="text-lg text-bel-blue dark:text-blue-400">{t('contact_for_price')}</span>;
+                    else estimateDisplay = <span className="text-bel-blue dark:text-blue-400 text-sm italic">{t('select_quality_short')}</span>;
+                } else if (repairEstimates.hasScreen && !selectedScreenQuality) {
+                    estimateDisplay = <span className="text-bel-blue dark:text-blue-400 text-sm italic">{t('select_quality_short')}</span>;
+                } else {
+                    // No screen, just standard
+                    estimateDisplay = repairEstimates.standard > 0 ? <>&euro;{repairEstimates.standard}</> : <span className="text-lg text-bel-blue dark:text-blue-400">{t('contact_for_price')}</span>;
+                }
             }
-            else estimateDisplay = `€${repairEstimates.standard}`;
         }
 
         if (step === 1) return null;
@@ -854,23 +1233,34 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                     <div className="bg-bel-blue p-6 text-white text-center">
                         <h3 className="font-bold text-xl mb-2">{t('Summary')}</h3>
                         {(() => {
-                            const specificImage = selectedModel ? getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`)) : null;
+
+                            const specificImage = dynamicImage || (selectedModel ? getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`)) : null);
                             const brandImage = selectedBrand ? getDeviceImage(createSlug(selectedBrand)) : null;
                             const displayImage = specificImage || brandImage;
                             const isFallback = !specificImage;
 
                             return displayImage && (
-                                <div className="relative w-32 h-32 mx-auto mb-3 bg-white/20 rounded-xl p-2 backdrop-blur-sm shadow-inner">
-                                    <Image
-                                        src={displayImage}
-                                        alt={`${selectedBrand} ${selectedModel} ${t(type === 'buyback' ? 'Buyback' : 'Repair')}`}
-                                        fill
-                                        className={`object-contain transition-all ${isFallback ? 'brightness-0 invert p-4 opacity-90' : 'hover:scale-105'}`}
-                                    />
-                                </div>
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={displayImage}
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.9 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="relative w-32 h-32 mx-auto mb-3 bg-white/20 rounded-xl p-2 backdrop-blur-sm shadow-inner"
+                                    >
+                                        <Image
+                                            src={displayImage}
+                                            alt={`${selectedBrand} ${selectedModel} ${t(type === 'buyback' ? 'Buyback' : 'Repair')} service at Belmobile`}
+                                            fill
+                                            sizes="128px"
+                                            className={`object-contain transition-all ${isFallback ? 'brightness-0 invert p-4 opacity-90' : 'hover:scale-105'}`}
+                                        />
+                                    </motion.div>
+                                </AnimatePresence>
                             );
                         })()}
-                        <p className="text-blue-100 text-sm font-medium">{selectedBrand} {selectedModel}</p>
+                        <p className="text-blue-100 text-sm font-medium">{(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase())) ? selectedModel : `${selectedBrand} ${selectedModel}`}</p>
                     </div>
                     <div className="p-6 space-y-6">
                         <div className="space-y-3 text-sm">
@@ -883,7 +1273,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                             {selectedBrand && (
                                 <div className="flex justify-between">
                                     <span className="text-gray-500">{t('Model')}</span>
-                                    <span className="font-medium text-gray-900 dark:text-white">{selectedBrand} {selectedModel}</span>
+                                    <span className="font-medium text-gray-900 dark:text-white">{(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase())) ? selectedModel : `${selectedBrand} ${selectedModel}`}</span>
                                 </div>
                             )}
                             {isBuyback && storage && (
@@ -900,16 +1290,36 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                             const issue = REPAIR_ISSUES.find(i => i.id === issueId);
                                             if (!issue) return null;
 
-                                            let label = t(issue.label);
+                                            let label = t(issue.id);
                                             if (issueId === 'screen') {
-                                                if (selectedScreenQuality === 'oled') label += ` (${t('OLED / Soft')})`;
-                                                else if (selectedScreenQuality === 'original') label += ` (${t('Original Refurb')})`;
-                                                else label += ` (${t('Generic / LCD')})`;
+                                                const hasMultipleQualities = [
+                                                    dynamicRepairPrices?.screen_generic !== undefined && dynamicRepairPrices.screen_generic >= 0,
+                                                    dynamicRepairPrices?.screen_oled !== undefined && dynamicRepairPrices.screen_oled >= 0,
+                                                    dynamicRepairPrices?.screen_original !== undefined && dynamicRepairPrices.screen_original >= 0
+                                                ].filter(Boolean).length > 1;
+
+                                                if (hasMultipleQualities && selectedScreenQuality) {
+                                                    if (selectedScreenQuality === 'oled') label += ` (${t('OLED / Soft')})`;
+                                                    else if (selectedScreenQuality === 'original') label += ` (${t('Original Refurb')})`;
+                                                    else if (selectedScreenQuality === 'generic') label += ` (${t('Generic / LCD')})`;
+                                                }
+                                            }
+
+                                            let price = 0;
+                                            if (issueId === 'screen') {
+                                                if (selectedScreenQuality === 'oled') price = repairEstimates.oled;
+                                                else if (selectedScreenQuality === 'original') price = repairEstimates.original;
+                                                else price = repairEstimates.standard;
+                                            } else {
+                                                price = getSingleIssuePrice(issueId) || 0;
                                             }
 
                                             return (
                                                 <li key={issueId} className="flex justify-between text-gray-900 dark:text-white font-medium">
                                                     <span>{label}</span>
+                                                    <span>
+                                                        {issueId === 'other' ? <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span> : (price > 0 ? <>&euro;{price}</> : <span>-</span>)}
+                                                    </span>
                                                 </li>
                                             );
                                         })}
@@ -955,23 +1365,34 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         );
     };
 
-    const MobileBottomBar = ({ onNext, nextDisabled, nextLabel, showEstimate }: any) => {
+    const MobileBottomBar = ({ onNext, nextDisabled, nextLabel, showEstimate }: { onNext: () => void; nextDisabled?: boolean; nextLabel?: string; showEstimate?: boolean }) => {
         const isBuyback = type === 'buyback';
-        let estimateDisplay = null;
+        let estimateDisplay: React.ReactNode = null;
 
         if (showEstimate) {
             if (isBuyback) {
-                estimateDisplay = buybackEstimate > 0 ? `€${buybackEstimate}` : '-';
+                estimateDisplay = <>&euro;{buybackEstimate}</>;
             } else {
-                if (repairIssues.includes('other')) estimateDisplay = t('Diagnostic');
-                else if (repairEstimates.hasScreen) {
-                    if (selectedScreenQuality === 'original') estimateDisplay = `€${repairEstimates.original}`;
-                    else if (selectedScreenQuality === 'oled') estimateDisplay = `€${repairEstimates.oled}`;
-                    else estimateDisplay = `€${repairEstimates.standard}`;
+                if (repairIssues.length === 0) {
+                    estimateDisplay = <>&euro;0</>;
+                } else if (repairIssues.includes('other')) {
+                    estimateDisplay = t('Diagnostic');
+                } else {
+                    // If it has screen, check selected quality price
+                    if (repairEstimates.hasScreen && selectedScreenQuality) {
+                        if (selectedScreenQuality === 'original') estimateDisplay = repairEstimates.original > 0 ? <>&euro;{repairEstimates.original}</> : <span className="text-sm font-bold uppercase">{t('contact_for_price')}</span>;
+                        else if (selectedScreenQuality === 'oled') estimateDisplay = repairEstimates.oled > 0 ? <>&euro;{repairEstimates.oled}</> : <span className="text-sm font-bold uppercase">{t('contact_for_price')}</span>;
+                        else if (selectedScreenQuality === 'generic') estimateDisplay = repairEstimates.standard > 0 ? <>&euro;{repairEstimates.standard}</> : <span className="text-sm font-bold uppercase">{t('contact_for_price')}</span>;
+                        else estimateDisplay = <span className="text-xs italic">{t('select_quality_short')}</span>;
+                    } else if (repairEstimates.hasScreen && !selectedScreenQuality) {
+                        estimateDisplay = <span className="text-xs italic">{t('select_quality_short')}</span>;
+                    } else {
+                        estimateDisplay = repairEstimates.standard > 0 ? <>&euro;{repairEstimates.standard}</> : <span className="text-sm font-bold uppercase">{t('contact_for_price')}</span>;
+                    }
                 }
-                else estimateDisplay = `€${repairEstimates.standard}`;
             }
         }
+
         return (
             <div className="lg:hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-xs p-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-full shadow-2xl border border-gray-200 dark:border-slate-800 transition-all duration-300 animate-slide-up">
                 <div className="flex items-center justify-between gap-3 pl-2">
@@ -995,25 +1416,66 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     };
 
     const renderStep1 = () => (
-        <div className="animate-fade-in w-full max-w-4xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
-            <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
-                {t(type === 'buyback' ? 'buyback_step1_title' : 'repair_step1_title')}
-            </h2>
+        <div className="animate-fade-in w-full max-w-4xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
+            {!hideStep1Title && (
+                <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+                    {t(type === 'buyback' ? 'buyback_step1_title' : 'repair_step1_title')}
+                </h2>
+            )}
+
+            {/* Search Bar */}
+            <div className={`relative max-w-lg mx-auto ${hideStep1Title ? 'mb-8' : 'mb-12'}`}>
+                <div className="relative">
+                    <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                    <input
+                        type="text"
+                        placeholder={t('Search your device (e.g. iPhone 13, Samsung S21...)')}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-bel-blue focus:ring-4 focus:ring-blue-500/10 transition-all text-lg"
+                    />
+                </div>
+
+                {/* Search Results Dropdown */}
+                {isSearching && searchResults.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden z-50">
+                        {searchResults.map((item: { brand: string; model: string; category: string }, idx: number) => (
+                            <button
+                                key={idx}
+                                onClick={() => handleSearchSelect(item)}
+                                className="w-full px-6 py-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-slate-800 transition text-left border-b border-gray-50 dark:border-slate-800 last:border-0"
+                            >
+                                <div className="w-10 h-10 relative bg-gray-100 dark:bg-slate-800 rounded-lg p-1">
+                                    {/* Simple icon fallback or utilize item data if available */}
+                                    <DevicePhoneMobileIcon className="w-full h-full text-gray-400" aria-hidden="true" />
+                                </div>
+                                <div>
+                                    <div className="font-bold text-gray-900 dark:text-white">{item.brand} {item.model}</div>
+                                    <div className="text-xs text-gray-500 capitalize">{t(DEVICE_TYPES.find(d => d.id === item.category)?.label || item.category)}</div>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {DEVICE_TYPES.map((dt) => (
                     <button
                         key={dt.id}
                         onClick={() => { setDeviceType(dt.id); handleNext(); }}
-                        className={`group flex flex-col items-center justify-center p-8 rounded-3xl border-2 transition-all duration-300 hover:shadow-xl ${deviceType === dt.id
+                        className={`group flex flex-col items-center justify-center p-4 lg:p-8 rounded-3xl border-2 transition-all duration-300 hover:shadow-xl ${deviceType === dt.id
                             ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20'
                             : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'
                             }`}
                     >
                         <div className={`relative w-16 h-16 p-4 rounded-2xl mb-4 transition-all duration-300 ${deviceType === dt.id ? 'bg-bel-blue scale-110 shadow-lg shadow-blue-500/30' : 'bg-transparent'}`}>
                             <Image
-                                src={dt.icon as any}
-                                alt={t(dt.label)}
+                                src={dt.icon}
+                                alt={`${t(dt.label)} category icon`}
                                 fill
+                                priority
+                                sizes="64px"
                                 className={`object-contain p-2 transition-all duration-300 ${deviceType === dt.id ? 'brightness-0 invert' : 'opacity-60 dark:invert dark:opacity-80 group-hover:opacity-100'}`}
                             />
                         </div>
@@ -1025,19 +1487,19 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     );
 
     const renderStep2 = () => {
-        const brands = (DEVICE_BRANDS as any)[deviceType] || [];
+        const brands = (DEVICE_BRANDS as Record<string, string[]>)[deviceType] || [];
         const nextDisabled = !selectedBrand || !selectedModel;
         const availableModels = modelsData[deviceType] ? Object.keys(modelsData[deviceType]) : [];
 
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
-                <div className="flex-1 animate-fade-in">
+            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
+                <div className="flex-1">
                     <h2 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">{t('Select Brand & Model')}</h2>
 
                     <div className="mb-8">
                         <label className="block text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">{t('Brand')}</label>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                            {brands.map((brand: string) => (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            {brands.map((brand: string, index: number) => (
                                 <button
                                     key={brand}
                                     onClick={() => handleBrandSelect(brand)}
@@ -1050,8 +1512,10 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                         <div className="relative w-12 h-12">
                                             <Image
                                                 src={getDeviceImage(createSlug(brand))!}
-                                                alt={`${brand} ${t(type === 'buyback' ? 'Buyback' : 'Repair')}`}
+                                                alt={`${brand} ${t(type === 'buyback' ? 'Buyback' : 'Repair')} options`}
                                                 fill
+                                                sizes="48px"
+                                                priority={index < 6}
                                                 className={`object-contain transition-all duration-300 ${selectedBrand === brand
                                                     ? 'brightness-0 invert'
                                                     : 'opacity-40 grayscale dark:invert dark:opacity-60 group-hover:opacity-100 group-hover:grayscale-0'
@@ -1066,24 +1530,27 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                     </div>
 
                     {selectedBrand && (
-                        <div className="mb-8 animate-fade-in">
+                        <div ref={modelSelectRef} className="mb-8 animate-fade-in">
                             <label className="block text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">{t('Model')}</label>
-                            {isLoadingData ? (
-                                <div className="flex items-center space-x-2 p-4 bg-gray-50 dark:bg-slate-900 rounded-xl">
-                                    <div className="w-5 h-5 border-2 border-bel-blue border-t-transparent rounded-full animate-spin"></div>
-                                    <span className="text-gray-500">{t('Loading models...')}</span>
-                                </div>
-                            ) : (
-                                <Select
-                                    value={selectedModel}
-                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleModelSelect(e.target.value)}
-                                    options={[
-                                        { value: "", label: t('Select your model...') },
-                                        ...availableModels.map(model => ({ value: model, label: model }))
-                                    ]}
-                                    className="text-lg font-medium"
-                                />
-                            )}
+                            <div className="relative min-h-[56px]">
+                                {isLoadingData ? (
+                                    <div className="absolute inset-0 bg-gray-50 dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 flex items-center justify-center space-x-3 z-10 transition-opacity duration-200">
+                                        <div className="w-5 h-5 border-2 border-bel-blue border-t-transparent rounded-full animate-spin"></div>
+                                        <span className="text-gray-500 font-medium animate-pulse">{t('Loading models...')}</span>
+                                    </div>
+                                ) : (
+                                    <Select
+                                        value={selectedModel}
+                                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleModelSelect(e.target.value)}
+                                        options={[
+                                            { value: "", label: t('Select your model...') },
+                                            ...availableModels.map(model => ({ value: model, label: model }))
+                                        ]}
+                                        className="text-lg font-medium w-full"
+                                        disabled={isLoadingData}
+                                    />
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -1102,21 +1569,50 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             }
 
             return (
-                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
-                    <div className="flex-1 animate-fade-in space-y-8">
+                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
+                    <div className="flex-1 space-y-8">
                         <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">{t('Functionality & Specs')}</h2>
                         <div>
                             <label className="block text-sm font-bold text-gray-500 mb-3 uppercase">{t('Storage')}</label>
                             <div className="grid grid-cols-3 gap-3">
-                                {(specsData[selectedModel] || ['64GB', '128GB', '256GB']).map(opt => (
-                                    <button
-                                        key={opt}
-                                        onClick={() => setStorage(opt)}
-                                        className={`py-3 rounded-xl font-bold transition-all ${storage === opt ? 'bg-bel-blue text-white' : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800'}`}
-                                    >
-                                        {opt}
-                                    </button>
-                                ))}
+                                {(() => {
+                                    // Combine static specs with dynamic prices
+                                    const staticOptions = specsData[selectedModel] || [];
+                                    const dynamicOptions = dynamicBuybackPrices ? dynamicBuybackPrices.map(p => p.storage) : [];
+
+                                    // LOGIC CHANGE: If we have dynamic prices, TRUST THEM completely.
+                                    // Only fall back to static if dynamic is empty.
+                                    // This prevents "Ghost" 64GB options from static data appearing even if DB doesn't have them.
+                                    let finalOptions = [];
+
+                                    if (dynamicOptions.length > 0) {
+                                        finalOptions = Array.from(new Set(dynamicOptions));
+                                    } else if (staticOptions.length > 0) {
+                                        finalOptions = staticOptions;
+                                    } else {
+                                        finalOptions = ['64GB', '128GB', '256GB'];
+                                    }
+
+                                    // Sort helper (GB then TB)
+                                    const sortStorage = (a: string, b: string) => {
+                                        const getVal = (s: string) => {
+                                            if (s.endsWith('TB')) return parseFloat(s) * 1024;
+                                            return parseFloat(s);
+                                        };
+                                        return getVal(a) - getVal(b);
+                                    };
+
+                                    return finalOptions.sort(sortStorage).map(opt => (
+                                        <button
+                                            key={opt}
+                                            type="button"
+                                            onClick={() => setStorage(opt)}
+                                            className={`py-3 rounded-xl font-bold transition-all ${storage === opt ? 'bg-bel-blue text-white' : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800'}`}
+                                        >
+                                            {opt}
+                                        </button>
+                                    ));
+                                })()}
                             </div>
                         </div>
                         <div className="space-y-4">
@@ -1133,6 +1629,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                         <span className="font-medium text-gray-900 dark:text-white">{t(item.label)}</span>
                                         <div className="flex space-x-2">
                                             <button
+                                                type="button"
                                                 onClick={() => item.setter(true)}
                                                 disabled={isDisabled}
                                                 className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border ${item.state === true ? 'bg-green-600 text-white border-green-600' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}
@@ -1140,6 +1637,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                                 {t('Yes')}
                                             </button>
                                             <button
+                                                type="button"
                                                 onClick={() => item.setter(false)}
                                                 disabled={isDisabled}
                                                 className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border ${item.state === false ? 'bg-red-600 text-white border-red-600' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'}`}
@@ -1155,8 +1653,8 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                             <div className={turnsOn === false ? 'opacity-50 pointer-events-none' : ''}>
                                 <label className="block text-sm font-bold text-gray-500 mb-3 uppercase">{t('Battery Health')}</label>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <button onClick={() => setBatteryHealth('normal')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border ${batteryHealth === 'normal' ? 'bg-green-600 text-white border-green-600' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}>{t('Normal (Above 80%)')}</button>
-                                    <button onClick={() => setBatteryHealth('service')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border ${batteryHealth === 'service' ? 'bg-red-600 text-white border-red-600' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'}`}>{t('Service Required (Below 80%)')}</button>
+                                    <button type="button" onClick={() => setBatteryHealth('normal')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border ${batteryHealth === 'normal' ? 'bg-green-600 text-white border-green-600' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}>{t('Normal (Above 80%)')}</button>
+                                    <button type="button" onClick={() => setBatteryHealth('service')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border ${batteryHealth === 'service' ? 'bg-red-600 text-white border-red-600' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'}`}>{t('Service Required (Below 80%)')}</button>
                                 </div>
                             </div>
                         )}
@@ -1169,30 +1667,99 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             const nextDisabled = repairIssues.length === 0;
             const nextLabel = repairIssues.includes('other') ? t("Next") : t("Start Repair");
             const isNintendo = selectedBrand?.toLowerCase() === 'nintendo';
-            const showScreenOptions = repairIssues.includes('screen') && (deviceType === 'smartphone' || isNintendo);
-            const isApple = selectedBrand?.toLowerCase() === 'apple';
+
+            // const isApple = selectedBrand?.toLowerCase() === 'apple';
 
             return (
-                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-1 sm:p-4 lg:p-8">
-                    <div className="flex-1 animate-fade-in">
+                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
+                    <div className="flex-1">
                         <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">{t('What needs fixing?')}</h2>
                         <p className="text-gray-500 mb-8">{selectedBrand} {selectedModel}</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                             {REPAIR_ISSUES.filter(issue => {
                                 if (issue.devices && !issue.devices.includes(deviceType)) return false;
                                 const brand = selectedBrand?.toLowerCase();
+
+                                // GENERIC BRAND FILTER:
+                                // If issue has specific brands listed, current brand must be one of them.
+                                if (issue.brands && !issue.brands.some(b => b.toLowerCase() === brand)) {
+                                    return false;
+                                }
+
                                 if (brand === 'nintendo') {
                                     if (issue.id === 'hdmi') return false;
                                     if (issue.id === 'disc') return false;
                                 } else {
                                     if (issue.id === 'card_reader') return false;
                                 }
+
+                                // Prepare Foldable Check
+                                const modelName = selectedModel || '';
+                                const isFoldableModel = modelName.includes('Fold') || modelName.includes('Flip') || modelName.includes('Find N') || modelName.includes('Pixel Fold') || modelName.includes('Razr') || modelName.includes('Open');
+
+                                // NEW: Soft Delete Logic (Hide if price is negative)
+                                const p = getSingleIssuePrice(issue.id);
+                                const isFoldableIssue = ['screen_foldable_inner', 'screen_foldable_outer'].includes(issue.id);
+
+                                // Exception: Allow foldable screens to show on foldable devices even if price is missing (-1)
+                                // This ensures new devices (like Pixel 9 Pro Fold) show the correct inputs (Contact for Price) instead of nothing.
+                                // Soft Delete Exemptions
+                                const isHandheldScreenIssue = ['screen_upper', 'screen_bottom', 'screen_digitizer', 'screen_lcd', 'screen_component'].includes(issue.id);
+                                const isHandheldDevice = deviceType === 'console_portable' || deviceType === 'tablet'; // Allow tablets too for split parts
+
+                                const isExemptFromSoftDelete = (isFoldableIssue && isFoldableModel) || (isHandheldDevice && isHandheldScreenIssue);
+
+                                if (typeof p === 'number' && p < 0 && !isExemptFromSoftDelete) return false;
+
+                                // STRICT FOLDABLE FILTER:
+                                // Only show foldable screen options if the model name explicitly contains "Fold", "Flip", etc.
+                                if (isFoldableIssue) {
+                                    if (!isFoldableModel) return false;
+                                }
+
+                                // SMART FOLDABLE LOGIC: (Existing)
+                                if (issue.id === 'screen') {
+                                    const innerPrice = getSingleIssuePrice('screen_foldable_inner');
+                                    const outerPrice = getSingleIssuePrice('screen_foldable_outer');
+                                    const hasFoldablePrices = (typeof innerPrice === 'number' && innerPrice >= 0) || (typeof outerPrice === 'number' && outerPrice >= 0);
+
+                                    if (isFoldableModel || hasFoldablePrices) return false;
+                                }
+
+                                // NINTENDO DS/3DS LOGIC:
+                                // Split screens into Upper/Bottom/Glass Only
+
+                                // UNIFIED CONFIGURATION LOGIC:
+                                // Check if this model has a specific repair profile defined
+                                const unifiedProfile = getRepairProfileForModel(modelName, deviceType);
+
+                                if (unifiedProfile) {
+                                    // If a profile exists, ONLY show issues listed in that profile
+                                    if (!unifiedProfile.includes(issue.id)) return false;
+                                } else {
+                                    // Fallback for models without specific profiles (e.g. non-Nintendo/Sony handhelds)
+                                    // Hide specific handheld parts if no profile matches
+                                    if (['screen_upper', 'screen_bottom', 'screen_digitizer', 'screen_lcd'].includes(issue.id)) return false;
+                                }
+
+                                // Soft Delete Exemptions
+                                // These lines were already present above, keeping the original one.
+                                // const isHandheldScreenIssue = ['screen_upper', 'screen_bottom', 'screen_digitizer', 'screen_lcd', 'screen_component'].includes(issue.id);
+                                // const isHandheldDevice = deviceType === 'console_portable' || deviceType === 'tablet'; 
+
+                                // const isExemptFromSoftDelete = (isFoldableIssue && isFoldableModel) || (isHandheldDevice && isHandheldScreenIssue);
+
+                                // if (typeof p === 'number' && p < 0 && !isExemptFromSoftDelete) return false;
+
                                 return true;
                             }).map(issue => {
                                 const isSelected = repairIssues.includes(issue.id);
+                                // Ensure we display positive price or fallback
                                 const price = getSingleIssuePrice(issue.id);
+                                const displayPrice = (price && price >= 0) ? price : null;
+
                                 const isScreenIssue = issue.id === 'screen';
-                                const showScreenOptionsForIssue = isScreenIssue && isSelected && (deviceType === 'smartphone' || isNintendo);
+                                const showScreenOptionsForIssue = isScreenIssue && isSelected && (deviceType === 'smartphone' || selectedBrand?.toLowerCase() === 'nintendo');
 
                                 return (
                                     <div key={issue.id} className={`flex flex-col p-4 rounded-2xl border-2 transition-all ${isSelected ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900'} ${showScreenOptionsForIssue ? 'md:col-span-2' : ''}`}>
@@ -1200,35 +1767,75 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                             <div className={`p-3 rounded-xl mr-4 ${isSelected ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-800 text-gray-500'}`}><issue.icon className="h-6 w-6" /></div>
                                             <div className="flex-1">
                                                 <div className="flex justify-between items-center">
-                                                    <span className={`font-bold ${isSelected ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t(issue.label)}</span>
-                                                    {price && !showScreenOptionsForIssue && <span className="text-sm font-bold bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded text-gray-600 dark:text-gray-300">€{price}</span>}
+                                                    <span className={`font-bold ${isSelected ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t(issue.id)}</span>
+                                                    {pricesLoading ? (
+                                                        <div className="h-6 w-16 bg-gray-200 dark:bg-slate-700 animate-pulse rounded"></div>
+                                                    ) : (
+                                                        !showScreenOptionsForIssue && (
+                                                            <span className="text-sm font-bold bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded text-gray-600 dark:text-gray-300 animate-fade-in">
+                                                                {isScreenIssue && displayPrice !== null && displayPrice > 0 && <span className="mr-1 text-xs font-normal opacity-70">{t('À partir de')}</span>}
+                                                                {issue.id === 'other' ? <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span> : (displayPrice !== null && displayPrice > 0 ? <>&euro;{displayPrice}</> : <span className="text-blue-600 dark:text-blue-400 font-bold text-xs uppercase">{t('contact_for_price')}</span>)}
+                                                            </span>
+                                                        )
+                                                    )}
                                                 </div>
-                                                <p className="text-xs text-gray-500 mt-1">{t(issue.desc)}</p>
+                                                <p className="text-xs text-gray-500 mt-1">{t(issue.id + '_desc')}</p>
                                             </div>
                                             {isSelected && !showScreenOptionsForIssue && <CheckCircleIcon className="h-6 w-6 text-bel-blue ml-2" />}
                                         </div>
                                         {showScreenOptionsForIssue && (
                                             <div className="mt-4 space-y-3 animate-fade-in border-t border-blue-100 dark:border-blue-800 pt-4">
-                                                <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'generic' ? 'border-gray-400 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
-                                                    <input type="radio" name="screenQuality" value="generic" checked={selectedScreenQuality === 'generic'} onChange={() => setSelectedScreenQuality('generic')} className="w-5 h-5 text-gray-600 focus:ring-gray-500 border-gray-300" />
-                                                    <div className="ml-3 flex-1">
-                                                        <div className="flex justify-between"><span className="font-bold text-gray-900 dark:text-white">{isNintendo ? t('Touchscreen / Glass Only') : t('Generic / LCD')}</span><span className="font-bold text-gray-900 dark:text-white">€{repairEstimates.standard}</span></div>
-                                                    </div>
-                                                </label>
-                                                {(isApple || isNintendo) && (
-                                                    <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'oled' ? 'border-blue-500 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
-                                                        <input type="radio" name="screenQuality" value="oled" checked={selectedScreenQuality === 'oled'} onChange={() => setSelectedScreenQuality('oled')} className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                                                {/* Generic / Standard */}
+                                                {(dynamicRepairPrices?.screen_generic !== undefined ? dynamicRepairPrices.screen_generic : (repairEstimates.hasScreen ? repairEstimates.standard : -1)) >= 0 && (
+                                                    <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'generic' ? 'border-gray-400 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
+                                                        <input type="radio" name="screenQuality" value="generic" checked={selectedScreenQuality === 'generic'} onChange={() => setSelectedScreenQuality('generic')} className="w-5 h-5 text-gray-600 focus:ring-gray-500 border-gray-300" />
                                                         <div className="ml-3 flex-1">
-                                                            <div className="flex justify-between"><span className="font-bold text-gray-900 dark:text-white">{isNintendo ? t('Full LCD Assembly') : t('OLED / Soft')}</span><span className="font-bold text-gray-900 dark:text-white">€{repairEstimates.oled}</span></div>
+                                                            <div className="flex justify-between">
+                                                                <span className="font-bold text-gray-900 dark:text-white">{isNintendo ? t('Touchscreen / Glass Only') : t('Generic / LCD')}</span>
+                                                                <span className="font-bold text-gray-900 dark:text-white">
+                                                                    {(() => {
+                                                                        const p = dynamicRepairPrices?.screen_generic !== undefined ? dynamicRepairPrices.screen_generic : repairEstimates.standard;
+                                                                        return p > 0 ? <>&euro;{p}</> : t('contact_for_price');
+                                                                    })()}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </label>
                                                 )}
-                                                <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'original' ? 'border-purple-500 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
-                                                    <input type="radio" name="screenQuality" value="original" checked={selectedScreenQuality === 'original'} onChange={() => setSelectedScreenQuality('original')} className="w-5 h-5 text-purple-600 focus:ring-purple-500 border-gray-300" />
-                                                    <div className="ml-3 flex-1">
-                                                        <div className="flex justify-between"><span className="font-bold text-gray-900 dark:text-white">{t('Original Refurb')}</span><span className="font-bold text-gray-900 dark:text-white">€{repairEstimates.original}</span></div>
-                                                    </div>
-                                                </label>
+
+                                                {/* OLED / Premium */}
+                                                {dynamicRepairPrices?.screen_oled !== undefined && dynamicRepairPrices.screen_oled >= 0 && (
+                                                    <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'oled' ? 'border-blue-500 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
+                                                        <input type="radio" name="screenQuality" value="oled" checked={selectedScreenQuality === 'oled'} onChange={() => setSelectedScreenQuality('oled')} className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300" />
+                                                        <div className="ml-3 flex-1">
+                                                            <div className="flex justify-between">
+                                                                <span className="font-bold text-gray-900 dark:text-white">{isNintendo ? t('Full LCD Assembly') : t('OLED / Soft')}</span>
+                                                                <span className="font-bold text-gray-900 dark:text-white">
+                                                                    {dynamicRepairPrices.screen_oled > 0 ? <>&euro;{dynamicRepairPrices.screen_oled}</> : t('contact_for_price')}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                )}
+
+                                                {/* Original / Refurb */}
+                                                {dynamicRepairPrices?.screen_original !== undefined && dynamicRepairPrices.screen_original >= 0 && (
+                                                    <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'original' ? 'border-purple-500 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
+                                                        <input type="radio" name="screenQuality" value="original" checked={selectedScreenQuality === 'original'} onChange={() => setSelectedScreenQuality('original')} className="w-5 h-5 text-purple-600 focus:ring-purple-500 border-gray-300" />
+                                                        <div className="ml-3 flex-1">
+                                                            <div className="flex justify-between">
+                                                                <span className="font-bold text-gray-900 dark:text-white">{
+                                                                    selectedBrand?.toLowerCase().startsWith('samsung')
+                                                                        ? t('Original Service Pack')
+                                                                        : t('Original Refurb')
+                                                                }</span>
+                                                                <span className="font-bold text-gray-900 dark:text-white">
+                                                                    {dynamicRepairPrices.screen_original > 0 ? <>&euro;{dynamicRepairPrices.screen_original}</> : t('contact_for_price')}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -1236,8 +1843,8 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                             })}
                         </div>
                     </div>
-                    <DesktopSidebar onNext={() => setStep(5)} nextDisabled={nextDisabled} nextLabel={nextLabel} />
-                    <MobileBottomBar onNext={() => setStep(5)} nextDisabled={nextDisabled} nextLabel={nextLabel} showEstimate={true} />
+                    <DesktopSidebar onNext={() => { setStep(5); window.scrollTo({ top: 0, behavior: 'smooth' }); }} nextDisabled={nextDisabled} nextLabel={nextLabel} />
+                    <MobileBottomBar onNext={() => { setStep(5); window.scrollTo({ top: 0, behavior: 'smooth' }); }} nextDisabled={nextDisabled} nextLabel={nextLabel} showEstimate={true} />
                 </div>
             );
         }
@@ -1246,8 +1853,8 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     const renderStep4 = () => {
         if (type !== 'buyback') return null;
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
-                <div className="flex-1 animate-fade-in space-y-8">
+            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
+                <div className="flex-1 space-y-8">
                     <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">{t('Cosmetic Condition')}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
@@ -1257,8 +1864,8 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                     { id: 'flawless', label: 'Flawless', desc: 'Like new, no scratches' },
                                     { id: 'scratches', label: 'Light Scratches', desc: 'Visible scratches but no cracks' },
                                     { id: 'cracked', label: 'Cracked / Broken', desc: 'Glass is cracked or display broken' }
-                                ].map((s: any) => (
-                                    <button key={s.id} onClick={() => setScreenState(s.id)} className={`p-4 rounded-xl border-2 text-left transition-all ${screenState === s.id ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900'}`}>
+                                ].map((s) => (
+                                    <button type="button" key={s.id} onClick={() => setScreenState(s.id as 'flawless' | 'scratches' | 'cracked')} className={`p-4 rounded-xl border-2 text-left transition-all ${screenState === s.id ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900'}`}>
                                         <div className="font-bold text-gray-900 dark:text-white">{t(s.label)}</div>
                                         <div className="text-sm text-gray-500">{t(s.desc)}</div>
                                     </button>
@@ -1273,8 +1880,8 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                     { id: 'scratches', label: 'Scratches', desc: 'Visible scratches or scuffs' },
                                     { id: 'dents', label: 'Dents', desc: 'Visible dents on the frame' },
                                     { id: 'bent', label: 'Bent / Broken', desc: 'Frame is bent or structural damage' }
-                                ].map((s: any) => (
-                                    <button key={s.id} onClick={() => setBodyState(s.id)} className={`p-4 rounded-xl border-2 text-left transition-all ${bodyState === s.id ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900'}`}>
+                                ].map((s) => (
+                                    <button type="button" key={s.id} onClick={() => setBodyState(s.id as 'flawless' | 'scratches' | 'dents' | 'bent')} className={`p-4 rounded-xl border-2 text-left transition-all ${bodyState === s.id ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900'}`}>
                                         <div className="font-bold text-gray-900 dark:text-white">{t(s.label)}</div>
                                         <div className="text-sm text-gray-500">{t(s.desc)}</div>
                                     </button>
@@ -1291,19 +1898,28 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
 
     const MobileSummary = () => {
         const isBuyback = type === 'buyback';
-        let estimateDisplay = null;
+        let estimateDisplay: React.ReactNode = null;
         if (isBuyback) {
-            estimateDisplay = buybackEstimate > 0 ? `€${buybackEstimate}` : '-';
+            estimateDisplay = buybackEstimate > 0 ? <>&euro;{buybackEstimate}</> : <span className="text-bel-blue dark:text-blue-400 text-lg">{t('contact_for_price')}</span>;
         } else {
-            if (repairIssues.includes('other')) estimateDisplay = t('Diagnostic');
-            else if (repairEstimates.hasScreen) {
-                if (selectedScreenQuality === 'original') estimateDisplay = `€${repairEstimates.original}`;
-                else if (selectedScreenQuality === 'oled') estimateDisplay = `€${repairEstimates.oled}`;
-                else estimateDisplay = `€${repairEstimates.standard}`;
+            if (repairIssues.length === 0) {
+                estimateDisplay = <>&euro;0</>;
+            } else if (repairIssues.includes('other')) {
+                estimateDisplay = <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span>;
+            } else {
+                // If it has screen, check selected quality price
+                if (repairEstimates.hasScreen && selectedScreenQuality) {
+                    if (selectedScreenQuality === 'original') estimateDisplay = repairEstimates.original > 0 ? <>&euro;{repairEstimates.original}</> : <span className="text-bel-blue dark:text-blue-400 uppercase font-bold text-sm tracking-tighter">{t('contact_for_price')}</span>;
+                    else if (selectedScreenQuality === 'oled') estimateDisplay = repairEstimates.oled > 0 ? <>&euro;{repairEstimates.oled}</> : <span className="text-bel-blue dark:text-blue-400 uppercase font-bold text-sm tracking-tighter">{t('contact_for_price')}</span>;
+                    else if (selectedScreenQuality === 'generic') estimateDisplay = repairEstimates.standard > 0 ? <>&euro;{repairEstimates.standard}</> : <span className="text-bel-blue dark:text-blue-400 uppercase font-bold text-sm tracking-tighter">{t('contact_for_price')}</span>;
+                    else estimateDisplay = <span className="text-bel-blue dark:text-blue-400 text-sm italic">{t('select_quality_short')}</span>;
+                } else if (repairEstimates.hasScreen && !selectedScreenQuality) {
+                    estimateDisplay = <span className="text-bel-blue dark:text-blue-400 text-sm italic">{t('select_quality_short')}</span>;
+                } else {
+                    estimateDisplay = repairEstimates.standard > 0 ? <>&euro;{repairEstimates.standard}</> : <span className="text-bel-blue dark:text-blue-400 uppercase font-bold text-sm tracking-tighter">{t('contact_for_price')}</span>;
+                }
             }
-            else estimateDisplay = `€${repairEstimates.standard}`;
         }
-
         return (
             <div className="lg:hidden bg-white dark:bg-slate-900 rounded-3xl p-6 mb-8 border border-gray-200 dark:border-slate-800 shadow-sm animate-fade-in">
                 <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-4">{t('Summary')}</h3>
@@ -1318,9 +1934,30 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                     </div>
                 )}
                 <div className="space-y-2 text-sm mb-6">
-                    <div className="flex justify-between"><span className="text-gray-500">{t('Device')}</span><span className="font-medium text-gray-900 dark:text-white">{selectedBrand} {selectedModel}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">{t('Device')}</span><span className="font-medium text-gray-900 dark:text-white">{(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase())) ? selectedModel : `${selectedBrand} ${selectedModel}`}</span></div>
                     {isBuyback && storage && (<div className="flex justify-between"><span className="text-gray-500">{t('Storage')}</span><span className="font-medium text-gray-900 dark:text-white">{storage}</span></div>)}
-                    {!isBuyback && repairIssues.length > 0 && (<div className="border-t border-gray-100 dark:border-slate-700 pt-2 mt-2">{repairIssues.map(issueId => { const issue = REPAIR_ISSUES.find(i => i.id === issueId); if (!issue) return null; return (<div key={issueId} className="flex justify-between text-gray-900 dark:text-white"><span>{t(issue.label)}</span></div>); })}</div>)}
+                    {!isBuyback && repairIssues.length > 0 && (<div className="border-t border-gray-100 dark:border-slate-700 pt-2 mt-2">{repairIssues.map(issueId => {
+                        const issue = REPAIR_ISSUES.find(i => i.id === issueId);
+                        if (!issue) return null;
+
+                        let price = 0;
+                        if (issueId === 'screen') {
+                            if (selectedScreenQuality === 'oled') price = repairEstimates.oled;
+                            else if (selectedScreenQuality === 'original') price = repairEstimates.original;
+                            else price = repairEstimates.standard;
+                        } else {
+                            price = getSingleIssuePrice(issueId) || 0;
+                        }
+
+                        return (
+                            <div key={issueId} className="flex justify-between text-gray-900 dark:text-white">
+                                <span>{t(issue.id)} {issueId === 'screen' && selectedScreenQuality !== 'generic' ? (selectedScreenQuality === 'oled' ? `(${t('OLED / Soft')})` : `(${t('Original Refurb')})`) : ''}</span>
+                                <span>
+                                    {issueId === 'other' ? <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span> : (price > 0 ? <>&euro;{price}</> : <span>-</span>)}
+                                </span>
+                            </div>
+                        );
+                    })}</div>)}
                 </div>
                 <div className="bg-gray-50 dark:bg-slate-950/50 rounded-xl p-4 text-center">
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">{isBuyback ? t('Estimated Value') : t('Total Cost')}</p>
@@ -1333,7 +1970,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     const renderStep5 = () => {
         if (submitted) {
             return (
-                <div className="animate-fade-in max-w-2xl mx-auto text-center py-12 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
+                <div className="max-w-2xl mx-auto text-center py-12 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
                     <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircleIcon className="h-12 w-12 text-green-600 dark:text-green-400" /></div>
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{t('Request Received!')}</h2>
                     <p className="text-gray-600 dark:text-gray-300 text-lg mb-8">{t('success_description')}</p>
@@ -1353,16 +1990,14 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                             <button onClick={() => generatePDF(submittedOrder.id, submittedOrder.data)} className="text-bel-blue hover:text-blue-700 underline font-medium">
                                 {t('Download Summary PDF')}
                             </button>
-                            {submittedOrder.data.shippingLabelUrl && (
-                                <a
-                                    href={`/api/shipping/download-label?url=${encodeURIComponent(submittedOrder.data.shippingLabelUrl)}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                            {(submittedOrder.data.shippingLabelUrl as string) && (
+                                <button
+                                    onClick={() => downloadLabel(submittedOrder.data.shippingLabelUrl as string)}
                                     className="flex items-center gap-2 bg-green-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-green-700 transition shadow-lg shadow-green-200 dark:shadow-none"
                                 >
                                     <TruckIcon className="h-5 w-5" />
                                     {t('Download Shipping Label')}
-                                </a>
+                                </button>
                             )}
                         </div>
                     )}
@@ -1373,7 +2008,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         return (
             <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
                 <MobileSummary />
-                <div className="flex-1 animate-fade-in">
+                <div className="flex-1">
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('How would you like to proceed?')}</h3>
@@ -1387,7 +2022,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                         <div className="mt-4 w-full animate-fade-in">
                                             {shopSelectionError && !selectedShop && (
                                                 <div className="mb-3 p-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-500 rounded-xl text-red-700 dark:text-red-400 font-medium text-sm">
-                                                    ⚠️ {t('Please select a shop')}
+                                                    {"\u26A0\uFE0F"} {t('Please select a shop')}
                                                 </div>
                                             )}
                                             {!selectedShop ? (
@@ -1629,6 +2264,16 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                             )}
                             {(type === 'buyback' || type === 'repair') && (
                                 <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-200 dark:border-slate-700 mb-6 mt-4 relative z-10">
+                                    <div style={{ display: 'none' }} aria-hidden="true">
+                                        <input
+                                            type="text"
+                                            name="hp_email"
+                                            tabIndex={-1}
+                                            autoComplete="off"
+                                            value={honeypot}
+                                            onChange={(e) => setHoneypot(e.target.value)}
+                                        />
+                                    </div>
                                     <label className="flex items-start cursor-pointer">
                                         <input type="checkbox" required checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="mt-1 w-5 h-5 text-bel-blue rounded border-gray-300 focus:ring-bel-blue" />
                                         <div className="ml-3"><p className="font-bold text-gray-900 dark:text-white text-sm">{type === 'buyback' ? (selectedBrand?.toLowerCase() === 'apple' ? t('terms_icloud') : t('terms_android')) : t('terms_repair_backup')}</p><p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{t('terms_and_privacy')}</p></div>
@@ -1651,7 +2296,6 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         );
     };
 
-
     return (
         <div className="bg-transparent pt-0 pb-12 px-4 relative min-h-[600px]">
             {/* Global Transition Overlay - Hoisted to root to prevent unmounting flickers */}
@@ -1665,11 +2309,13 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                 {/* SEO Component Removed */}
                 {/* SchemaMarkup removed in favor of SEOContent */}
                 <StepIndicator />
-                {step === 1 && renderStep1()}
-                {step === 2 && renderStep2()}
-                {step === 3 && renderStep3()}
-                {step === 4 && renderStep4()}
-                {step === 5 && renderStep5()}
+                <AnimatePresence mode="wait">
+                    {step === 1 && <StepWrapper key="step1" stepKey={1}>{renderStep1()}</StepWrapper>}
+                    {step === 2 && <StepWrapper key="step2" stepKey={2}>{renderStep2()}</StepWrapper>}
+                    {step === 3 && <StepWrapper key="step3" stepKey={3}>{renderStep3()}</StepWrapper>}
+                    {step === 4 && <StepWrapper key="step4" stepKey={4}>{renderStep4()}</StepWrapper>}
+                    {step === 5 && <StepWrapper key="step5" stepKey={5}>{renderStep5()}</StepWrapper>}
+                </AnimatePresence>
             </div>
             {/* SEO Content Section Removed for stability */}
         </div>

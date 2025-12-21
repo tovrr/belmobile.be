@@ -1,6 +1,7 @@
 export const createSlug = (text: string): string => {
     return text
         .toLowerCase()
+        .replace(/\+/g, '-plus')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
 };
@@ -12,7 +13,28 @@ export const createSlug = (text: string): string => {
 export const slugToDisplayName = (slug: string): string => {
     if (!slug) return '';
 
-    return slug
+    return slug.toLowerCase()
+        // Remove common SEO suffixes from legacy URLs
+        .replace(/-prix$/, '')
+        .replace(/-price$/, '')
+        .replace(/-prijs$/, '')
+        .replace(/-bruxelles$/, '')
+        .replace(/-brussels$/, '')
+        .replace(/-brussel$/, '')
+        .replace(/-molenbeek$/, '')
+        .replace(/-schaerbeek$/, '')
+        .replace(/-anderlecht$/, '')
+        .replace(/-liedts$/, '')
+        .replace(/-belm$/, '')
+        .replace(/-reparation$/, '')
+        .replace(/-belgique$/, '')
+        .replace(/-achat$/, '')
+        .replace(/-scherm$/, '')
+        .replace(/-ecran$/, '')
+        .replace(/-screen$/, '')
+        .replace(/-batterie$/, '')
+        .replace(/-batterij$/, '')
+        .replace(/-battery$/, '')
         .split('-')
         .map((word, index) => {
             // Special case for Apple products: iPhone, iPad, iMac, iPod, iWatch

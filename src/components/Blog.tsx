@@ -55,7 +55,7 @@ const Blog: React.FC = () => {
 
                             return (
                                 <Link
-                                    href={`/${language}/blog/${post.id}`}
+                                    href={`/${language}/blog/${post.slugs?.[language as string] || post.slug || post.id}`}
                                     key={post.id}
                                     className="group"
                                 >

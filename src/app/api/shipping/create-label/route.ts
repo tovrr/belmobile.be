@@ -1,7 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyAdminToken } from '@/lib/auth';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
+        if (!verifyAdminToken(request)) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const { customer, servicePoint } = await request.json();
 
         const publicKey = process.env.SENDCLOUD_PUBLIC_KEY;
@@ -19,7 +24,7 @@ export async function POST(request: Request) {
         // If this is a Buyback (Return), we might need a different flow (e.g. Return Portal),
         // but for now we'll generate a standard label.
 
-        const parcelData: any = {
+        const parcelData: Record<string, unknown> = {
             name: customer.name,
             address: customer.address,
             city: customer.city,
@@ -44,8 +49,6 @@ export async function POST(request: Request) {
             }
         }
 
-        console.log('Sending Parcel Data to SendCloud:', JSON.stringify(parcelData, null, 2));
-
         const response = await fetch('https://panel.sendcloud.sc/api/v2/parcels', {
             method: 'POST',
             headers: {
@@ -62,7 +65,6 @@ export async function POST(request: Request) {
         }
 
         const data = await response.json();
-        console.log('SendCloud Success Response:', JSON.stringify(data, null, 2));
         const parcel = data.parcel;
 
         return NextResponse.json({

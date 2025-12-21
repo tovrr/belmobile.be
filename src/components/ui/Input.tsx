@@ -29,6 +29,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     )}
                     <input
                         ref={ref}
+                        id={props.id || props.name}
                         className={`
                         w-full py-3 
                         ${leftIcon ? 'pl-10' : 'px-4'}

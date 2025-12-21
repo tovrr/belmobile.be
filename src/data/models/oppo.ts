@@ -10,7 +10,7 @@ export const MODELS = {
         // Reno Series
         'Reno 12 Pro': 450, 'Reno 12': 350,
         'Reno 11 Pro': 350, 'Reno 11': 280,
-        'Reno 10 Pro+': 320, 'Reno 10 Pro': 260, 'Reno 10': 200,
+        'Reno 10 Pro': 260, 'Reno 10': 200,
         // A Series
         'Oppo A98 5G': 200, 'Oppo A79 5G': 150, 'Oppo A78': 130
     }
@@ -24,6 +24,6 @@ export const SPECS = {
     'Find N2': ['256GB', '512GB'], 'Find N2 Flip': ['256GB', '512GB'],
     'Reno 12 Pro': ['256GB', '512GB'], 'Reno 12': ['256GB', '512GB'],
     'Reno 11 Pro': ['256GB', '512GB'], 'Reno 11': ['128GB', '256GB'],
-    'Reno 10 Pro+': ['256GB', '512GB'], 'Reno 10 Pro': ['256GB'], 'Reno 10': ['128GB', '256GB'],
+    'Reno 10 Pro': ['256GB'], 'Reno 10': ['128GB', '256GB'],
     'Oppo A98 5G': ['256GB'], 'Oppo A79 5G': ['128GB'], 'Oppo A78': ['128GB']
 };

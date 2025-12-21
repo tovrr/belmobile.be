@@ -1,6 +1,6 @@
 export const MODELS = {
     smartphone: {
-        'iPhone 17 Pro Max': 1250, 'iPhone 17 Pro': 1050, 'iPhone 17 Plus': 900, 'iPhone 17': 850,
+        'iPhone 17 Pro Max': 1250, 'iPhone 17 Pro': 1050, 'iPhone Air': 900, 'iPhone 17': 850,
         'iPhone 16 Pro Max': 1150, 'iPhone 16 Pro': 950, 'iPhone 16 Plus': 800, 'iPhone 16': 750, 'iPhone 16E': 600,
         'iPhone 15 Pro Max': 1050, 'iPhone 15 Pro': 850, 'iPhone 15 Plus': 700, 'iPhone 15': 650,
         'iPhone 14 Pro Max': 850, 'iPhone 14 Pro': 680, 'iPhone 14 Plus': 550, 'iPhone 14': 500,
@@ -32,9 +32,9 @@ export const MODELS = {
 
 export const SPECS = {
     // iPhone
-    'iPhone 17 Pro Max': ['256GB', '512GB', '1TB'],
-    'iPhone 17 Pro': ['128GB', '256GB', '512GB', '1TB'],
-    'iPhone 17 Plus': ['128GB', '256GB', '512GB'],
+    'iPhone 17 Pro Max': ['256GB', '512GB', '1TB', '2TB'],
+    'iPhone 17 Pro': ['256GB', '512GB', '1TB'],
+    'iPhone Air': ['128GB', '256GB', '512GB'],
     'iPhone 17': ['128GB', '256GB', '512GB'],
     'iPhone 16 Pro Max': ['256GB', '512GB', '1TB'],
     'iPhone 16 Pro': ['128GB', '256GB', '512GB', '1TB'],
@@ -65,21 +65,40 @@ export const SPECS = {
     'iPhone XR': ['64GB', '128GB', '256GB'],
     'iPhone X': ['64GB', '256GB'],
     'iPhone SE (3rd Gen)': ['64GB', '128GB', '256GB'],
+    'iPhone SE (2020)': ['64GB', '128GB', '256GB'],
 
     // iPad
     'iPad Pro 12.9 M2': ['128GB', '256GB', '512GB', '1TB', '2TB'],
+    'iPad Pro 12.9 (2022)': ['128GB', '256GB', '512GB', '1TB'], // Fallback
+    'iPad Pro 12.9 (2021)': ['128GB', '256GB', '512GB', '1TB', '2TB'],
+    'iPad Pro 12.9 (2020)': ['128GB', '256GB', '512GB', '1TB'],
+    'iPad Pro 12.9 (2018)': ['64GB', '256GB', '512GB', '1TB'],
+    'iPad Pro 11 (2022)': ['128GB', '256GB', '512GB', '1TB', '2TB'],
+    'iPad Pro 11 (2021)': ['128GB', '256GB', '512GB', '1TB', '2TB'],
+    'iPad Pro 11 (2020)': ['128GB', '256GB', '512GB', '1TB'],
+    'iPad Pro 11 (2018)': ['64GB', '256GB', '512GB', '1TB'],
     'iPad Air 5': ['64GB', '256GB'],
+    'iPad Air 4': ['64GB', '256GB'],
+    'iPad Air 3': ['64GB', '256GB'],
     'iPad mini 6': ['64GB', '256GB'],
+    'iPad mini 5': ['64GB', '256GB'],
+    'iPad mini 4': ['16GB', '32GB', '64GB', '128GB'],
     'iPad (10th Gen)': ['64GB', '256GB'],
+    'iPad 9': ['64GB', '256GB'],
+    'iPad 8': ['32GB', '128GB'],
 
     // MacBook
     'MacBook Pro 16 M2': ['512GB', '1TB', '2TB', '4TB', '8TB'],
-    'MacBook Pro 14 M2': ['512GB', '1TB', '2TB'],
+    'MacBook Pro 14 M2': ['512GB', '1TB', '2TB', '4TB', '8TB'],
     'MacBook Air M2': ['256GB', '512GB', '1TB', '2TB'],
     'MacBook Air M1': ['256GB', '512GB', '1TB', '2TB'],
 
     // Watch
     'Apple Watch Ultra 2': ['49mm'],
+    'Apple Watch Ultra': ['49mm'],
     'Apple Watch Series 9': ['41mm', '45mm'],
-    'Apple Watch SE 2': ['40mm', '44mm']
+    'Apple Watch Series 8': ['41mm', '45mm'],
+    'Apple Watch Series 7': ['41mm', '45mm'],
+    'Apple Watch SE 2': ['40mm', '44mm'],
+    'Apple Watch SE': ['40mm', '44mm']
 };

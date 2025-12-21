@@ -25,12 +25,13 @@ const Products: React.FC = () => {
     const deviceName = slug && slug.length > 0
         ? `${slug[0].charAt(0).toUpperCase() + slug[0].slice(1)} ${slug.slice(1).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}`
         : 'Smartphone';
+    console.log("Device Name for meta:", deviceName);
 
     // Active shops (open only)
     const activeShops = shops.filter(s => s.status === 'open');
 
     const filteredProducts = useMemo(() => {
-        let result = products.filter(product => {
+        const result = products.filter(product => {
             const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 product.description.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -68,20 +69,6 @@ const Products: React.FC = () => {
 
         return result;
     }, [products, searchTerm, selectedCategory, sortOption, selectedShop]);
-
-    const productSchema = products.map(product => ({
-        "@context": "https://schema.org",
-        "@type": "Product",
-        "name": product.name,
-        "description": product.description,
-        "image": product.imageUrl,
-        "sku": product.id,
-        "offers": {
-            "@type": "Offer",
-            "price": product.price,
-            "priceCurrency": "EUR"
-        }
-    }));
 
     return (
         <div className="min-h-screen bg-transparent pb-20 transition-colors duration-300">
@@ -139,7 +126,7 @@ const Products: React.FC = () => {
                                 <div className="relative shrink-0">
                                     <select
                                         value={sortOption}
-                                        onChange={(e) => setSortOption(e.target.value as any)}
+                                        onChange={(e) => setSortOption(e.target.value as 'default' | 'priceAsc' | 'priceDesc')}
                                         className="appearance-none block w-full pl-3 pr-8 py-3 border border-white/10 bg-slate-900/50 text-white rounded-xl text-sm focus:ring-2 focus:ring-bel-blue focus:bg-slate-800 cursor-pointer font-medium"
                                     >
                                         <option value="default">{t('sort_featured')}</option>

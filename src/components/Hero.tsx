@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useLanguage } from '../hooks/useLanguage';
 import { ArrowRightIcon, StarIcon } from '@heroicons/react/24/solid';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 const Hero: React.FC = () => {
     const { language, t } = useLanguage();
@@ -43,7 +44,7 @@ const Hero: React.FC = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
-                            className="text-5xl sm:text-6xl lg:text-8xl font-black tracking-tight leading-[0.95] text-slate-900 dark:text-white mb-8"
+                            className="text-5xl sm:text-6xl lg:text-8xl font-black tracking-tight leading-[0.95] text-slate-900 dark:text-white mb-8 font-heading"
                         >
                             {t('Your One-Stop')} <br />
                             <span className="bg-clip-text text-transparent bg-linear-to-r from-electric-indigo via-electric-violet to-cyan-400">
@@ -66,7 +67,7 @@ const Hero: React.FC = () => {
                             transition={{ duration: 0.8, delay: 0.6 }}
                             className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
                         >
-                            <Link
+                            <Link prefetch={false}
                                 href={`/${language}/${language === 'fr' ? 'rachat' : language === 'nl' ? 'inkoop' : 'buyback'}`}
                                 className="group relative px-8 py-4 w-full sm:w-auto bg-electric-indigo text-white text-lg font-bold rounded-2xl shadow-glow hover:shadow-lg hover:scale-105 transition-all duration-300 overflow-hidden"
                             >
@@ -77,7 +78,7 @@ const Hero: React.FC = () => {
                                 </span>
                             </Link>
 
-                            <Link
+                            <Link prefetch={false}
                                 href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}`}
                                 className="group px-8 py-4 w-full sm:w-auto bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-lg font-bold rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-cyber-citron dark:hover:border-cyber-citron hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-300 flex items-center justify-center"
                             >
@@ -93,9 +94,9 @@ const Hero: React.FC = () => {
                             className="mt-12 flex items-center justify-center lg:justify-start space-x-6"
                         >
                             <div className="flex -space-x-3">
-                                <img className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900" src="https://randomuser.me/api/portraits/men/32.jpg" alt="" />
-                                <img className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900" src="https://randomuser.me/api/portraits/women/44.jpg" alt="" />
-                                <img className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900" src="https://randomuser.me/api/portraits/men/86.jpg" alt="" />
+                                <Image className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Belmobile happy customer" width={40} height={40} />
+                                <Image className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Belmobile client review" width={40} height={40} />
+                                <Image className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900" src="https://randomuser.me/api/portraits/men/86.jpg" alt="Belmobile satisfied user" width={40} height={40} />
                             </div>
                             <div className="flex flex-col">
                                 <div className="flex text-cyber-citron">
@@ -117,9 +118,10 @@ const Hero: React.FC = () => {
                         <div className="relative w-full max-w-[280px] sm:max-w-[300px] aspect-9/16 rounded-[2.5rem] bg-linear-to-br from-slate-900 to-black p-3 shadow-2xl transform rotate-y-12 hover:rotate-y-0 transition-transform duration-700 ease-out border-4 border-slate-800">
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-20"></div>
                             <div className="w-full h-full rounded-4xl overflow-hidden bg-slate-800 relative">
-                                <img
+                                <Image
                                     src="https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1000&auto=format&fit=crop"
-                                    alt="App Interface"
+                                    alt="Modern smartphone interface showing Belmobile services"
+                                    fill
                                     className="w-full h-full object-cover opacity-80 mix-blend-overlay"
                                 />
                                 <div className="absolute inset-0 bg-linear-to-t from-electric-indigo/50 to-transparent flex flex-col justify-end p-6">
@@ -165,7 +167,7 @@ const Hero: React.FC = () => {
                         >
                             <div className="flex items-center gap-2 sm:gap-3">
                                 <div className="bg-blue-100 dark:bg-blue-900/30 p-1.5 sm:p-2 rounded-lg text-blue-600 dark:text-blue-400">
-                                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label={t('Repair Time')}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </div>
                                 <div>
                                     <p className="text-[9px] sm:text-xs text-slate-500 uppercase font-bold">{t('Repair Time')}</p>
@@ -184,7 +186,7 @@ const Hero: React.FC = () => {
                         >
                             <div className="flex items-center gap-2 sm:gap-3">
                                 <div className="bg-purple-100 dark:bg-purple-900/30 p-1.5 sm:p-2 rounded-lg text-purple-600 dark:text-purple-400">
-                                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label={t('trust_warranty')}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </div>
                                 <div>
                                     <p className="text-[9px] sm:text-xs text-slate-500 uppercase font-bold">{t('trust_warranty')}</p>
@@ -203,7 +205,7 @@ const Hero: React.FC = () => {
                         >
                             <div className="flex items-center gap-2 sm:gap-3">
                                 <div className="bg-emerald-100 dark:bg-emerald-900/30 p-1.5 sm:p-2 rounded-lg text-emerald-600 dark:text-emerald-400">
-                                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label={t('trust_eco')}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </div>
                                 <div>
                                     <p className="text-[9px] sm:text-xs text-slate-500 uppercase font-bold">{t('trust_eco')}</p>

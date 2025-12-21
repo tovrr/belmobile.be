@@ -11,9 +11,10 @@ interface SchemaOrgProps {
     device?: string;
     deviceModel?: string;
     language: string;
+    price?: number;
 }
 
-const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, service, device, deviceModel, language }) => {
+const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, service, device, deviceModel, language, price }) => {
     const baseUrl = 'https://belmobile.be';
     const schemas = [];
 
@@ -37,10 +38,10 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, service, device, deviceMode
             },
             "geo": {
                 "@type": "GeoCoordinates",
-                "latitude": shop.coords?.lat || (shop as any).coordinates?.lat || 0,
-                "longitude": shop.coords?.lng || (shop as any).coordinates?.lng || 0
+                "latitude": shop.coords?.lat || (shop as { coordinates?: { lat: number } }).coordinates?.lat || 0,
+                "longitude": shop.coords?.lng || (shop as { coordinates?: { lng: number } }).coordinates?.lng || 0
             },
-            "openingHoursSpecification": shop.openingHours && shop.openingHours.length > 0 ? shop.openingHours.map((hour: string) => {
+            "openingHoursSpecification": shop.openingHours && shop.openingHours.length > 0 ? shop.openingHours.map(() => {
                 // Basic parsing, ideally we'd parse "Mon-Fri: 10:00 - 19:00" into structured data
                 return {
                     "@type": "OpeningHoursSpecification",
@@ -75,10 +76,14 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, service, device, deviceMode
         const deviceName = device ? `${device} ${deviceModel || ''}`.trim() : 'Smartphone';
 
         if (service.id === 'repair') {
+            const isConsole = [
+                'PlayStation', 'Xbox', 'Nintendo', 'Switch', 'Steam Deck', 'Console'
+            ].some(k => (device && device.includes(k)) || (deviceModel && deviceModel.includes(k)));
+
             const repairSchema = {
                 "@context": "https://schema.org",
                 "@type": "Service",
-                "serviceType": "MobilePhoneRepair",
+                "serviceType": isConsole ? "GameConsoleRepair" : "MobilePhoneRepair",
                 "provider": shop ? {
                     "@type": "MobilePhoneStore",
                     "name": shop.name,
@@ -93,9 +98,19 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, service, device, deviceMode
                     "@type": "City",
                     "name": shop.city || "Brussels"
                 } : {
-                    "@type": "Country",
-                    "name": "Belgium"
-                }
+                    "@type": "City",
+                    "name": "Brussels",
+                    "containedIn": {
+                        "@type": "Country",
+                        "name": "Belgium"
+                    }
+                },
+                "offers": price ? {
+                    "@type": "Offer",
+                    "price": price,
+                    "priceCurrency": "EUR",
+                    "availability": "https://schema.org/InStock"
+                } : undefined
             };
             schemas.push(repairSchema);
         } else if (service.id === 'buyback') {

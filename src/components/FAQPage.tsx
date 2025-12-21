@@ -80,7 +80,7 @@ const FAQPage: React.FC = () => {
                                                 <span className={`font-medium text-lg ${isOpen ? 'text-bel-blue dark:text-blue-400' : 'text-gray-800 dark:text-gray-200'}`}>
                                                     {t(item.q)}
                                                 </span>
-                                                <span className={`ml-4 flex-shrink-0 p-1 rounded-full ${isOpen ? 'bg-bel-blue text-white' : 'text-gray-400'}`}>
+                                                <span className={`ml-4 shrink-0 p-1 rounded-full ${isOpen ? 'bg-bel-blue text-white' : 'text-gray-400'}`}>
                                                     {isOpen ? <MinusIcon className="h-5 w-5" /> : <PlusIcon className="h-5 w-5" />}
                                                 </span>
                                             </button>

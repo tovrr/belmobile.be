@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useLanguage } from '../hooks/useLanguage';
-import { useTheme } from '../hooks/useTheme';
+import Logo from './Logo';
+
 import { LOCATIONS } from '../data/locations';
 import { PaperAirplaneIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import Input from './ui/Input';
@@ -16,8 +17,8 @@ const POPULAR_REPAIRS = [
     { name: 'Samsung S23 Ultra', brand: 'Samsung', model: 'Galaxy S23 Ultra', category: 'smartphone' },
     { name: 'Samsung A54', brand: 'Samsung', model: 'Galaxy A54', category: 'smartphone' },
     { name: 'Google Pixel 7', brand: 'Google', model: 'Pixel 7', category: 'smartphone' },
-    { name: 'PlayStation 5', brand: 'Sony', model: 'PlayStation 5 (Disc)', category: 'console' },
-    { name: 'Nintendo Switch OLED', brand: 'Nintendo', model: 'Switch OLED', category: 'console' },
+    { name: 'PlayStation 5', brand: 'Sony', model: 'PlayStation 5 (Disc)', category: 'console_home' },
+    { name: 'Nintendo Switch OLED', brand: 'Nintendo', model: 'Switch OLED', category: 'console_portable' },
     { name: 'MacBook Air M2', brand: 'Apple', model: 'MacBook Air M2', category: 'laptop' },
     { name: 'iPad 10th Gen', brand: 'Apple', model: 'iPad (10th Gen)', category: 'tablet' },
     { name: 'Xiaomi 13', brand: 'Xiaomi', model: 'Xiaomi 13', category: 'smartphone' },
@@ -25,7 +26,7 @@ const POPULAR_REPAIRS = [
 
 const Footer: React.FC = () => {
     const { language, t } = useLanguage();
-    const { theme, toggleTheme } = useTheme();
+
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -105,15 +106,12 @@ const Footer: React.FC = () => {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-12">
 
+
+
                     {/* Brand Column (Span 4) */}
                     <div className="lg:col-span-4">
                         <Link href={`/${language}`} className="block mb-6 group">
-                            <div className="text-3xl font-black tracking-tighter text-white leading-none">
-                                BELMOBILE<span className="text-cyber-citron">.BE</span>
-                            </div>
-                            <div className="text-xs font-bold tracking-[0.25em] text-slate-500 group-hover:text-cyber-citron transition-colors mt-2 uppercase">
-                                BUYBACK & REPAIR
-                            </div>
+                            <Logo variant="light" className="scale-110 origin-left" />
                         </Link>
                         <p className="text-slate-400 leading-relaxed mb-8 max-w-sm">
                             {language === 'fr'
@@ -128,7 +126,7 @@ const Footer: React.FC = () => {
                         <div className="relative max-w-sm mb-8">
                             {isSubscribed ? (
                                 <div className="bg-green-500/20 border border-green-500/50 rounded-xl py-3 px-4 text-sm text-green-200 flex items-center">
-                                    <SparklesIcon className="h-5 w-5 mr-2 text-green-400" />
+                                    <SparklesIcon className="h-5 w-5 mr-2 text-green-400" aria-hidden="true" />
                                     {t('newsletter_success')}
                                 </div>
                             ) : (
@@ -143,6 +141,7 @@ const Footer: React.FC = () => {
                                         rightElement={
                                             <button
                                                 type="submit"
+                                                aria-label={t('Subscribe')}
                                                 className="p-1.5 bg-electric-indigo rounded-lg text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/30"
                                             >
                                                 <PaperAirplaneIcon className="h-4 w-4" />
@@ -181,7 +180,7 @@ const Footer: React.FC = () => {
                         <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('Support')}</h4>
                         <ul className="space-y-4 text-sm text-slate-400">
                             <li><Link href={`/${language}/contact`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Contact Us')}</Link></li>
-                            <li><Link href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Store Locator')}</Link></li>
+                            <li><Link href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${language === 'fr' ? 'bruxelles' : language === 'nl' ? 'brussel' : 'brussels'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Store Locator')}</Link></li>
                             <li><Link href={`/${language}/faq`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Help Center')}</Link></li>
                             <li><Link href={`/${language}/track-order`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Track Order')}</Link></li>
                             <li><Link href={`/${language}/blog`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Blog')}</Link></li>

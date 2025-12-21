@@ -32,7 +32,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ onClose, shop }) => {
                 lat: Number(formData.get('lat')),
                 lng: Number(formData.get('lng')),
             },
-            status: 'open', // Default status
+            status: formData.get('status') as Shop['status'],
             googleMapUrl: formData.get('googleMapUrl') as string,
             email: formData.get('email') as string,
         };
@@ -96,6 +96,14 @@ const ShopModal: React.FC<ShopModalProps> = ({ onClose, shop }) => {
                     <div>
                         <label htmlFor="googleMapUrl" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Google My Business URL</label>
                         <input type="url" name="googleMapUrl" id="googleMapUrl" defaultValue={shop?.googleMapUrl} placeholder="https://maps.app.goo.gl/..." className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" />
+                    </div>
+                    <div>
+                        <label htmlFor="status" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Shop Status</label>
+                        <select name="status" id="status" defaultValue={shop?.status || 'open'} className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition">
+                            <option value="open">Open</option>
+                            <option value="temporarily_closed">Temporarily Closed</option>
+                            <option value="coming_soon">Coming Soon</option>
+                        </select>
                     </div>
                     <div>
                         <label htmlFor="hours" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Hours (One per line)</label>

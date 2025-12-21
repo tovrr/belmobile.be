@@ -1,9 +1,9 @@
 export const MODELS = {
     smartphone: {
-        'OnePlus 15': 950, 'OnePlus 14': 850, 'OnePlus 13': 750,
+        'OnePlus 13': 750, 'OnePlus 13R': 550,
         'OnePlus 12': 650, 'OnePlus 12R': 450,
         'OnePlus 11': 450, 'OnePlus 11R': 350,
-        'OnePlus 10 Pro': 350, 'OnePlus 10T': 300, 'OnePlus 10R': 280,
+        'OnePlus 10 Pro': 350, 'OnePlus 10T': 300,
         'OnePlus 9 Pro': 280, 'OnePlus 9': 230, 'OnePlus 9RT': 220,
         'OnePlus 8 Pro': 200, 'OnePlus 8T': 180, 'OnePlus 8': 160,
         'OnePlus Open': 1000,
@@ -16,11 +16,11 @@ export const MODELS = {
 
 export const SPECS = {
     'OnePlus 15': ['256GB', '512GB', '1TB'],
-    'OnePlus 14': ['256GB', '512GB', '1TB'],
-    'OnePlus 13': ['256GB', '512GB', '1TB'],
+
+    'OnePlus 13': ['256GB', '512GB', '1TB'], 'OnePlus 13R': ['128GB', '256GB'],
     'OnePlus 12': ['256GB', '512GB', '1TB'], 'OnePlus 12R': ['128GB', '256GB'],
     'OnePlus 11': ['128GB', '256GB'], 'OnePlus 11R': ['128GB', '256GB'],
-    'OnePlus 10 Pro': ['128GB', '256GB', '512GB'], 'OnePlus 10T': ['128GB', '256GB'], 'OnePlus 10R': ['128GB', '256GB'],
+    'OnePlus 10 Pro': ['128GB', '256GB', '512GB'], 'OnePlus 10T': ['128GB', '256GB'],
     'OnePlus 9 Pro': ['128GB', '256GB'], 'OnePlus 9': ['128GB', '256GB'], 'OnePlus 9RT': ['128GB', '256GB'],
     'OnePlus 8 Pro': ['128GB', '256GB'], 'OnePlus 8T': ['128GB', '256GB'], 'OnePlus 8': ['128GB', '256GB'],
     'OnePlus Open': ['512GB', '1TB'],

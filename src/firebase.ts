@@ -1,3 +1,9 @@
+/**
+ * FIREBASE CONFIGURATION - BELMOBILE
+ * 
+ * CRITICAL: This project uses 'belmobile-database' exclusively.
+ * The '(default)' database is deprecated and should NOT be used for production data.
+ */
 
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";

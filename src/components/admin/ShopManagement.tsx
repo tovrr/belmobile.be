@@ -93,6 +93,9 @@ const ShopManagement: React.FC = () => {
                                         {shop.status === 'coming_soon' && (
                                             <span className="px-3 py-1 text-xs font-bold bg-yellow-100 text-yellow-800 rounded-full">Coming Soon</span>
                                         )}
+                                        {shop.status === 'temporarily_closed' && (
+                                            <span className="px-3 py-1 text-xs font-bold bg-amber-100 text-amber-800 rounded-full">Temporarily Closed</span>
+                                        )}
                                     </div>
                                     <p className="text-gray-600 dark:text-gray-400 mb-3">{shop.address}</p>
                                     <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">

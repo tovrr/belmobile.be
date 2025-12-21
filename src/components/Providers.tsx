@@ -11,7 +11,7 @@ export function Providers({ children, lang }: { children: React.ReactNode; lang?
     return (
         <AuthProvider>
             <ThemeProvider>
-                <LanguageProvider initialLanguage={lang as any}>
+                <LanguageProvider initialLanguage={lang as 'en' | 'fr' | 'nl' | undefined}>
                     <DataProvider>
                         <ShopProvider>
                             {children}

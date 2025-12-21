@@ -1,14 +1,16 @@
 'use client';
 
 import React from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
 import { ArrowLeftIcon, CalendarDaysIcon, UserIcon } from '@heroicons/react/24/outline';
+import Image from 'next/image';
 import SchemaMarkup from '../components/SchemaMarkup';
+import ReactMarkdown from 'react-markdown';
 
-import { BlogPost as BlogPostType } from '../types';
+import { BlogPost as BlogPostType, Product } from '../types';
 
 interface BlogPostProps {
     initialPost?: BlogPostType;
@@ -19,9 +21,9 @@ const BlogPost: React.FC<BlogPostProps> = ({ initialPost }) => {
     const id = params?.id;
     const { language, t } = useLanguage();
     const { blogPosts } = useData();
-    const router = useRouter();
 
-    const post = initialPost || blogPosts.find(p => p.id === Number(id));
+
+    const post = initialPost || blogPosts.find(p => String(p.id) === String(id));
 
     if (!post) {
         return (
@@ -53,7 +55,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ initialPost }) => {
     const contentTrans = t(contentKey);
     const categoryTrans = t(categoryKey);
 
-    // Fallback to post content if translation key is returned (meaning no translation found)
+    // Fallback logic: if t(key) returns the key itself, use the original post content
     const localizedTitle = titleTrans !== titleKey ? titleTrans : post.title;
     const localizedExcerpt = excerptTrans !== excerptKey ? excerptTrans : post.excerpt;
     const localizedContent = contentTrans !== contentKey ? contentTrans : post.content;
@@ -80,7 +82,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ initialPost }) => {
                         availability: {},
                         author: post.author,
                         date: post.date
-                    } as any}
+                    } as unknown as Product}
                 />
 
                 <Link
@@ -90,11 +92,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ initialPost }) => {
                     <ArrowLeftIcon className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" /> {t('Back')}
                 </Link>
 
-                import Image from 'next/image';
 
-                // ... (other imports)
-
-                // Inside component:
                 <article className="glass-panel dark:bg-slate-900/40 rounded-3xl overflow-hidden border border-white/20 dark:border-white/5 shadow-xl">
                     <div className="h-64 sm:h-96 overflow-hidden relative bg-slate-900">
                         <Image
@@ -130,10 +128,12 @@ const BlogPost: React.FC<BlogPostProps> = ({ initialPost }) => {
                             </span>
                         </div>
 
-                        <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
-                            <div className="whitespace-pre-wrap leading-relaxed">
+
+
+                        <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed">
+                            <ReactMarkdown>
                                 {localizedContent}
-                            </div>
+                            </ReactMarkdown>
                         </div>
                     </div>
                 </article>

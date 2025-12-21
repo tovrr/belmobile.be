@@ -3,7 +3,7 @@
 import React from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { motion } from 'framer-motion';
-import { BriefcaseIcon, UserGroupIcon, WrenchScrewdriverIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, WrenchScrewdriverIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
 
 const Jobs: React.FC = () => {
     const { t } = useLanguage();

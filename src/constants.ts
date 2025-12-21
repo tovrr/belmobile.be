@@ -1,26 +1,16 @@
 
-import { Shop, Product, Service, Reservation, Quote, NavLink, AdminStat, ChartData, FranchiseApplication, BlogPost, Review, FAQCategory, RepairPricing } from './types';
+import { Shop, Product, NavLink, AdminStat, Review, FAQCategory, RepairPricing, BlogPost } from './types';
 import {
     CubeIcon,
     PhoneIcon,
     DocumentTextIcon,
     BuildingStorefrontIcon,
-    WrenchScrewdriverIcon,
-    Battery50Icon,
-    BoltIcon,
-    CameraIcon,
-    SpeakerWaveIcon,
-    SparklesIcon,
-    CpuChipIcon,
-    CircleStackIcon,
-    CursorArrowRaysIcon,
-    CloudIcon,
-    DevicePhoneMobileIcon,
-    ComputerDesktopIcon,
-    TvIcon
 } from '@heroicons/react/24/outline';
 
-export const MOCK_SHOPS: Shop[] = [
+export * from './data/device-types';
+export * from './data/repair-issues';
+
+export const SHOPS: Shop[] = [
     {
         id: 'schaerbeek',
         name: 'Belmobile Liedts',
@@ -54,7 +44,7 @@ export const MOCK_SHOPS: Shop[] = [
         openingHours: ['Mon-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Sun: Closed'],
         slugs: { fr: 'molenbeek', nl: 'molenbeek', en: 'molenbeek' },
         coords: { lat: 50.865650, lng: 4.331420 },
-        status: 'open',
+        status: 'temporarily_closed',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis+Rue+Ulens+88+1080+Molenbeek'
     },
     {
@@ -112,24 +102,6 @@ export const MOCK_PRODUCTS: Product[] = [
     }
 ];
 
-export const MOCK_SERVICES: Service[] = [
-    { id: 1, name: 'Screen Replacement', type: 'repair', description: 'Cracked or unresponsive screen repair for all major brands (iPhone, Samsung, Huawei, etc.).' },
-    { id: 2, name: 'Battery Replacement', type: 'repair', description: 'Extend the life of your device with a brand new battery. Fixes fast draining and shutdown issues.' },
-    { id: 3, name: 'Water Damage Repair', type: 'repair', description: 'Expert service to revive water-damaged devices. Includes ultrasonic cleaning and board diagnostics.' },
-    { id: 4, name: 'Charging Port Repair', type: 'repair', description: 'Fixes loose cables, slow charging, or devices that won\'t charge at all.' },
-    { id: 5, name: 'Data Recovery', type: 'repair', description: 'Recover lost photos, contacts, and files from broken or dead devices.' },
-    { id: 6, name: 'Microsoldering', type: 'repair', description: 'Advanced motherboard repair for complex issues (Touch IC, Audio IC, No Power).' },
-    { id: 7, name: 'Console Repair', type: 'repair', description: 'HDMI port replacement, overheating/cleaning, and disc drive repairs for PS5, Xbox, Switch.' },
-    { id: 8, name: 'Tablet Repair', type: 'repair', description: 'Screen, battery, and charging port repairs for iPad, Samsung Tab, and Surface.' },
-    { id: 9, name: 'Laptop Repair', type: 'repair', description: 'Screen, keyboard, battery replacement, and software troubleshooting for MacBook and Windows laptops.' },
-    { id: 10, name: 'Software Issues', type: 'repair', description: 'Boot loops, stuck on logo, updates, and data transfer services.' },
-    { id: 11, name: 'Network Unlocking', type: 'repair', description: 'Unlock your device to use with any carrier worldwide.' },
-    { id: 12, name: 'Smartphone Buyback', type: 'buyback', description: 'Get a great price for your old smartphone. Instant cash or bank transfer.' },
-    { id: 13, name: 'Tablet Buyback', type: 'buyback', description: 'Trade in your old tablet for cash or store credit.' },
-    { id: 14, name: 'Console Buyback', type: 'buyback', description: 'Sell your old gaming console for a competitive price.' },
-    { id: 15, name: 'B2B Fleet Services', type: 'repair', description: 'Dedicated repair and maintenance services for company devices with volume discounts.' },
-];
-
 // Reordered: Repair > Buyback > Products > Stores.
 export const NAV_LINKS: NavLink[] = [
     { name: 'Repair', path: '/repair' },
@@ -144,32 +116,6 @@ export const ADMIN_STATS: AdminStat[] = [
     { label: 'Products in Stock', value: '281', icon: CubeIcon },
     { label: 'Managed Shops', value: '3', icon: BuildingStorefrontIcon },
 ];
-
-export const RESERVATIONS_CHART_DATA: ChartData[] = [
-    { name: 'Jan', value: 30 }, { name: 'Feb', value: 45 }, { name: 'Mar', value: 60 },
-    { name: 'Apr', value: 55 }, { name: 'May', value: 75 }, { name: 'Jun', value: 80 },
-];
-
-export const QUOTES_CHART_DATA: ChartData[] = [
-    { name: 'Jan', value: 20 }, { name: 'Feb', value: 25 }, { name: 'Mar', value: 30 },
-    { name: 'Apr', value: 40 }, { name: 'May', value: 35 }, { name: 'Jun', value: 50 },
-];
-
-export const MOCK_RESERVATIONS: Reservation[] = [
-    { id: 1, productId: 1, productName: 'Smartphone Pro X', customerName: 'John Doe', customerEmail: 'john@example.com', customerPhone: '123-456-7890', shopId: 1, status: 'pending', date: '2024-07-28' },
-    { id: 2, productId: 3, productName: 'Tablet Air', customerName: 'Jane Smith', customerEmail: 'jane@example.com', customerPhone: '234-567-8901', shopId: 2, status: 'approved', date: '2024-07-27' },
-];
-
-export const MOCK_QUOTES: Quote[] = [
-    { id: 1, type: 'repair', deviceType: 'Smartphone', brand: 'Apple', model: 'iPhone 13', condition: 'Good', issue: 'Cracked screen', customerName: 'Peter Jones', customerEmail: 'peter@example.com', customerPhone: '345-678-9012', shopId: 3, status: 'new', date: '2024-07-28' },
-    { id: 2, type: 'buyback', deviceType: 'Smartphone', brand: 'Samsung', model: 'Galaxy S21', condition: 'Excellent', issue: 'N/A', customerName: 'Mary Williams', customerEmail: 'mary@example.com', customerPhone: '456-789-0123', shopId: 1, status: 'responded', date: '2024-07-26' },
-];
-
-export const MOCK_FRANCHISE_APPLICATIONS: FranchiseApplication[] = [
-    { id: 1, name: 'Alice Johnson', email: 'alice.j@email.com', phone: '555-0101', locationPreference: 'Liège', investmentCapacity: '€100,000 - €150,000', background: '10 years in retail management, electronics sector.', status: 'new', date: '2024-07-29' },
-    { id: 2, name: 'Bob Miller', email: 'bob.m@email.com', phone: '555-0102', locationPreference: 'Namur', investmentCapacity: '€150,000+', background: 'Previous experience owning a small business.', status: 'reviewing', date: '2024-07-25' },
-];
-
 
 
 export const MOCK_REVIEWS: Review[] = [
@@ -212,33 +158,8 @@ export const MOCK_FAQ_CATEGORIES: FAQCategory[] = [
 // See src/data/brands.ts and src/data/models/*.ts
 
 
-export const DEVICE_TYPES = [
-    { id: 'smartphone', label: 'Smartphone', icon: '/images/devices/smartphone.svg' },
-    { id: 'tablet', label: 'Tablet', icon: '/images/devices/tablet.svg' },
-    { id: 'laptop', label: 'Laptop', icon: '/images/devices/laptop.svg' },
-    { id: 'console', label: 'Gaming Console', icon: '/images/devices/console.svg' },
-    { id: 'smartwatch', label: 'Smartwatch', icon: '/images/devices/smartwatch.svg' },
-];
 
-export const REPAIR_ISSUES = [
-    { id: 'screen', label: 'Screen / Glass', icon: DevicePhoneMobileIcon, desc: 'Cracked or unresponsive', base: 80, devices: ['smartphone', 'tablet', 'laptop', 'smartwatch'] },
-    { id: 'battery', label: 'Battery Issue', icon: Battery50Icon, desc: 'Drains fast / won\'t charge', base: 50, devices: ['smartphone', 'tablet', 'laptop', 'smartwatch'] },
-    { id: 'charging', label: 'Charging Port', icon: BoltIcon, desc: 'Cable loose or not working', base: 60, devices: ['smartphone', 'tablet', 'laptop'] },
-    { id: 'hdmi', label: 'HDMI / Video Port', icon: TvIcon, desc: 'No signal to TV/Monitor', base: 70, devices: ['console', 'laptop'] },
-    { id: 'disc', label: 'Disc Drive Issue', icon: CircleStackIcon, desc: 'Not reading discs / jammed', base: 80, devices: ['console'] },
-    { id: 'card_reader', label: 'Game Card Slot', icon: CpuChipIcon, desc: 'Not reading game cards', base: 60, devices: ['console', 'tablet'] },
-    { id: 'cleaning', label: 'Cleaning + Thermal Paste', icon: SparklesIcon, desc: 'Overheating / Loud fan', base: 60, devices: ['console'] },
-    { id: 'joystick', label: 'Joystick Repair', icon: CursorArrowRaysIcon, desc: 'Drift or buttons not working', base: 25, devices: ['console'] },
-    { id: 'audio', label: 'Audio / Sound', icon: SpeakerWaveIcon, desc: 'Speaker, mic, or volume', base: 55, devices: ['smartphone', 'tablet', 'laptop'] },
-    { id: 'camera', label: 'Camera', icon: CameraIcon, desc: 'Blurry, spots, or broken lens', base: 70, devices: ['smartphone', 'tablet'] },
-    { id: 'water', label: 'Water Damage', icon: CloudIcon, desc: 'Device got wet', base: 40, devices: ['smartphone', 'tablet', 'laptop', 'smartwatch'] },
-    { id: 'storage', label: 'Storage / Drive', icon: CubeIcon, desc: 'Hard Drive / SSD issue', base: 80, devices: ['laptop', 'console'] },
-    { id: 'keyboard', label: 'Keyboard', icon: ComputerDesktopIcon, desc: 'Keys stuck or not working', base: 100, devices: ['laptop'] },
-    { id: 'trackpad', label: 'Trackpad', icon: CursorArrowRaysIcon, desc: 'Not clicking or moving', base: 80, devices: ['laptop'] },
-    { id: 'other', label: 'Other / Unknown', icon: WrenchScrewdriverIcon, desc: 'Diagnostic required', base: 30, devices: ['smartphone', 'tablet', 'laptop', 'smartwatch', 'console'] },
-];
-
-export const SEO_CONTENT: any = {
+export const SEO_CONTENT: Record<string, { title: string; text: string; image: string }> = {
     buyback_step1: {
         title: "Sell Your Device for the Best Price",
         text: "Belmobile offers the highest buyback rates in Belgium. Whether it's an iPhone, Samsung, or MacBook, get an instant quote and fast payment. We recycle responsibly and give your device a second life.",
@@ -264,9 +185,29 @@ export const SEO_CONTENT: any = {
         text: "Ready for the next gen? Sell your PS4, PS5, Xbox, or Nintendo Switch. We offer competitive prices for consoles and controllers.",
         image: "https://images.unsplash.com/photo-1486401899868-0e435ed85128?q=80&w=800&auto=format&fit=crop"
     },
+    buyback_console_home: {
+        title: "Trade-in Your Home Console",
+        text: "Ready for the next gen? Sell your PS4, PS5, or Xbox. We offer competitive prices for consoles and controllers.",
+        image: "https://images.unsplash.com/photo-1486401899868-0e435ed85128?q=80&w=800&auto=format&fit=crop"
+    },
+    buyback_console_portable: {
+        title: "Trade-in Your Handheld",
+        text: "Sell your Nintendo Switch, Steam Deck, or other handhelds. We offer competitive prices.",
+        image: "https://images.unsplash.com/photo-1486401899868-0e435ed85128?q=80&w=800&auto=format&fit=crop"
+    },
     repair_console: {
         title: "Console Repair Service",
         text: "Overheating PS5? HDMI port broken? Our gaming experts can fix your console quickly so you can get back to gaming.",
+        image: "https://images.unsplash.com/photo-1605901309584-818e25960b8f?q=80&w=800&auto=format&fit=crop"
+    },
+    repair_console_home: {
+        title: "Console Repair Service",
+        text: "Overheating PS5? HDMI port broken? Our gaming experts can fix your console quickly so you can get back to gaming.",
+        image: "https://images.unsplash.com/photo-1605901309584-818e25960b8f?q=80&w=800&auto=format&fit=crop"
+    },
+    repair_console_portable: {
+        title: "Handheld Repair Service",
+        text: "Broken Screen? Drift? Our gaming experts can fix your Switch or Steam Deck quickly.",
         image: "https://images.unsplash.com/photo-1605901309584-818e25960b8f?q=80&w=800&auto=format&fit=crop"
     }
 };
@@ -274,311 +215,121 @@ export const SEO_CONTENT: any = {
 export const MOCK_BLOG_POSTS: BlogPost[] = [
     {
         id: 1,
-        slug: '5-tips-extend-battery-life',
-        title: '5 Tips to Extend Your Smartphone Battery Life',
-        excerpt: 'Struggling with a phone that dies by noon? Here are expert tips to keep your battery healthy for longer.',
-        content: 'Battery life is crucial. 1. Reduce brightness. 2. Close unused apps. 3. Use low power mode. 4. Update software. 5. Avoid extreme temperatures.',
-        date: '2024-03-15',
-        author: 'Belmobile Team',
-        category: 'Tips & Tricks',
-        imageUrl: 'https://images.unsplash.com/photo-1574612199671-5c83380908b4?q=80&w=2070&auto=format&fit=crop'
+        slug: 'reparation-ecran-iphone-15-pro-bruxelles-original',
+        slugs: {
+            fr: 'reparation-ecran-iphone-15-pro-bruxelles-original',
+            en: 'iphone-15-pro-screen-repair-brussels-original',
+            nl: 'iphone-15-pro-scherm-reparatie-brussel-origineel'
+        },
+        title: 'Réparation écran iPhone 15 Pro à Bruxelles : Pourquoi choisir l\'original ?',
+        excerpt: 'Votre iPhone 15 Pro a l\'écran brisé ? Découvrez pourquoi l\'utilisation de pièces originales est cruciale pour maintenir la garantie et la qualité d\'image.',
+        content: `L'iPhone 15 Pro est un bijou de technologie avec son écran Super Retina XDR. Lorsqu'un accident arrive, la tentation de choisir une réparation bon marché avec des pièces génériques est forte. Cependant, voici pourquoi Belmobile recommande toujours l'original :
+        
+1. **Qualité d'image** : Les écrans génériques ont souvent des couleurs moins vives et une luminosité réduite.
+2. **Technologie ProMotion** : Seuls les écrans certifiés supportent le taux de rafraîchissement adaptatif de 120Hz.
+3. **True Tone & Capteurs** : Une réparation non conforme peut désactiver définitivement le True Tone ou le Face ID.
+4. **Valeur de Revente** : Un iPhone avec un écran non original perd 30% de sa valeur sur le marché de l'occasion.
+
+Chez Belmobile (Anderlecht & Schaerbeek), nous proposons des écrans originaux avec une garantie de 12 mois.`,
+        date: '2024-11-15',
+        author: 'Belmobile Expert',
+        category: 'Repair Guide',
+        imageUrl: '/images/blog/iphone-screen-repair.png'
     },
     {
         id: 2,
-        slug: 'why-buy-refurbished',
-        title: 'Why You Should Buy Refurbished Instead of New',
-        excerpt: 'Save money and the planet. Discover the benefits of choosing a certified refurbished device from Belmobile.',
-        content: 'Refurbished devices are inspected, repaired, and tested. They are cheaper and eco-friendly. You get a warranty too!',
-        date: '2024-03-10',
-        author: 'Sarah Jenkins',
-        category: 'Buying Guide',
-        imageUrl: 'https://images.unsplash.com/photo-1592434134753-a70baf7979d5?q=80&w=2070&auto=format&fit=crop'
+        slug: 'vendre-ancien-smartphone-prix-belgique',
+        slugs: {
+            fr: 'vendre-ancien-smartphone-prix-belgique',
+            en: 'sell-old-smartphone-best-price-belgium',
+            nl: 'oude-smartphone-verkopen-beste-prijs-belgie'
+        },
+        title: 'Comment vendre votre ancien smartphone au meilleur prix en Belgique ?',
+        excerpt: 'Ne laissez pas votre ancien téléphone dormir dans un tiroir. Apprenez comment maximiser sa valeur de rachat chez Belmobile.',
+        content: `Le marché de l'occasion en Belgique est en pleine expansion. Pour obtenir le meilleur prix de rachat pour votre smartphone, suivez ces étapes :
+
+1. **Nettoyage complet** : Un appareil propre inspire confiance et facilite l'inspection.
+2. **Boîte et accessoires** : Si vous avez encore la boîte originale et le chargeur, la valeur peut augmenter de 10 à 20€.
+3. **Désactivation des comptes** : Pensez à supprimer votre compte iCloud ou Google avant de venir en magasin.
+4. **Transparence sur l'état** : Un petit éclat ? Signalez-le ! Chez Belmobile, nous rachetons même les appareils avec des défauts mineurs.
+
+Passez dans l'un de nos magasins à Bruxelles pour une estimation immédiate et un paiement en cash ou par virement instantané.`,
+        date: '2024-12-01',
+        author: 'Team Rachat',
+        category: 'Buyback',
+        imageUrl: '/images/blog/sell-smartphone-money.png'
     },
     {
         id: 3,
-        slug: 'water-damage-guide',
-        title: 'Dropped Your Phone in Water? Do This Immediately!',
-        excerpt: 'Panic mode off. Follow these immediate steps to increase the chances of saving your water-damaged device.',
-        content: '1. Turn it off. 2. Remove SIM/SD. 3. Dry exterior. 4. Do NOT use rice (it\'s a myth). 5. Bring it to Belmobile ASAP.',
-        date: '2024-03-05',
-        author: 'Mike The Tech',
-        category: 'Repair',
-        imageUrl: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070&auto=format&fit=crop'
+        slug: 'batterie-iphone-quand-remplacer',
+        slugs: {
+            fr: 'batterie-iphone-quand-remplacer',
+            en: 'iphone-battery-replacement-signs',
+            nl: 'iphone-batterij-vervangen-tekens'
+        },
+        title: 'Batterie iPhone : Quand est-il temps de la remplacer ?',
+        excerpt: 'Votre iPhone s\'éteint inopinément ? Vérifiez l\'état de votre batterie et sachez quand passer en magasin pour un remplacement rapide.',
+        content: `La batterie est un composant d'usure. Après 500 cycles de charge, la capacité commence à chuter. Voici les signes qui ne trompent pas :
+
+- **Capacité maximum < 80%** : Rendez-vous dans Réglages > Batterie > État de la batterie.
+- **Ralentissements du système** : iOS bride les performances pour éviter les extinctions brutales.
+- **Surchauffe** : Une batterie en fin de vie chauffe anormalement lors de la charge.
+
+Chez Belmobile, nous remplaçons votre batterie en 30 minutes. Pas besoin de laisser votre téléphone pendant des jours !`,
+        date: '2024-12-10',
+        author: 'Labo Belmobile',
+        category: 'Maintenance',
+        imageUrl: '/images/blog/iphone-battery-replacement.png'
     },
     {
         id: 4,
-        slug: 'data-privacy-repairs',
+        slug: 'data-privacy-protection-info-repairs',
+        slugs: {
+            en: 'data-privacy-protection-info-repairs',
+            fr: 'confidentialite-donnees-protection-reparation',
+            nl: 'gegevensprivacy-bescherming-reparaties'
+        },
         title: 'Data Privacy: How We Protect Your Info During Repairs',
         excerpt: 'Your privacy matters. Learn about our strict data protection protocols and why you can trust Belmobile with your device.',
-        content: 'We take data privacy seriously. Our technicians are trained to respect your data. We recommend backing up and resetting if possible, but we also have strict non-disclosure agreements.',
+        content: `At Belmobile, we understand that your smartphone contains your entire life - photos, messages, banking apps, and more. That's why we take data privacy seriously.
+
+**Our Protocols:**
+1. **No Access Policy**: Our technicians only access the functions necessary for the repair (e.g., testing the camera or touch screen). We never browse your photos or personal data.
+2. **Device Passcodes**: We ask for your passcode only if strictly necessary for testing. You can also disable it or use Guest Mode (Android) if you prefer.
+3. **Data Security**: We recommend backing up your data before any repair, although 99% of repairs preserve your data intact.
+4. **Transparency**: We perform repairs in open labs or while you wait, so you can see exactly what's happening.
+
+Trust is the foundation of our business. Your data stays yours.`,
         date: '2024-03-20',
         author: 'Belmobile Security',
         category: 'Security',
-        imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1470&auto=format&fit=crop'
+        imageUrl: '/images/blog/data-privacy-security.png'
     },
-
     {
         id: 5,
-        slug: 'reparation-face-id-iphone-prix-bruxelles',
-        title: 'Réparation Problèmes Face-id iPhone XS-11-12-13 Pro Max Bruxelles',
-        excerpt: 'Vous avez un problème avec la fonction Face ID de votre iPhone ou iPad ? Vous ne savez pas comment la réparer ou à qui vous adresser ? Pas de panique, nous sommes là pour vous aider !',
-        content: `## Qu’est-ce que Face ID et comment ça marche ?
-Face ID est une technologie de reconnaissance faciale développée par Apple et disponible sur certains modèles d’iPhone et d’iPad. Elle permet de déverrouiller votre appareil, d’effectuer des paiements, d’accéder à des applications sécurisées et plus encore, simplement en regardant l’écran. Face ID utilise une caméra infrarouge, un projecteur de points et un illuminateur pour créer une carte 3D de votre visage et la comparer à celle enregistrée dans votre appareil. Face ID est conçue pour être sûre, rapide et facile à utiliser.
+        slug: 'face-id-repair-iphone-xs-11-12-13-pro-max-brussels',
+        slugs: {
+            en: 'face-id-repair-iphone-xs-11-12-13-pro-max-brussels',
+            fr: 'reparation-face-id-iphone-xs-11-12-13-pro-max-bruxelles',
+            nl: 'face-id-reparatie-iphone-xs-11-12-13-pro-max-brussel'
+        },
+        title: 'Face ID Repair & Issues for iPhone XS-11-12-13 Pro Max in Brussels',
+        excerpt: 'Is your Face ID failing? Learn how to fix it or who to contact for repair.',
+        content: `Face ID is a revolutionary technology that uses a dot projector to map your face in 3D. Face ID is designed to be secure, fast, and easy to use.
 
-## Comment réparer Face ID si elle ne fonctionne pas ?
-Il peut arriver que Face ID ne fonctionne pas correctement ou pas du tout. Cela peut être dû à plusieurs raisons, telles qu’une mauvaise configuration, un problème logiciel, un obstacle sur la caméra ou un dommage matériel. Voici quelques solutions possibles à essayer vous-même avant de contacter un service de réparation :
-- Vérifiez que votre appareil est compatible avec Face ID.
-- Vérifiez que Face ID est activée dans les réglages de votre appareil.
-- Vérifiez que rien n’obstrue la caméra TrueDepth située en haut de l’écran.
-- Vérifiez que votre visage est bien visible et éclairé.
-- Réinitialisez Face ID et configurez-la à nouveau.
-- Redémarrez votre appareil.
+## How to fix Face ID not working?
+Face ID might not work properly due to bad configuration, software glitches, or hardware damage. Here are some fixes:
+- Check if your device is compatible with Face ID.
+- Verify Face ID is enabled in settings.
+- Ensure nothing is blocking the TrueDepth camera.
+- Reset Face ID and set it up again.
 
-Si aucune de ces solutions ne résout le problème, il se peut que votre caméra TrueDepth soit endommagée ou défectueuse. Dans ce cas, il faut faire appel à un service de réparation professionnel.
-
-## Pourquoi choisir Belmobile.be pour réparer Face ID ?
-Belmobile.be est le spécialiste de la réparation d’iPhone et d’iPad à Bruxelles. Nous vous offrons plusieurs avantages pour réparer Face ID :
-1. Un diagnostic gratuit : nous examinons votre appareil et nous vous indiquons le problème et le coût de la réparation sans engagement.
-2. Une garantie de 12 mois : nous utilisons des pièces de qualité et nous vous offrons une garantie d’un an sur toutes nos réparations.
-3. Une expérience reconnue : nous avons plus de 10 ans d’expérience dans la réparation d’appareils Apple et nous sommes certifiés par la marque.
-4. Une rapidité inégalée : nous réparons votre appareil en moins d’une heure dans la plupart des cas et sans rendez-vous.`,
-        author: 'Belmobile Team',
-        date: '2024-05-20',
-        imageUrl: 'https://images.unsplash.com/photo-1592434134753-a70baf7979d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-        category: 'Repair Tips'
+If none of these work, your TrueDepth camera might be damaged. Contact a professional repair service like Belmobile.be.`,
+        date: '2024-12-18',
+        author: 'Belmobile Expert',
+        category: 'Repair Tips',
+        imageUrl: '/images/blog/face-id-repair.png'
     }
 ];
 
-export const MOCK_REPAIR_PRICES: RepairPricing[] = [
-    // iPhone 17 Series (Newest - Competitive vs Apple)
-    { id: 'apple-iphone-17-pro-max', screen_generic: 220, screen_oled: 320, screen_original: 450, battery: 90, charging: 100 },
-    { id: 'apple-iphone-17-pro', screen_generic: 200, screen_oled: 290, screen_original: 380, battery: 90, charging: 100 },
-    { id: 'apple-iphone-17-plus', screen_generic: 160, screen_oled: 250, screen_original: 340, battery: 90, charging: 100 },
-    { id: 'apple-iphone-17', screen_generic: 150, screen_oled: 240, screen_original: 320, battery: 90, charging: 100 },
-
-    // iPhone 16 Series (1 Year Old)
-    { id: 'apple-iphone-16-pro-max', screen_generic: 180, screen_oled: 280, screen_original: 400, battery: 85, charging: 95 },
-    { id: 'apple-iphone-16-pro', screen_generic: 170, screen_oled: 260, screen_original: 350, battery: 85, charging: 95 },
-    { id: 'apple-iphone-16-plus', screen_generic: 140, screen_oled: 220, screen_original: 300, battery: 85, charging: 95 },
-    { id: 'apple-iphone-16', screen_generic: 130, screen_oled: 200, screen_original: 280, battery: 85, charging: 95 },
-    { id: 'apple-iphone-16e', screen_generic: 120, screen_oled: 190, screen_original: 260, battery: 85, charging: 95 },
-
-    // iPhone 15 Series (2 Years Old)
-    { id: 'apple-iphone-15-pro-max', screen_generic: 150, screen_oled: 240, screen_original: 350, battery: 80, charging: 90 },
-    { id: 'apple-iphone-15-pro', screen_generic: 140, screen_oled: 220, screen_original: 320, battery: 80, charging: 90 },
-    { id: 'apple-iphone-15-plus', screen_generic: 120, screen_oled: 190, screen_original: 260, battery: 80, charging: 90 },
-    { id: 'apple-iphone-15', screen_generic: 110, screen_oled: 180, screen_original: 250, battery: 80, charging: 90 },
-
-    // iPhone 14 Series (3 Years Old)
-    { id: 'apple-iphone-14-pro-max', screen_generic: 130, screen_oled: 200, screen_original: 300, battery: 75, charging: 85 },
-    { id: 'apple-iphone-14-pro', screen_generic: 120, screen_oled: 190, screen_original: 280, battery: 75, charging: 85 },
-    { id: 'apple-iphone-14-plus', screen_generic: 100, screen_oled: 160, screen_original: 220, battery: 75, charging: 85 },
-    { id: 'apple-iphone-14', screen_generic: 90, screen_oled: 150, screen_original: 200, battery: 75, charging: 85 },
-
-    // iPhone 13 Series
-    { id: 'apple-iphone-13-pro-max', screen_generic: 110, screen_oled: 170, screen_original: 250, battery: 70, charging: 80 },
-    { id: 'apple-iphone-13-pro', screen_generic: 100, screen_oled: 160, screen_original: 230, battery: 70, charging: 80 },
-    { id: 'apple-iphone-13', screen_generic: 80, screen_oled: 130, screen_original: 180, battery: 60, charging: 70 },
-    { id: 'apple-iphone-13-mini', screen_generic: 70, screen_oled: 120, screen_original: 160, battery: 60, charging: 70 },
-
-    // iPhone 12 Series
-    { id: 'apple-iphone-12-pro-max', screen_generic: 90, screen_oled: 140, screen_original: 200, battery: 65, charging: 75 },
-    { id: 'apple-iphone-12-pro', screen_generic: 80, screen_oled: 120, screen_original: 170, battery: 65, charging: 75 },
-    { id: 'apple-iphone-12', screen_generic: 80, screen_oled: 120, screen_original: 170, battery: 60, charging: 70 },
-    { id: 'apple-iphone-12-mini', screen_generic: 70, screen_oled: 110, screen_original: 160, battery: 60, charging: 70 },
-
-    // iPhone 11 Series
-    { id: 'apple-iphone-11-pro-max', screen_generic: 70, screen_oled: 110, screen_original: 150, battery: 60, charging: 70 },
-    { id: 'apple-iphone-11-pro', screen_generic: 65, screen_oled: 100, screen_original: 140, battery: 60, charging: 70 },
-    { id: 'apple-iphone-11', screen_generic: 60, screen_oled: undefined, screen_original: 110, battery: 50, charging: 60 }, // LCD only
-
-    // iPhone X / XR / XS Series
-    { id: 'apple-iphone-xs-max', screen_generic: 65, screen_oled: 100, screen_original: 140, battery: 55, charging: 65 },
-    { id: 'apple-iphone-xs', screen_generic: 60, screen_oled: 90, screen_original: 130, battery: 55, charging: 65 },
-    { id: 'apple-iphone-xr', screen_generic: 60, screen_oled: undefined, screen_original: 100, battery: 50, charging: 60 }, // LCD only
-    { id: 'apple-iphone-x', screen_generic: 60, screen_oled: 90, screen_original: 130, battery: 50, charging: 60 },
-
-    // iPhone SE / 8 Series
-    { id: 'apple-iphone-se-2022', screen_generic: 50, screen_oled: undefined, screen_original: 90, battery: 45, charging: 55 },
-    { id: 'apple-iphone-se-2020', screen_generic: 45, screen_oled: undefined, screen_original: 80, battery: 40, charging: 50 },
-    { id: 'apple-iphone-8-plus', screen_generic: 50, screen_oled: undefined, screen_original: 90, battery: 45, charging: 55 },
-    { id: 'apple-iphone-8', screen_generic: 45, screen_oled: undefined, screen_original: 80, battery: 40, charging: 50 },
-
-    // iPad Pro 12.9 Series (Single Price)
-    { id: 'apple-ipad-pro-129-m2', screen_generic: 450, screen_oled: 450, screen_original: 450, battery: 120, charging: 100 },
-    { id: 'apple-ipad-pro-129-2022', screen_generic: 420, screen_oled: 420, screen_original: 420, battery: 120, charging: 100 },
-    { id: 'apple-ipad-pro-129-2021', screen_generic: 380, screen_oled: 380, screen_original: 380, battery: 110, charging: 90 },
-    { id: 'apple-ipad-pro-129-2020', screen_generic: 350, screen_oled: 350, screen_original: 350, battery: 100, charging: 90 },
-    { id: 'apple-ipad-pro-129-2018', screen_generic: 300, screen_oled: 300, screen_original: 300, battery: 90, charging: 80 },
-
-    // iPad Pro 11 Series (Single Price)
-    { id: 'apple-ipad-pro-11-2022', screen_generic: 350, screen_oled: 350, screen_original: 350, battery: 100, charging: 90 },
-    { id: 'apple-ipad-pro-11-2021', screen_generic: 320, screen_oled: 320, screen_original: 320, battery: 100, charging: 90 },
-    { id: 'apple-ipad-pro-11-2020', screen_generic: 280, screen_oled: 280, screen_original: 280, battery: 90, charging: 80 },
-    { id: 'apple-ipad-pro-11-2018', screen_generic: 250, screen_oled: 250, screen_original: 250, battery: 80, charging: 80 },
-
-    // iPad Air Series (Single Price)
-    { id: 'apple-ipad-air-5', screen_generic: 280, screen_oled: 280, screen_original: 280, battery: 90, charging: 80 },
-    { id: 'apple-ipad-air-4', screen_generic: 250, screen_oled: 250, screen_original: 250, battery: 80, charging: 80 },
-    { id: 'apple-ipad-air-3', screen_generic: 200, screen_oled: 200, screen_original: 200, battery: 70, charging: 70 },
-
-    // iPad Mini Series (Single Price)
-    { id: 'apple-ipad-mini-6', screen_generic: 250, screen_oled: 250, screen_original: 250, battery: 80, charging: 80 },
-    { id: 'apple-ipad-mini-5', screen_generic: 200, screen_oled: 200, screen_original: 200, battery: 70, charging: 70 },
-    { id: 'apple-ipad-mini-4', screen_generic: 150, screen_oled: 150, screen_original: 150, battery: 60, charging: 60 },
-
-    // iPad Base Series (Single Price)
-    { id: 'apple-ipad-10th-gen', screen_generic: 220, screen_oled: 220, screen_original: 220, battery: 80, charging: 80 },
-    { id: 'apple-ipad-9', screen_generic: 150, screen_oled: 150, screen_original: 150, battery: 70, charging: 70 },
-    { id: 'apple-ipad-8', screen_generic: 130, screen_oled: 130, screen_original: 130, battery: 60, charging: 60 },
-
-    // Samsung S24 Series
-    { id: 'samsung-galaxy-s24-ultra', screen_generic: 250, screen_oled: 350, screen_original: 420, battery: 85, charging: 95 },
-    { id: 'samsung-galaxy-s24-plus', screen_generic: 200, screen_oled: 280, screen_original: 350, battery: 85, charging: 95 },
-    { id: 'samsung-galaxy-s24', screen_generic: 180, screen_oled: 250, screen_original: 300, battery: 80, charging: 90 },
-
-    // Samsung S23 Series
-    { id: 'samsung-galaxy-s23-ultra', screen_generic: 220, screen_oled: 300, screen_original: 380, battery: 80, charging: 90 },
-    { id: 'samsung-galaxy-s23-plus', screen_generic: 180, screen_oled: 250, screen_original: 320, battery: 80, charging: 90 },
-    { id: 'samsung-galaxy-s23', screen_generic: 150, screen_oled: 200, screen_original: 250, battery: 75, charging: 85 },
-
-    // Samsung S22 Series
-    { id: 'samsung-galaxy-s22-ultra', screen_generic: 200, screen_oled: 280, screen_original: 350, battery: 75, charging: 85 },
-    { id: 'samsung-galaxy-s22-plus', screen_generic: 160, screen_oled: 220, screen_original: 280, battery: 75, charging: 85 },
-    { id: 'samsung-galaxy-s22', screen_generic: 140, screen_oled: 190, screen_original: 240, battery: 70, charging: 80 },
-
-    // Samsung S21 Series
-    { id: 'samsung-galaxy-s21-ultra', screen_generic: 180, screen_oled: 250, screen_original: 320, battery: 70, charging: 80 },
-    { id: 'samsung-galaxy-s21-plus', screen_generic: 150, screen_oled: 200, screen_original: 260, battery: 70, charging: 80 },
-    { id: 'samsung-galaxy-s21', screen_generic: 130, screen_oled: 180, screen_original: 220, battery: 65, charging: 75 },
-    { id: 'samsung-galaxy-s21-fe', screen_generic: 120, screen_oled: 160, screen_original: 200, battery: 65, charging: 75 },
-
-    // Samsung A Series (Popular)
-    { id: 'samsung-galaxy-a55', screen_generic: 100, screen_oled: 140, screen_original: 180, battery: 60, charging: 70 },
-    { id: 'samsung-galaxy-a54', screen_generic: 90, screen_oled: 130, screen_original: 160, battery: 60, charging: 70 },
-    { id: 'samsung-galaxy-a53', screen_generic: 80, screen_oled: 120, screen_original: 150, battery: 55, charging: 65 },
-    { id: 'samsung-galaxy-a52', screen_generic: 70, screen_oled: 110, screen_original: 140, battery: 55, charging: 65 },
-    { id: 'samsung-galaxy-a35', screen_generic: 80, screen_oled: 110, screen_original: 140, battery: 55, charging: 65 },
-    { id: 'samsung-galaxy-a15', screen_generic: 60, screen_oled: undefined, screen_original: 100, battery: 50, charging: 60 }, // LCD
-
-    // Samsung Tablets (Single Price)
-    { id: 'samsung-galaxy-tab-s9-ultra', screen_generic: 400, screen_oled: 400, screen_original: 400, battery: 100, charging: 90 },
-    { id: 'samsung-galaxy-tab-s9', screen_generic: 300, screen_oled: 300, screen_original: 300, battery: 90, charging: 80 },
-    { id: 'samsung-galaxy-tab-s8-ultra', screen_generic: 380, screen_oled: 380, screen_original: 380, battery: 100, charging: 90 },
-    { id: 'samsung-galaxy-tab-s8', screen_generic: 280, screen_oled: 280, screen_original: 280, battery: 90, charging: 80 },
-    { id: 'samsung-galaxy-tab-a8', screen_generic: 120, screen_oled: 120, screen_original: 120, battery: 70, charging: 70 },
-    { id: 'samsung-galaxy-tab-a7', screen_generic: 100, screen_oled: 100, screen_original: 100, battery: 60, charging: 60 },
-
-    // Google Pixel Series
-    { id: 'google-pixel-9-pro-xl', screen_generic: 250, screen_oled: 350, screen_original: 420, battery: 90, charging: 100 },
-    { id: 'google-pixel-9-pro', screen_generic: 240, screen_oled: 340, screen_original: 400, battery: 90, charging: 100 },
-    { id: 'google-pixel-9', screen_generic: 200, screen_oled: 280, screen_original: 350, battery: 85, charging: 95 },
-    { id: 'google-pixel-8-pro', screen_generic: 220, screen_oled: 300, screen_original: 380, battery: 85, charging: 95 },
-    { id: 'google-pixel-8', screen_generic: 180, screen_oled: 250, screen_original: 320, battery: 80, charging: 90 },
-    { id: 'google-pixel-7-pro', screen_generic: 200, screen_oled: 280, screen_original: 350, battery: 80, charging: 90 },
-    { id: 'google-pixel-7', screen_generic: 150, screen_oled: 220, screen_original: 280, battery: 75, charging: 85 },
-    { id: 'google-pixel-6-pro', screen_generic: 180, screen_oled: 250, screen_original: 300, battery: 75, charging: 85 },
-    { id: 'google-pixel-6', screen_generic: 140, screen_oled: 200, screen_original: 250, battery: 70, charging: 80 },
-    { id: 'google-pixel-7a', screen_generic: 120, screen_oled: 160, screen_original: 200, battery: 70, charging: 80 },
-    { id: 'google-pixel-6a', screen_generic: 100, screen_oled: 140, screen_original: 180, battery: 65, charging: 75 },
-
-    // OnePlus Series
-    { id: 'oneplus-12', screen_generic: 220, screen_oled: 300, screen_original: 380, battery: 80, charging: 90 },
-    { id: 'oneplus-11', screen_generic: 200, screen_oled: 280, screen_original: 350, battery: 80, charging: 90 },
-    { id: 'oneplus-10-pro', screen_generic: 180, screen_oled: 250, screen_original: 320, battery: 75, charging: 85 },
-    { id: 'oneplus-9-pro', screen_generic: 160, screen_oled: 220, screen_original: 280, battery: 75, charging: 85 },
-    { id: 'oneplus-nord-4', screen_generic: 120, screen_oled: 160, screen_original: 200, battery: 65, charging: 75 },
-    { id: 'oneplus-nord-3', screen_generic: 110, screen_oled: 150, screen_original: 180, battery: 65, charging: 75 },
-
-    // Xiaomi Series
-    { id: 'xiaomi-14-ultra', screen_generic: 250, screen_oled: 350, screen_original: 450, battery: 90, charging: 100 },
-    { id: 'xiaomi-14', screen_generic: 200, screen_oled: 280, screen_original: 350, battery: 85, charging: 95 },
-    { id: 'xiaomi-13-pro', screen_generic: 180, screen_oled: 250, screen_original: 320, battery: 80, charging: 90 },
-    { id: 'xiaomi-13t-pro', screen_generic: 150, screen_oled: 200, screen_original: 250, battery: 80, charging: 90 },
-    { id: 'xiaomi-redmi-note-13-pro-plus', screen_generic: 120, screen_oled: 160, screen_original: 200, battery: 70, charging: 80 },
-    { id: 'xiaomi-redmi-note-12-pro', screen_generic: 100, screen_oled: 140, screen_original: 180, battery: 65, charging: 75 },
-    { id: 'xiaomi-poco-f6-pro', screen_generic: 150, screen_oled: 200, screen_original: 250, battery: 75, charging: 85 },
-
-    // Huawei Series
-    { id: 'huawei-p40-pro', screen_generic: 180, screen_oled: 250, screen_original: 320, battery: 70, charging: 80 },
-    { id: 'huawei-p30-pro', screen_generic: 150, screen_oled: 200, screen_original: 250, battery: 65, charging: 75 },
-    { id: 'huawei-p30', screen_generic: 120, screen_oled: 160, screen_original: 200, battery: 60, charging: 70 },
-    { id: 'huawei-p30-lite', screen_generic: 80, screen_oled: undefined, screen_original: 120, battery: 50, charging: 60 },
-
-    // Oppo Series
-    { id: 'oppo-find-x6-pro', screen_generic: 200, screen_oled: 280, screen_original: 350, battery: 80, charging: 90 },
-    { id: 'oppo-find-x5-pro', screen_generic: 180, screen_oled: 250, screen_original: 320, battery: 75, charging: 85 },
-    { id: 'oppo-find-x5', screen_generic: 150, screen_oled: 200, screen_original: 250, battery: 70, charging: 80 },
-    { id: 'oppo-reno-10-pro-plus', screen_generic: 140, screen_oled: 180, screen_original: 220, battery: 70, charging: 80 },
-    { id: 'oppo-reno-10', screen_generic: 100, screen_oled: 140, screen_original: 180, battery: 65, charging: 75 },
-    { id: 'oppo-a98-5g', screen_generic: 90, screen_oled: 120, screen_original: 150, battery: 60, charging: 70 },
-    { id: 'oppo-a78', screen_generic: 80, screen_oled: undefined, screen_original: 120, battery: 55, charging: 65 },
-
-    // PlayStation Series
-    { id: 'sony-playstation-5-disc', hdmi: 100, cleaning: 60, disc: 120, storage: 100, joystick: 25 },
-    { id: 'sony-playstation-5-digital', hdmi: 100, cleaning: 60, storage: 100, joystick: 25 },
-    { id: 'sony-playstation-4-pro', hdmi: 80, cleaning: 50, disc: 80, storage: 80, joystick: 25 },
-    { id: 'sony-playstation-4-slim', hdmi: 80, cleaning: 50, disc: 80, storage: 80, joystick: 25 },
-    { id: 'sony-playstation-3-slim', hdmi: 70, cleaning: 40, disc: 60, storage: 60, joystick: 25 },
-
-    // Xbox Series
-    { id: 'microsoft-xbox-series-x', hdmi: 100, cleaning: 60, disc: 100, storage: 100, joystick: 25 },
-    { id: 'microsoft-xbox-series-s', hdmi: 100, cleaning: 60, storage: 100, joystick: 25 },
-    { id: 'microsoft-xbox-one', hdmi: 80, cleaning: 50, disc: 80, storage: 80, joystick: 25 },
-    { id: 'microsoft-xbox-360', hdmi: 60, cleaning: 40, disc: 60, storage: 60, joystick: 25 },
-
-    // Nintendo Series
-    { id: 'nintendo-switch-oled', screen_generic: 120, screen_oled: 180, screen_original: 180, charging: 100, battery: 60, joystick: 25, card_reader: 80 },
-    { id: 'nintendo-switch-v2', screen_generic: 60, screen_oled: 110, screen_original: 110, charging: 100, battery: 60, joystick: 25, card_reader: 80 },
-    { id: 'nintendo-switch-lite', screen_generic: 60, screen_oled: 100, screen_original: 100, charging: 100, battery: 60, joystick: 25, card_reader: 80 },
-    { id: 'nintendo-3ds-xl', screen_generic: 50, screen_oled: 70, screen_original: 70, charging: 60, battery: 40, card_reader: 60 },
-
-    // MacBook Series
-    { id: 'apple-macbook-pro-16-m2', screen_generic: 600, screen_original: 800, battery: 150, keyboard: 300, trackpad: 150, charging: 120 },
-    { id: 'apple-macbook-pro-14-m2', screen_generic: 500, screen_original: 700, battery: 130, keyboard: 280, trackpad: 140, charging: 120 },
-    { id: 'apple-macbook-pro-16-m2-pro-max', screen_generic: 600, screen_original: 800, battery: 150, keyboard: 300, trackpad: 150, charging: 120 },
-    { id: 'apple-macbook-pro-14-m2-pro-max', screen_generic: 500, screen_original: 700, battery: 130, keyboard: 280, trackpad: 140, charging: 120 },
-    { id: 'apple-macbook-pro-13-m2', screen_generic: 400, screen_original: 550, battery: 120, keyboard: 250, trackpad: 120, charging: 100 },
-    { id: 'apple-macbook-air-m2', screen_generic: 400, screen_original: 550, battery: 120, keyboard: 250, trackpad: 120, charging: 100 },
-    { id: 'apple-macbook-air-m1', screen_generic: 300, screen_original: 450, battery: 110, keyboard: 200, trackpad: 100, charging: 80 },
-    { id: 'apple-macbook-air-13-2018-2020', screen_generic: 250, screen_original: 350, battery: 100, keyboard: 180, trackpad: 90, charging: 80 },
-    { id: 'apple-macbook-air-13-2010-2017', screen_generic: 150, screen_original: 200, battery: 80, keyboard: 120, trackpad: 70, charging: 60 },
-
-    // Samsung Laptops
-    { id: 'samsung-galaxy-book3-pro', screen_generic: 300, screen_original: 450, battery: 120, keyboard: 150, trackpad: 100, charging: 100 },
-    { id: 'samsung-galaxy-book3', screen_generic: 200, screen_original: 300, battery: 100, keyboard: 120, trackpad: 80, charging: 90 },
-
-    // Dell Laptops
-    { id: 'dell-xps-13', screen_generic: 250, screen_original: 400, battery: 110, keyboard: 140, trackpad: 90, charging: 100 },
-    { id: 'dell-inspiron-15', screen_generic: 100, screen_original: 150, battery: 80, keyboard: 90, trackpad: 60, charging: 80 },
-
-    // HP Laptops
-    { id: 'hp-spectre-x360', screen_generic: 280, screen_original: 420, battery: 110, keyboard: 140, trackpad: 90, charging: 100 },
-    { id: 'hp-envy-13', screen_generic: 150, screen_original: 250, battery: 90, keyboard: 110, trackpad: 70, charging: 90 },
-
-    // Lenovo Laptops
-    { id: 'lenovo-thinkpad-x1-carbon', screen_generic: 250, screen_original: 400, battery: 120, keyboard: 150, trackpad: 100, charging: 100 },
-    { id: 'lenovo-ideapad-5', screen_generic: 100, screen_original: 160, battery: 80, keyboard: 90, trackpad: 60, charging: 80 },
-
-    // Microsoft Surface (Tablet/Laptop)
-    { id: 'microsoft-surface-pro-9', screen_generic: 250, screen_original: 350, battery: 120, charging: 100, keyboard: 150 }, // Keyboard is Type Cover port or internal if laptop
-    { id: 'microsoft-surface-go-3', screen_generic: 150, screen_original: 220, battery: 90, charging: 80, keyboard: 100 },
-
-    // Apple Watch Series
-    { id: 'apple-watch-ultra-2', screen_generic: 200, screen_original: 350, battery: 100 },
-    { id: 'apple-watch-ultra', screen_generic: 200, screen_original: 350, battery: 100 },
-    { id: 'apple-watch-series-9', screen_generic: 120, screen_original: 200, battery: 80 },
-    { id: 'apple-watch-series-8', screen_generic: 120, screen_original: 200, battery: 80 },
-    { id: 'apple-watch-series-7', screen_generic: 110, screen_original: 180, battery: 80 },
-    { id: 'apple-watch-se-2', screen_generic: 90, screen_original: 150, battery: 60 },
-    { id: 'apple-watch-se', screen_generic: 80, screen_original: 130, battery: 60 },
-
-    // Samsung Galaxy Watch Series
-    { id: 'samsung-galaxy-watch-6-classic', screen_generic: 100, screen_original: 160, battery: 60 },
-    { id: 'samsung-galaxy-watch-6', screen_generic: 90, screen_original: 140, battery: 60 },
-    { id: 'samsung-galaxy-watch-5-pro', screen_generic: 100, screen_original: 150, battery: 60 },
-    { id: 'samsung-galaxy-watch-5', screen_generic: 80, screen_original: 120, battery: 50 },
-    { id: 'samsung-galaxy-watch-4-classic', screen_generic: 80, screen_original: 120, battery: 50 },
-];
-
-
+export const MOCK_REPAIR_PRICES: RepairPricing[] = [];

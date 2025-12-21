@@ -5,14 +5,13 @@ import { SEO_CONTENT } from '../constants';
 import { CheckCircleIcon, StarIcon } from '@heroicons/react/24/solid';
 
 interface InfoSectionProps {
-    step: number;
     type: 'buyback' | 'repair';
     deviceType: string;
     brand: string;
     model: string;
 }
 
-const InfoSection: React.FC<InfoSectionProps> = ({ step, type, deviceType, brand, model }) => {
+const InfoSection: React.FC<InfoSectionProps> = ({ type, deviceType, brand, model }) => {
     const { t } = useLanguage();
 
     // If no brand/model selected, show generic content from constants

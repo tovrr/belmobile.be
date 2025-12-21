@@ -1,0 +1,11 @@
+<svg viewBox="0 0 500 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Icon -->
+    <rect x="26.5" y="25" width="44" height="76" rx="8" stroke="#eab308" stroke-width="6" stroke-linecap="round"/>
+    <path d="M42.5 31h12" stroke="#eab308" stroke-width="6" stroke-linecap="round"/>
+    <path d="M48.5 21L58.06 46.04L84.5 55L58.06 63.96L48.5 89L38.94 63.96L12.5 55L38.94 46.04L48.5 21Z" fill="#eab308" transform="translate(16, -12) scale(0.6)"/>
+    <path d="M48.5 21L58.06 46.04L84.5 55L58.06 63.96L48.5 89L38.94 63.96L12.5 55L38.94 46.04L48.5 21Z" fill="#eab308" transform="translate(-20, 36) scale(0.4)"/>
+    
+    <!-- Text -->
+    <text x="110" y="85" font-family="Arial, sans-serif" font-weight="900" font-size="64" fill="#0f172a">BELMOBILE<tspan fill="#eab308">.BE</tspan></text>
+    <text x="112" y="115" font-family="Arial, sans-serif" font-weight="bold" font-size="16" letter-spacing="4" fill="#64748b">BUYBACK & REPAIR</text>
+</svg>

@@ -5,11 +5,16 @@ import { translations } from '../../../../utils/translations';
 import { SERVICES } from '../../../../data/services';
 import SchemaOrg from '../../../../components/seo/SchemaOrg';
 import Hreflang from '../../../../components/seo/Hreflang';
+import { LOCATIONS } from '../../../../data/locations';
 import { Shop } from '../../../../types';
-import StoreMap from '../../../../components/StoreMap';
+
+// import StoreMap from '../../../../components/StoreMap'; // Replaced by dynamic import
 import { db } from '../../../../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import DynamicSEOContent from '../../../../components/seo/DynamicSEOContent';
+import Image from 'next/image';
+import StoreMap from '../../../../components/StoreMap';
+
 
 interface StorePageProps {
     params: Promise<{
@@ -18,15 +23,30 @@ interface StorePageProps {
     }>;
 }
 
-// Helper to fetch shops from Firestore
+// Helper to fetch shops from Firestore and merge with static LOCATIONS
 const getShops = cache(async (): Promise<Shop[]> => {
+    let shops: Shop[] = [];
     try {
         const snapshot = await getDocs(collection(db, 'shops'));
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as Shop));
+        shops = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as Shop));
     } catch (error) {
         console.error("Error fetching shops:", error);
-        return [];
     }
+
+    // Merge static LOCATIONS
+    const staticShops = LOCATIONS.map(l => ({
+        ...l,
+        status: 'open',
+    } as unknown as Shop));
+
+    const combined = [...shops];
+    staticShops.forEach(s => {
+        if (!combined.find(c => c.id === s.id)) {
+            combined.push(s);
+        }
+    });
+
+    return combined;
 });
 
 async function findShop(slug: string, lang: string): Promise<Shop | undefined> {
@@ -264,10 +284,12 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     {shop.photos.map((photo, index) => (
                                         <div key={index} className="relative h-40 md:h-56 rounded-2xl overflow-hidden shadow-sm group">
-                                            <img
+                                            <Image
                                                 src={photo}
                                                 alt={`${shop.name} photo ${index + 1}`}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                fill
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                sizes="(max-width: 768px) 50vw, 25vw"
                                             />
                                         </div>
                                     ))}

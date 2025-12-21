@@ -8,11 +8,13 @@ import { doc, getDoc } from 'firebase/firestore';
 import Input from './ui/Input';
 import Button from './ui/Button';
 
+import { Quote } from '../types';
+
 const TrackOrder: React.FC = () => {
     const { t } = useLanguage();
     const [orderId, setOrderId] = useState('');
     const [email, setEmail] = useState('');
-    const [status, setStatus] = useState<any>(null);
+    const [status, setStatus] = useState<(Quote & { id: string }) | null>(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -31,9 +33,9 @@ const TrackOrder: React.FC = () => {
                 // Simple email verification (case-insensitive)
                 if (data.customerEmail.toLowerCase() === email.toLowerCase()) {
                     setStatus({
-                        id: docSnap.id,
-                        ...data
-                    });
+                        ...(data as Omit<Quote, 'id'>),
+                        id: docSnap.id
+                    } as Quote & { id: string });
                 } else {
                     setError(t('Order not found. Please check your details.'));
                 }
@@ -48,7 +50,7 @@ const TrackOrder: React.FC = () => {
         }
     };
 
-    const getRepairSteps = (currentStatus: string) => {
+    const getRepairSteps = () => {
         const steps = [
             { id: 'pending', label: t('Processing'), icon: ClockIcon },
             { id: 'in_repair', label: t('In Repair'), icon: WrenchScrewdriverIcon },
@@ -58,7 +60,7 @@ const TrackOrder: React.FC = () => {
         return steps;
     };
 
-    const getBuybackSteps = (currentStatus: string) => {
+    const getBuybackSteps = () => {
         const steps = [
             { id: 'pending', label: t('Processing'), icon: ClockIcon },
             { id: 'received', label: t('Received'), icon: ArchiveBoxIcon },
@@ -69,7 +71,7 @@ const TrackOrder: React.FC = () => {
         return steps;
     };
 
-    const getStepIndex = (steps: any[], currentStatus: string) => {
+    const getStepIndex = (steps: { id: string; label: string; icon: React.ElementType }[], currentStatus: string) => {
         // Map status to index
         if (currentStatus === 'new') return 0;
         if (currentStatus === 'processing') return 1;
@@ -81,7 +83,7 @@ const TrackOrder: React.FC = () => {
     };
 
     const steps = status
-        ? (status.type === 'buyback' ? getBuybackSteps(status.status) : getRepairSteps(status.status))
+        ? (status.type === 'buyback' ? getBuybackSteps() : getRepairSteps())
         : [];
 
     const currentStepIndex = status ? getStepIndex(steps, status.status) : 0;

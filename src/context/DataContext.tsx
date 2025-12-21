@@ -1,16 +1,13 @@
 'use client';
-import React, { createContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, ReactNode } from 'react';
 import { Reservation, Quote, Product, Service, Shop, FranchiseApplication, BlogPost, RepairPricing } from '../types';
 import {
     collection,
-    onSnapshot,
-    addDoc,
-    updateDoc,
-    deleteDoc,
     doc,
-    query,
-    orderBy,
-    setDoc
+    setDoc,
+    deleteDoc,
+    addDoc,
+    updateDoc
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import {

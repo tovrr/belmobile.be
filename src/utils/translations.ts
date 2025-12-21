@@ -25,6 +25,7 @@ export const translations: Translations = {
         "Back": "Back",
         "Cancel": "Cancel",
         "Close": "Close",
+        "Temporarily Closed": "Temporarily Closed",
         "Submit": "Submit",
         "Price": "Price",
         "items_count": "{0} items",
@@ -57,6 +58,7 @@ export const translations: Translations = {
         "Select a shop": "Select a shop",
         "Change": "Change",
         "Please select a shop": "Please select a shop",
+        "select_quality_short": "Select quality",
         "track-order": "Track Order",
         "Track Order": "Track Order",
         "Select Shop": "Select Shop",
@@ -71,6 +73,9 @@ export const translations: Translations = {
         "Business Solutions": "Business Solutions",
         "Cookie Policy": "Cookie Policy",
         "Warranty Info": "Warranty Info",
+        "Home Console": "Home Console",
+        "Portable Console": "Portable Console",
+        "Gaming Console": "Gaming Console",
 
         // Refurbished & Conditions
         "refurbished_intro_title": "Used/Refurbished – for the sake of the environment. And your wallet.",
@@ -203,6 +208,8 @@ export const translations: Translations = {
         "happy_customers": "1500+ Happy Customers",
         "trust_eco": "Eco-Friendly",
         "trust_eco_desc": "We recycle 99% of e-waste and use sustainable parts.",
+        "contact_for_price": "On Request",
+        "free": "FREE",
 
         // FAQ
         "Frequently Asked Questions": "Frequently Asked Questions",
@@ -222,7 +229,7 @@ export const translations: Translations = {
         "faq_geo_a2": "Yes, we are authorized Samsung repair partners.",
         "faq_geo_q3": "Can I sell a broken phone?",
         "newsletter_success": "Thanks for subscribing!",
-        "chat_demo_intro": "I'm currently in demo mode. How can I help you?",
+        "chat_demo_intro": "Hi! I'm currently in demo mode. How can I help you?",
         "chat_demo_repair": "We offer expert repairs for smartphones, tablets, and consoles. You can check our prices or book a repair on our Repair page.",
         "chat_demo_price": "Our prices vary by device and repair type. Please visit our Repair page for a detailed quote.",
         "chat_demo_hours": "We are open Monday to Saturday from 10:00 to 19:00.",
@@ -369,8 +376,9 @@ export const translations: Translations = {
         "Total Cost": "Total Cost",
         "Includes labor and premium parts for:": "Includes labor and premium parts for:",
         "Request a Repair": "Request a Repair",
+        "Search your device (e.g. iPhone 13, Samsung S21...)": "Search your device (e.g. iPhone 13, Samsung S21...)",
         "buyback_step1_title": "What do you want to sell?",
-        "repair_step1_title": "What needs repair?",
+        "repair_step1_title": "Repair your device",
         "step2_title": "Select Brand & Model",
         "Brand": "Brand",
         "step3_repair_title": "What's the issue?",
@@ -434,7 +442,7 @@ export const translations: Translations = {
         "Diagnostic required": "Diagnostic required",
 
         // Store Locator
-        "Our Stores": "Our Stores",
+        // "Our Stores": "Our Stores", // Duplicate removed
         "locations_count": "{0} locations",
         "Show All": "Show All",
         "Open Now": "Open Now",
@@ -518,7 +526,7 @@ export const translations: Translations = {
         "Smartphone": "Smartphone",
         "Tablet": "Tablet",
         "Laptop": "Laptop",
-        "Gaming Console": "Gaming Console",
+
         "Smartwatch": "Smartwatch",
         "HDMI / Video Port": "HDMI / Video Port",
         "No signal to TV/Monitor": "No signal to TV/Monitor",
@@ -599,18 +607,29 @@ export const translations: Translations = {
         "Learn More & Apply": "Learn More & Apply",
 
         // Terms
-        "terms_title": "Terms of Service & Privacy",
-        "terms_intro": "Please read our terms and conditions carefully before using our services.",
-        "terms_section_1_title": "1. General Conditions",
-        "terms_section_1_content": "By accessing this website, you agree to be bound by these terms and conditions...",
+        "terms_title": "Terms & Conditions",
+        "terms_intro": "Welcome to Belmobile. These terms and conditions outline the rules and regulations for the use of our services.",
+        "terms_section_1_title": "1. Identification",
+        "terms_section_1_content": "Belmobile.be sprl\nRue Ulens 88, 1080 Bruxelles\nVAT: BE0502737241\nEmail: contact@belmobile.be\n\nBy accessing this website and using our services, you accept these terms and conditions in full.",
         "terms_section_2_title": "2. Repairs & Warranty",
-        "terms_section_2_content": "We provide a 1-year warranty on all repairs, covering the specific part replaced...",
+        "terms_section_2_content": "We provide a 1-year warranty on all repairs and refurbished devices. This warranty covers defects in parts and workmanship used during the repair. It explicitly excludes:\n- Accidental damage (drops, cracks)\n- Liquid damage (oxidation)\n- Issues caused by unauthorized third-party repairs\n- Software issues or data loss\n\nWe strongly recommend backing up your data before any repair. Belmobile is not responsible for any data loss that may occur during the service.",
         "terms_section_3_title": "3. Buyback Policy",
-        "terms_section_3_content": "Buyback quotes are estimates until physical inspection. We reserve the right to adjust...",
-        "terms_section_4_title": "4. Privacy Policy",
-        "terms_section_4_content": "We value your privacy. Your data is collected solely for processing orders and...",
-        "terms_updated": "Last updated: July 29, 2024",
+        "terms_section_3_content": "Buyback quotes generated online are provisional estimates based on the information provided by the customer. The final price is confirmed only after a physical inspection of the device by our technicians.\n\n- If the device matches the description, the quote is confirmed.\n- If the condition differs (e.g., hidden defects, different model), we reserve the right to propose a revised offer.\n\nYou are free to accept or reject this final offer. Upon acceptance and successful payment, ownership of the device transfers irrevocably to Belmobile.",
+        "terms_section_4_title": "4. Liability & Jurisdiction",
+        "terms_section_4_content": "Belmobile shall not be liable for any indirect, special, incidental, or consequential damages arising out of the use or inability to use our services. Our total liability is limited to the actual value of the service or product purchased.\n\nThese terms are governed by Belgian law. Any disputes shall be subject to the exclusive jurisdiction of the courts of Brussels.",
+        "terms_updated": "Last updated: December 10, 2024",
         "Terms & Privacy": "Terms & Privacy",
+
+        // Privacy Policy (Professional)
+        "privacy_title": "Privacy Policy",
+        "privacy_content": "Your privacy is critical to us. Belmobile.be sprl (Rue Ulens 88, 1080 Brussels) acts as the data controller.\n\n1. data Collection:\nWe collect personal data necessary for processing your orders (name, email, phone, address, IBAN) and improving our services (cookies, analytics).\n\n2. Use of Data:\n- Order Fulfillment: To repair your device or process a buyback.\n- Communication: To update you on status or send marketing (if opted-in).\n- Legal Compliance: To comply with tax and anti-fraud regulations (e.g., ID copy for buyback).\n\n3. Data Sharing:\nWe do not sell your data. We may share it with trusted partners like logistics providers (for shipping) or payment processors.\n\n4. Your Rights:\nUnder GDPR, you have the right to access, correct, delete, or restrict the processing of your data. Contact us at contact@belmobile.be to exercise these rights.\n\n5. Security:\nWe use industry-standard encryption to protect your data. However, no method of transmission is 100% secure.",
+
+        "cookies_title": "Cookie Policy",
+        "cookies_content": "We use cookies to enhance your browsing experience and analyze our traffic.\n\n1. What are Cookies?\nSmall text files stored on your device that allow us to remember your preferences (e.g., language) and understand how you use our site.\n\n2. Types of Cookies We Use:\n- Essential: Necessary for the site to function (e.g., shopping cart).\n- Analytics: Help us improve our website performance (Google Analytics).\n- Marketing: Used to deliver relevant ads (if consented).\n\n3. Managing Cookies:\nYou can control or delete cookies via your browser settings at any time. However, disabling essential cookies may affect site functionality.",
+
+        "warranty_title": "Warranty Information",
+        "warranty_content": "We stand behind our quality with a solid guarantee.\n\n1. Coverage Duration:\n- Repairs: 1 Year Warranty on replaced parts and labor.\n- Refurbished Devices: 1 Year Warranty on hardware defects.\n\n2. What is Covered?\nDefects in materials or workmanship. For example, if a screen we replaced stops responding to touch without physical damage, we fix it for free.\n\n3. What is NOT Covered (Exclusions)?\n- Accidental damage (screen cracks, dents, bent frames).\n- Liquid damage (oxidation) of any kind.\n- Damage caused by unauthorized third-party repairs.\n- Software issues, jailbreaking, or data loss.\n\n4. How to Claim:\nVisit any Belmobile store with your device and proof of purchase (receipt/invoice).",
+
         "New Buyback Request": "New Buyback Request",
         "New Repair Request": "New Repair Request",
         "Sell Request": "Sell Request",
@@ -643,17 +662,72 @@ export const translations: Translations = {
 
         // Repair Issues
         "screen": "Screen / Glass",
+        "screen_desc": "Full Display Assembly",
+        "back_glass": "Back Glass",
+        "back_glass_desc": "Cracked rear glass",
+        "housing": "Complete Housing",
+        "housing_desc": "Full frame replacement",
+        "software": "Software Issue",
+        "software_desc": "Boot loop, virus, or unlock",
         "battery": "Battery Issue",
+        "battery_desc": "Drains fast / won't charge",
         "charging": "Charging Port",
+        "charging_desc": "Cable loose or not working",
         "hdmi": "HDMI / Video Port",
-        "disc": "Disc Drive Issue",
+        "hdmi_desc": "No signal to TV/Monitor",
+        "disc_drive": "Disc Drive Issue",
+        "disc_drive_desc": "Not reading discs / jammed",
+        "microsoldering": "Microsoldering / Motherboard",
+        "microsoldering_desc": "Motherboard repair",
+        "screen_foldable_inner": "Inner Foldable Screen",
+        "screen_foldable_inner_desc": "Main Internal Display",
+        "screen_foldable_outer": "Outer Screen (Cover)",
+        "screen_foldable_outer_desc": "External Cover Display",
         "cleaning": "Cleaning + Thermal Paste",
+        "cleaning_desc": "Overheating / Loud fan",
         "joystick": "Joystick Repair",
+        "joystick_desc": "Drift or buttons not working",
         "audio": "Audio / Sound",
-        "camera": "Camera",
+        "audio_desc": "Speaker, mic, or volume",
+        "camera_rear": "Rear Camera",
+        "camera_rear_desc": "Blurry photos or broken lens",
+        "camera_lens": "Camera Lens",
+        "camera_lens_desc": "Cracked outer glass",
+        "camera_front": "Front Camera",
+        "camera_front_desc": "Selfie camera issue",
+        "face_id": "Face ID",
+        "face_id_desc": "Not working / Unavailable",
         "water": "Water Damage",
+        "water_desc": "Device got wet",
         "storage": "Storage / Drive",
+        "storage_desc": "Hard Drive / SSD issue",
         "other": "Other / Unknown",
+        "other_desc": "Diagnostic required",
+        "power_supply": "Power Supply Unit",
+        "power_supply_desc": "Device dead / Internal PSU",
+        "antenna": "Antenna / WiFi",
+        "antenna_desc": "Signal issues",
+        "buttons": "Buttons (Power/Vol)",
+        "buttons_desc": "Stuck or broken buttons",
+        "card_reader": "Game Card Slot",
+        "card_reader_desc": "Not reading game cards",
+        "keyboard": "Keyboard",
+        "keyboard_desc": "Keys stuck or not working",
+        "trackpad": "Trackpad",
+        "trackpad_desc": "Not clicking or moving",
+        "screen_upper": "Upper Screen",
+        "screen_upper_desc": "Top Display LCD",
+        "screen_bottom": "Bottom Screen",
+        "screen_bottom_desc": "Touch Screen LCD",
+        "screen_digitizer": "Touch Digitizer",
+        "screen_digitizer_desc": "Glass + Touch ONLY",
+        "screen_lcd": "Internal LCD",
+        "screen_lcd_desc": "Display Panel ONLY",
+        "Touchscreen / Digitizer": "Touchscreen / Digitizer",
+        "LCD Screen": "LCD Screen",
+        "Full Screen (LCD + Touch)": "Full Screen (LCD + Touch)",
+        "Top LCD Screen": "Top LCD Screen",
+        "Bottom LCD Screen": "Bottom LCD Screen",
 
         // PDF Keys
         "Device Details": "Device Details",
@@ -679,7 +753,7 @@ export const translations: Translations = {
         "review_comment_4": "Bought a refurbished iPad here, looks brand new! Saved me €200.",
 
         // Jobs
-        "Careers": "Careers",
+        // "Careers": "Careers", // Duplicate removed
         "Join the Team": "Join the Team",
         "jobs_intro": "Passionate about technology? Join our dynamic team in Brussels.",
         "jobs_apply": "Apply Now",
@@ -695,7 +769,7 @@ export const translations: Translations = {
         "Main Navigation": "Main Navigation",
         "Main Pages": "Main Pages",
         "Information": "Information",
-        "Legal": "Legal",
+
         "Locations": "Locations",
 
         // Blog
@@ -703,44 +777,35 @@ export const translations: Translations = {
         "No articles found.": "No articles found.",
 
         // Blog Post 1
-        "blog_title_1": "5 Tips to Extend Your Smartphone Battery Life",
-        "blog_excerpt_1": "Struggling with a phone that dies by noon? Here are expert tips to keep your battery healthy for longer.",
-        "blog_content_1": "Battery life is crucial. 1. Reduce brightness. 2. Close unused apps. 3. Use low power mode. 4. Update software. 5. Avoid extreme temperatures.",
-        "blog_category_1": "Tips & Tricks",
+        "blog_title_1": "iPhone 15 Pro Screen Repair in Brussels: Why Choose Original?",
+        "blog_excerpt_1": "Cracked your iPhone 15 Pro screen? Discover why original parts are crucial for maintaining warranty and image quality.",
+        "blog_category_1": "Repair Guide",
+        "blog_content_1": "The iPhone 15 Pro is a masterpiece of technology with its Super Retina XDR display. When an accident happens, the temptation to choose a cheap repair with generic parts is strong. However, here's why Belmobile always recommends original parts:\n\n1. **Image Quality**: Generic screens often have less vibrant colors and reduced brightness.\n2. **ProMotion Technology**: Only certified displays support the 120Hz adaptive refresh rate.\n3. **True Tone & Sensors**: A non-compliant repair can permanently disable True Tone or Face ID.\n4. **Resale Value**: An iPhone with a non-original screen loses 30% of its value on the second-hand market.\n\nAt Belmobile (Anderlecht & Schaerbeek), we offer original screens with a 12-month warranty.",
 
         // Blog Post 2
-        "blog_title_2": "Why You Should Buy Refurbished Instead of New",
-        "blog_excerpt_2": "Save money and the planet. Discover the benefits of choosing a certified refurbished device from Belmobile.",
-        "blog_content_2": "Refurbished devices are inspected, repaired, and tested. They are cheaper and eco-friendly. You get a warranty too!",
-        "blog_category_2": "Buying Guide",
+        "blog_title_2": "How to Sell Your Old Smartphone for the Best Price in Belgium?",
+        "blog_excerpt_2": "Don't let your old phone sit in a drawer. Learn how to maximize its buyback value at Belmobile.",
+        "blog_category_2": "Buyback",
+        "blog_content_2": "The second-hand market in Belgium is booming. To get the best buyback price for your smartphone, follow these steps:\n\n1. **Deep Clean**: A clean device inspires confidence and facilitates inspection.\n2. **Box & Accessories**: If you still have the original box and charger, the value can increase by €10 to €20.\n3. **Deactivate Accounts**: Remember to remove your iCloud or Google account before coming to the store.\n4. **Transparency**: A small chip? Mention it! At Belmobile, we buy back even devices with minor defects.\n\nVisit one of our stores in Brussels for an instant estimate and payment in cash or via instant bank transfer.",
 
         // Blog Post 3
-        "blog_title_3": "Dropped Your Phone in Water? Do This Immediately!",
-        "blog_excerpt_3": "Panic mode off. Follow these immediate steps to increase the chances of saving your water-damaged device.",
-        "blog_content_3": "1. Turn it off. 2. Remove SIM/SD. 3. Dry exterior. 4. Do NOT use rice (it's a myth). 5. Bring it to Belmobile ASAP.",
-        "blog_category_3": "Repair",
+        "blog_title_3": "iPhone Battery: When is it Time to Replace It?",
+        "blog_excerpt_3": "Is your iPhone shutting down unexpectedly? Check your battery health and know when to visit us for a quick swap.",
+        "blog_category_3": "Maintenance",
+        "blog_content_3": "The battery is a wearing component. After 500 charge cycles, capacity begins to drop. Here are the signs that don't lie:\n\n- **Maximum Capacity < 80%**: Go to Settings > Battery > Battery Health.\n- **System Slowdowns**: iOS throttles performance to prevent unexpected shutdowns.\n- **Overheating**: A battery at the end of its life heats up abnormally during charging.\n\nAt Belmobile, we replace your battery in 30 minutes. No need to leave your phone for days!",
 
         // Blog Post 4
         "blog_title_4": "Data Privacy: How We Protect Your Info During Repairs",
         "blog_excerpt_4": "Your privacy matters. Learn about our strict data protection protocols and why you can trust Belmobile with your device.",
-        "blog_content_4": "We take data privacy seriously. Our technicians are trained to respect your data. We recommend backing up and resetting if possible, but we also have strict non-disclosure agreements.",
         "blog_category_4": "Security",
 
         // Blog Post 5
-        "blog_title_5": "Fix Face ID Problems iPhone XS-11-12-13 Pro Max Brussels",
-        "blog_excerpt_5": "Having trouble with Face ID on your iPhone or iPad? Don't know how to fix it or who to ask? Don't panic, we're here to help!",
-        "blog_content_5": "## What is Face ID and how does it work?\nFace ID is a facial recognition technology developed by Apple. It allows you to unlock your device, make payments, and access secure apps simply by looking at the screen.\n\n## How to fix Face ID if it doesn't work?\nFace ID might not work due to bad configuration, software issues, or hardware damage. Try these solutions:\n- Check if your device supports Face ID.\n- Ensure Face ID is enabled in settings.\n- Make sure the TrueDepth camera is not obstructed.\n- Ensure your face is clearly visible.\n- Reset Face ID and set it up again.\n- Restart your device.\n\nIf none of these work, your TrueDepth camera might be damaged. In that case, you need professional repair.\n\n## Why choose Belmobile.be for Face ID repair?\nWe are Apple repair specialists in Brussels offering:\n1. Free diagnosis.\n2. 12-month warranty.\n3. Over 10 years of experience.\n4. Fast repair (often under 1 hour).",
+        "blog_title_5": "Face ID Repair & Issues for iPhone XS-11-12-13 Pro Max in Brussels",
+        "blog_excerpt_5": "Having trouble with Face ID on your iPhone or iPad? Learn how to fix it or who to contact.",
         "blog_category_5": "Repair Tips",
+        "blog_content_5": "Face ID is a revolutionary technology that uses a dot projector and illuminator to create a 3D map of your face. Face ID is designed to be secure, fast, and easy to use.\n\n## How to fix Face ID if it's not working?\nFace ID may not work correctly due to several reasons, such as poor configuration, software issues, or hardware damage. Here are some solutions to try:\n- Check that your device is compatible with Face ID.\n- Check that Face ID is enabled in settings.\n- Check that nothing is obstructing the TrueDepth camera.\n- Reset Face ID and set it up again.\n\nIf none of these solutions work, your TrueDepth camera may be damaged. In this case, call a professional repair service like Belmobile.be.",
 
-        // Legal Pages
-        "privacy_title": "Privacy Policy",
-        "privacy_content": "At Belmobile, we take your privacy seriously. This policy outlines how we collect, use, and protect your personal data.\n\n1. Information Collection: We collect information you provide directly to us, such as when you create an account, request a repair, or contact us.\n2. Use of Information: We use your information to provide, maintain, and improve our services.\n3. Data Protection: We implement security measures to protect your personal information.",
 
-        "cookies_title": "Cookie Policy",
-        "cookies_content": "We use cookies to enhance your experience on our website.\n\n1. What are cookies? Cookies are small text files stored on your device.\n2. How we use them: We use cookies for analytics, remembering your preferences, and ensuring the site functions correctly.\n3. Your choices: You can manage your cookie preferences in your browser settings.",
-
-        "warranty_title": "Warranty Information",
-        "warranty_content": "Our warranty covers defects in materials and workmanship.\n\n1. Repairs: We offer a 1-year warranty on all repairs.\n2. Refurbished Devices: We offer a 1-year warranty on all refurbished devices.\n3. Exclusions: The warranty does not cover accidental damage, water damage, or unauthorized repairs.",
 
         // Track Order
         "Track Your Order": "Track Your Order",
@@ -762,7 +827,7 @@ export const translations: Translations = {
         "Refurbished & New": "Refurbished & New",
 
         // Cookies & Warranty
-        "Cookie Policy": "Cookie Policy",
+        // "Cookie Policy": "Cookie Policy", // Duplicate removed
         "How we use cookies and similar technologies.": "How we use cookies and similar technologies.",
         "What are Cookies?": "What are Cookies?",
         "Cookies are small text files that are stored on your device when you visit a website. They help us remember your preferences and improve your experience.": "Cookies are small text files that are stored on your device when you visit a website. They help us remember your preferences and improve your experience.",
@@ -773,7 +838,7 @@ export const translations: Translations = {
         "Help us understand how visitors interact with the site.": "Help us understand how visitors interact with the site.",
         "Marketing Cookies": "Marketing Cookies",
         "Used to deliver relevant advertisements.": "Used to deliver relevant advertisements.",
-        "Warranty Info": "Warranty Info",
+        // "Warranty Info": "Warranty Info", // Duplicate removed
         "Warranty Information": "Warranty Information",
         "Details about our product and repair warranties.": "Details about our product and repair warranties.",
         "Repair Warranty": "Repair Warranty",
@@ -784,21 +849,7 @@ export const translations: Translations = {
         "The warranty does not cover accidental damage, such as water damage or cracked screens caused by drops.": "The warranty does not cover accidental damage, such as water damage or cracked screens caused by drops.",
 
         // Product Page Filters & Titles
-        "sort_featured": "Featured",
-        "sort_low_high": "Price: Low to High",
-        "sort_high_low": "Price: High to Low",
-        "cat_all": "All",
-        "cat_smartphone": "Smartphones",
-        "cat_tablet": "Tablets",
-        "cat_computer": "Computers",
-        "cat_console": "Consoles",
-        "cat_smartwatch": "Smartwatches",
-        "cat_accessories": "Accessories",
-        "No products found": "No products found",
-        "Try adjusting your search filters or shop selection.": "Try adjusting your search filters or shop selection.",
-        "Clear all filters": "Clear all filters",
         "All Shops": "All Shops",
-        "Search...": "Search...",
     },
     fr: {
         // Meta Tags
@@ -814,6 +865,7 @@ export const translations: Translations = {
         "Back": "Retour",
         "Cancel": "Annuler",
         "Close": "Fermer",
+        "Temporarily Closed": "Temporairement Fermé",
         "Submit": "Envoyer",
         "Price": "Prix",
         "items_count": "{0} articles",
@@ -842,6 +894,9 @@ export const translations: Translations = {
         "Select a shop": "Sélectionner un magasin",
         "Change": "Modifier",
         "Please select a shop": "Veuillez sélectionner un magasin",
+        "select_quality_short": "Choisir qualité",
+        "track-order": "suivre-commande",
+        "Track Order": "Suivre Commande",
         "Select Shop": "Choisir Magasin",
         "Help Center": "Centre d'aide",
         "Home": "Accueil",
@@ -849,7 +904,7 @@ export const translations: Translations = {
         "Careers": "Carrières",
         "Legal": "Information Légale",
         "Our Stores": "Nos Magasins",
-        "Support": "Support",
+        // "Support": "Support", // Duplicate removed
         "Repair Service": "Service de Réparation",
         "Shop Refurbished": "Boutique Reconditionné",
         "Contact Us": "Contactez-nous",
@@ -859,6 +914,9 @@ export const translations: Translations = {
         "Business Solutions": "Solutions Business",
         "Cookie Policy": "Politique de Cookies",
         "Warranty Info": "Info Garantie",
+        "Home Console": "Console de Salon",
+        "Portable Console": "Console Portable",
+        "Gaming Console": "Console de Jeux",
 
         // Footer
         "newsletter_placeholder": "S'inscrire à la newsletter",
@@ -924,7 +982,7 @@ export const translations: Translations = {
         "View Full Price List": "Voir la liste complète des tarifs",
 
         // Trust Signals
-        "trust_warranty": "Garantie 1 An Incluse",
+        "trust_warranty": "Garantie Incluse",
         "trust_warranty_desc": "Toutes réparations et appareils reconditionnés garantis.",
         "trust_speed": "Réparation 30 Min",
         "trust_speed_desc": "La plupart des écrans et batteries changés sur place.",
@@ -932,6 +990,7 @@ export const translations: Translations = {
         "happy_customers": "1500+ Clients Satisfaits",
         "trust_eco": "Éco-Responsable",
         "trust_eco_desc": "Nous recyclons 99% des déchets électroniques.",
+        "contact_for_price": "Sur Devis",
 
         // FAQ
         "Frequently Asked Questions": "Questions Fréquentes",
@@ -940,7 +999,7 @@ export const translations: Translations = {
         "Repairs": "Réparations",
         "Buyback & Sales": "Rachat & Vente",
         "faq_q1": "Offrez-vous une garantie ?",
-        "faq_a1": "Oui, 6 mois de garantie sur les réparations et 1 an sur le reconditionné.",
+        "faq_a1": "Oui, nous offrons une garantie de 1 an sur toutes les réparations et les appareils reconditionnés.",
         "faq_q2": "Combien de temps pour réparer un écran ?",
         "faq_a2": "La plupart des remplacements d'écran se font en 30 minutes sur place.",
         "faq_q3": "Dois-je prendre rendez-vous ?",
@@ -984,6 +1043,7 @@ export const translations: Translations = {
         "Mobile Solutions for Business": "Solutions Mobiles pour Entreprises",
         "Keep your team connected with our professional repair and fleet management services. Fast, reliable, and cost-effective.": "Gardez votre équipe connectée avec nos services de réparation et de gestion de flotte. Rapide, fiable et rentable.",
         "Contact B2B Team": "Contacter l'équipe B2B",
+        "free": "GRATUIT",
         "Call Us": "Appelez-nous",
         "Priority Repair Service": "Réparation Prioritaire",
         "Skip the queue with our dedicated B2B repair line. Most repairs completed within 1 hour.": "Coupe-file avec notre ligne dédiée B2B. La plupart des réparations en moins d'une heure.",
@@ -1115,8 +1175,9 @@ export const translations: Translations = {
         "Total Cost": "Coût Total",
         "Includes labor and premium parts for:": "Inclut main d'œuvre et pièces pour :",
         "Request a Repair": "Demander une Réparation",
+        "Search your device (e.g. iPhone 13, Samsung S21...)": "Recherchez votre appareil (ex. iPhone 13, Samsung S21...)",
         "buyback_step1_title": "Que voulez-vous vendre ?",
-        "repair_step1_title": "Que faut-il réparer ?",
+        "repair_step1_title": "Réparer votre appareil",
         "step2_title": "Sélectionnez Marque & Modèle",
         "Brand": "Marque",
         "step3_repair_title": "Quel est le problème ?",
@@ -1175,12 +1236,12 @@ export const translations: Translations = {
         "Drains fast / won't charge": "Se vide vite / ne charge pas",
         "Cable loose or not working": "Câble lâche ou HS",
         "Speaker, mic, or volume": "Haut-parleur, micro",
-        "Blurry, spots, or broken lens": "Flou, taches ou cassé",
+        "Blurry, taches ou cassé": "Flou, taches ou cassé",
         "Device got wet": "L'appareil a pris l'eau",
         "Diagnostic required": "Diagnostic nécessaire",
 
         // Store Locator
-        "Our Stores": "Nos Magasins",
+        // "Our Stores": "Nos Magasins", // Duplicate removed
         "locations_count": "{0} lieux",
         "Show All": "Tout Voir",
         "Open Now": "Ouvert",
@@ -1312,7 +1373,7 @@ export const translations: Translations = {
         "Smartphone": "Smartphone",
         "Tablet": "Tablette",
         "Laptop": "Ordinateur Portable",
-        "Gaming Console": "Console de Jeux",
+
         "Smartwatch": "Montre Connectée",
         "HDMI / Video Port": "Port HDMI / Vidéo",
         "No signal to TV/Monitor": "Pas de signal TV/Écran",
@@ -1341,14 +1402,42 @@ export const translations: Translations = {
         "Why Partner With Us?": "Pourquoi Nous Choisir ?",
 
         // Legal Pages
-        "privacy_title": "Politique de Confidentialité",
-        "privacy_content": "Chez Belmobile, nous prenons votre vie privée au sérieux. Cette politique décrit comment nous collectons, utilisons et protégeons vos données personnelles.\n\n1. Collecte d'informations : Nous collectons les informations que vous nous fournissez directement, comme lors de la création d'un compte ou d'une demande de réparation.\n2. Utilisation des informations : Nous utilisons vos informations pour fournir et améliorer nos services.\n3. Protection des données : Nous mettons en œuvre des mesures de sécurité pour protéger vos informations personnelles.",
+        // Legal Pages
+        "terms_title": "Conditions Générales de Vente",
+        "terms_intro": "Bienvenue chez Belmobile. Ces conditions générales définissent les règles d'utilisation de nos services.",
+        "terms_section_1_title": "1. Identification",
+        "terms_section_1_content": "Belmobile.be sprl\nRue Ulens 88, 1080 Bruxelles\nTVA : BE0502737241\nEmail : contact@belmobile.be\n\nEn accédant à ce site et en utilisant nos services, vous acceptez ces conditions générales dans leur intégralité.",
+        "terms_section_2_title": "2. Réparations & Garantie",
+        "terms_section_2_content": "Nous offrons une garantie de 1 an sur toutes les réparations et les appareils reconditionnés. Cette garantie couvre les défauts de pièces et de main-d'œuvre. Sont explicitement exclus :\n- Les dommages accidentels (chutes, fissures)\n- Les dégâts des eaux (oxydation)\n- Les problèmes causés par des tiers non autorisés\n- Les problèmes logiciels ou la perte de données\n\nNous recommandons vivement de sauvegarder vos données avant toute réparation. Belmobile n'est pas responsable de la perte de données pouvant survenir durant l'intervention.",
+        "terms_section_3_title": "3. Politique de Rachat",
+        "terms_section_3_content": "Les offres de rachat générées en ligne sont des estimations provisoires basées sur les informations fournies. Le prix final est confirmé uniquement après inspection physique de l'appareil par nos techniciens.\n\n- Si l'appareil correspond à la description, le devis est confirmé.\n- Si l'état diffère (vices cachés, modèle différent), nous nous réservons le droit de proposer une offre révisée.\n\nVous êtes libre d'accepter ou de refuser cette offre finale. Une fois acceptée et payée, la propriété de l'appareil est transférée irrévocablement à Belmobile.",
+        "terms_section_4_title": "4. Responsabilité & Juridiction",
+        "terms_section_4_content": "Belmobile ne pourra être tenu responsable des dommages indirects, spéciaux ou consécutifs découlant de l'utilisation de nos services. Notre responsabilité totale est limitée à la valeur réelle du service ou du produit acheté.\n\nCes conditions sont régies par le droit belge. Tout litige sera soumis à la compétence exclusive des tribunaux de Bruxelles.",
+        "terms_updated": "Dernière mise à jour : 10 Décembre 2024",
+        "Terms & Privacy": "Conditions & Confidentialité",
 
-        "cookies_title": "Politique des Cookies",
-        "cookies_content": "Nous utilisons des cookies pour améliorer votre expérience sur notre site.\n\n1. Qu'est-ce qu'un cookie ? Ce sont de petits fichiers texte stockés sur votre appareil.\n2. Utilisation : Nous les utilisons pour les analyses, vos préférences et le bon fonctionnement du site.\n3. Vos choix : Vous pouvez gérer vos préférences de cookies dans les paramètres de votre navigateur.",
+        // Privacy Policy (Professional)
+        "privacy_title": "Politique de Confidentialité",
+        "privacy_content": "Votre vie privée est essentielle pour nous. Belmobile.be sprl (Rue Ulens 88, 1080 Bruxelles) agit en tant que responsable du traitement des données.\n\n1. Collecte de données :\nNous collectons les données personnelles nécessaires au traitement de vos commandes (nom, email, téléphone, adresse, IBAN) et à l'amélioration de nos services (cookies, analyses).\n\n2. Utilisation des données :\n- Exécution des commandes : Pour réparer votre appareil ou traiter un rachat.\n- Communication : Pour vous informer du statut ou envoyer du marketing (si accepté).\n- Conformité légale : Pour respecter les réglementations fiscales et anti-fraude (ex: copie d'identité pour rachat).\n\n3. Partage des données :\nNous ne vendons pas vos données. Nous pouvons les partager avec des partenaires de confiance comme les transporteurs (pour la livraison) ou les processeurs de paiement.\n\n4. Vos droits :\nEn vertu du RGPD, vous avez le droit d'accéder, de corriger, de supprimer ou de limiter le traitement de vos données. Contactez-nous à contact@belmobile.be pour exercer ces droits.\n\n5. Sécurité :\nNous utilisons un cryptage standard pour protéger vos données. Cependant, aucune méthode de transmission n'est sûre à 100%.",
+
+        "cookies_title": "Politique de Cookies",
+        "cookies_content": "Nous utilisons des cookies pour améliorer votre expérience de navigation et analyser notre trafic.\n\n1. Qu'est-ce qu'un cookie ?\nDe petits fichiers texte stockés sur votre appareil qui nous permettent de mémoriser vos préférences (ex: langue) et de comprendre comment vous utilisez votre site.\n\n2. Types de cookies utilisés :\n- Essentiels : Nécessaires au fonctionnement du site (ex: panier).\n- Analytiques : Nous aident à améliorer les performances de notre site (Google Analytics).\n- Marketing : Utilisés pour proposer des publicités pertinentes (si consenti).\n\n3. Gestion des cookies :\nVous pouvez contrôler ou supprimer les cookies via les paramètres de votre navigateur à tout moment. Cependant, désactiver les cookies essentiels peut affecter le fonctionnement du site.",
 
         "warranty_title": "Informations de Garantie",
-        "warranty_content": "Notre garantie couvre les défauts de matériaux et de fabrication.\n\n1. Réparations : Nous offrons une garantie d'un an sur toutes les réparations.\n2. Appareils Reconditionnés : Nous offrons une garantie d'un an sur tous les appareils reconditionnés.\n3. Exclusions : La garantie ne couvre pas les dommages accidentels, l'oxydation ou les réparations non autorisées.",
+        "warranty_content": "Nous nous portons garants de notre qualité avec une garantie solide.\n\n1. Durée de la couverture :\n- Réparations : Garantie de 1 an sur les pièces remplacées et la main-d'œuvre.\n- Appareils reconditionnés : Garantie de 1 an sur les défauts matériels.\n\n2. Qu'est-ce qui est couvert ?\nDéfauts de matériaux ou de main-d'œuvre. Par exemple, si un écran que nous avons remplacé cesse de répondre au toucher sans dommage physique, nous le réparons gratuitement.\n\n3. Qu'est-ce qui n'est PAS couvert (Exclusions) ?\n- Dommages accidentels (fissures d'écran, coups, châssis plié).\n- Dégâts des eaux (oxydation) de toute nature.\n- Dommages causés par des réparations tiers non autorisées.\n- Problèmes logiciels, jailbreak ou perte de données.\n\n4. Comment faire une réclamation :\nVisitez n'importe quel magasin Belmobile avec votre appareil et votre preuve d'achat (reçu/facture).",
+
+        "New Buyback Request": "Nouvelle Demande de Rachat",
+        "New Repair Request": "Nouvelle Demande de Réparation",
+        "Sell Request": "Demande de Vente",
+        "Repair Request": "Demande de Réparation",
+        "terms_icloud": "Localiser mon iPhone est désactivé et iCloud est supprimé.*",
+        "terms_android": "Compte Google supprimé et appareil réinitialisé.*",
+        "terms_legal_buyback": "J'accepte les Conditions Générales et la Politique de Confidentialité.",
+        "IBAN Number": "Numéro IBAN",
+        "Upload ID Copy": "Télécharger Copie ID (Recto/Verso)",
+        "Identity Verification": "Vérification d'Identité",
+        "Download Summary PDF": "Télécharger le PDF",
+        "id_upload_desc": "Requis pour la conformité anti-fraude. Formats acceptés : JPG, PNG, PDF.",
 
         // Track Order
         "Track Your Order": "Suivre votre Commande",
@@ -1366,7 +1455,7 @@ export const translations: Translations = {
         "Received": "Reçu",
         "Inspecté": "Inspecté",
         "Payment Sent": "Paiement Envoyé",
-        "Order not found. Please check your details.": "Commande introuvable. Veuillez vérifier vos informations.",
+        "Order not found. Please check your informations.": "Commande introuvable. Veuillez vérifier vos informations.",
         "The Belmobile Advantage": "L'avantage Belmobile",
         "franchise_why_subtitle": "Nous fournissons tout ce dont vous avez besoin pour réussir dans le secteur en plein essor de la réparation.",
 
@@ -1439,24 +1528,69 @@ export const translations: Translations = {
 
         // Repair Issues
         "screen": "Écran / Vitre",
+        "screen_desc": "Assemblage complet de l'écran",
+        "back_glass": "Vitre Arrière",
+        "back_glass_desc": "Vitre arrière fissurée ou brisée",
+        "housing": "Châssis Complet",
+        "housing_desc": "Remplacement complet du châssis",
+        "software": "Problème Logiciel",
+        "software_desc": "Boucle de démarrage, virus ou déblocage",
         "battery": "Problème de Batterie",
+        "battery_desc": "Se décharge vite / ne charge plus",
         "charging": "Port de Charge",
+        "charging_desc": "Câble lâche ou ne fonctionne pas",
         "hdmi": "Port HDMI / Vidéo",
-        "disc": "Lecteur de Disque",
+        "hdmi_desc": "Pas de signal sur TV/Moniteur",
+        "disc_drive": "Lecteur de Disque",
+        "disc_drive_desc": "Ne lit pas les disques / bloqué",
+        "microsoldering": "Micro-soudure / Carte Mère",
+        "microsoldering_desc": "Réparation de la carte mère",
+        "screen_foldable_inner": "Écran Pliable (Intérieur)",
+        "screen_foldable_inner_desc": "Affichage interne principal",
+        "screen_foldable_outer": "Écran Externe (Couverture)",
+        "screen_foldable_outer_desc": "Affichage externe de couverture",
         "cleaning": "Nettoyage + Pâte Thermique",
+        "cleaning_desc": "Surchauffe / Ventilateur bruyant",
         "joystick": "Réparation Joystick",
+        "joystick_desc": "Drift ou boutons ne fonctionnant plus",
         "audio": "Audio / Son",
-        "camera": "Caméra",
+        "audio_desc": "Haut-parleur, micro ou volume",
+        "camera_rear": "Caméra Arrière",
+        "camera_rear_desc": "Photos floues ou lentille cassée",
+        "camera_lens": "Lentille de caméra",
+        "camera_lens_desc": "Verre extérieur fissuré",
+        "camera_front": "Caméra Avant (Selfie)",
+        "camera_front_desc": "Problème de caméra frontale",
+        "face_id": "Face ID",
+        "face_id_desc": "Ne fonctionne pas / indisponible",
         "water": "Dégâts des Eaux",
+        "water_desc": "L'appareil a pris l'humidité",
         "storage": "Stockage / Disque Dur",
+        "storage_desc": "Problème de Disque Dur / SSD",
         "other": "Autre / Inconnu",
-        "Download Summary PDF": "Télécharger le Récapitulatif PDF",
+        "other_desc": "Diagnostic requis",
+        "power_supply": "Unité d'Alimentation",
+        "power_supply_desc": "Appareil éteint / PSU interne",
+        "antenna": "Antenne / WiFi",
+        "antenna_desc": "Problèmes de réseau / WiFi",
+        "buttons": "Boutons (Power/Vol)",
+        "buttons_desc": "Boutons bloqués ou cassés",
+        "card_reader": "Lecteur Carte Jeu",
+        "card_reader_desc": "Ne lit pas les cartes de jeu",
+        "keyboard": "Clavier",
+        "keyboard_desc": "Touches bloquées ou ne fonctionnant plus",
+        "trackpad": "Trackpad",
+        "trackpad_desc": "Ne clique plus ou ne bouge plus",
+        "screen_upper": "Écran Supérieur",
+        "screen_upper_desc": "Écran LCD du haut",
+        "screen_bottom": "Écran Inférieur",
+        "screen_bottom_desc": "Écran LCD tactile du bas",
+        "screen_digitizer": "Vitre Tactile",
+        "screen_digitizer_desc": "Vitre + Tactile UNIQUEMENT",
+        "screen_lcd": "LCD Interne",
+        "screen_lcd_desc": "Panneau d'affichage UNIQUEMENT",
 
-        // PDF Keys
-        "Device Details": "Détails de l'appareil",
-        "Estimated Offer": "Offre Estimée",
-        "Customer Details": "Détails Client",
-        "flawless": "Impeccable",
+
         "scratches": "Rayures",
         "cracked": "Fissuré",
         "dents": "Coups",
@@ -1476,7 +1610,7 @@ export const translations: Translations = {
         "review_comment_4": "J'ai acheté un iPad reconditionné ici, il a l'air neuf ! J'ai économisé 200€.",
 
         // Jobs
-        "Careers": "Carrières",
+
         "Join the Team": "Rejoignez l'équipe",
         "jobs_intro": "Passionné par la technologie ? Rejoignez notre équipe dynamique à Bruxelles.",
         "jobs_apply": "Postuler",
@@ -1492,7 +1626,7 @@ export const translations: Translations = {
         "Main Navigation": "Navigation Principale",
         "Main Pages": "Pages Principales",
         "Information": "Informations",
-        "Legal": "Légal",
+
         "Locations": "Nos Magasins",
 
         // Blog
@@ -1500,35 +1634,40 @@ export const translations: Translations = {
         "No articles found.": "Aucun article trouvé.",
 
         // Blog Post 1
-        "blog_title_1": "5 Astuces pour Prolonger la Batterie de votre Smartphone",
-        "blog_excerpt_1": "Votre téléphone s'éteint à midi ? Voici des conseils d'experts pour garder votre batterie en bonne santé plus longtemps.",
-        "blog_content_1": "L'autonomie est cruciale. 1. Réduisez la luminosité. 2. Fermez les applications inutilisées. 3. Utilisez le mode économie d'énergie. 4. Mettez à jour le logiciel. 5. Évitez les températures extrêmes.",
-        "blog_category_1": "Trucs & Astuces",
+        "blog_title_1": "Réparation écran iPhone 15 Pro à Bruxelles : Pourquoi choisir l'original ?",
+        "blog_excerpt_1": "Votre iPhone 15 Pro a l'écran brisé ? Découvrez pourquoi l'utilisation de pièces originales est cruciale pour maintenir la garantie.",
+        "blog_category_1": "Guide Réparation",
+        "blog_content_1": "L'iPhone 15 Pro est un bijou de technologie avec son écran Super Retina XDR. Lorsqu'un accident arrive, la tentation de choisir une réparation bon marché avec des pièces génériques est forte. Cependant, voici pourquoi Belmobile recommande toujours l'original :\n\n1. **Qualité d'image** : Les écrans génériques ont souvent des couleurs moins vives et une luminosité réduite.\n2. **Technologie ProMotion** : Seuls les écrans certifiés supportent le taux de rafraîchissement adaptatif de 120Hz.\n3. **True Tone & Capteurs** : Une réparation non conforme peut désactiver définitivement le True Tone ou le Face ID.\n4. **Valeur de Revente** : Un iPhone avec un écran non original perd 30% de sa valeur sur le marché de l'occasion.\n\nChez Belmobile (Anderlecht & Schaerbeek), nous proposons des écrans originaux avec une garantie de 12 mois.",
 
         // Blog Post 2
-        "blog_title_2": "Pourquoi Acheter Reconditionné au Lieu de Neuf",
-        "blog_excerpt_2": "Économisez de l'argent et préservez la planète. Découvrez les avantages de choisir un appareil reconditionné certifié chez Belmobile.",
-        "blog_content_2": "Les appareils reconditionnés sont inspectés, réparés et testés. Ils sont moins chers et écologiques. Vous bénéficiez également d'une garantie !",
-        "blog_category_2": "Guide d'Achat",
+        "blog_title_2": "Comment vendre votre ancien smartphone au meilleur prix en Belgique ?",
+        "blog_excerpt_2": "Ne laissez pas votre ancien téléphone dormir dans un tiroir. Apprenez comment maximiser sa valeur de rachat chez Belmobile.",
+        "blog_category_2": "Rachat",
+        "blog_content_2": "Le marché de l'occasion en Belgique est en pleine expansion. Pour obtenir le meilleur prix de rachat pour votre smartphone, suivez ces étapes :\n\n1. **Nettoyage complet** : Un appareil propre inspire confiance et facilite l'inspection.\n2. **Boîte et accessoires** : Si vous avez encore la boîte originale et le chargeur, la valeur peut augmenter de 10 à 20€.\n3. **Désactivation des comptes** : Pensez à supprimer votre compte iCloud ou Google avant de venir en magasin.\n4. **Transparence sur l'état** : Un petit éclat ? Signalez-le ! Chez Belmobile, nous rachetons même les appareils avec des défauts mineurs.\n\nPassez dans l'un de nos magasins à Bruxelles pour une estimation immédiate et un paiement en cash ou par virement instantané.",
 
         // Blog Post 3
-        "blog_title_3": "Téléphone Tombé dans l'Eau ? Faites Ceci Immédiatement !",
-        "blog_excerpt_3": "Pas de panique. Suivez ces étapes immédiates pour augmenter les chances de sauver votre appareil endommagé par l'eau.",
-        "blog_content_3": "1. Éteignez-le. 2. Retirez SIM/SD. 3. Séchez l'extérieur. 4. N'utilisez PAS de riz (c'est un mythe). 5. Apportez-le chez Belmobile ASAP.",
-        "blog_category_3": "Réparation",
+        "blog_title_3": "Batterie iPhone : Quand est-il temps de la remplacer ?",
+        "blog_excerpt_3": "Votre iPhone s'éteint inopinément ? Vérifiez l'état de votre batterie et sachez quand passer en magasin.",
+        "blog_category_3": "Maintenance",
+        "blog_content_3": "La batterie est un composant d'usure. Après 500 cycles de charge, la capacité commence à chuter. Voici les signes qui ne trompent pas :\n\n- **Capacité maximum < 80%** : Rendez-vous dans Réglages > Batterie > État de la batterie.\n- **Ralentissements du système** : iOS bride les performances pour éviter les extinctions brutales.\n- **Surchauffe** : Une batterie en fin de vie chauffe anormalement lors de la charge.\n\nChez Belmobile, nous remplaçons votre batterie en 30 minutes. Pas besoin de laisser votre téléphone pendant des jours !",
+
+        // Blog Post 4
+        "blog_title_4": "Confidentialité des Données : Comment nous protégeons vos infos",
+        "blog_excerpt_4": "Votre vie privée compte. Découvrez nos protocoles stricts de protection des données et pourquoi vous pouvez confier votre appareil à Belmobile.",
+        "blog_category_4": "Sécurité",
+        "blog_content_4": "Chez Belmobile, nous comprenons que votre smartphone contient toute votre vie - photos, messages, applications bancaires, et plus encore. C'est pourquoi nous prenons la confidentialité des données très au sérieux.\n\n**Nos Protocoles :**\n1. **Politique d'Accès Restreint** : Nos techniciens accèdent uniquement aux fonctions nécessaires à la réparation (ex: tester la caméra ou l'écran tactile). Nous ne consultons jamais vos photos ou données personnelles.\n2. **Code de l'Appareil** : Nous ne demandons votre code que si c'est strictement nécessaire pour les tests. Vous pouvez également le désactiver ou utiliser le Mode Invité (Android) si vous préférez.\n3. **Sécurité des Données** : Nous recommandons de sauvegarder vos données avant toute réparation, bien que 99% des réparations préservent vos données intactes.\n4. **Transparence** : Nous effectuons les réparations dans des laboratoires ouverts ou pendant que vous attendez, pour que vous puissiez voir exactement ce qui se passe.\n\nLa confiance est la base de notre entreprise. Vos données restent les vôtres.",
+
+        // Blog Post 5
+        "blog_title_5": "Réparation Problèmes Face-id iPhone XS-11-12-13 Pro Max Bruxelles",
+        "blog_excerpt_5": "Vous avez un problème avec la fonction Face ID ? Découvrez comment la réparer ou à qui vous adresser.",
+        "blog_category_5": "Conseils Réparation",
+        "blog_content_5": "Face ID est une technologie révolutionnaire qui utilise un projecteur de points et un illuminateur pour créer une carte 3D de votre visage. Face ID est conçue pour être sûre, rapide et facile à utiliser.\n\n## Comment réparer Face ID si elle ne fonctionne pas ?\nIl peut arriver que Face ID ne fonctionne pas correctement. Cela peut être dû à une mauvaise configuration, un problème logiciel ou un dommage matériel. Voici quelques solutions :\n- Vérifiez que votre appareil est compatible avec Face ID.\n- Vérifiez que Face ID est activée dans les réglages.\n- Vérifiez que rien n’obstrue la caméra TrueDepth.\n- Réinitialisez Face ID et configurez-la à nouveau.\n\nSi aucune de ces solutions ne fonctionne, votre caméra TrueDepth peut être endommagée. Faites appel à un service de réparation professionnel comme Belmobile.be.",
         "expert_repair_short": "Écran, batterie et plus",
         "Refurbished & New": "Reconditionné & Neuf",
-        "Open Now": "Ouvert",
-        "Coming Soon": "Bientôt",
         "Opening Hours": "Heures d'ouverture",
-        "Directions": "Itinéraire",
-        "Call": "Appeler",
-        "Premium Devices": "Appareils Premium",
-        "Shop Refurbished": "Acheter Reconditionné",
-        "Device Buyback": "Rachat d'appareil",
 
         // Cookies & Warranty
-        "Cookie Policy": "Politique de Cookies",
+        // "Cookie Policy": "Politique de Cookies", // Duplicate removed
         "How we use cookies and similar technologies.": "Comment nous utilisons les cookies et technologies similaires.",
         "What are Cookies?": "Que sont les Cookies ?",
         "Cookies are small text files that are stored on your device when you visit a website. They help us remember your preferences and improve your experience.": "Les cookies sont de petits fichiers texte stockés sur votre appareil lors de votre visite. Ils nous aident à mémoriser vos préférences.",
@@ -1536,10 +1675,10 @@ export const translations: Translations = {
         "Essential Cookies": "Cookies Essentiels",
         "Necessary for the website to function.": "Nécessaires au fonctionnement du site.",
         "Analytics Cookies": "Cookies Analytiques",
-        "Help us understand how visitors interact with the site.": "Nous aident à comprendre comment les visiteurs interagissent avec le site.",
+        "Help us understand how visitors interact with the site.": "Nous aident à comprendre how les visiteurs interagissent avec le site.",
         "Marketing Cookies": "Cookies Marketing",
         "Used to deliver relevant advertisements.": "Utilisés pour fournir des publicités pertinentes.",
-        "Warranty Info": "Info Garantie",
+        // "Warranty Info": "Info Garantie", // Duplicate removed
         "Warranty Information": "Informations de Garantie",
         "Details about our product and repair warranties.": "Détails sur nos garanties produits et réparations.",
         "Repair Warranty": "Garantie Réparation",
@@ -1550,21 +1689,7 @@ export const translations: Translations = {
         "The warranty does not cover accidental damage, such as water damage or cracked screens caused by drops.": "La garantie ne couvre pas les dommages accidentels (chutes, eau, écran cassé).",
 
         // Product Page Filters & Titles
-        "sort_featured": "En vedette",
-        "sort_low_high": "Prix : Croissant",
-        "sort_high_low": "Prix : Décroissant",
-        "cat_all": "Tout",
-        "cat_smartphone": "Smartphones",
-        "cat_tablet": "Tablettes",
-        "cat_computer": "Ordinateurs",
-        "cat_console": "Consoles",
-        "cat_smartwatch": "Montres Connectées",
-        "cat_accessories": "Accessoires",
-        "No products found": "Aucun produit trouvé",
-        "Try adjusting your search filters or shop selection.": "Essayez d'ajuster vos filtres ou la sélection de magasin.",
-        "Clear all filters": "Effacer les filtres",
-        "All Shops": "Tous les Magasins",
-        "Search...": "Rechercher...",
+
     },
     nl: {
         // Meta Tags
@@ -1580,6 +1705,7 @@ export const translations: Translations = {
         "Back": "Terug",
         "Cancel": "Annuleren",
         "Close": "Sluiten",
+        "Temporarily Closed": "Tijdelijk Gesloten",
         "Submit": "Verzenden",
         "Prijs": "Prijs",
         "items_count": "{0} items",
@@ -1612,6 +1738,9 @@ export const translations: Translations = {
         "Select a shop": "Selecteer een winkel",
         "Change": "Wijzigen",
         "Please select a shop": "Selecteer een winkel",
+        "select_quality_short": "Kies kwaliteit",
+        "track-order": "bestelling-volgen",
+        "Track Order": "Bestelling Volgen",
         "Select Shop": "Selecteer Winkel",
         "Help Center": "Help Center",
         "About Us": "Over Ons",
@@ -1665,7 +1794,6 @@ export const translations: Translations = {
         "What our clients say": "Wat onze klanten zeggen",
         "Premium Toestellen": "Premium Toestellen",
         "Shop the latest smartphones and accessories.": "Koop de nieuwste smartphones en accessoires.",
-        "Fast, reliable repairs for screens, batteries, and more. We use premium parts to ensure your device feels brand new.": "Snelle, betrouwbare reparaties voor schermen, batterijen en meer. Wij gebruiken premium onderdelen.",
         "Get an instant quote for your old device. We offer competitive prices and immediate payment.": "Ontvang direct een offerte voor uw oude toestel. Scherpe prijzen en directe betaling.",
         "Best Price Guaranteed": "Beste Prijs Garantie",
         "Save up to 40%": "Bespaar tot 40%",
@@ -1689,6 +1817,8 @@ export const translations: Translations = {
         "trust_speed_desc": "De meeste schermen en batterijen klaar terwijl u wacht.",
         "trust_eco": "Milieuvriendelijk",
         "trust_eco_desc": "Wij recyclen 99% van het elektronisch afval.",
+        "contact_for_price": "Op aanvraag",
+        "free": "GRATIS",
 
         // FAQ
         "Frequently Asked Questions": "Veelgestelde Vragen",
@@ -1872,8 +2002,9 @@ export const translations: Translations = {
         "Totale Kosten": "Totale Kosten",
         "Inclusief arbeid en onderdelen voor:": "Inclusief arbeid en onderdelen voor:",
         "Reparatie Aanvragen": "Reparatie Aanvragen",
+        "Search your device (e.g. iPhone 13, Samsung S21...)": "Zoek uw toestel (bijv. iPhone 13, Samsung S21...)",
         "buyback_step1_title": "Wat wilt u verkopen?",
-        "repair_step1_title": "Wat moet gerepareerd worden?",
+        "repair_step1_title": "Repareer uw toestel",
         "step2_title": "Selecteer Merk & Model",
         "Merk": "Merk",
         "step3_repair_title": "Wat is het probleem?",
@@ -1936,7 +2067,7 @@ export const translations: Translations = {
         "Diagnostic required": "Diagnose vereist",
 
         // Store Locator
-        "Our Stores": "Onze Winkels",
+        // "Our Stores": "Onze Winkels", // Duplicate removed
         "locations_count": "{0} locaties",
         "Show All": "Toon Alles",
         "Open Now": "Nu Open",
@@ -1999,6 +2130,7 @@ export const translations: Translations = {
         "Today": "Vandaag",
 
         // Missing Keys
+        "Power Supply Unit (Internal)": "Voeding (Intern)",
         "Paid instantly via cash or bank transfer": "Direct betaald via contant geld of overschrijving",
         "Includes labor and premium parts": "Inclusief werkuren en premium onderdelen",
         "Generic / LCD": "Generiek / LCD",
@@ -2093,14 +2225,7 @@ export const translations: Translations = {
         "Why Partner With Us?": "Waarom Voor Ons Kiezen?",
 
         // Legal Pages
-        "privacy_title": "Privacybeleid",
-        "privacy_content": "Bij Belmobile nemen we uw privacy serieus. Dit beleid beschrijft hoe we uw persoonlijke gegevens verzamelen, gebruiken en beschermen.\n\n1. Informatieverzameling: We verzamelen informatie die u rechtstreeks aan ons verstrekt.\n2. Gebruik van informatie: We gebruiken uw informatie om onze diensten te leveren en te verbeteren.\n3. Gegevensbescherming: We implementeren beveiligingsmaatregelen om uw persoonlijke informatie te beschermen.",
 
-        "cookies_title": "Cookiebeleid",
-        "cookies_content": "We gebruiken cookies om uw ervaring op onze website te verbeteren.\n\n1. Wat zijn cookies? Dit zijn kleine tekstbestanden die op uw apparaat worden opgeslagen.\n2. Hoe we ze gebruiken: We gebruiken cookies voor analyses en voorkeuren.\n3. Uw keuzes: U kunt uw cookievoorkeuren beheren in uw browserinstellingen.",
-
-        "warranty_title": "Garantie-informatie",
-        "warranty_content": "Onze garantie dekt materiaal- en fabricagefouten.\n\n1. Reparaties: We bieden 1 jaar garantie op alle reparaties.\n2. Gereviseerde apparaten: We bieden 1 jaar garantie op alle gereviseerde apparaten.\n3. Uitsluitingen: De garantie dekt geen accidentele schade, waterschade of ongeautoriseerde reparaties.",
 
         // Track Order
         "Track Your Order": "Volg uw Bestelling",
@@ -2174,18 +2299,29 @@ export const translations: Translations = {
         "Learn More & Apply": "Meer Info & Aanvragen",
 
         // Terms
-        "terms_title": "Voorwaarden & Privacy",
-        "terms_intro": "Lees onze voorwaarden zorgvuldig door.",
-        "terms_section_1_title": "1. Algemene Voorwaarden",
-        "terms_section_1_content": "Door deze site te bezoeken gaat u akkoord...",
+        "terms_title": "Algemene Voorwaarden",
+        "terms_intro": "Welkom bij Belmobile. Deze algemene voorwaarden beschrijven de regels voor het gebruik van onze diensten.",
+        "terms_section_1_title": "1. Identificatie",
+        "terms_section_1_content": "Belmobile.be sprl\nRue Ulens 88, 1080 Brussel\nBTW: BE0502737241\nE-mail: contact@belmobile.be\n\nDoor deze website te bezoeken en onze diensten te gebruiken, accepteert u deze voorwaarden volledig.",
         "terms_section_2_title": "2. Reparaties & Garantie",
-        "terms_section_2_content": "Wij bieden 6 maanden garantie op alle reparaties...",
+        "terms_section_2_content": "Wij bieden 1 jaar garantie op alle reparaties en refurbished toestellen. Deze garantie dekt defecten in onderdelen en vakmanschap. Uitdrukkelijk uitgesloten zijn:\n- Accidentele schade (vallen, barsten)\n- Vloeistofschade (oxidatie)\n- Problemen veroorzaakt door onbevoegde derden\n- Softwareproblemen of gegevensverlies\n\nWij raden ten zeerste aan om een back-up te maken van uw gegevens vóór elke reparatie. Belmobile is niet verantwoordelijk voor enig gegevensverlies tijdens de service.",
         "terms_section_3_title": "3. Inkoopbeleid",
-        "terms_section_3_content": "Inkoopoffertes zijn schattingen tot fysieke inspectie...",
-        "terms_section_4_title": "4. Privacybeleid",
-        "terms_section_4_content": "Wij respecteren uw privacy. Uw gegevens...",
-        "terms_updated": "Laatst bijgewerkt: 29 Juli 2024",
+        "terms_section_3_content": "Online gegenereerde inkoopoffertes zijn voorlopige schattingen op basis van de verstrekte informatie. De definitieve prijs wordt pas bevestigd na fysieke inspectie door onze technici.\n\n- Als het toestel overeenkomt met de beschrijving, wordt de offerte bevestigd.\n- Als de staat afwijkt (bijv. verborgen gebreken), behouden wij ons het recht voor om een herzien bod te doen.\n\nU bent vrij om dit definitieve bod te accepteren of te weigeren. Na acceptatie en betaling wordt de eigendom onherroepelijk overgedragen aan Belmobile.",
+        "terms_section_4_title": "4. Aansprakelijkheid & Jurisdictie",
+        "terms_section_4_content": "Belmobile is niet aansprakelijk voor enige indirecte, speciale of gevolgschade voortvloeiend uit het gebruik van onze diensten. Onze totale aansprakelijkheid is beperkt tot de waarde van de gekochte dienst of product.\n\nDeze voorwaarden worden beheerst door het Belgisch recht. Geschillen vallen onder de exclusieve bevoegdheid van de rechtbanken van Brussel.",
+        "terms_updated": "Laatst bijgewerkt: 10 December 2024",
         "Terms & Privacy": "Voorwaarden & Privacy",
+
+        // Privacy Policy (Professional)
+        "privacy_title": "Privacybeleid",
+        "privacy_content": "Uw privacy is cruciaal voor ons. Belmobile.be sprl (Rue Ulens 88, 1080 Brussel) treedt op als verwerkingsverantwoordelijke.\n\n1. Gegevensverzameling:\nWij verzamelen persoonlijke gegevens die nodig zijn voor het verwerken van uw bestellingen (naam, e-mail, telefoon, adres, IBAN) en het verbeteren van onze diensten (cookies, analytics).\n\n2. Gebruik van gegevens:\n- Orderuitvoering: Om uw toestel te repareren of een inkoop te verwerken.\n- Communicatie: Om u op de hoogte te houden van de status of marketing te sturen (indien aangemeld).\n- Wettelijke naleving: Om te voldoen aan fiscale en anti-frauderegels (bijv. ID-kopie voor inkoop).\n\n3. Gegevensdeling:\nWij verkopen uw gegevens niet. We kunnen deze delen met vertrouwde partners zoals logistieke dienstverleners (voor verzending) of betalingsverwerkers.\n\n4. Uw Rechten:\nOnder de GDPR heeft u het recht om uw gegevens in te zien, te corrigeren, te verwijderen of de verwerking ervan te beperken. Neem contact met ons op via contact@belmobile.be om deze rechten uit te oefenen.\n\n5. Beveiliging:\nWij gebruiken industriestandaard encryptie om uw gegevens te beschermen. Echter, geen enkele transmissiemethode is 100% veilig.",
+
+        "cookies_title": "Cookiebeleid",
+        "cookies_content": "Wij gebruiken cookies om uw browse-ervaring te verbeteren en ons verkeer te analyseren.\n\n1. Wat zijn Cookies?\nKleine tekstbestanden die op uw apparaat worden opgeslagen waarmee we uw voorkeuren (bijv. taal) kunnen onthouden en begrijpen hoe u onze site gebruikt.\n\n2. Typen Cookies die wij gebruiken:\n- Essentieel: Noodzakelijk voor het functioneren van de site (bijv. winkelwagen).\n- Analytics: Helpen ons de prestaties van onze website te verbeteren (Google Analytics).\n- Marketing: Gebruikt om relevante advertenties te tonen (indien toegestaan).\n\n3. Beheer van Cookies:\nU kunt cookies op elk moment beheren of verwijderen via uw browserinstellingen. Het uitschakelen van essentiële cookies kan echter de functionaliteit van de site beïnvloeden.",
+
+        "warranty_title": "Garantievoorwaarden",
+        "warranty_content": "Wij staan achter onze kwaliteit met een solide garantie.\n\n1. Garantieduur:\n- Reparaties: 1 jaar garantie op vervangen onderdelen en arbeid.\n- Refurbished toestellen: 1 jaar garantie op hardwaredefecten.\n\n2. Wat is gedekt?\nMateriaal- of fabricagefouten. Bijvoorbeeld, als een scherm dat we hebben vervangen stopt met reageren op aanraking zonder fysieke schade, repareren we het gratis.\n\n3. Wat is NIET gedekt (Uitsluitingen)?\n- Accidentele schade (barsten, deuken, verbogen frames).\n- Waterschade (oxidatie) van welke aard dan ook.\n- Schade veroorzaakt door ongeautoriseerde reparaties door derden.\n- Softwareproblemen, jailbreak of gegevensverlies.\n\n4. Hoe een claim indienen:\nBezoek een Belmobile-winkel met uw apparaat en aankoopbewijs (bon/factuur).",
+
         "New Buyback Request": "Nieuwe Inkoopaanvraag",
         "New Repair Request": "Nieuwe Reparatieaanvraag",
         "Sell Request": "Verkoopaanvraag",
@@ -2218,17 +2354,67 @@ export const translations: Translations = {
 
         // Repair Issues
         "screen": "Scherm / Glas",
+        "screen_desc": "Volledige schermmodule",
+        "back_glass": "Achterkant Glas",
+        "back_glass_desc": "Gebarsten glazen achterkant",
+        "housing": "Volledige Behuizing",
+        "housing_desc": "Volledige frame vervanging",
+        "software": "Softwareprobleem",
+        "software_desc": "Bootloop, virus of ontgrendelen",
         "battery": "Batterijprobleem",
+        "battery_desc": "Loopt snel leeg / laadt niet op",
         "charging": "Oplaadpoort",
+        "charging_desc": "Kabel zit los of werkt niet",
         "hdmi": "HDMI / Video Poort",
-        "disc": "Schijfstation Probleem",
+        "hdmi_desc": "Geen signaal naar TV/Monitor",
+        "disc_drive": "Schijfstation Probleem",
+        "disc_drive_desc": "Leest geen disks / vastgelopen",
+        "microsoldering": "Microsolderen / Moederbord",
+        "microsoldering_desc": "Moederbord reparatie",
+        "screen_foldable_inner": "Vouwbaar Scherm (Binnen)",
+        "screen_foldable_inner_desc": "Hoofd intern display",
+        "screen_foldable_outer": "Buitenscherm",
+        "screen_foldable_outer_desc": "Extern cover display",
         "cleaning": "Reiniging + Koelpasta",
+        "cleaning_desc": "Oververhitting / Luidruchtige fan",
         "joystick": "Joystick Reparatie",
+        "joystick_desc": "Drift of knoppen werken niet",
         "audio": "Audio / Geluid",
-        "camera": "Camera",
+        "audio_desc": "Luidspreker, microfoon of volume",
+        "camera_rear": "Achtercamera",
+        "camera_rear_desc": "Wazige foto's of gebroken lens",
+        "camera_lens": "Cameraglas",
+        "camera_lens_desc": "Gebarsten buitenste glas",
+        "camera_front": "Voorcamera (Selfie)",
+        "camera_front_desc": "Selfie camera probleem",
+        "face_id": "Face ID",
+        "face_id_desc": "Werkt niet / niet beschikbaar",
         "water": "Waterschade",
+        "water_desc": "Toestel is nat geworden",
         "storage": "Opslag / Harde Schijf",
+        "storage_desc": "Harde schijf / SSD probleem",
         "other": "Andere / Onbekend",
+        "other_desc": "Diagnose vereist",
+        "power_supply": "Voedingseenheid",
+        "power_supply_desc": "Toestel dood / Interne PSU",
+        "antenna": "Antenne / WiFi",
+        "antenna_desc": "Signaalproblemen / WiFi",
+        "buttons": "Knoppen (Power/Vol)",
+        "buttons_desc": "Vastgelopen of kapotte knoppen",
+        "card_reader": "Kaartlezer (Games)",
+        "card_reader_desc": "Leest geen gamecards",
+        "keyboard": "Toetsenbord",
+        "keyboard_desc": "Toetsen blijven plakken of werken niet",
+        "trackpad": "Trackpad",
+        "trackpad_desc": "Klikt niet of beweegt niet",
+        "screen_upper": "Bovenste Scherm",
+        "screen_upper_desc": "Bovenste LCD display",
+        "screen_bottom": "Onderste Scherm",
+        "screen_bottom_desc": "Onderste Touch LCD display",
+        "screen_digitizer": "Touch Glas",
+        "screen_digitizer_desc": "Glas + Touch UNIQUEMENT",
+        "screen_lcd": "Interne LCD",
+        "screen_lcd_desc": "Display paneel UNIQUEMENT",
 
         // PDF Keys
         "Device Details": "Toestel Details",
@@ -2257,7 +2443,7 @@ export const translations: Translations = {
         "review_comment_4": "Heb hier een refurbished iPad gekocht, ziet er gloednieuw uit! €200 bespaard.",
 
         // Jobs
-        "Careers": "Vacatures",
+        // "Careers": "Vacatures", // Duplicate removed
         "Join the Team": "Word lid van het team",
         "jobs_intro": "Gepassioneerd door technologie? Sluit u aan bij ons dynamische team in Brussel.",
         "jobs_apply": "Solliciteer Nu",
@@ -2273,7 +2459,7 @@ export const translations: Translations = {
         "Main Navigation": "Hoofdnavigatie",
         "Main Pages": "Hoofdpagina's",
         "Information": "Informatie",
-        "Legal": "Juridisch",
+
         "Locations": "Locaties",
 
         // Blog
@@ -2281,32 +2467,37 @@ export const translations: Translations = {
         "No articles found.": "Geen artikelen gevonden.",
 
         // Blog Post 1
-        "blog_title_1": "5 Tips om de Batterijduur van uw Smartphone te Verlengen",
-        "blog_excerpt_1": "Is uw telefoon tegen de middag al leeg? Hier zijn expert tips om uw batterij langer gezond te houden.",
-        "blog_content_1": "Batterijduur is cruciaal. 1. Verminder helderheid. 2. Sluit ongebruikte apps. 3. Gebruik de spaarstand. 4. Update software. 5. Vermijd extreme temperaturen.",
-        "blog_category_1": "Tips & Tricks",
+        "blog_title_1": "iPhone 15 Pro Scherm Reparatie in Brussel: Waarom kiezen voor origineel?",
+        "blog_excerpt_1": "iPhone 15 Pro scherm kapot? Ontdek waarom originele onderdelen cruciaal zijn voor uw garantie en beeldkwaliteit.",
+        "blog_category_1": "Reparatie Gids",
+        "blog_content_1": "De iPhone 15 Pro is een technologisch meesterwerk met zijn Super Retina XDR-display. Wanneer er een ongeluk gebeurt, is de verleiding groot om te kiezen voor een goedkope reparatie met generieke onderdelen. Dit is echter de reden waarom Belmobile altijd originele onderdelen aanbeveelt:\n\n1. **Beeldkwaliteit**: Generieke schermen hebben vaak minder levendige kleuren en een lagere helderheid.\n2. **ProMotion-technologie**: Alleen gecertificeerde displays ondersteunen de adaptieve verversingssnelheid van 120Hz.\n3. **True Tone & Sensoren**: Een niet-conforme reparatie kan True Tone of Face ID permanent uitschakelen.\n4. **Restwaarde**: Een iPhone met een niet-origineel scherm verliest 30% van zijn waarde op de tweedehandsmarkt.\n\nBij Belmobile (Anderlecht & Schaarbeek) bieden wij originele schermen aan met een garantie van 12 maanden.",
 
         // Blog Post 2
-        "blog_title_2": "Waarom U Refurbished Moet Kopen in Plaats van Nieuw",
-        "blog_excerpt_2": "Bespaar geld en de planeet. Ontdek de voordelen van een gecertificeerd refurbished toestel van Belmobile.",
-        "blog_content_2": "Refurbished toestellen worden geïnspecteerd, gerepareerd en getest. Ze zijn goedkoper en milieuvriendelijk. U krijgt ook garantie!",
-        "blog_category_2": "Koopgids",
+        "blog_title_2": "Hoe verkoopt u uw oude smartphone voor de beste prijs in België?",
+        "blog_excerpt_2": "Laat uw oude telefoon niet in de la liggen. Leer hoe u de inruilwaarde kunt maximaliseren bij Belmobile.",
+        "blog_category_2": "Inkoop",
+        "blog_content_2": "De tweedehandsmarkt in België boomt. Volg deze stappen om de beste inkoopprijs voor uw smartphone te krijgen:\n\n1. **Grondige reiniging**: Een schoon apparaat wekt vertrouwen en vergemakkelijkt de inspectie.\n2. **Doos & Accessoires**: Als u de originele doos en lader nog heeft, kan de waarde met €10 tot €20 stijgen.\n3. **Accounts deactiveren**: Vergeet niet uw iCloud- of Google-account te verwijderen voordat u naar de winkel komt.\n4. **Transparantie**: Een klein krasje? Meld het! Bij Belmobile kopen we zelfs toestellen met kleine defecten in.\n\nBezoek een van onze winkels in Brussel voor een onmiddellijke schatting en betaling in contanten of via een onmiddellijke bankoverschrijving.",
 
         // Blog Post 3
-        "blog_title_3": "Telefoon in Water Gevallen? Doe Dit Onmiddellijk!",
-        "blog_excerpt_3": "Geen paniek. Volg deze onmiddellijke stappen om de kans te vergroten dat uw waterschade-toestel gered wordt.",
-        "blog_content_3": "1. Zet hem uit. 2. Verwijder SIM/SD. 3. Droog buitenkant. 4. Gebruik GEEN rijst (dat is een mythe). 5. Breng hem z.s.m. naar Belmobile.",
-        "blog_category_3": "Reparatie",
+        "blog_title_3": "iPhone Batterij: Wanneer is het tijd om deze te vervangen?",
+        "blog_excerpt_3": "Valt uw iPhone onverwacht uit? Controleer uw batterijconditie en weet wanneer u langs moet komen voor een snelle vervanging.",
+        "blog_category_3": "Onderhoud",
+        "blog_content_3": "De batterij is een slijtageonderdeel. Na 500 laadcycli begint de capaciteit te dalen. Hier zijn de tekenen die niet liegen:\n\n- **Maximale capaciteit < 80%**: Ga naar Instellingen > Batterij > Batterijconditie.\n- **Systeemvertragingen**: iOS beperkt de prestaties om onverwachte uitschakelingen te voorkomen.\n- **Oververhitting**: Een batterij aan het einde van zijn levensduur wordt abnormaal warm tijdens het opladen.\n\nBij Belmobile vervangen wij uw batterij in 30 minuten. U hoeft uw telefoon niet dagenlang kwijt te zijn!",
+
+        // Blog Post 4
+        "blog_title_4": "Gegevensprivacy: Hoe wij uw info beschermen tijdens reparaties",
+        "blog_excerpt_4": "Uw privacy is belangrijk. Lees meer over onze strikte protocollen voor gegevensbescherming en waarom u Belmobile kunt vertrouwen.",
+        "blog_category_4": "Beveiliging",
+        "blog_content_4": "Bij Belmobile begrijpen we dat uw smartphone uw hele leven bevat - foto's, berichten, bank-apps en meer. Daarom nemen we gegevensprivacy zeer serieus.\n\n**Onze Protocollen:**\n1. **Geen Toegang Beleid**: Onze technici hebben alleen toegang tot de functies die nodig zijn voor de reparatie (bijv. camera of touchscreen testen). We bekijken nooit uw foto's of persoonlijke gegevens.\n2. **Toegangscode**: We vragen uw toegangscode alleen als dit strikt noodzakelijk is voor het testen. U kunt deze ook uitschakelen of de Gastmodus (Android) gebruiken als u dat liever heeft.\n3. **Gegevensbeveiliging**: We raden aan om voor elke reparatie een back-up te maken, hoewel 99% van de reparaties uw gegevens intact laat.\n4. **Transparantie**: We voeren reparaties uit in open laboratoria of terwijl u wacht, zodat u precies kunt zien wat er gebeurt.\n\nVertrouwen is de basis van ons bedrijf. Uw gegevens blijven van u.",
+
+        // Blog Post 5
+        "blog_title_5": "Face ID Reparatie & Problemen voor iPhone XS-11-12-13 Pro Max in Brussel",
+        "blog_excerpt_5": "Heeft u problemen met Face ID? Leer hoe u het kunt repareren of met wie u contact moet opnemen.",
+        "blog_category_5": "Reparatietips",
+        "blog_content_5": "Face ID is een revolutionaire technologie die een puntprojector gebruikt om een 3D-kaart van uw gezicht te maken. Face ID is ontworpen om veilig, snel en gemakkelijk te gebruiken te zijn.\n\n## Hoe Face ID repareren als het niet werkt?\nFace ID kan mogelijk niet correct werken door slechte configuratie, softwareproblemen of hardwareschade. Hier zijn enkele oplossingen:\n- Controleer of uw apparaat compatibel is met Face ID.\n- Controleer of Face ID is ingeschakeld in de instellingen.\n- Controleer of niets de TrueDepth-camera blokkeert.\n- Reset Face ID en stel het opnieuw in.\n\nAls geen van deze oplossingen werkt, kan uw TrueDepth-camera beschadigd zijn. Neem contact op met een professionele reparatieservice zoals Belmobile.be.",
         "expert_repair_short": "Scherm, batterij en meer",
         "Refurbished & New": "Refurbished & Nieuw",
-        "Open Now": "Nu Open",
-        "Coming Soon": "Binnenkort",
         "Opening Hours": "Openingsuren",
-        "Directions": "Routebeschrijving",
-        "Call": "Bellen",
-        "Premium Devices": "Premium Toestellen",
-        "Shop Refurbished": "Koop Refurbished",
-        "Device Buyback": "Toestel Inkoop",
 
         // Cookies & Warranty
         "Cookie Policy": "Cookiebeleid",
@@ -2321,6 +2512,9 @@ export const translations: Translations = {
         "Marketing Cookies": "Marketingcookies",
         "Used to deliver relevant advertisements.": "Gebruikt om relevante advertenties te tonen.",
         "Warranty Info": "Garantie Info",
+        "Home Console": "Home Console",
+        "Portable Console": "Draagbare Console",
+        "Gaming Console": "Gameconsole",
         "Warranty Information": "Garantie Informatie",
         "Details about our product and repair warranties.": "Details over onze product- en reparatiegaranties.",
         "Repair Warranty": "Reparatiegarantie",
@@ -2346,5 +2540,6 @@ export const translations: Translations = {
         "Clear all filters": "Wis filters",
         "All Shops": "Alle Winkels",
         "Search...": "Zoeken...",
+
     }
 };

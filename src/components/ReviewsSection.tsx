@@ -31,7 +31,7 @@ const ReviewsSection = ({ lang }: { lang: string }) => {
                                 <StarIcon key={i} className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`} />
                             ))}
                         </div>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">"{review.text}"</p>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">&quot;{review.text}&quot;</p>
                     </div>
                 ))}
             </div>
