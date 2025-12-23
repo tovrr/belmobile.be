@@ -124,6 +124,7 @@ const Header: React.FC = () => {
                                     <Link
                                         key={link.name}
                                         href={href}
+                                        aria-label={t(link.name)}
                                         className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${isActive
                                             ? 'bg-white dark:bg-slate-700 text-electric-indigo dark:text-indigo-300 shadow-sm scale-105'
                                             : 'text-slate-600 dark:text-slate-300 hover:text-electric-indigo dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-700/50 hover:scale-105'
@@ -143,6 +144,7 @@ const Header: React.FC = () => {
                                 <span className="hidden lg:block text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('need_help')}</span>
                                 <a
                                     href="tel:+3222759867"
+                                    aria-label={t('call_support')}
                                     className="flex items-center gap-2 bg-electric-indigo/90 hover:bg-electric-indigo text-white rounded-full px-4 py-2 transition-all shadow-lg hover:shadow-indigo-500/30 font-bold text-sm tracking-wide group"
                                 >
                                     <PhoneIcon className="h-4 w-4 group-hover:animate-pulse" aria-hidden="true" />
@@ -192,6 +194,7 @@ const Header: React.FC = () => {
                                             key={link.name}
                                             href={href}
                                             onClick={() => setIsMenuOpen(false)}
+                                            aria-label={t(link.name)}
                                             className={`px-6 py-4 rounded-2xl text-lg font-bold transition-all flex items-center justify-between ${isActive
                                                 ? 'bg-slate-100 dark:bg-slate-800 text-electric-indigo dark:text-indigo-400'
                                                 : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
@@ -211,6 +214,7 @@ const Header: React.FC = () => {
                                     <button
                                         key={l}
                                         onClick={() => { handleLanguageChange(l); setIsMenuOpen(false); }}
+                                        aria-label={`Switch to ${l.toUpperCase()}`}
                                         className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold uppercase transition-all ${language === l
                                             ? 'bg-electric-indigo text-white shadow-md'
                                             : 'bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400'

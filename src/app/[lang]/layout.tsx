@@ -1,9 +1,10 @@
 import React from 'react';
 import Header from '../../components/Header';
-import Footer from '../../components/Footer';
 import Breadcrumbs from '../../components/Breadcrumbs';
-import AIChatAssistantWrapper from '../../components/AIChatAssistantWrapper';
 import { Providers } from '../../components/Providers';
+
+import Footer from '../../components/Footer';
+import AIChatAssistantWrapper from '../../components/AIChatAssistantWrapper';
 
 export async function generateStaticParams() {
     return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'nl' }];

@@ -100,9 +100,10 @@ const Hero: React.FC = () => {
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-20"></div>
                             <div className="w-full h-full rounded-4xl overflow-hidden bg-slate-800 relative">
                                 <Image
-                                    src="https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1000&auto=format&fit=crop"
+                                    src="https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=800&auto=format&fit=crop"
                                     alt="Modern smartphone interface showing Belmobile services"
                                     fill
+                                    priority
                                     className="w-full h-full object-cover opacity-80 mix-blend-overlay"
                                 />
                                 <div className="absolute inset-0 bg-linear-to-t from-electric-indigo/50 to-transparent flex flex-col justify-end p-6">
