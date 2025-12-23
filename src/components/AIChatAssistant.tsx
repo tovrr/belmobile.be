@@ -507,7 +507,7 @@ const AIChatAssistant: React.FC = () => {
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
-                                placeholder="Type a message..."
+                                placeholder={t('ai_placeholder')}
                                 className="flex-1 p-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-bel-blue focus:border-transparent transition-all text-sm text-slate-900! placeholder:text-slate-400"
                             />
                             <button
