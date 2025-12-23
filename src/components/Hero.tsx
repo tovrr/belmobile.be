@@ -80,9 +80,27 @@ const Hero: React.FC = () => {
                             className="mt-12 flex items-center justify-center lg:justify-start space-x-6"
                         >
                             <div className="flex -space-x-3">
-                                <Image className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Belmobile happy customer" width={40} height={40} />
-                                <Image className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Belmobile client review" width={40} height={40} />
-                                <Image className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900" src="https://randomuser.me/api/portraits/men/86.jpg" alt="Belmobile satisfied user" width={40} height={40} />
+                                <Image
+                                    className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 object-contain p-1"
+                                    src="/favicon.svg"
+                                    alt="Belmobile review logo 1"
+                                    width={40}
+                                    height={40}
+                                />
+                                <Image
+                                    className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 object-contain p-1"
+                                    src="/favicon.svg"
+                                    alt="Belmobile review logo 2"
+                                    width={40}
+                                    height={40}
+                                />
+                                <Image
+                                    className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 object-contain p-1"
+                                    src="/favicon.svg"
+                                    alt="Belmobile review logo 3"
+                                    width={40}
+                                    height={40}
+                                />
                             </div>
                             <div className="flex flex-col">
                                 <div className="flex text-cyber-citron">
