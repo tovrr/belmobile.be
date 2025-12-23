@@ -39,36 +39,42 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
     };
 
     // 2. LocalBusiness Schema (Map Pack & Local SEO) - Always present on Home or Store Locator
-    const localBusinessSchema = shops.filter(s => s.status === 'open').map(shop => ({
-        "@context": "https://schema.org",
-        "@type": "MobilePhoneStore",
-        "name": shop.name,
-        "image": "https://belmobile.be/store-front.jpg",
-        "@id": `https://belmobile.be/stores/${shop.id}`,
-        "url": `https://belmobile.be/${language}/stores`,
-        "telephone": shop.phone,
-        "address": {
-            "@type": "PostalAddress",
-            "streetAddress": shop.address.split(',')[0],
-            "addressLocality": "Brussels",
-            "postalCode": "1000",
-            "addressCountry": "BE"
-        },
-        "geo": {
-            "@type": "GeoCoordinates",
-            "latitude": shop.coords.lat,
-            "longitude": shop.coords.lng
-        },
-        "openingHoursSpecification": {
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": [
-                "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
-            ],
-            "opens": "10:30",
-            "closes": "19:00"
-        },
-        "priceRange": "€€"
-    }));
+    const localBusinessSchema = shops.filter(s => s.status === 'open').map(shop => {
+        // Extract municipality from title or address
+        const municipality = shop.name.split(' - ')[1] || shop.city || "Brussels";
+        const postalCode = shop.address.match(/\d{4}/)?.[0] || "1000";
+
+        return {
+            "@context": "https://schema.org",
+            "@type": "MobilePhoneStore",
+            "name": shop.name,
+            "image": "https://belmobile.be/store-front.jpg",
+            "@id": `https://belmobile.be/stores/${shop.id}`,
+            "url": `https://belmobile.be/${language}/stores`,
+            "telephone": shop.phone,
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": shop.address.split(',')[0],
+                "addressLocality": municipality,
+                "postalCode": postalCode,
+                "addressCountry": "BE"
+            },
+            "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": shop.coords.lat,
+                "longitude": shop.coords.lng
+            },
+            "openingHoursSpecification": {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": [
+                    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+                ],
+                "opens": "10:30",
+                "closes": "19:00"
+            },
+            "priceRange": "€€"
+        };
+    });
 
     // 3. Product Schema
     const productSchema = product ? {

@@ -5,6 +5,7 @@ import { useLanguage } from '../hooks/useLanguage';
 import { ArrowRightIcon, StarIcon } from '@heroicons/react/24/solid';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import FadeIn from './ui/FadeIn';
 
 const Hero: React.FC = () => {
     const { language, t } = useLanguage();
@@ -29,42 +30,30 @@ const Hero: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
                     {/* Left: Content */}
-                    <div className="text-center lg:text-left z-10">
-                        <motion.div
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6 }}
+                    <FadeIn direction="left" duration={0.8} className="text-center lg:text-left z-10">
+                        <div
                             className="inline-flex items-center px-4 py-2 rounded-full bg-white dark:bg-slate-800 shadow-md shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700 mb-8"
                         >
                             <span className="flex h-2.5 w-2.5 rounded-full bg-cyber-citron mr-3 animate-pulse shadow-[0_0_10px_rgba(234,179,8,0.5)]"></span>
                             <span className="text-sm font-bold text-slate-600 dark:text-slate-300 tracking-wide">{t('New iPhone 17 Series Available')}</span>
-                        </motion.div>
+                        </div>
 
-                        <motion.h1
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 0.2 }}
+                        <h1
                             className="text-5xl sm:text-6xl lg:text-8xl font-black tracking-tight leading-[0.95] text-slate-900 dark:text-white mb-8 font-heading"
                         >
                             {t('Your One-Stop')} <br />
                             <span className="bg-clip-text text-transparent bg-linear-to-r from-electric-indigo via-electric-violet to-cyan-400">
                                 {t('Mobile Shop')}
                             </span>
-                        </motion.h1>
+                        </h1>
 
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 0.4 }}
+                        <p
                             className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 leading-relaxed mb-10 max-w-xl mx-auto lg:mx-0 font-light"
                         >
                             {t("From the latest devices to expert repairs and buybacks, we've got you covered.")}
-                        </motion.p>
+                        </p>
 
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 0.6 }}
+                        <div
                             className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
                         >
                             <Link prefetch={false}
@@ -84,13 +73,10 @@ const Hero: React.FC = () => {
                             >
                                 {t('Repair Your Device')}
                             </Link>
-                        </motion.div>
+                        </div>
 
                         {/* Social Proof */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 1, delay: 0.8 }}
+                        <div
                             className="mt-12 flex items-center justify-center lg:justify-start space-x-6"
                         >
                             <div className="flex -space-x-3">
@@ -104,16 +90,11 @@ const Hero: React.FC = () => {
                                 </div>
                                 <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('happy_customers')}</span>
                             </div>
-                        </motion.div>
-                    </div>
+                        </div>
+                    </FadeIn>
 
                     {/* Right: 3D Visual */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 1, delay: 0.4 }}
-                        className="relative lg:h-[600px] flex items-center justify-center perspective-1000 mt-12 lg:mt-0"
-                    >
+                    <FadeIn direction="right" duration={0.8} delay={0.4} className="relative lg:h-[600px] flex items-center justify-center perspective-1000 mt-12 lg:mt-0">
                         {/* Phone Container - Aspect 9/16 */}
                         <div className="relative w-full max-w-[280px] sm:max-w-[300px] aspect-9/16 rounded-[2.5rem] bg-linear-to-br from-slate-900 to-black p-3 shadow-2xl transform rotate-y-12 hover:rotate-y-0 transition-transform duration-700 ease-out border-4 border-slate-800">
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-20"></div>
@@ -127,7 +108,7 @@ const Hero: React.FC = () => {
                                 <div className="absolute inset-0 bg-linear-to-t from-electric-indigo/50 to-transparent flex flex-col justify-end p-6">
                                     {/* Abstract UI Elements */}
                                     <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl mb-4 transform translate-y-4 animate-float">
-                                        <div className="flex justify-between items-center mb-2">
+                                        <div className="justify-between items-center mb-2 hidden md:flex">
                                             <div className="h-2 w-16 bg-white/50 rounded-full"></div>
                                             <div className="h-2 w-8 bg-green-400 rounded-full"></div>
                                         </div>
@@ -139,10 +120,7 @@ const Hero: React.FC = () => {
                         </div>
 
                         {/* Badge: Best Price (Top Right) */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 1.2 }}
+                        <div
                             className="absolute -right-2 sm:-right-8 top-16 bg-white dark:bg-slate-800 p-2 sm:p-4 rounded-xl sm:rounded-2xl shadow-xl shadow-indigo-500/20 animate-float border border-slate-100 dark:border-slate-700 z-30"
                             style={{ animationDelay: '1s' }}
                         >
@@ -155,13 +133,10 @@ const Hero: React.FC = () => {
                                     <p className="text-[10px] sm:text-sm font-bold text-slate-900 dark:text-white whitespace-nowrap">{t('Guaranteed')}</p>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
 
                         {/* Badge: Repair Time (Bottom Left) */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 1.4 }}
+                        <div
                             className="absolute -left-2 sm:-left-8 bottom-24 bg-white dark:bg-slate-800 p-2 sm:p-4 rounded-xl sm:rounded-2xl shadow-xl shadow-indigo-500/20 animate-float border border-slate-100 dark:border-slate-700 z-30"
                             style={{ animationDelay: '2s' }}
                         >
@@ -174,13 +149,10 @@ const Hero: React.FC = () => {
                                     <p className="text-[10px] sm:text-sm font-bold text-slate-900 dark:text-white whitespace-nowrap">{t('< 30 Mins')}</p>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
 
                         {/* Badge: Warranty (Top Left) */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 1.6 }}
+                        <div
                             className="absolute -left-4 sm:-left-12 top-40 bg-white dark:bg-slate-800 p-2 sm:p-4 rounded-xl sm:rounded-2xl shadow-xl shadow-indigo-500/20 animate-float border border-slate-100 dark:border-slate-700 z-20"
                             style={{ animationDelay: '3s' }}
                         >
@@ -193,13 +165,10 @@ const Hero: React.FC = () => {
                                     <p className="text-[10px] sm:text-sm font-bold text-slate-900 dark:text-white whitespace-nowrap">{t('badge_warranty_time')}</p>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
 
                         {/* Badge: Eco (Bottom Right) */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 1.8 }}
+                        <div
                             className="absolute -right-4 sm:-right-10 bottom-40 bg-white dark:bg-slate-800 p-2 sm:p-4 rounded-xl sm:rounded-2xl shadow-xl shadow-indigo-500/20 animate-float border border-slate-100 dark:border-slate-700 z-20"
                             style={{ animationDelay: '4s' }}
                         >
@@ -212,8 +181,8 @@ const Hero: React.FC = () => {
                                     <p className="text-[10px] sm:text-sm font-bold text-slate-900 dark:text-white whitespace-nowrap">100%</p>
                                 </div>
                             </div>
-                        </motion.div>
-                    </motion.div>
+                        </div>
+                    </FadeIn>
                 </div>
             </div>
         </div>

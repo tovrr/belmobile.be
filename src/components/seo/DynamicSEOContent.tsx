@@ -2,8 +2,10 @@ import { Shop } from '../../types';
 import { Location } from '../../data/locations';
 import { Service } from '../../data/services';
 import { slugToDisplayName, createSlug } from '../../utils/slugs';
-import { SparklesIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/solid';
+import { ShieldCheckIcon, ClockIcon, DevicePhoneMobileIcon, BoltIcon, BanknotesIcon, WrenchScrewdriverIcon, TvIcon, FireIcon } from '@heroicons/react/24/solid';
+
 import { SHOPS, MOCK_REPAIR_PRICES } from '../../constants';
+import { FAQS } from '../../data/faqs';
 
 interface DynamicSEOContentProps {
     type: 'store' | 'repair' | 'buyback';
@@ -21,6 +23,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     lang,
     shop,
     location,
+    service,
     brand,
     model,
     deviceType
@@ -85,8 +88,13 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     };
 
     const getDescription = () => {
+        const isHub = !!shop?.isHub || !!location?.isHub;
+
         if (isStore) {
             if (lang === 'fr') {
+                if (isHub) {
+                    return `Besoin d'une réparation smartphone à Bruxelles ? Belmobile est votre expert local pour la réparation express (écran, batterie) et le rachat cash. Retrouvez nos techniciens à Schaerbeek (1030), Molenbeek-Saint-Jean (1080) et Anderlecht (1070). Service 30 min sans RDV.`;
+                }
                 if (locationName.includes('Schaerbeek')) {
                     return `Besoin d'une réparation smartphone à Schaerbeek (1030) ? Situé Chaussée de Haecht, Belmobile est votre expert local. Écran cassé, batterie à plat ? Réparation en 30 min sans rendez-vous.`;
                 }
@@ -98,9 +106,18 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                 }
                 return `Bienvenue chez ${shop?.name || 'Belmobile'}, votre expert local à ${locationName}. Situé au ${shop?.address}, nous offrons des services rapides pour smartphones, tablettes et consoles.`;
             }
-            return lang === 'nl'
-                ? `Welkom bij ${shop?.name || 'Belmobile'}, uw lokale expert in ${locationName}. Gevestigd aan ${shop?.address}, bieden wij snelle diensten voor smartphones, tablets en consoles.`
-                : `Welcome to ${shop?.name || 'Belmobile'}, your local expert in ${locationName}. Located at ${shop?.address}, we offer fast services for smartphones, tablets, and consoles.`;
+
+            if (lang === 'nl') {
+                if (isHub) {
+                    return `Smartphone reparatie in Brussel nodig? Belmobile is uw vertrouwde partner voor snelle reparaties (scherm, batterij) en inkoop in heel Brussel. Bezoek onze experts in Schaerbeek, Molenbeek en Anderlecht voor 30 min service zonder afspraak.`;
+                }
+                return `Welkom bij ${shop?.name || 'Belmobile'}, uw lokale expert in ${locationName}. Gevestigd aan ${shop?.address}, bieden wij snelle diensten voor smartphones, tablets en consoles.`;
+            }
+
+            if (isHub) {
+                return `Need a smartphone repair in Brussels? Belmobile is your trusted partner for express repair (screen, battery) and buyback across Brussels. Visit our experts in Schaerbeek, Molenbeek, and Anderlecht for 30 min service without appointment.`;
+            }
+            return `Welcome to ${shop?.name || 'Belmobile'}, your local expert in ${locationName}. Located at ${shop?.address}, we offer fast services for smartphones, tablettes and consoles.`;
         }
         if (isRepair) {
             if (lang === 'fr') {
@@ -157,128 +174,30 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
 
     // Generate FAQ Schema
     const getFAQSchema = () => {
-        const faqs = [];
+        let faqs = [];
+        const langCode = (lang === 'fr' || lang === 'nl') ? lang : 'en';
 
+        // 1. Core FAQs based on Type
         if (isRepair) {
-            // Repair FAQs
-            if (lang === 'fr') {
-                faqs.push(
-                    {
-                        question: `Combien de temps prend la réparation de mon ${deviceName} ?`,
-                        answer: `À Schaerbeek, Molenbeek ou Anderlecht, la réparation de votre ${deviceName} prend généralement ${durationText} pour les pannes courantes (${issuesText}).`
-                    },
-                    {
-                        question: `Quelle est la garantie chez Belmobile ?`,
-                        answer: `Toutes nos réparations incluent une garantie de 1 an pièces et main d'œuvre. En cas de souci, revenez nous voir dans n'importe quel magasin.`
-                    },
-                    {
-                        question: `Faut-il prendre rendez-vous ?`,
-                        answer: `Non, nos magasins à Bruxelles (1030, 1070, 1080) vous accueillent sans rendez-vous du Lundi au Samedi.`
-                    },
-                    {
-                        question: `Où sont situés vos magasins ?`,
-                        answer: `Nous sommes à Schaerbeek (Ch. de Haecht), Molenbeek (Ch. de Gand) et Anderlecht (Ch. de Mons).`
-                    }
-                );
-            } else if (lang === 'nl') {
-                faqs.push(
-                    {
-                        question: `Hoe lang duurt een ${deviceName} reparatie?`,
-                        answer: `De meeste ${deviceName} reparaties worden uitgevoerd in ${durationText}. ${isHomeConsole ? '' : 'Schermreparaties zijn meestal het snelst.'} Voor complexere problemen, reken op extra tijd.`
-                    },
-                    {
-                        question: `Welke garantie bieden jullie op ${deviceName} reparaties?`,
-                        answer: `We bieden 12 maanden garantie op alle onderdelen en arbeid voor ${deviceName} reparaties. Als u een probleem ondervindt met de reparatie, lossen we dit gratis op.`
-                    },
-                    {
-                        question: `Gebruiken jullie originele onderdelen voor ${deviceName}?`,
-                        answer: `We bieden verschillende opties: kwaliteitsvolle generieke onderdelen, premium OLED onderdelen, en originele fabrieksonderdelen. De keuze is aan u, afhankelijk van uw budget.`
-                    },
-                    {
-                        question: `Kan ik een offerte krijgen voor de reparatie?`,
-                        answer: `Ja, we bieden een gratis diagnose en gedetailleerde offerte voordat we een ${deviceName} reparatie uitvoeren. U beslist vervolgens of u wilt doorgaan.`
-                    }
-                );
-            } else {
-                faqs.push(
-                    {
-                        question: `How long does a ${deviceName} repair take?`,
-                        answer: `Most ${deviceName} repairs are completed in ${durationText}. ${isHomeConsole ? '' : 'Screen replacements are typically the fastest.'} For complex issues, allow extra time.`
-                    },
-                    {
-                        question: `What warranty do you offer on ${deviceName} repairs?`,
-                        answer: `We offer a 12-month warranty on all parts and labor for ${deviceName} repairs. If you experience any issues with the repair, we'll fix it for free.`
-                    },
-                    {
-                        question: `Do you use original parts for ${deviceName}?`,
-                        answer: `We offer multiple options: quality generic parts, premium OLED parts, and original manufacturer parts. The choice is yours based on your budget.`
-                    },
-                    {
-                        question: `Can I get a quote before the repair?`,
-                        answer: `Yes, we offer a free diagnostic and detailed quote before any ${deviceName} repair. You then decide if you want to proceed.`
-                    }
-                );
-            }
+            faqs = [...FAQS[langCode].repair];
         } else {
-            // Buyback FAQs
-            if (lang === 'fr') {
-                faqs.push(
-                    {
-                        question: `Comment vendre mon ${deviceName} à Bruxelles ?`,
-                        answer: `Passez dans l'un de nos magasins (Schaerbeek, Molenbeek, Anderlecht) pour une estimation gratuite. Si le prix vous convient, vous repartez avec du Cash.`
-                    },
-                    {
-                        question: `Reprenez-vous les ${deviceName} cassés ?`,
-                        answer: `Oui, nous rachetons les appareils avec écran cassé, dos fissuré ou problèmes de batterie. Le prix sera ajusté.`
-                    },
-                    {
-                        question: `Le paiement est-il immédiat ?`,
-                        answer: `Oui, nous payons immédiatement en espèces ou par virement instantané lors de la remise de l'appareil.`
-                    },
-                    {
-                        question: `Y a-t-il une garantie sur les appareils vendus ?`,
-                        answer: `Pour la vente, nous offrons une garantie de bon fonctionnement. Pour le rachat, nous testons l'appareil sur place.`
-                    }
-                );
-            } else if (lang === 'nl') {
-                faqs.push(
-                    {
-                        question: `Hoe wordt de inkoopprijs van mijn ${deviceName} berekend?`,
-                        answer: `De prijs hangt af van de staat (perfect, zeer goed, goed, aanvaardbaar), opslagcapaciteit, en marktvraag. We geven u direct een online schatting.`
-                    },
-                    {
-                        question: `Wanneer word ik betaald voor mijn ${deviceName}?`,
-                        answer: `Betaling is onmiddellijk. U kunt kiezen tussen contante betaling ter plaatse of directe bankoverschrijving.`
-                    },
-                    {
-                        question: `Moet ik mijn gegevens wissen voordat ik mijn ${deviceName} verkoop?`,
-                        answer: `We raden aan een back-up te maken en uw apparaat te resetten. Als u dit niet kunt, doen wij dit gratis en veilig voor u.`
-                    },
-                    {
-                        question: `Accepteren jullie kapotte of geoxideerde apparaten?`,
-                        answer: `Ja, we kopen zelfs kapotte, geoxideerde of niet-werkende ${deviceName} toestellen. De prijs wordt aangepast aan de staat.`
-                    }
-                );
-            } else {
-                faqs.push(
-                    {
-                        question: `How is the buyback price for my ${deviceName} calculated?`,
-                        answer: `The price depends on condition (perfect, very good, good, acceptable), storage capacity, and market demand. We give you an instant online estimate.`
-                    },
-                    {
-                        question: `When do I get paid for my ${deviceName}?`,
-                        answer: `Payment is immediate. You can choose between cash payment on-site or instant bank transfer.`
-                    },
-                    {
-                        question: `Should I erase my data before selling my ${deviceName}?`,
-                        answer: `We recommend backing up and resetting your device. If you can't, we'll do it for free in a secure manner.`
-                    },
-                    {
-                        question: `Do you accept broken or water-damaged devices?`,
-                        answer: `Yes, we buy back even broken, water-damaged, or non-working ${deviceName} devices. The price will be adjusted based on condition.`
-                    }
-                );
-            }
+            faqs = [...FAQS[langCode].buyback];
+        }
+
+        // 2. Hub Specific FAQs (Brussels Authority)
+        const isHub = !!location?.isHub || locationName.toLowerCase().includes('brussel');
+        if (isHub) {
+            faqs = [...faqs, ...FAQS[langCode].hub_brussels];
+        }
+
+        // 3. Dynamic Injection (Device Specifics) for better CTR
+        if (isRepair) {
+            const dynamicQ = lang === 'fr'
+                ? { question: `Réparez-vous les ${deviceName} ?`, answer: `Oui, nous sommes spécialisés en réparation de ${deviceName}. Pièces en stock à ${locationName}.` }
+                : lang === 'nl'
+                    ? { question: `Repareren jullie ${deviceName}?`, answer: `Ja, wij zijn gespecialiseerd in ${deviceName} reparaties. Onderdelen op voorraad in ${locationName}.` }
+                    : { question: `Do you fix ${deviceName}?`, answer: `Yes, we specialize in ${deviceName} repair. Parts in stock at ${locationName}.` };
+            faqs.unshift(dynamicQ);
         }
 
         const schema = {
@@ -311,6 +230,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                 services.push(
                     {
                         id: 'hdmi',
+                        icon: TvIcon,
                         title: lang === 'fr' ? `Réparation Port HDMI ${deviceName}` : lang === 'nl' ? `HDMI-poort Reparatie ${deviceName}` : `HDMI Port Repair ${deviceName}`,
                         text: lang === 'fr'
                             ? `Votre ${deviceName} ne s'affiche plus ? Nos experts remplacent le port HDMI pour restaurer l'image en 4K.`
@@ -320,6 +240,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                     },
                     {
                         id: 'cleaning',
+                        icon: FireIcon,
                         title: lang === 'fr' ? `Nettoyage et Pâte Thermique ${deviceName}` : lang === 'nl' ? `Reiniging en Thermische Pasta ${deviceName}` : `Cleaning & Thermal Paste ${deviceName}`,
                         text: lang === 'fr'
                             ? `Bruit de ventilateur ou surchauffe ? Un nettoyage complet et le remplacement de la pâte thermique prolongent la vie de votre ${deviceName}.`
@@ -332,6 +253,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                 services.push(
                     {
                         id: 'screen',
+                        icon: DevicePhoneMobileIcon,
                         title: lang === 'fr' ? `Changement d'Écran ${deviceName}` : lang === 'nl' ? `Schermvervanging ${deviceName}` : `Screen Replacement ${deviceName}`,
                         text: lang === 'fr'
                             ? `Écran cassé ou tactile défaillant ? Nous remplaçons votre dalle par des pièces d'origine ou premium en 30 minutes.`
@@ -341,6 +263,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                     },
                     {
                         id: 'battery',
+                        icon: BoltIcon,
                         title: lang === 'fr' ? `Remplacement de Batterie ${deviceName}` : lang === 'nl' ? `Batterij Vervangen ${deviceName}` : `Battery Replacement ${deviceName}`,
                         text: lang === 'fr'
                             ? `Votre ${deviceName} se décharge trop vite ? Retrouvez une autonomie optimale avec une batterie neuve certifiée.`
@@ -355,6 +278,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
             services.push(
                 {
                     id: 'cash',
+                    icon: BanknotesIcon,
                     title: lang === 'fr' ? `Paiement Cash pour votre ${deviceName}` : lang === 'nl' ? `Contante betaling voor uw ${deviceName}` : `Cash Payment for your ${deviceName}`,
                     text: lang === 'fr'
                         ? `Obtenez le meilleur prix du marché à Bruxelles. Estimation gratuite et paiement immédiat en espèces ou virement.`
@@ -364,6 +288,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                 },
                 {
                     id: 'broken',
+                    icon: WrenchScrewdriverIcon,
                     title: lang === 'fr' ? `Rachat ${deviceName} même cassé` : lang === 'nl' ? `Inkoop ${deviceName} zelfs defect` : `Buyback ${deviceName} even broken`,
                     text: lang === 'fr'
                         ? `Ne jetez pas votre appareil abîmé ! Nous rachetons les ${deviceName} avec écran fissuré ou batterie HS pour pièces.`
@@ -378,8 +303,8 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                 {services.map(s => (
                     <div key={s.id}>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                            <SparklesIcon className="w-5 h-5 inline-block mr-2 text-bel-blue" aria-hidden="true" />
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 flex items-center">
+                            <s.icon className="w-5 h-5 mr-2 text-bel-blue" aria-hidden="true" />
                             {s.title}
                         </h3>
                         <p className="text-gray-600 dark:text-gray-400">
@@ -444,6 +369,41 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
 
                     {renderServiceBlocks()}
                     {renderPriceTable()}
+
+                    {/* Brussels Hub Internal Linking (Neighborhood Authority) */}
+                    {(locationName.toLowerCase().includes('brussel') || location?.isHub) && (
+                        <div className="mb-12">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                                {lang === 'fr' ? 'Zones d\'intervention à Bruxelles' : lang === 'nl' ? 'Interventiezones in Brussel' : 'Service Areas in Brussels'}
+                            </h3>
+                            <div className="flex flex-wrap gap-4">
+                                {SHOPS.filter(s => ['schaerbeek', 'molenbeek', 'anderlecht'].includes(String(s.id).toLowerCase())).map(shop => {
+                                    // Construct internal link
+                                    // /fr/reparation/apple/iphone-13/schaerbeek
+                                    // We need to rebuild the URL based on current context
+                                    // If service is missing (store page), default to 'reparation' or check location slug
+                                    const serviceSlug = service?.slugs[lang] || 'reparation'; // fallback
+                                    const baseUrl = `/${lang}/${serviceSlug}/${brand ? createSlug(brand) : ''}`;
+                                    // If model exists, include it
+                                    const modelPart = model ? `/${createSlug(model)}` : '';
+                                    // Shop slug suffix
+                                    const shopSlug = shop.slugs[lang];
+
+                                    const href = `${baseUrl}${modelPart}/${shopSlug}`.replace('//', '/'); // Cleanup double slashes if no brand
+
+                                    return (
+                                        <a
+                                            key={shop.id}
+                                            href={href}
+                                            className="px-4 py-2 bg-gray-100 dark:bg-slate-800 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-bel-blue hover:text-white transition-colors"
+                                        >
+                                            {shop.city}
+                                        </a>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Card 1 */}

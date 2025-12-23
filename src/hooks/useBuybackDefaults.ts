@@ -58,7 +58,7 @@ export function generateBuybackDefaults(deviceId: string) {
             const modelSlug = createSlug(modelName);
             // Strict suffix check
             if (deviceId.endsWith(`-${modelSlug}`) || deviceId === modelSlug) {
-                console.log(`[BuybackDefaults] Matched ${deviceId} to spec ${modelName}`);
+                // No logs here`[BuybackDefaults] Matched ${deviceId} to spec ${modelName}`);
                 matchedStorages = capacities;
                 break;
             }
@@ -111,7 +111,7 @@ export function generateBuybackDefaults(deviceId: string) {
         for (const [modelName, capacities] of sortedSpecs) {
             const modelSlug = createSlug(modelName);
             if (deviceId.endsWith(`-${modelSlug}`) || deviceId === modelSlug) {
-                console.log(`[BuybackDefaults] Matched ${deviceId} to spec ${modelName}`);
+                // No logs here`[BuybackDefaults] Matched ${deviceId} to spec ${modelName}`);
                 matchedStorages = capacities;
                 break;
             }

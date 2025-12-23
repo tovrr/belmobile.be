@@ -90,26 +90,29 @@ const Map: React.FC<MapProps> = ({ shops, center, zoom, selectedShopId, hoveredS
             const isHovered = hoveredShopId === shop.id;
             const isComingSoon = shop.status === 'coming_soon';
 
-            // Custom Marker HTML
+            // Custom Marker HTML (Pointer style)
             const markerHtml = `
-                <div class="relative group transition-all duration-300 ${isSelected || isHovered ? 'z-50 scale-110' : 'z-10 scale-100'}">
+                <div class="relative flex flex-col items-center transition-all duration-300 ${isSelected || isHovered ? 'z-50 scale-110' : 'z-10 scale-100'}">
                     <div class="
                         flex items-center justify-center 
                         ${isComingSoon
-                    ? 'w-8 h-8 bg-gray-100 border-2 border-gray-400 text-gray-500 rounded-full shadow-md'
+                    ? 'w-10 h-10 bg-gray-100 border-2 border-gray-400 text-gray-500 rounded-full shadow-md'
                     : 'w-10 h-10 bg-bel-blue border-2 border-white text-white rounded-full shadow-lg'
                 }
                         ${isSelected ? 'ring-4 ring-bel-blue/30' : ''}
                     ">
                         ${isComingSoon
-                    ? '<span class="text-xs font-bold">?</span>'
-                    : '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>'
+                    ? '<span class="text-xs font-bold font-sans">?</span>'
+                    : '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>'
                 }
                     </div>
+                    <!-- Pointer Tip -->
+                    <div class="-mt-1.5 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-8 ${isComingSoon ? 'border-t-gray-400' : 'border-t-bel-blue'} relative z-0"></div>
+                    
                     ${(isSelected || isHovered) ? `
-                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap bg-gray-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl">
+                        <div class="absolute bottom-[calc(100%+8px)] left-1/2 -translate-x-1/2 whitespace-nowrap bg-slate-900 border border-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-2xl backdrop-blur-md">
                             ${shop.name}
-                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
                         </div>
                     ` : ''}
                 </div>
@@ -118,8 +121,8 @@ const Map: React.FC<MapProps> = ({ shops, center, zoom, selectedShopId, hoveredS
             const icon = L.divIcon({
                 className: 'bg-transparent border-none',
                 html: markerHtml,
-                iconSize: [40, 40],
-                iconAnchor: [20, 40] // Bottom center anchor
+                iconSize: [40, 42],
+                iconAnchor: [20, 42] // Precision anchor at the very tip
             });
 
             const lat = shop.coords?.lat || 0;

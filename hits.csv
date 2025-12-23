@@ -1,0 +1,13 @@
+#TYPE Selected.Microsoft.PowerShell.Commands.MatchInfo
+"LineNumber","Line"
+"647","        ""email_buyback_repair_subject"": ""Belmobile - {0} Request {1}"","
+"654","        ""email_reservation_success"": ""Your device {0} has been successfully reserved at the {1} store."","
+"655","        ""email_contact_subject"": ""Message from {0} via Contact Form"","
+"1455","        ""email_buyback_repair_subject"": ""Belmobile - Demande de {0} {1}"","
+"1462","        ""email_reservation_success"": ""Votre appareil {0} a ?t? r?serv? avec succ?s au magasin de {1}."","
+"1463","        ""email_contact_subject"": ""Message de {0} via le formulaire de contact"","
+"2001","        ""email_reservation_success"": ""Uw toestel {0} is succesvol gereserveerd in de winkel van {1}."","
+"2002","        ""email_contact_subject"": ""Bericht van {0} via het contactformulier"","
+"2366","        ""email_buyback_repair_subject"": ""Belmobile - {0} Aanvraag {1}"","
+"2373","        ""email_reservation_success"": ""Uw toestel {0} is succesvol gereserveerd in de winkel van {1}."","
+"2374","        ""email_contact_subject"": ""Bericht van {0} via het contactformulier"","

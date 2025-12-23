@@ -7,6 +7,7 @@ import { XMarkIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../hooks/useLanguage';
 import Input from './ui/Input';
 import Button from './ui/Button';
+import { jsPDF } from 'jspdf';
 
 interface ReservationModalProps {
     product: Product;
@@ -15,7 +16,7 @@ interface ReservationModalProps {
 }
 
 const ReservationModal: React.FC<ReservationModalProps> = ({ product, initialShop, onClose }) => {
-    const { addReservation, shops } = useData();
+    const { addReservation, shops, sendEmail } = useData();
     const { t } = useLanguage();
     const [selectedShop, setSelectedShop] = useState<Shop | null>(initialShop || null);
     const [submitted, setSubmitted] = useState(false);
@@ -41,15 +42,136 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ product, initialSho
         };
         addReservation(reservationData);
 
-        const subject = encodeURIComponent(`Reservation: ${product.name}`);
-        const variantDetails = [
-            product.capacity ? `Capacity: ${product.capacity}` : '',
-            product.color ? `Color: ${product.color}` : '',
-            product.condition ? `Condition: ${product.condition}` : ''
-        ].filter(Boolean).join('\n');
+        // Simplified Header
+        const doc = new jsPDF();
+        doc.setFillColor(67, 56, 202);
+        doc.rect(0, 0, 210, 30, 'F');
 
-        const body = encodeURIComponent(`Reservation Request\n\nProduct: ${product.name}\nPrice: €${product.price}\n${variantDetails}\nShop: ${selectedShop.name}\n\nCustomer: ${name}\nEmail: ${email}\nPhone: ${phone}`);
-        window.location.href = `mailto:info@belmobile.be?subject=${subject}&body=${body}`;
+        doc.setFontSize(22);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.text('BELMOBILE', 20, 15);
+        doc.setTextColor(255, 222, 0); // Yellow
+        doc.text('.BE', 66, 15);
+
+        // Precise Justification for Slogan
+        const brandWidth = doc.getTextWidth('BELMOBILE');
+        const sloganText = 'BUYBACK & REPAIR';
+        doc.setFontSize(8);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'normal');
+
+        const sloganWidth = doc.getTextWidth(sloganText);
+        const charSpace = (brandWidth - sloganWidth) / (sloganText.length - 1);
+        doc.text(sloganText, 20, 21, { charSpace });
+
+        doc.setFontSize(10);
+        doc.text(t('pdf_reservation_confirmation'), 190, 18, { align: 'right' });
+
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${t('pdf_device')}:`, 20, 50);
+        doc.setFont('helvetica', 'normal');
+        doc.text(product.name, 70, 50);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${t('pdf_price')}:`, 20, 60);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`€${product.price}`, 70, 60);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${t('pdf_shop')}:`, 20, 70);
+        doc.setFont('helvetica', 'normal');
+        doc.text(selectedShop.name, 70, 70);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${t('pdf_customer')}:`, 20, 90);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${name} (${phone})`, 70, 90);
+
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+
+        // Trigger auto-download
+        const safeFileName = `Reservation_${product.name.replace(/\s+/g, '_')}.pdf`;
+        doc.save(safeFileName);
+
+        // Send Email to Customer
+        sendEmail(
+            email,
+            t('email_reservation_subject', product.name),
+            `<div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                    <div style="display: inline-block; text-align: left;">
+                        <div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">
+                            BELMOBILE<span style="color: #eab308;">.BE</span>
+                        </div>
+                        <div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">
+                            BUYBACK & REPAIR
+                        </div>
+                    </div>
+                </div>
+                <div style="padding: 30px; line-height: 1.6;">
+                    <h2 style="color: #4338ca; margin-top: 0;">${t('email_reservation_title')}</h2>
+                    <p>${t('email_reservation_success', product.name, selectedShop.name)}</p>
+                    <p>${t('email_buyback_repair_attachment')}</p>
+                    <hr style="border: 1px solid #eee; margin: 20px 0;">
+                    <p style="font-size: 12px; color: #666;">${t('email_automatic_message')}</p>
+                </div>
+                <div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;">
+                    <p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p>
+                    <p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p>
+                    <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
+                        &copy; ${new Date().getFullYear()} Belmobile. All rights reserved.
+                    </p>
+                </div>
+             </div>`,
+            [{
+                filename: `Reservation_${product.name.replace(/\s+/g, '_')}.pdf`,
+                content: pdfBase64,
+                encoding: 'base64'
+            }]
+        );
+
+        // Send Email Copy to Admin
+        sendEmail(
+            'info@belmobile.be',
+            `[ADMIN COPY] ${t('email_reservation_subject', product.name)}`,
+            `<div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                    <div style="display: inline-block; text-align: left;">
+                        <div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">
+                            BELMOBILE<span style="color: #eab308;">.BE</span>
+                        </div>
+                        <div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">
+                            BUYBACK & REPAIR
+                        </div>
+                    </div>
+                </div>
+                <div style="padding: 30px; line-height: 1.6;">
+                    <h2 style="color: #4338ca; margin-top: 0;">New Reservation Request</h2>
+                    <p>A new reservation has been placed by <strong>${name}</strong> (${email}).</p>
+                    <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <p><strong>Device:</strong> ${product.name}</p>
+                        <p><strong>Shop:</strong> ${selectedShop.name}</p>
+                        <p><strong>Phone:</strong> ${phone}</p>
+                    </div>
+                    <hr style="border: 1px solid #eee; margin: 20px 0;">
+                    <p style="font-size: 12px; color: #666;">This is an administrative copy.</p>
+                </div>
+                <div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;">
+                    <p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p>
+                    <p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p>
+                    <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
+                        &copy; ${new Date().getFullYear()} Belmobile. All rights reserved.
+                    </p>
+                </div>
+             </div>`,
+            [{
+                filename: `Reservation_${product.name.replace(/\s+/g, '_')}.pdf`,
+                content: pdfBase64,
+                encoding: 'base64'
+            }]
+        );
 
         setSubmitted(true);
     };

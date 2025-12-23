@@ -1,68 +1,114 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { ChatBubbleLeftRightIcon, XMarkIcon, PaperAirplaneIcon, SparklesIcon, PhoneIcon } from '@heroicons/react/24/outline';
+import {
+    ChatBubbleLeftRightIcon,
+    XMarkIcon,
+    PaperAirplaneIcon,
+    SparklesIcon,
+    PhoneIcon,
+    TrashIcon
+} from '@heroicons/react/24/outline';
+import ReactMarkdown from 'react-markdown';
 import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
+import { standardizeDeviceId } from '../utils/pricing-utils';
+import { SERVICES, Service as DataService } from '../data/services';
+
+import { db } from '../firebase';
+import { serverTimestamp, setDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import ChatActionCard from './chat/ChatActionCard';
 
 interface Message {
-    id: number;
+    id: string;
     text: string;
     sender: 'user' | 'bot';
+    timestamp?: number;
+    metadata?: {
+        type?: 'product' | 'shop';
+        data?: {
+            id: string;
+            name: string;
+            price?: number;
+            image?: string;
+            address?: string;
+            city?: string;
+            path?: string;
+        };
+    };
 }
 
 const AIChatAssistant: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState('');
-    const { shops, products, services } = useData();
+    const { shops, products, services, repairPrices, buybackPrices } = useData();
     const { language, t } = useLanguage();
+    const [sessionId, setSessionId] = useState<string | null>(null);
 
-    // Initialize from localStorage or default
-    const [messages, setMessages] = useState<Message[]>(() => {
-        try {
-            const saved = localStorage.getItem('chat_history');
-            if (saved) {
-                return JSON.parse(saved);
-            }
-        } catch (e) {
-            console.error("Failed to parse chat history", e);
-        }
-        return [{ id: 1, text: t('ai_welcome_message'), sender: 'bot' }];
-    });
-
-    // Persist to localStorage whenever messages change
-    useEffect(() => {
-        localStorage.setItem('chat_history', JSON.stringify(messages));
-    }, [messages]);
-
-    // Effect to update the welcome message if the language changes
-    useEffect(() => {
-        const welcomeText = t('ai_welcome_message');
-        // Use a timeout to avoid synchronous setState during effect execution
-        const timer = setTimeout(() => {
-            setMessages(prev => {
-                if (prev.length === 1 && prev[0].sender === 'bot' && prev[0].text !== welcomeText) {
-                    return [{ id: 1, text: welcomeText, sender: 'bot' }];
-                }
-                return prev;
-            });
-        }, 0);
-        return () => clearTimeout(timer);
-    }, [language, t]);
-
+    // Initialize/Sync from Firestore
+    const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    // 1. Session & History Initialization
+    useEffect(() => {
+        const initChat = async () => {
+            let sId = localStorage.getItem('chat_session_id');
+            if (!sId) {
+                sId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+                localStorage.setItem('chat_session_id', sId);
+            }
+            setSessionId(sId);
+
+            // Fetch history from Firestore
+            try {
+                const sessionRef = doc(db, 'chatbot_sessions', sId);
+                const sessionSnap = await getDoc(sessionRef);
+
+                if (sessionSnap.exists()) {
+                    setMessages(sessionSnap.data().messages || []);
+                } else {
+                    const welcomeMsg: Message = { id: 'welcome', text: t('ai_welcome_message'), sender: 'bot' };
+                    setMessages([welcomeMsg]);
+                    // Create session in Firestore
+                    await setDoc(sessionRef, {
+                        sessionId: sId,
+                        language,
+                        createdAt: serverTimestamp(),
+                        lastActive: serverTimestamp(),
+                        messages: [welcomeMsg]
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to sync chat history", error);
+                // Fallback to local if Firebase fails
+                const saved = localStorage.getItem('chat_history');
+                const defaultWelcome: Message = { id: 'welcome', text: t('ai_welcome_message'), sender: 'bot' };
+                setMessages(saved ? JSON.parse(saved) : [defaultWelcome]);
+            }
+        };
+
+        if (!sessionId) {
+            initChat();
+        }
+    }, [t, sessionId, language]);
+
+    // Persist to local storage for instant feedback/fallback
+    useEffect(() => {
+        if (messages.length > 0) {
+            localStorage.setItem('chat_history', JSON.stringify(messages));
+        }
+    }, [messages]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
     useEffect(() => {
-        scrollToBottom();
+        if (isOpen) scrollToBottom();
     }, [messages, isOpen]);
 
     const runDemoMode = (textOverride?: string) => {
-        // Use override or current input (safety fallback)
         const textToProcess = textOverride || input;
 
         setTimeout(() => {
@@ -84,7 +130,7 @@ const AIChatAssistant: React.FC = () => {
             }
 
             setMessages(prev => [...prev, {
-                id: Date.now() + 1,
+                id: (Date.now() + 1).toString(),
                 text: responseText,
                 sender: 'bot'
             }]);
@@ -94,74 +140,245 @@ const AIChatAssistant: React.FC = () => {
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
-        const userText = input; // Capture immediately
-        if (!userText.trim()) return;
+        const userText = input;
+        if (!userText.trim() || !sessionId) return;
 
-        const userMessage: Message = { id: Date.now(), text: userText, sender: 'user' };
-        setMessages(prev => [...prev, userMessage]);
+        const userMessage: Message = { id: Date.now().toString(), text: userText, sender: 'user' };
+        const updatedMessages = [...messages, userMessage];
+        setMessages(updatedMessages);
         setInput('');
         setIsLoading(true);
 
-        // Check for API Key availability
-        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+        // Sync user message to Firestore
+        try {
+            const sessionRef = doc(db, 'chatbot_sessions', sessionId);
+            // Ensure we don't send any undefineds in the array
+            const sanitizedMessages = JSON.parse(JSON.stringify(updatedMessages));
+            await updateDoc(sessionRef, {
+                messages: sanitizedMessages,
+                lastActive: serverTimestamp(),
+                lastUserMessage: userText
+            });
+        } catch (e) {
+            console.warn("Firestore sync failed", e);
+        }
 
-        // Robust check for invalid/placeholder keys
+        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY?.trim();
+
         if (!apiKey || apiKey.length < 20 || apiKey.includes('YOUR_KEY')) {
-            console.warn("AI Chat: Invalid or missing API Key. Switching to Demo Mode.");
+            console.warn("AI Chatbot: Gemini API Key is missing or invalid. Falling back to Demo Mode.");
             runDemoMode(userText);
             return;
         }
 
         try {
-            // 2. Construct Rich Context
-            const shopsContext = shops.map(s => `- ${s.name}: ${s.address} (Open: ${s.openingHours.join(', ')})`).join('\n');
+            // 1. CONTEXT: Get clean history (last 15 messages) to maintain device context
+            const historyContext = messages.slice(-15).map(m => `${m.sender.toUpperCase()}: ${m.text}`).join('\n');
 
+            // 2. FUZZY MATCHING: Find models mentioned in current query or previous turns
+            const userKeywords = (userText + " " + messages.slice(-5).map(m => m.text).join(" "))
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, ' ')
+                .split(' ')
+                .filter(w => w.length > 1);
+
+            const getMatchScore = (targetId: string) => {
+                const id = targetId.toLowerCase().replace(/-/g, ' ');
+                let score = 0;
+                userKeywords.forEach(kw => {
+                    if (id.includes(kw)) score += 1;
+                    if (/^\d+$/.test(kw) && id.includes(kw)) score += 5;
+                });
+                return score;
+            };
+
+            const popularPatterns = ['iphone 15', 'iphone 14', 'iphone 13', 'iphone 12', 'iphone 11', 's24', 's23', 's22'];
+
+            const prioritizedRepairs = repairPrices
+                .map(rp => ({ rp, score: getMatchScore(rp.id) }))
+                .filter(item => item.score > 0 || popularPatterns.some(p => item.rp.id.toLowerCase().includes(p)))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 20)
+                .map(item => item.rp);
+
+            // Buyback filtering: Support both 'like-new' and 'like_new'
+            const filteredBuybacks = buybackPrices
+                .filter(bp => {
+                    const cond = String(bp.condition).toLowerCase().replace('_', '-');
+                    return cond === 'like-new';
+                });
+
+            // Group buybacks by device to avoid confusing the AI with 128GB vs 256GB duplicates.
+            // This ensures the AI sees the "Up to" price correctly.
+            const groupedBuybacks: Record<string, { deviceId: string, maxPrice: number, storages: string[], score: number }> = {};
+
+            filteredBuybacks.forEach(bp => {
+                const standardizedId = standardizeDeviceId(bp.deviceId);
+                const score = getMatchScore(bp.deviceId);
+
+                if (!groupedBuybacks[standardizedId] || score > groupedBuybacks[standardizedId].score) {
+                    groupedBuybacks[standardizedId] = {
+                        deviceId: bp.deviceId,
+                        maxPrice: bp.price,
+                        storages: [bp.storage],
+                        score: score
+                    };
+                } else {
+                    // Same device (standardized), check if price is higher
+                    groupedBuybacks[standardizedId].maxPrice = Math.max(groupedBuybacks[standardizedId].maxPrice, bp.price);
+                    if (!groupedBuybacks[standardizedId].storages.includes(bp.storage)) {
+                        groupedBuybacks[standardizedId].storages.push(bp.storage);
+                    }
+                }
+            });
+
+            const prioritizedBuybacks = Object.values(groupedBuybacks)
+                .filter(item => item.score > 0 || popularPatterns.some(p => item.deviceId.toLowerCase().includes(p)))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 20);
+
+            // 3. Formatting
+            const shopsContext = shops.map(s => `- ${s.city || s.name}: ${s.address} (Open: ${s.openingHours.join(', ')})`).join('\n');
             const servicesContext = services.map(s => `- ${s.name} (${s.type}): ${s.description}`).join('\n');
+            const productsContext = products.map(p => `- ${p.name} (€${p.price}): ${p.description}`).join('\n');
 
-            const productsContext = products.map(p => {
-                const stockInfo = shops.map(s => `${s.name}: ${p.availability[s.id] || 0}`).join(', ');
-                return `- ${p.name} (€${p.price}): ${p.description}. Stock levels: [${stockInfo}]`;
+            const sRepair = (SERVICES as DataService[]).find(s => s.id === 'repair');
+            const sBuyback = (SERVICES as DataService[]).find(s => s.id === 'buyback');
+            const rSlug = sRepair?.slugs[language as keyof typeof sRepair.slugs] || 'repair';
+            const bSlug = sBuyback?.slugs[language as keyof typeof sBuyback.slugs] || 'buyback';
+
+            const repairSummary = prioritizedRepairs.map(rp => {
+                const parts = [];
+                if (rp.screen_original) parts.push(`Screen (Original): €${rp.screen_original}`);
+                if (rp.screen_oled) parts.push(`Screen (OLED): €${rp.screen_oled}`);
+                if (rp.screen_generic) parts.push(`Screen (Generic): €${rp.screen_generic}`);
+                if (rp.battery) parts.push(`Battery: €${rp.battery}`);
+
+                const details = parts.length > 0 ? parts.join(', ') : 'Quote required';
+                const [brand, ...mParts] = rp.id.split('-');
+                const model = mParts.join('-');
+                return `- ${rp.id}: ${details} | [View & Book Repair](/${language}/${rSlug}/${brand}/${model})`;
+            }).join('\n');
+
+            const buybackSummary = prioritizedBuybacks.map(item => {
+                const [brand, ...mParts] = item.deviceId.split('-');
+                const model = mParts.join('-');
+                return `- ${item.deviceId}: Up to €${item.maxPrice} (Available for: ${item.storages.join(', ')}) | [Get Buyback Quote](/${language}/${bSlug}/${brand}/${model})`;
             }).join('\n');
 
             const systemInstruction = `
-                You are the intelligent concierge for Belmobile.be, a premium mobile shop in Belgium.
+                You are the intelligent concierge for Belmobile.be.
+                Reply in ${language.toUpperCase()}.
+                CONCISE but DATA-DRIVEN answers only.
+
+                CRITICAL RULES:
+                1. MUNICIPALITY: Always refer to shops by their MUNICIPALITY (Schaerbeek, Anderlecht, Molenbeek).
+                2. DATA LOOKUP: Check REPAIR_ESTIMATES and BUYBACK_ESTIMATES. If the user's device is listed, provide ALL relevant prices and ALWAYS use MARKDOWN LINKS (e.g. [Link Text](URL)) for the direct page using the "Link" values provided below.
+                3. CONTEXT: Use CONVERSATION_HISTORY to remember the device.
+                4. FALLBACKS: If a requested price is MISSING, say: 
+                   "I don't have that exact price. Please use the WhatsApp (green icon) or Call (phone icon) buttons above to talk to our technicians, or visit the link below."
+                5. BUYBACK: For selling, use "Up to €XX" based on the data provided as a MAXIMUM ESTIMATE for the best configuration. You MUST immediately state: "This is a maximum estimate. Please use the link below to get an exact quote for your specific storage and condition."
+                6. MODEL SPECIFICITY: Be extremely careful not to confuse "Standard" models with "Pro" or "Pro Max" models. If the user asks for "iPhone 15", do not give the price for "iPhone 15 Pro".
+                7. LINKS: Never show raw URLs. Always use the format [Title](URL). The direct link is the ONLY definitive source for an exact price. Encourage clicking it.
+
+                KNOWLEDGE BASE:
+                SHOPS: ${shopsContext}
+                SERVICES: ${servicesContext}
+                PRODUCTS: ${productsContext}
                 
-                Current Language Context: ${language.toUpperCase()} (Always reply in this language).
+                PRICING_KNOWLEDGE:
+                REPAIR_ESTIMATES:
+                ${repairSummary}
                 
-                YOUR KNOWLEDGE BASE:
+                BUYBACK_ESTIMATES:
+                ${buybackSummary}
                 
-                --- SHOPS & LOCATIONS ---
-                ${shopsContext}
-                
-                --- SERVICES ---
-                ${servicesContext}
-                
-                --- LIVE PRODUCT INVENTORY ---
-                ${productsContext}
-                
-                RULES:
-                1. Be concise, professional, and helpful.
-                2. If asked about stock, check the Inventory data above and be specific about which shop has the item.
-                3. If asked about repairs not listed, suggest they use the 'Repair' page form for a custom quote.
-                4. You are helpful and polite.
-                5. Currency is Euros (€).
+                CONVERSATION_HISTORY:
+                ${historyContext}
             `;
 
             const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({
-                model: "gemini-2.0-flash",
-                systemInstruction: systemInstruction
+
+            async function getBotResponse() {
+                const model = genAI.getGenerativeModel({
+                    model: "gemini-2.0-flash",
+                    systemInstruction: systemInstruction
+                });
+                // Using startChat to manage history automatically if desired, 
+                // but since we are injecting history into systemInstruction for maximum "grounding", 
+                // we'll keep generateContent for now but with the history explicitly in the prompt.
+                const result = await model.generateContent(`USER CURRENT MESSAGE: ${userText}`);
+                return result.response.text();
+            }
+
+            let text = "";
+            try {
+                text = await getBotResponse();
+            } catch {
+                try {
+                    const model25 = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                    const result25 = await model25.generateContent(userText);
+                    text = result25.response.text();
+                } catch (err2: unknown) {
+                    console.error("AI Chatbot: Generation failed.", err2);
+                    runDemoMode(userText);
+                    return;
+                }
+            }
+
+            // --- INTENT DETECTION (METADATA INJECTION) ---
+            let metadata: Message['metadata'] = undefined;
+
+            const foundProduct = products.find(p => text.toLowerCase().includes(p.name.toLowerCase()) || userText.toLowerCase().includes(p.name.toLowerCase()));
+            if (foundProduct) {
+                metadata = {
+                    type: 'product',
+                    data: {
+                        id: foundProduct.id.toString(),
+                        name: foundProduct.name,
+                        price: foundProduct.price,
+                        image: foundProduct.imageUrl,
+                        path: `/${language}/produits/${foundProduct.id}`
+                    }
+                };
+            } else {
+                const foundShop = shops.find(s => text.toLowerCase().includes(s.name.toLowerCase()) || userText.toLowerCase().includes(s.name.toLowerCase()));
+                if (foundShop) {
+                    metadata = {
+                        type: 'shop',
+                        data: {
+                            id: foundShop.id.toString(),
+                            name: foundShop.name,
+                            address: foundShop.address,
+                            city: foundShop.city,
+                            path: `/${language}/magasins`
+                        }
+                    };
+                }
+            }
+
+            const botMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                text,
+                sender: 'bot',
+                ...(metadata && { metadata })
+            };
+
+            const finalMessages = [...updatedMessages, botMessage];
+            setMessages(finalMessages);
+            setIsLoading(false);
+
+            const botSessionRef = doc(db, 'chatbot_sessions', sessionId);
+            const sanitizedMessages = JSON.parse(JSON.stringify(finalMessages));
+
+            await updateDoc(botSessionRef, {
+                messages: sanitizedMessages,
+                lastActive: serverTimestamp()
             });
 
-            const result = await model.generateContent(userText);
-            const response = await result.response;
-            const text = response.text();
-
-            setMessages(prev => [...prev, { id: Date.now() + 1, text, sender: 'bot' }]);
-            setIsLoading(false);
         } catch (error: unknown) {
-            console.error("Assistant Error:", error);
-            // Fallback to demo mode if API fails
+            const finalErrMsg = error instanceof Error ? error.message : String(error);
+            console.error("Assistant Global Error:", finalErrMsg);
             runDemoMode(userText);
         }
     };
@@ -180,14 +397,32 @@ const AIChatAssistant: React.FC = () => {
                                 <p className="text-xs text-blue-100 opacity-90">Powered by Belmobile</p>
                             </div>
                         </div>
-
                         <div className="flex items-center space-x-2">
+                            <button
+                                onClick={async () => {
+                                    if (!sessionId) return;
+                                    const confirm = window.confirm(t('confirm_clear_chat'));
+                                    if (!confirm) return;
+
+                                    const welcomeMsg: Message = { id: 'welcome', text: t('ai_welcome_message'), sender: 'bot' };
+                                    setMessages([welcomeMsg]);
+                                    const sessionRef = doc(db, 'chatbot_sessions', sessionId);
+                                    await updateDoc(sessionRef, {
+                                        messages: [welcomeMsg],
+                                        lastActive: serverTimestamp()
+                                    });
+                                }}
+                                className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all border border-white/20"
+                                title={t('clear_history')}
+                            >
+                                <TrashIcon className="h-5 w-5" />
+                            </button>
                             <a
                                 href="tel:+3222759867"
                                 className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all hover:scale-110 shadow-lg"
                                 title="Call Support"
                             >
-                                <PhoneIcon className="w-5 h-5" />
+                                <PhoneIcon className="w-5 h-5 text-white" />
                             </a>
                             <a
                                 href="https://wa.me/32484837560"
@@ -208,12 +443,41 @@ const AIChatAssistant: React.FC = () => {
 
                     <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
                         {messages.map(msg => (
-                            <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                            <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
                                 <div className={`max-w-[85%] p-3.5 rounded-2xl text-sm shadow-sm ${msg.sender === 'user'
                                     ? 'bg-bel-blue text-white rounded-br-none'
                                     : 'bg-white text-gray-700 border border-gray-100 rounded-bl-none'
                                     }`}>
-                                    {msg.text}
+                                    <div className={`prose prose-sm max-w-none ${msg.sender === 'user' ? 'prose-invert' : 'prose-slate'}`}>
+                                        <ReactMarkdown
+                                            components={{
+                                                ul: ({ children }) => <ul className="list-disc ml-5 space-y-2 my-3 text-inherit">{children}</ul>,
+                                                ol: ({ children }) => <ol className="list-decimal ml-5 space-y-2 my-3 text-inherit">{children}</ol>,
+                                                p: ({ children }) => <p className="mb-3 last:mb-0 leading-relaxed font-medium">{children}</p>,
+                                                strong: ({ children }) => <strong className="font-black text-bel-blue dark:text-blue-400">{children}</strong>,
+                                                a: ({ children, href }) => (
+                                                    <a
+                                                        href={href}
+                                                        className="text-blue-600 dark:text-blue-400 underline font-extrabold hover:text-blue-800 transition-colors cursor-pointer decoration-2 underline-offset-2"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        {children}
+                                                    </a>
+                                                )
+                                            }}
+                                        >
+                                            {msg.text}
+                                        </ReactMarkdown>
+                                    </div>
+
+                                    {msg.metadata?.type && msg.metadata.data && (
+                                        <ChatActionCard
+                                            type={msg.metadata.type}
+                                            data={msg.metadata.data}
+                                            onAction={() => setIsOpen(language === 'en' ? false : false)} // Dummy action to close on link click if needed
+                                        />
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -231,6 +495,12 @@ const AIChatAssistant: React.FC = () => {
                         <div ref={messagesEndRef} />
                     </div>
 
+                    <div className="px-4 py-1 bg-white border-t border-gray-50 flex justify-center items-center">
+                        <span className="text-[9px] font-medium text-slate-300 uppercase tracking-widest">
+                            Official Belmobile Assistant
+                        </span>
+                    </div>
+
                     <form onSubmit={handleSend} className="p-3 bg-white border-t border-gray-100">
                         <div className="flex items-center space-x-2 relative">
                             <input
@@ -238,7 +508,7 @@ const AIChatAssistant: React.FC = () => {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 placeholder="Type a message..."
-                                className="flex-1 p-3 bg-gray-100 border-0 rounded-xl focus:ring-2 focus:ring-bel-blue focus:bg-white transition-all text-sm"
+                                className="flex-1 p-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-bel-blue focus:border-transparent transition-all text-sm text-slate-900! placeholder:text-slate-400"
                             />
                             <button
                                 type="submit"

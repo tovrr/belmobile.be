@@ -4,13 +4,12 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
+import { useData } from '../../hooks/useData';
 import {
     HomeIcon,
     ShoppingBagIcon,
-    UsersIcon,
     WrenchScrewdriverIcon,
     BuildingStorefrontIcon,
-    ChartBarIcon,
     ArrowLeftOnRectangleIcon,
     Cog6ToothIcon,
     CurrencyEuroIcon,
@@ -22,21 +21,21 @@ import {
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
     const { user, loading, logout } = useAuth();
+    const { quotes, reservations, contactMessages } = useData();
     const router = useRouter();
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    // Close mobile menu on route change
-    useEffect(() => {
-        setIsMobileMenuOpen(false);
-    }, [pathname]);
 
     useEffect(() => {
         if (!loading && !user && pathname !== '/admin/login') {
             router.push('/admin/login');
         }
     }, [user, loading, router, pathname]);
+
+    const newQuotesCount = quotes.filter(q => q.status === 'new').length;
+    const newReservationsCount = reservations.filter(r => r.status === 'pending').length;
 
     if (loading) {
         return (
@@ -56,8 +55,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
     const navigation = [
         { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon },
-        { name: 'Orders & Quotes', href: '/admin/orders', icon: ShoppingBagIcon },
-        { name: 'Reservations', href: '/admin/reservations', icon: CalendarIcon },
+        { name: 'Reservations', href: '/admin/reservations', icon: CalendarIcon, badge: newReservationsCount },
+        { name: 'Orders & Quotes', href: '/admin/orders', icon: ShoppingBagIcon, badge: newQuotesCount },
+        { name: 'Messages', href: '/admin/messages', icon: NewspaperIcon, badge: contactMessages.filter(m => m.status === 'new').length },
         { name: 'Products', href: '/admin/products', icon: DevicePhoneMobileIcon },
         { name: 'Services', href: '/admin/services', icon: WrenchScrewdriverIcon },
         { name: 'Pricing', href: '/admin/pricing', icon: CurrencyEuroIcon },
@@ -135,13 +135,25 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                             <Link
                                 key={item.name}
                                 href={item.href}
+                                onClick={() => setIsMobileMenuOpen(false)}
                                 className={`flex items-center px-4 py-3 rounded-2xl transition-all duration-300 group ${isActive
                                     ? 'bg-linear-to-r from-bel-blue to-purple-600 text-white shadow-lg shadow-blue-500/30'
                                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50/80 dark:hover:bg-slate-800/80 hover:scale-[1.02]'
                                     }`}
                             >
                                 <item.icon className="h-6 w-6 shrink-0" />
-                                <span className={`ml-3 font-medium ${!isSidebarOpen ? 'lg:hidden' : ''}`}>{item.name}</span>
+                                <span className={`ml-3 font-medium flex-1 ${!isSidebarOpen ? 'lg:hidden' : ''}`}>{item.name}</span>
+                                {item.badge !== undefined && item.badge > 0 && (
+                                    <span className={`
+                                        flex items-center justify-center min-w-5 h-5 px-1
+                                        text-[10px] font-black rounded-full 
+                                        ${isActive ? 'bg-white text-bel-blue' : 'bg-bel-blue text-white'}
+                                        ${!isSidebarOpen ? 'lg:absolute lg:top-2 lg:right-2' : ''}
+                                        transition-all duration-300
+                                    `}>
+                                        {item.badge}
+                                    </span>
+                                )}
                             </Link>
                         );
                     })}

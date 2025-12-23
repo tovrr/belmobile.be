@@ -6,7 +6,7 @@ export interface Location {
     zip: string;
     phone: string;
     email: string;
-    coordinates: {
+    coords: {
         lat: number;
         lng: number;
     };
@@ -24,15 +24,15 @@ export interface Location {
 export const LOCATIONS: Location[] = [
     {
         id: 'schaerbeek',
-        name: 'Belmobile Schaerbeek',
-        address: 'Chaussée de Haecht 123', // Placeholder, user to confirm
+        name: 'Belmobile Liedts',
+        address: 'Rue Gallait 4',
         city: 'Schaerbeek',
         zip: '1030',
-        phone: '+32 2 123 45 67',
+        phone: '0484/83.75.60',
         email: 'schaerbeek@belmobile.be',
-        coordinates: { lat: 50.8676, lng: 4.3737 },
-        openingHours: ['Mon-Sat: 10:00 - 19:00', 'Sun: Closed'],
-        googleMapUrl: 'https://goo.gl/maps/placeholder',
+        coords: { lat: 50.86486, lng: 4.36704 },
+        openingHours: ['Tue-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Mon, Sun: Closed'],
+        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Liedts+Rue+Gallait+4+1030+Schaerbeek',
         photos: [
             'https://images.unsplash.com/photo-1581092921461-eab62e97a782?q=80&w=800&auto=format&fit=crop',
             'https://images.unsplash.com/photo-1592899671815-51527a557a7d?q=80&w=800&auto=format&fit=crop'
@@ -45,15 +45,15 @@ export const LOCATIONS: Location[] = [
     },
     {
         id: 'molenbeek',
-        name: 'Belmobile Molenbeek',
-        address: 'Chaussée de Gand 456', // Placeholder
+        name: 'Belmobile Tour & Taxis',
+        address: 'Rue Ulens 88',
         city: 'Molenbeek-Saint-Jean',
         zip: '1080',
-        phone: '+32 2 123 45 68',
+        phone: '02/306.76.56',
         email: 'molenbeek@belmobile.be',
-        coordinates: { lat: 50.8546, lng: 4.3237 },
-        openingHours: ['Mon-Sat: 10:00 - 19:00', 'Sun: Closed'],
-        googleMapUrl: 'https://goo.gl/maps/placeholder',
+        coords: { lat: 50.86285, lng: 4.34240 },
+        openingHours: ['Mon-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Sun: Closed'],
+        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis+Rue+Ulens+88+1080+Molenbeek',
         photos: [
             'https://images.unsplash.com/photo-1581092921461-eab62e97a782?q=80&w=800&auto=format&fit=crop',
             'https://images.unsplash.com/photo-1592899671815-51527a557a7d?q=80&w=800&auto=format&fit=crop'
@@ -66,15 +66,15 @@ export const LOCATIONS: Location[] = [
     },
     {
         id: 'anderlecht',
-        name: 'Belmobile Anderlecht',
-        address: 'Chaussée de Mons 789', // Placeholder
+        name: 'Belmobile Bara',
+        address: 'Rue Lambert Crickx 12',
         city: 'Anderlecht',
         zip: '1070',
-        phone: '+32 2 123 45 69',
+        phone: '02/275.98.67',
         email: 'anderlecht@belmobile.be',
-        coordinates: { lat: 50.8390, lng: 4.3128 },
-        openingHours: ['Mon-Sat: 10:00 - 19:00', 'Sun: Closed'],
-        googleMapUrl: 'https://goo.gl/maps/placeholder',
+        coords: { lat: 50.84079, lng: 4.33729 },
+        openingHours: ['Mon-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Sun: Closed'],
+        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Bara+Rue+Lambert+Crickx+12+1070+Anderlecht',
         photos: [
             'https://images.unsplash.com/photo-1581092921461-eab62e97a782?q=80&w=800&auto=format&fit=crop',
             'https://images.unsplash.com/photo-1592899671815-51527a557a7d?q=80&w=800&auto=format&fit=crop'
@@ -91,10 +91,10 @@ export const LOCATIONS: Location[] = [
         address: 'Brussels Region',
         city: 'Bruxelles',
         zip: '1000',
-        phone: '+32 2 000 00 00',
+        phone: '',
         email: 'info@belmobile.be',
-        coordinates: { lat: 50.8503, lng: 4.3517 },
-        openingHours: ['Mon-Sat: 10:00 - 19:00'],
+        coords: { lat: 50.8503, lng: 4.3517 },
+        openingHours: [],
         googleMapUrl: '',
         isHub: true,
         slugs: {

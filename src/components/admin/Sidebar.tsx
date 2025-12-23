@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
     ChartPieIcon, CubeIcon, WrenchScrewdriverIcon, BuildingStorefrontIcon, PhoneIcon, DocumentTextIcon,
-    Cog6ToothIcon, UserGroupIcon, NewspaperIcon, XMarkIcon
+    Cog6ToothIcon, UserGroupIcon, NewspaperIcon, XMarkIcon, EnvelopeIcon
 } from '@heroicons/react/24/outline';
 
 const adminNavLinks = [
@@ -15,6 +15,7 @@ const adminNavLinks = [
     { name: 'Shops', path: '/admin/shops', icon: BuildingStorefrontIcon },
     { name: 'Reservations', path: '/admin/reservations', icon: PhoneIcon },
     { name: 'Quotes', path: '/admin/quotes', icon: DocumentTextIcon },
+    { name: 'Messages', path: '/admin/messages', icon: EnvelopeIcon },
     { name: 'Franchise', path: '/admin/franchise', icon: UserGroupIcon },
     { name: 'Content & SEO', path: '/admin/content', icon: NewspaperIcon },
     { name: 'Content & SEO', path: '/admin/content', icon: NewspaperIcon },

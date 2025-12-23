@@ -26,7 +26,10 @@ import {
     XMarkIcon,
     CloudArrowUpIcon,
     DocumentIcon,
-    TrashIcon
+    TrashIcon,
+    ShieldCheckIcon,
+    BanknotesIcon,
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { DEVICE_TYPES, REPAIR_ISSUES } from '../constants';
 import { DEVICE_BRANDS } from '../data/brands';
@@ -70,7 +73,7 @@ const StepWrapper = ({ children, stepKey }: { children: React.ReactNode, stepKey
 
 const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initialCategory, initialDevice, hideStep1Title }) => {
     const { selectedShop, setSelectedShop } = useShop();
-    const { shops } = useData();
+    const { shops, sendEmail } = useData();
     const { t, language } = useLanguage();
     const searchParams = useSearchParams();
 
@@ -861,16 +864,29 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         doc.rect(0, 0, 210, 40, 'F');
 
-        // Logo / Title
-        doc.setFontSize(26);
+        // Logo Text
+        doc.setFontSize(24);
         doc.setTextColor(255, 255, 255);
         doc.setFont('helvetica', 'bold');
-        doc.text('Belmobile.be', 20, 25);
+        doc.text('BELMOBILE', 20, 23);
+        doc.setTextColor(255, 222, 0); // Yellow
+        doc.text('.BE', 70, 23);
+
+        // Precise Justification for Slogan
+        const brandWidth = doc.getTextWidth('BELMOBILE');
+        const sloganText = 'BUYBACK & REPAIR';
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'normal');
+
+        const sloganWidth = doc.getTextWidth(sloganText);
+        const charSpace = (brandWidth - sloganWidth) / (sloganText.length - 1);
+        doc.text(sloganText, 20, 30, { charSpace });
 
         // Document Type
         doc.setFontSize(14);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`${t('Summary')} - ${type === 'buyback' ? t('Buyback') : t('Repair')}`, 190, 25, { align: 'right' });
+        doc.setTextColor(255, 255, 255);
+        doc.text(`${t('pdf_summary')} - ${type === 'buyback' ? t('Buyback') : t('Repair')}`, 190, 22, { align: 'right' });
 
         y = 60;
 
@@ -880,14 +896,14 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
 
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
-        doc.text(`${t('Order ID')}:`, 20, 50);
+        doc.text(`${t('pdf_order_id')}:`, 20, 50);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(0, 0, 0);
         doc.text(formattedOrderId, 80, 50);
 
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(100, 100, 100);
-        doc.text(`${t('Date')}:`, 140, 50);
+        doc.text(`${t('pdf_date')}:`, 140, 50);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(0, 0, 0);
         doc.text(orderDate, 155, 50);
@@ -902,7 +918,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         const cCity = (data.customerCity as string) || (data.city as string) || customerCity || '';
         const cIban = (data.iban as string) || iban || '';
 
-        y = addSectionTitle(t('Customer Details'), y);
+        y = addSectionTitle(t('pdf_customer_details'), y);
 
         addField(t('Name'), cName, y);
         y += lineHeight;
@@ -923,14 +939,49 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         y += 5; // Spacer
 
         // --- DEVICE DETAILS ---
-        y = addSectionTitle(t('Device Details'), y);
+        y = addSectionTitle(t('pdf_device_details'), y);
 
-        addField(t('Device'), `${selectedBrand} ${selectedModel} ${(data.category as string) || deviceType || ''}`, y);
+        const typeStr = (data.category as string) || deviceType || '';
+        // Translate type (e.g. "smartphone" -> "Smartphone") and capitalize if translation missing
+        const translatedType = t(typeStr);
+        const displayType = translatedType !== typeStr ? translatedType : (typeStr.charAt(0).toUpperCase() + typeStr.slice(1));
+
+        addField(t('pdf_device'), `${displayType} ${selectedBrand} ${selectedModel}`, y);
         y += lineHeight;
 
         if (data.storage || storage) {
             addField(t('Storage'), (data.storage as string) || storage, y);
             y += lineHeight;
+        }
+
+        // --- FUNCTIONALITY & SPECS (Buyback Only) ---
+        if (type === 'buyback') {
+            y = addSectionTitle(t('Functionality & Specs'), y);
+
+            // Standard Checks
+            addField(t('Turns On?'), turnsOn ? t('Yes') : t('No'), y);
+            y += lineHeight;
+
+            addField(t('Fully Functional?'), worksCorrectly ? t('Yes') : t('No'), y);
+            y += lineHeight;
+
+            addField(t('Unlocked?'), isUnlocked ? t('Yes') : t('No'), y);
+            y += lineHeight;
+
+            // Apple Specific
+            if (selectedBrand === 'Apple' && (deviceType === 'smartphone' || deviceType === 'tablet')) {
+                if (faceIdWorking !== null) {
+                    addField(t('Face ID Working?'), faceIdWorking ? t('Yes') : t('No'), y);
+                    y += lineHeight;
+                }
+
+                if (batteryHealth) {
+                    // Translate the value if it's a known key (e.g. "Normal (Above 80%)")
+                    addField(t('Battery Health'), t(batteryHealth), y);
+                    y += lineHeight;
+                }
+            }
+            y += 5;
         }
 
         // Issues / Condition Logic
@@ -949,15 +1000,22 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                 doc.setTextColor(0, 0, 0);
 
                 issuesToPrint.forEach((issue: string, index: number) => {
-                    const issueLabel = REPAIR_ISSUES.find(i => i.id === issue)?.label || issue;
+                    let issueLabel = t(REPAIR_ISSUES.find(i => i.id === issue)?.label || issue);
+
+                    if (issue === 'screen' && selectedScreenQuality) {
+                        const qualityLabel = selectedScreenQuality === 'generic' ? t('Generic / LCD') :
+                            selectedScreenQuality === 'oled' ? t('OLED / Soft') :
+                                t('Original Refurb');
+                        issueLabel += ` (${qualityLabel})`;
+                    }
+
                     // Indented listing
-                    if (index === 0) doc.text(`- ${t(issueLabel)}`, 60, y);
-                    else doc.text(`- ${t(issueLabel)}`, 60, y + (index * lineHeight));
+                    if (index === 0) doc.text(`- ${issueLabel}`, 60, y);
+                    else doc.text(`- ${issueLabel}`, 60, y + (index * lineHeight));
                 });
                 y += (issuesToPrint.length * lineHeight);
             }
         } else if (type === 'buyback') {
-            // Condition
             // Condition
             const dCondition = data.condition as { screen?: string; body?: string } | undefined;
             addField(t('Screen'), t(screenState as string || dCondition?.screen || '-'), y);
@@ -965,6 +1023,37 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             addField(t('Body'), t(bodyState as string || dCondition?.body || '-'), y);
             y += lineHeight;
         }
+
+        // --- FUNCTIONALITY & SPECS (Buyback Only) ---
+        if (type === 'buyback') {
+            y += 5;
+            y = addSectionTitle(t('Functionality & Specs'), y);
+
+            // Standard Checks
+            addField(t('Turns On?'), turnsOn ? t('Yes') : t('No'), y);
+            y += lineHeight;
+
+            addField(t('Fully Functional?'), worksCorrectly ? t('Yes') : t('No'), y);
+            y += lineHeight;
+
+            addField(t('Unlocked?'), isUnlocked ? t('Yes') : t('No'), y);
+            y += lineHeight;
+
+            // Apple Specific
+            if (selectedBrand === 'Apple' && (deviceType === 'smartphone' || deviceType === 'tablet')) {
+                if (faceIdWorking !== null) {
+                    addField(t('Face ID Working?'), faceIdWorking ? t('Yes') : t('No'), y);
+                    y += lineHeight;
+                }
+
+                if (batteryHealth) {
+                    // Translate the value if it's a known key (e.g. "Normal (Above 80%)")
+                    addField(t('Battery Health'), t(batteryHealth), y);
+                    y += lineHeight;
+                }
+            }
+        }
+
         y += 5;
 
         // --- FINANCIAL SUMMARY ---
@@ -973,22 +1062,41 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         doc.setDrawColor(220, 220, 220);
         doc.roundedRect(20, y, 170, 25, 3, 3, 'FD');
 
-        const priceLabel = type === 'buyback' ? t('Estimated Value') : t('Total Cost');
-        const priceValue = (data.price as number) || (type === 'buyback' ? buybackEstimate : repairEstimates.original || repairEstimates.standard || 0);
+        const priceLabel = type === 'buyback' ? t('pdf_estimated_value') : t('pdf_total_cost');
+
+        let calculatedPrice = 0;
+        if (type === 'buyback') {
+            calculatedPrice = buybackEstimate;
+        } else {
+            // Repair: use specific quality price if selected, otherwise fallback to original/standard
+            if (selectedScreenQuality && repairEstimates[selectedScreenQuality as keyof typeof repairEstimates]) {
+                calculatedPrice = repairEstimates[selectedScreenQuality as keyof typeof repairEstimates] as number;
+            } else {
+                calculatedPrice = repairEstimates.original > 0 ? repairEstimates.original : repairEstimates.standard || 0;
+            }
+        }
+
+        const priceValue = (data.price as number) || calculatedPrice;
 
         doc.setFontSize(12);
         doc.setTextColor(100, 100, 100);
         doc.text(priceLabel.toUpperCase(), 30, y + 16);
 
-        doc.setFontSize(18);
+        doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(67, 56, 202); // Blue
-        doc.text(`\u20AC${Math.round(priceValue)}`, 160, y + 16, { align: 'right' });
+        doc.setTextColor(67, 56, 202); // Belmobile Blue
+
+        // Show "On Request" if price is 0 or negative (which indicates call for price in our logic)
+        if (priceValue <= 0) {
+            doc.text(t('contact_for_price'), 150, y + 17, { align: 'right' });
+        } else {
+            doc.text(`€${Math.round(priceValue)}`, 150, y + 17, { align: 'right' });
+        }
 
         y += 40;
 
         // --- NEXT STEPS ---
-        y = addSectionTitle(t('Next Steps'), y);
+        y = addSectionTitle(t('pdf_next_steps'), y);
 
         const step1 = type === 'buyback' ? t('success_step_backup') : t('repair_step_backup');
         const step2 = type === 'buyback'
@@ -1016,7 +1124,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         doc.text('Belmobile.be - Your Expert in Mobile Services', 105, pageHeight - 15, { align: 'center' });
         doc.text('www.belmobile.be', 105, pageHeight - 10, { align: 'center' });
 
-        doc.save(`Belmobile_Order_${formattedOrderId}.pdf`);
+        return doc;
     };
 
 
@@ -1118,7 +1226,95 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
 
             if (type === 'buyback' || type === 'repair') {
                 const finalOrderData = { ...orderData, iban };
-                generatePDF(docRef.id, finalOrderData);
+                const pdf = generatePDF(docRef.id, finalOrderData);
+
+                // Trigger auto-download
+                const safeFileName = `Belmobile_${type}_${docRef.id.substring(0, 6).toUpperCase()}.pdf`;
+                pdf.save(safeFileName);
+
+                // Automate Email dispatch via Firestore Trigger
+                const pdfBase64 = pdf.output('datauristring').split(',')[1];
+
+                // 1. Send to Customer
+                await sendEmail(
+                    customerEmail,
+                    t('email_buyback_repair_subject', type === 'buyback' ? t('Buyback') : t('Repair'), docRef.id.substring(0, 6).toUpperCase()),
+                    `
+                    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                        <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                            <div style="display: inline-block; text-align: left;">
+                                <div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">
+                                    BELMOBILE<span style="color: #eab308;">.BE</span>
+                                </div>
+                                <div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">
+                                    BUYBACK & REPAIR
+                                </div>
+                            </div>
+                        </div>
+                        <div style="padding: 30px; line-height: 1.6;">
+
+                        <h2 style="color: #4338ca;">${t('email_buyback_repair_greeting', customerName)}</h2>
+                        <p>${t('email_buyback_repair_thanks', type === 'buyback' ? t('Buyback') : t('Repair'))}</p>
+                        <p>${t('email_buyback_repair_attachment')}</p>
+                        <hr style="border: 1px solid #eee; margin: 20px 0;">
+                        <p style="font-size: 12px; color: #666;">${t('email_automatic_message')}</p>
+                    </div>
+                    <div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;">
+                        <p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p>
+                        <p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p>
+                        <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
+                            &copy; ${new Date().getFullYear()} Belmobile. All rights reserved.
+                        </p>
+                    </div>
+                </div>
+                    `,
+                    [{
+                        filename: `Belmobile_${type}_${docRef.id.substring(0, 6)}.pdf`,
+                        content: pdfBase64,
+                        encoding: 'base64'
+                    }]
+                );
+
+                // 2. Send to Admin (Copy)
+                await sendEmail(
+                    'info@belmobile.be',
+                    `[ADMIN COPY] ${t('email_buyback_repair_subject', type === 'buyback' ? t('Buyback') : t('Repair'), docRef.id.substring(0, 6).toUpperCase())}`,
+                    `
+                    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                        <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                            <div style="display: inline-block; text-align: left;">
+                                <div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">
+                                    BELMOBILE<span style="color: #eab308;">.BE</span>
+                                </div>
+                                <div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">
+                                    BUYBACK & REPAIR
+                                </div>
+                            </div>
+                        </div>
+                        <div style="padding: 30px; line-height: 1.6;">
+
+                        <h2 style="color: #4338ca;">New ${type} Request</h2>
+                        <p>A new ${type} request has been submitted by <strong>${customerName}</strong> (${customerEmail}).</p>
+                        <p>ID: <strong>${docRef.id.substring(0, 6).toUpperCase()}</strong></p>
+                        <hr style="border: 1px solid #eee; margin: 20px 0;">
+                        <p style="font-size: 12px; color: #666;">This is an administrative copy.</p>
+                    </div>
+                    <div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;">
+                        <p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p>
+                        <p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p>
+                        <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
+                            &copy; ${new Date().getFullYear()} Belmobile. All rights reserved.
+                        </p>
+                    </div>
+                </div>
+                    `,
+                    [{
+                        filename: `Belmobile_${type}_${docRef.id.substring(0, 6)}.pdf`,
+                        content: pdfBase64,
+                        encoding: 'base64'
+                    }]
+                );
+
                 setSubmittedOrder({ id: docRef.id, data: finalOrderData });
             }
 
@@ -1376,7 +1572,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                 if (repairIssues.length === 0) {
                     estimateDisplay = <>&euro;0</>;
                 } else if (repairIssues.includes('other')) {
-                    estimateDisplay = t('Diagnostic');
+                    estimateDisplay = <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span>;
                 } else {
                     // If it has screen, check selected quality price
                     if (repairEstimates.hasScreen && selectedScreenQuality) {
@@ -1394,21 +1590,21 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         }
 
         return (
-            <div className="lg:hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-xs p-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-full shadow-2xl border border-gray-200 dark:border-slate-800 transition-all duration-300 animate-slide-up">
-                <div className="flex items-center justify-between gap-3 pl-2">
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] transition-transform duration-300 transform translate-y-0">
+                <div className="flex items-center justify-between gap-4 max-w-md mx-auto">
                     {showEstimate && estimateDisplay && (
                         <div className="flex flex-col">
                             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider leading-tight">{isBuyback ? t('Estimated Value') : t('Total Cost')}</span>
-                            <span className="text-lg font-extrabold text-bel-dark dark:text-white leading-tight">{estimateDisplay}</span>
+                            <span className="text-xl font-extrabold text-bel-dark dark:text-white leading-tight">{estimateDisplay}</span>
                         </div>
                     )}
                     <button
                         onClick={onNext}
                         disabled={nextDisabled}
-                        className={`flex-1 bg-bel-blue text-white font-bold py-2.5 px-6 rounded-full shadow-lg shadow-blue-500/30 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-base flex items-center justify-center gap-2 transition-all ${!showEstimate || !estimateDisplay ? 'w-full' : ''}`}
+                        className={`flex-1 bg-bel-blue text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-base flex items-center justify-center gap-2 transition-all ${!showEstimate || !estimateDisplay ? 'w-full' : ''}`}
                     >
                         <span>{nextLabel || t('Next')}</span>
-                        <ChevronRightIcon className="h-4 w-4" />
+                        <ChevronRightIcon className="h-5 w-5" />
                     </button>
                 </div>
             </div>
@@ -1620,7 +1816,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                             {[
                                 { label: 'Turns On?', state: turnsOn, setter: setTurnsOn },
                                 { label: 'Everything Works?', state: worksCorrectly, setter: setWorksCorrectly },
-                                { label: 'Unlocked (No Simlock)?', state: isUnlocked, setter: setIsUnlocked },
+                                { label: 'Unlocked?', state: isUnlocked, setter: setIsUnlocked },
                                 ...(isAppleSmartphone ? [{ label: 'Face ID Working?', state: faceIdWorking, setter: setFaceIdWorking }] : [])
                             ].map((item, i) => {
                                 const isDisabled = turnsOn === false && item.label !== 'Turns On?';
@@ -1987,7 +2183,13 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                     <button onClick={() => window.location.href = '/'} className="bg-bel-blue text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-700 transition">{t('Return Home')}</button>
                     {submittedOrder && (type === 'buyback' || type === 'repair') && (
                         <div className="mt-6 flex flex-col gap-3 items-center">
-                            <button onClick={() => generatePDF(submittedOrder.id, submittedOrder.data)} className="text-bel-blue hover:text-blue-700 underline font-medium">
+                            <button
+                                onClick={() => {
+                                    const pdf = generatePDF(submittedOrder.id, submittedOrder.data);
+                                    pdf.save(`Belmobile_${submittedOrder.id.substring(0, 6).toUpperCase()}.pdf`);
+                                }}
+                                className="text-bel-blue hover:text-blue-700 underline font-medium"
+                            >
                                 {t('Download Summary PDF')}
                             </button>
                             {(submittedOrder.data.shippingLabelUrl as string) && (
@@ -2288,6 +2490,62 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                             >
                                 {t('Confirm Request')}
                             </Button>
+
+                            {/* Trust Signals Block - Moved below button */}
+                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6 border border-bel-blue/20 mt-8">
+                                <h4 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                    <CheckCircleIcon className="h-5 w-5 text-bel-blue" />
+                                    {t('trust_title')}
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                                            <BanknotesIcon className="h-5 w-5 text-bel-blue" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-gray-900 dark:text-white text-sm">
+                                                {type === 'buyback' ? t('trust_price_title_buyback') : t('trust_price_title')}
+                                            </p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                {type === 'buyback' ? t('trust_price_subtitle_buyback') : t('price_vat_included')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                                            <ShieldCheckIcon className="h-5 w-5 text-bel-blue" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-gray-900 dark:text-white text-sm">
+                                                {type === 'buyback' ? t('trust_warranty_title_buyback') : t('trust_warranty_title')}
+                                            </p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">{type === 'buyback' ? t('buyback_payment_terms') : t('repair_payment_terms')}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                                            <DocumentTextIcon className="h-5 w-5 text-bel-blue" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-gray-900 dark:text-white text-sm">
+                                                {type === 'buyback' ? t('trust_document_title_buyback') : t('trust_document_title')}
+                                            </p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">{type === 'buyback' ? t('pdf_confirmation_buyback') : t('pdf_confirmation_repair')}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                                            <XMarkIcon className="h-5 w-5 text-bel-blue" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-gray-900 dark:text-white text-sm">
+                                                {type === 'buyback' ? t('trust_flexibility_title_buyback') : t('Flexibility')}
+                                            </p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('cancellation_policy')}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>

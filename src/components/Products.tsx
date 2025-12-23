@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import ProductCard from '../components/ProductCard';
+import ProductCardSkeleton from '../components/ProductCardSkeleton';
 import { useData } from '../hooks/useData';
 import { useShop } from '../hooks/useShop';
 import { useLanguage } from '../hooks/useLanguage';
@@ -11,7 +12,7 @@ import { useParams } from 'next/navigation';
 
 
 const Products: React.FC = () => {
-    const { products, shops } = useData();
+    const { products, shops, loadingProducts } = useData();
     const { t } = useLanguage();
     const { selectedShop, setSelectedShop } = useShop();
     const [searchTerm, setSearchTerm] = useState('');
@@ -161,7 +162,13 @@ const Products: React.FC = () => {
 
             {/* Product Grid */}
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {filteredProducts.length > 0 ? (
+                {loadingProducts && products.length === 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                            <ProductCardSkeleton key={i} />
+                        ))}
+                    </div>
+                ) : filteredProducts.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                         {filteredProducts.map(product => (
                             <ProductCard key={product.id} product={product} />

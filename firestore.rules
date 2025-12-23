@@ -61,6 +61,10 @@ service cloud.firestore {
       allow create: if true;
       allow read, update, delete: if isAdmin();
     }
+    match /contact_messages/{document=**} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
     
     // --- Reviews (Read/Create: Everyone, Moderate: Admin) ---
     match /reviews/{document=**} {
@@ -68,10 +72,18 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // --- Chatbot Sessions (Create/Update/Read: Everyone, Admin: Full Access) ---
+    match /chatbot_sessions/{document=**} {
+      allow create, read, update: if true;
+    }
+
     // --- Settings / Internal ---
     match /settings/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+    match /stock_logs/{document=**} {
+      allow read, write: if isAdmin();
     }
     
     // Lock down everything else

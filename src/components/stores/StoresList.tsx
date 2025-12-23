@@ -3,8 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useLanguage } from '../../hooks/useLanguage';
 import { useData } from '../../hooks/useData';
 import { Shop } from '../../types';
+import { isShopOpen } from '../../utils/shopUtils';
 
 interface StoresListProps {
     lang: string;
@@ -13,6 +15,7 @@ interface StoresListProps {
 }
 
 const StoresList: React.FC<StoresListProps> = ({ lang, shops: propShops, compact = false }) => {
+    const { t } = useLanguage();
     const { shops: contextShops, loading } = useData();
     const shops = propShops || contextShops;
 
@@ -29,11 +32,8 @@ const StoresList: React.FC<StoresListProps> = ({ lang, shops: propShops, compact
     // Filter out shops that might be internal or hidden if needed. 
     // For now, we show all shops from Firestore.
     // We can sort them to put "coming_soon" at the end.
-    const sortedShops = [...shops].sort((a, b) => {
-        if (a.status === 'open' && b.status !== 'open') return -1;
-        if (a.status !== 'open' && b.status === 'open') return 1;
-        return 0;
-    });
+    // Use shops as provided (already sorted by useFirestore priority)
+    const sortedShops = [...shops];
 
     const storePathSegment = {
         fr: 'magasins',
@@ -46,6 +46,10 @@ const StoresList: React.FC<StoresListProps> = ({ lang, shops: propShops, compact
             <div className="space-y-4">
                 {sortedShops.map(shop => {
                     const shopSlug = shop.slugs?.[lang] || shop.id;
+                    const isOpen = shop.status === 'open' && isShopOpen(shop.openingHours);
+                    const isTempClosed = shop.status === 'temporarily_closed';
+                    const isSoon = shop.status === 'coming_soon';
+
                     return (
                         <Link
                             key={shop.id}
@@ -61,15 +65,19 @@ const StoresList: React.FC<StoresListProps> = ({ lang, shops: propShops, compact
                                         {shop.address}
                                     </p>
                                 </div>
-                                <span className={`text-xs px-2 py-1 rounded-full font-medium ${shop.status === 'open'
+                                <span className={`text-xs px-2 py-1 rounded-full font-medium ${isOpen
                                     ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                    : 'bg-yellow-100 text-yellow-800'
+                                    : isTempClosed
+                                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400'
+                                        : isSoon
+                                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-400'
+                                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                                     }`}>
-                                    {shop.status === 'open' ? 'Open' : 'Soon'}
+                                    {isOpen ? t('Open Now') : isTempClosed ? t('Temporarily Closed') : isSoon ? t('Coming Soon') : t('Closed')}
                                 </span>
                             </div>
                             <div className="mt-3 flex items-center text-xs text-bel-blue font-medium">
-                                View Details
+                                {t('View Details')}
                                 <svg className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                 </svg>
@@ -86,6 +94,9 @@ const StoresList: React.FC<StoresListProps> = ({ lang, shops: propShops, compact
             {sortedShops.map((shop, index) => {
                 // Fallback for slugs if missing in old data
                 const shopSlug = shop.slugs?.[lang] || shop.id;
+                const isOpen = shop.status === 'open' && isShopOpen(shop.openingHours);
+                const isTempClosed = shop.status === 'temporarily_closed';
+                const isSoon = shop.status === 'coming_soon';
 
                 return (
                     <Link
@@ -110,9 +121,9 @@ const StoresList: React.FC<StoresListProps> = ({ lang, shops: propShops, compact
                                 </div>
                             )}
 
-                            {shop.status === 'coming_soon' && (
+                            {isSoon && (
                                 <div className="absolute top-4 right-4 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow-md z-10">
-                                    Coming Soon
+                                    {t('Coming Soon')}
                                 </div>
                             )}
                         </div>
@@ -125,11 +136,18 @@ const StoresList: React.FC<StoresListProps> = ({ lang, shops: propShops, compact
                                 {shop.zip && `, ${shop.zip}`} {shop.city && shop.city}
                             </p>
                             <div className="flex items-center justify-between">
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${shop.status === 'open' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800'}`}>
-                                    {shop.status === 'open' ? 'Open Now' : 'Coming Soon'}
+                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${isOpen
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                    : isTempClosed
+                                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400'
+                                        : isSoon
+                                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-400'
+                                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                                    }`}>
+                                    {isOpen ? t('Open Now') : isTempClosed ? t('Temporarily Closed') : isSoon ? t('Coming Soon') : t('Closed')}
                                 </span>
                                 <span className="text-bel-blue font-semibold flex items-center">
-                                    View Details
+                                    {t('View Details')}
                                     <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>

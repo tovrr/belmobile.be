@@ -14,6 +14,7 @@ export interface Shop {
     openingHours: string[];
     coords: { lat: number; lng: number };
     status: 'open' | 'coming_soon' | 'temporarily_closed';
+    isHub?: boolean;
     googleMapUrl?: string;
     description?: string;
     photos?: string[];
@@ -229,6 +230,18 @@ export interface RepairPriceRecord {
 // -- Buyback Types --
 export type BuybackCondition = 'new' | 'like-new' | 'good' | 'fair' | 'damaged';
 
+// -- Stock & Audit Types --
+export interface StockLog {
+    id?: string;
+    productId: string;
+    productName: string;
+    type: 'stock_update' | 'price_update' | 'creation' | 'deletion';
+    change: string; // e.g., "Stock updated: 5 -> 10", "Price: €500 -> €450"
+    userEmail: string;
+    date: string;
+    targetShopId?: string; // If specific to a shop
+}
+
 export interface BuybackPriceRecord {
     id?: string;
     deviceId: string; // "apple-iphone-13"
@@ -251,4 +264,14 @@ export interface ProductPriceRecord {
     price: number; // Selling price
     currency: string;
     updatedAt: string;
+}
+
+export interface ContactMessage {
+    id: string;
+    name: string;
+    email: string;
+    message: string;
+    status: 'new' | 'read' | 'replied';
+    date: string;
+    createdAt: string;
 }

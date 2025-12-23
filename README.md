@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Belmobile.be - Premium Buyback & Repair Platform
 
-## Getting Started
+Belmobile is a high-performance Next.js platform designed for local device repair and buyback services in Brussels.
 
-First, run the development server:
+## 🚀 Tech Stack
+- **Framework**: [Next.js 16](https://nextjs.org) (Turbopack Enabled)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com) (Modern utility-first architecture)
+- **Database**: [Firebase](https://firebase.google.com) (Firestore & Storage)
+- **AI Concierge**: [Gemini 2.0 Flash](https://ai.google.dev) (Conversational search & pricing lookup)
+- **PDF Generation**: [jsPDF](https://rawgit.com/MrRio/jsPDF/master/docs/index.html)
 
+## ✨ Core Features
+- **Buyback/Repair Wizard**: A multi-step interactive flow with real-time price estimation.
+- **AI Assistant**: A context-aware chatbot that understands device specifics and store locations.
+- **Admin Power Tools**:
+    - **Batch Actions**: Bulk update prices and stock levels across multiple shops.
+    - **Audit Logs**: Full history of inventory movements and price changes.
+    - **Lead Notifications**: Real-time badges for new quotes and reservations.
+- **Automated Emails**: Integrated with Firebase "Trigger Email" to send PDF summaries to users.
+
+## 🛠️ Getting Started
+
+### 1. Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Setup
+Copy `.env.example` to `.env.local` and fill in your Firebase and Gemini API keys.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Development
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📂 Project Structure
+- `/src/app`: Next.js 13+ App Router pages.
+- `/src/components`: UI components (Admin tools, Wizard, AI Chat).
+- `/src/context`: Global state (Data & Localization).
+- `/src/hooks`: Custom hooks for Firestore real-time data.
+- `/public`: Static assets (Logo, PWA manifest).
 
-## Learn More
+## 📊 Administrative Dashboard
+Access the admin panel at `/login` using your authorized credentials. The dashboard provides real-time KPIs, franchise management, and inventory power tools.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+© 2024 Belmobile.be - All rights reserved.

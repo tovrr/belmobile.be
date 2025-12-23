@@ -9,11 +9,15 @@ import SchemaMarkup from '../components/SchemaMarkup';
 import Input from './ui/Input';
 import Textarea from './ui/Textarea';
 import Button from './ui/Button';
+import { isShopOpen } from '../utils/shopUtils';
+import FadeIn from './ui/FadeIn';
+import Skeleton from './ui/Skeleton';
 
 const Contact: React.FC = () => {
-    const { shops, loadingShops } = useData();
+    const { shops, loadingShops, sendEmail, addContactMessage } = useData();
     const { t } = useLanguage();
     const [submitted, setSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [honeypot, setHoneypot] = useState('');
 
     // Sort shops: Active shops first, Coming Soon last
@@ -25,7 +29,7 @@ const Contact: React.FC = () => {
         });
     }, [shops]);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (honeypot) {
@@ -34,16 +38,85 @@ const Contact: React.FC = () => {
             return;
         }
 
+        setIsSubmitting(true);
         const formData = new FormData(e.currentTarget);
         const name = formData.get('name') as string;
         const email = formData.get('email') as string;
         const message = formData.get('message') as string;
 
-        const subject = encodeURIComponent(`Contact: ${name}`);
-        const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+        try {
+            // 1. Save to Firestore for Admin Dashboard
+            await addContactMessage({ name, email, message });
 
-        window.location.href = `mailto:info@belmobile.be?subject=${subject}&body=${body}`;
-        setSubmitted(true);
+            // 2. Send notification to admin (info@belmobile.be)
+            await sendEmail(
+                'info@belmobile.be',
+                t('email_contact_subject', name),
+                `
+                <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                    <div style="background-color: #4338ca; padding: 20px; text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">${t('New Contact Message')}</h1>
+                    </div>
+                    <div style="padding: 30px; line-height: 1.6;">
+                        <p style="font-size: 16px;">${t('email_contact_body_intro')}</p>
+                        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <p style="margin: 5px 0;"><strong>${t('Name')}:</strong> ${name}</p>
+                            <p style="margin: 5px 0;"><strong>${t('Email')}:</strong> ${email}</p>
+                            <p style="margin: 20px 0 5px 0;"><strong>${t('Message')}:</strong></p>
+                            <div style="font-style: italic; color: #4b5563; border-left: 4px solid #4338ca; padding-left: 15px;">
+                                ${message.replace(/\n/g, '<br/>')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `
+            );
+
+            // 3. Send confirmation to user
+            await sendEmail(
+                email,
+                t('Message Received - Belmobile'),
+                `
+                <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                    <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                        <div style="display: inline-block; text-align: left;">
+                            <div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">
+                                BELMOBILE<span style="color: #eab308;">.BE</span>
+                            </div>
+                            <div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">
+                                BUYBACK & REPAIR
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding: 30px; line-height: 1.6;">
+                        <h2 style="color: #4338ca; margin-top: 0;">${t('Hello')} ${name},</h2>
+                        <p style="font-size: 16px;">${t("Thank you for contacting us. We have successfully received your message and our team will get back to you as soon as possible.")}</p>
+                        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <p style="margin: 0; color: #6b7280; font-size: 14px;">${t('Your message summary:')}</p>
+                            <p style="font-style: italic; color: #4b5563; margin-top: 10px;">"${message.substring(0, 100)}${message.length > 100 ? '...' : ''}"</p>
+                        </div>
+                        <p style="font-size: 14px; color: #6b7280; margin-top: 30px; border-top: 1px solid #e5e7eb; pt: 20px;">
+                            ${t('email_automatic_message')}
+                        </p>
+                    </div>
+                    <div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;">
+                        <p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p>
+                        <p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p>
+                        <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
+                            &copy; ${new Date().getFullYear()} Belmobile. All rights reserved.
+                        </p>
+                    </div>
+                </div>
+                `
+            );
+
+            setSubmitted(true);
+        } catch (error) {
+            console.error("Error handling contact submission:", error);
+            alert("Sorry, there was an error sending your message. Please try again or call us directly.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -142,9 +215,14 @@ const Contact: React.FC = () => {
                                         type="submit"
                                         variant="primary"
                                         className="w-full"
-                                        icon={<PaperAirplaneIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+                                        disabled={isSubmitting}
+                                        icon={isSubmitting ? (
+                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        ) : (
+                                            <PaperAirplaneIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                        )}
                                     >
-                                        {t('Send Message')}
+                                        {isSubmitting ? t('Sending...') : t('Send Message')}
                                     </Button>
                                 </form>
                             )}
@@ -159,72 +237,91 @@ const Contact: React.FC = () => {
                         </div>
 
                         {loadingShops && shops.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-20 bg-white/50 dark:bg-slate-800/50 rounded-3xl border border-dashed border-gray-300 dark:border-slate-700">
-                                <div className="w-10 h-10 border-4 border-bel-blue border-t-transparent rounded-full animate-spin mb-4"></div>
-                                <p className="text-gray-500 dark:text-gray-400">{t('Loading stores...')}</p>
+                            <div className="grid grid-cols-1 gap-6">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="space-y-3 w-48">
+                                                <Skeleton variant="text" className="h-6 w-3/4" />
+                                                <Skeleton variant="text" className="h-4 w-1/2" />
+                                            </div>
+                                            <Skeleton variant="circle" />
+                                        </div>
+                                        <div className="space-y-2 mt-6">
+                                            <Skeleton variant="text" className="h-4" />
+                                            <Skeleton variant="text" className="h-4 w-2/3" />
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 gap-6">
-                                {sortedShops.map((shop) => (
-                                    <div
-                                        key={shop.id}
-                                        className={`
-                                            relative bg-white dark:bg-slate-800 p-8 rounded-3xl border transition-all duration-300 group
-                                            ${shop.status === 'coming_soon'
-                                                ? 'border-dashed border-gray-300 dark:border-slate-700 opacity-90'
-                                                : 'border-gray-100 dark:border-white/5 shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-1 hover:border-bel-blue/30 dark:hover:border-blue-500/30'
-                                            }
-                                        `}
-                                    >
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div>
-                                                <h3 className={`text-xl font-bold mb-1 ${shop.status === 'coming_soon' ? 'text-gray-500 dark:text-gray-400' : 'text-bel-dark dark:text-white group-hover:text-bel-blue dark:group-hover:text-blue-400 transition-colors'}`}>
-                                                    {shop.name}
-                                                </h3>
-                                                {shop.status === 'coming_soon' ? (
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
-                                                        {t('Coming Soon')}
-                                                    </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                                                        <span className="w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-pulse"></span>
-                                                        {t('Open Now')}
-                                                    </span>
+                                {sortedShops.map((shop, idx) => (
+                                    <FadeIn key={shop.id} delay={idx * 0.1}>
+                                        <div
+                                            className={`
+                                                relative bg-white dark:bg-slate-800 p-8 rounded-3xl border transition-all duration-300 group
+                                                ${shop.status === 'coming_soon'
+                                                    ? 'border-dashed border-gray-300 dark:border-slate-700 opacity-90'
+                                                    : 'border-gray-100 dark:border-white/5 shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-1 hover:border-bel-blue/30 dark:hover:border-blue-500/30'
+                                                }
+                                            `}
+                                        >
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h3 className={`text-xl font-bold mb-1 ${shop.status === 'coming_soon' ? 'text-gray-500 dark:text-gray-400' : 'text-bel-dark dark:text-white group-hover:text-bel-blue dark:group-hover:text-blue-400 transition-colors'}`}>
+                                                        {shop.name}
+                                                    </h3>
+                                                    {shop.status === 'coming_soon' ? (
+                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
+                                                            {t('Coming Soon')}
+                                                        </span>
+                                                    ) : isShopOpen(shop.openingHours) ? (
+                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                                            <span className="w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-pulse"></span>
+                                                            {t('Open Now')}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                                                            <span className="w-2 h-2 rounded-full bg-red-500 mr-1.5"></span>
+                                                            {t('Closed')}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="w-10 h-10 rounded-full bg-gray-50 dark:bg-slate-700 flex items-center justify-center text-gray-400 group-hover:bg-bel-blue group-hover:text-white transition-all duration-300">
+                                                    <MapPinIcon className="w-5 h-5" />
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <div className="flex items-start group/addr">
+                                                    <MapPinIcon className="w-5 h-5 mr-3 text-gray-400 mt-0.5 group-hover/addr:text-bel-blue transition-colors" />
+                                                    <span className="text-gray-600 dark:text-gray-300">{shop.address}</span>
+                                                </div>
+                                                {shop.phone && (
+                                                    <div className="flex items-center group/phone">
+                                                        <PhoneIcon className="w-5 h-5 mr-3 text-gray-400 group-hover/phone:text-bel-blue transition-colors" />
+                                                        <a href={`tel:${shop.phone}`} className="text-gray-600 dark:text-gray-300 hover:text-bel-dark dark:hover:text-white transition-colors">
+                                                            {shop.phone}
+                                                        </a>
+                                                    </div>
                                                 )}
                                             </div>
-                                            <div className="w-10 h-10 rounded-full bg-gray-50 dark:bg-slate-700 flex items-center justify-center text-gray-400 group-hover:bg-bel-blue group-hover:text-white transition-all duration-300">
-                                                <MapPinIcon className="w-5 h-5" />
-                                            </div>
-                                        </div>
 
-                                        <div className="space-y-3">
-                                            <div className="flex items-start group/addr">
-                                                <MapPinIcon className="w-5 h-5 mr-3 text-gray-400 mt-0.5 group-hover/addr:text-bel-blue transition-colors" />
-                                                <span className="text-gray-600 dark:text-gray-300">{shop.address}</span>
-                                            </div>
-                                            {shop.phone && (
-                                                <div className="flex items-center group/phone">
-                                                    <PhoneIcon className="w-5 h-5 mr-3 text-gray-400 group-hover/phone:text-bel-blue transition-colors" />
-                                                    <a href={`tel:${shop.phone}`} className="text-gray-600 dark:text-gray-300 hover:text-bel-dark dark:hover:text-white transition-colors">
-                                                        {shop.phone}
+                                            {shop.status !== 'coming_soon' && (
+                                                <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 flex gap-4">
+                                                    <a
+                                                        href={shop.googleMapUrl || `https://www.google.com/maps?q=${shop.coords?.lat},${shop.coords?.lng}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex-1 py-2.5 px-4 rounded-xl bg-gray-50 dark:bg-slate-700/50 text-bel-dark dark:text-white font-semibold text-center hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-sm"
+                                                    >
+                                                        {t('Get Directions')}
                                                     </a>
                                                 </div>
                                             )}
                                         </div>
-
-                                        {shop.status !== 'coming_soon' && (
-                                            <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 flex gap-4">
-                                                <a
-                                                    href={shop.googleMapUrl || `https://www.google.com/maps?q=${shop.coords?.lat},${shop.coords?.lng}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex-1 py-2.5 px-4 rounded-xl bg-gray-50 dark:bg-slate-700/50 text-bel-dark dark:text-white font-semibold text-center hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-sm"
-                                                >
-                                                    {t('Get Directions')}
-                                                </a>
-                                            </div>
-                                        )}
-                                    </div>
+                                    </FadeIn>
                                 ))}
                             </div>
                         )}

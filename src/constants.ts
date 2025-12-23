@@ -19,8 +19,9 @@ export const SHOPS: Shop[] = [
         email: 'schaerbeek@belmobile.be',
         openingHours: ['Tue-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Mon, Sun: Closed'],
         slugs: { fr: 'schaerbeek', nl: 'schaarbeek', en: 'schaerbeek' },
-        coords: { lat: 50.867210, lng: 4.369310 },
+        coords: { lat: 50.86486, lng: 4.36704 },
         status: 'open',
+        city: 'Schaerbeek',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Liedts+Rue+Gallait+4+1030+Schaerbeek'
     },
     {
@@ -31,8 +32,9 @@ export const SHOPS: Shop[] = [
         email: 'anderlecht@belmobile.be',
         openingHours: ['Mon-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Sun: Closed'],
         slugs: { fr: 'anderlecht', nl: 'anderlecht', en: 'anderlecht' },
-        coords: { lat: 50.840820, lng: 4.337250 },
+        coords: { lat: 50.84079, lng: 4.33729 },
         status: 'open',
+        city: 'Anderlecht',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Bara+Rue+Lambert+Crickx+12+1070+Anderlecht'
     },
     {
@@ -43,8 +45,9 @@ export const SHOPS: Shop[] = [
         email: 'molenbeek@belmobile.be',
         openingHours: ['Mon-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Sun: Closed'],
         slugs: { fr: 'molenbeek', nl: 'molenbeek', en: 'molenbeek' },
-        coords: { lat: 50.865650, lng: 4.331420 },
+        coords: { lat: 50.86285, lng: 4.34240 },
         status: 'temporarily_closed',
+        city: 'Molenbeek-Saint-Jean',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis+Rue+Ulens+88+1080+Molenbeek'
     },
     {

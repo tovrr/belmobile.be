@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, ReactNode } from 'react';
-import { Reservation, Quote, Product, Service, Shop, FranchiseApplication, BlogPost, RepairPricing } from '../types';
+import { Reservation, Quote, Product, Service, Shop, FranchiseApplication, BlogPost, RepairPricing, BuybackPriceRecord, StockLog, ContactMessage } from '../types';
 import {
     collection,
     doc,
@@ -18,12 +18,16 @@ import {
     useRepairPrices,
     useReservations,
     useQuotes,
-    useFranchiseApplications
+    useFranchiseApplications,
+    useBuybackPrices,
+    useStockLogs,
+    useContactMessages
 } from '../hooks/useFirestore';
 
 type ReservationStatus = 'pending' | 'approved' | 'cancelled';
 type QuoteStatus = 'new' | 'processing' | 'responded' | 'closed';
 type FranchiseApplicationStatus = 'new' | 'reviewing' | 'approved' | 'rejected';
+type ContactMessageStatus = 'new' | 'read' | 'replied';
 
 interface DataContextType {
     reservations: Reservation[];
@@ -34,12 +38,17 @@ interface DataContextType {
     franchiseApplications: FranchiseApplication[];
     blogPosts: BlogPost[];
     repairPrices: RepairPricing[];
+    buybackPrices: BuybackPriceRecord[];
+    stockLogs: StockLog[];
+    contactMessages: ContactMessage[];
     addReservation: (reservation: Omit<Reservation, 'id' | 'date' | 'status'>) => void;
     addQuote: (quote: Omit<Quote, 'id' | 'date' | 'status'>) => void;
     addFranchiseApplication: (application: Omit<FranchiseApplication, 'id' | 'date' | 'status'>) => void;
     updateReservationStatus: (id: number | string, status: ReservationStatus) => void;
     updateQuoteStatus: (id: number | string, status: QuoteStatus) => void;
     updateFranchiseApplicationStatus: (id: number | string, status: FranchiseApplicationStatus) => void;
+    addContactMessage: (message: Omit<ContactMessage, 'id' | 'date' | 'status' | 'createdAt'>) => void;
+    updateContactMessageStatus: (id: number | string, status: ContactMessageStatus) => void;
     addProduct: (product: Omit<Product, 'id'>) => void;
     updateProduct: (product: Product) => void;
     deleteProduct: (id: number | string) => void;
@@ -53,7 +62,11 @@ interface DataContextType {
     updateBlogPost: (post: BlogPost) => void;
     deleteBlogPost: (id: number | string) => void;
     updateRepairPrice: (pricing: RepairPricing) => void;
+    logStockMovement: (log: Omit<StockLog, 'id' | 'date'>) => void;
+    sendEmail: (to: string, subject: string, html: string, attachments?: { filename: string, content: string, encoding: string }[]) => Promise<void>;
     loading: boolean;
+    loadingProducts: boolean;
+    loadingServices: boolean;
     loadingShops: boolean;
 }
 
@@ -61,16 +74,19 @@ export const DataContext = createContext<DataContextType | undefined>(undefined)
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     // --- FIRESTORE SUBSCRIPTIONS (Refactored to use hooks) ---
-    const { products, loading: productsLoading } = useProducts();
-    const { services, loading: servicesLoading } = useServices();
+    const { products, loading: loadingProducts } = useProducts();
+    const { services, loading: loadingServices } = useServices();
     const { shops, loading: shopsLoading } = useShops();
     const { posts: blogPosts, loading: blogLoading } = useBlogPosts();
     const { prices: repairPrices, loading: pricingLoading } = useRepairPrices();
     const { reservations } = useReservations();
     const { quotes } = useQuotes();
     const { applications: franchiseApplications } = useFranchiseApplications();
+    const { prices: buybackPrices, loading: buybackLoading } = useBuybackPrices();
+    const { logs: stockLogs, loading: stockLoading } = useStockLogs();
+    const { messages: contactMessages, loading: messagesLoading } = useContactMessages();
 
-    const loading = productsLoading || servicesLoading || shopsLoading || blogLoading || pricingLoading;
+    const loading = loadingProducts || loadingServices || shopsLoading || blogLoading || pricingLoading || buybackLoading || stockLoading || messagesLoading;
 
     // Sync local state with hooks (optional, but DataContext expects these values in value prop)
     // Actually, we can just pass the values from hooks directly to the Provider value,
@@ -275,6 +291,66 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
+    const logStockMovement = async (logData: Omit<StockLog, 'id' | 'date'>) => {
+        try {
+            await addDoc(collection(db, 'stock_logs'), {
+                ...logData,
+                date: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error("Error logging stock movement: ", error);
+        }
+    };
+
+    const sendEmail = async (to: string, subject: string, html: string, attachments?: { filename: string, content: string, encoding: string }[]) => {
+        const response = await fetch('/api/mail/send-confirmation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ to, subject, html, attachments })
+        });
+
+        if (!response.ok) {
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch {
+                const text = await response.text();
+                errorData = { error: 'Could not parse JSON', details: text };
+            }
+            console.error('Email API Error Details:', {
+                status: response.status,
+                statusText: response.statusText,
+                data: errorData
+            });
+            throw new Error(errorData.error || `Failed to send email (Status ${response.status})`);
+        }
+    };
+
+    const addContactMessage = async (msg: Omit<ContactMessage, 'id' | 'date' | 'status' | 'createdAt'>) => {
+        try {
+            await addDoc(collection(db, 'contact_messages'), {
+                ...msg,
+                date: new Date().toISOString().split('T')[0],
+                status: 'new',
+                createdAt: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error("Error adding contact message:", error);
+            throw error;
+        }
+    };
+
+    const updateContactMessageStatus = async (id: number | string, status: ContactMessageStatus) => {
+        try {
+            const docRef = doc(db, 'contact_messages', id.toString());
+            await updateDoc(docRef, { status });
+        } catch (error) {
+            console.error("Error updating message status:", error);
+        }
+    };
+
     const value = {
         reservations,
         quotes,
@@ -283,12 +359,17 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         shops,
         franchiseApplications,
         blogPosts,
+        buybackPrices,
+        stockLogs,
+        contactMessages,
         addReservation,
         addQuote,
         addFranchiseApplication,
         updateReservationStatus,
         updateQuoteStatus,
         updateFranchiseApplicationStatus,
+        addContactMessage,
+        updateContactMessageStatus,
         addProduct,
         updateProduct,
         deleteProduct,
@@ -303,7 +384,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         deleteBlogPost,
         repairPrices,
         updateRepairPrice,
+        logStockMovement,
+        sendEmail,
         loading,
+        loadingProducts,
+        loadingServices,
         loadingShops: shopsLoading
     };
 

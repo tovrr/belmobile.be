@@ -21,6 +21,9 @@ import { MODELS as DellModels } from '../data/models/dell';
 import { MODELS as NintendoModels } from '../data/models/nintendo';
 import { MODELS as XboxModels } from '../data/models/xbox';
 
+import { MODELS as MotorolaModels } from '../data/models/motorola';
+import { MODELS as RealmeModels } from '../data/models/realme';
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be';
 
 const MODEL_DATA: Record<string, Record<string, Record<string, number>>> = {
@@ -38,6 +41,8 @@ const MODEL_DATA: Record<string, Record<string, Record<string, number>>> = {
     'dell': DellModels,
     'nintendo': NintendoModels,
     'xbox': XboxModels,
+    'motorola': MotorolaModels,
+    'realme': RealmeModels,
 };
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -80,63 +85,62 @@ export default function sitemap(): MetadataRoute.Sitemap {
                 });
             });
 
-            // Level 3: Service + Brand
-            Object.entries(DEVICE_BRANDS).forEach(([deviceType, brands]) => {
-                brands.forEach(brand => {
-                    const brandSlug = createSlug(brand);
+            // Level 3: Service + Brand (Deduplicated)
+            // Flatten brands to unique list to prevent duplicate URLs (e.g. Apple appearing in phone & tablet)
+            const uniqueBrands = Array.from(new Set(Object.values(DEVICE_BRANDS).flat()));
 
-                    // Service + Brand (e.g., /fr/reparation/apple)
+            uniqueBrands.forEach(brand => {
+                const brandSlug = createSlug(brand);
+
+                // Service + Brand (e.g., /fr/reparation/apple)
+                sitemap.push({
+                    url: `${BASE_URL}/${lang}/${serviceSlug}/${brandSlug}`,
+                    lastModified: new Date(),
+                    changeFrequency: 'weekly',
+                    priority: 0.8,
+                });
+
+                // Service + Brand + Location (e.g., /fr/reparation/apple/bruxelles)
+                LOCATIONS.forEach(location => {
+                    const locationSlug = location.slugs[lang as keyof typeof location.slugs];
                     sitemap.push({
-                        url: `${BASE_URL}/${lang}/${serviceSlug}/${brandSlug}`,
+                        url: `${BASE_URL}/${lang}/${serviceSlug}/${brandSlug}/${locationSlug}`,
                         lastModified: new Date(),
                         changeFrequency: 'weekly',
-                        priority: 0.8,
+                        priority: 0.75,
                     });
+                });
 
-                    // Service + Brand + Location (e.g., /fr/reparation/apple/bruxelles)
-                    LOCATIONS.forEach(location => {
-                        const locationSlug = location.slugs[lang as keyof typeof location.slugs];
-                        sitemap.push({
-                            url: `${BASE_URL}/${lang}/${serviceSlug}/${brandSlug}/${locationSlug}`,
-                            lastModified: new Date(),
-                            changeFrequency: 'weekly',
-                            priority: 0.75,
-                        });
-                    });
+                // Level 4: Service + Brand + Model
+                // Iterate through ALL categories available for this brand in MODEL_DATA
+                const modelsData = MODEL_DATA[brandSlug];
+                if (modelsData) {
+                    Object.values(modelsData).forEach(categoryModels => {
 
-                    // Level 4: Service + Brand + Model
-                    const modelsData = MODEL_DATA[brandSlug];
-                    if (modelsData) {
-                        // modelsData is structured by category: { smartphone: { ... }, tablet: { ... } }
-                        // We should only look for models in the current deviceType category if it exists
-                        const categoryModels = modelsData[deviceType];
+                        Object.keys(categoryModels).forEach(modelName => {
+                            const modelSlug = createSlug(modelName);
 
-                        if (categoryModels) {
-                            Object.keys(categoryModels).forEach(modelName => {
-                                const modelSlug = createSlug(modelName);
+                            // Service + Brand + Model (e.g., /fr/reparation/apple/iphone-13)
+                            sitemap.push({
+                                url: `${BASE_URL}/${lang}/${serviceSlug}/${brandSlug}/${modelSlug}`,
+                                lastModified: new Date(),
+                                changeFrequency: 'weekly',
+                                priority: 0.7,
+                            });
 
-                                // Service + Brand + Model (e.g., /fr/reparation/apple/iphone-13)
+                            // Service + Brand + Model + Location (e.g., /fr/reparation/apple/iphone-13/bruxelles)
+                            LOCATIONS.forEach(location => {
+                                const locationSlug = location.slugs[lang as keyof typeof location.slugs];
                                 sitemap.push({
-                                    url: `${BASE_URL}/${lang}/${serviceSlug}/${brandSlug}/${modelSlug}`,
+                                    url: `${BASE_URL}/${lang}/${serviceSlug}/${brandSlug}/${modelSlug}/${locationSlug}`,
                                     lastModified: new Date(),
-                                    changeFrequency: 'weekly',
-                                    priority: 0.7,
-                                });
-
-                                // Service + Brand + Model + Location (e.g., /fr/reparation/apple/iphone-13/bruxelles)
-                                LOCATIONS.forEach(location => {
-                                    const locationSlug = location.slugs[lang as keyof typeof location.slugs];
-                                    sitemap.push({
-                                        url: `${BASE_URL}/${lang}/${serviceSlug}/${brandSlug}/${modelSlug}/${locationSlug}`,
-                                        lastModified: new Date(),
-                                        changeFrequency: 'monthly',
-                                        priority: 0.6,
-                                    });
+                                    changeFrequency: 'monthly',
+                                    priority: 0.6,
                                 });
                             });
-                        }
-                    }
-                });
+                        });
+                    });
+                }
             });
         });
     });

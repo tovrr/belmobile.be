@@ -1,0 +1,4 @@
+654:         "email_reservation_success": "Your device {0} has been successfully reserved at the {1} store.",
+1462:         "email_reservation_success": "Votre appareil {0} a été réservé avec succès au magasin de {1}.",
+2001:         "email_reservation_success": "Uw toestel {0} is succesvol gereserveerd in de winkel van {1}.",
+2373:         "email_reservation_success": "Uw toestel {0} is succesvol gereserveerd in de winkel van {1}.",

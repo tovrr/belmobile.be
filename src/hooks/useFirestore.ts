@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db, auth } from '../firebase';
-import { Product, Shop, Service, BlogPost, RepairPricing, RepairPriceRecord, Reservation, Quote, FranchiseApplication } from '../types';
+import { Product, Shop, Service, BlogPost, RepairPricing, RepairPriceRecord, Reservation, Quote, FranchiseApplication, BuybackPriceRecord, StockLog, ContactMessage } from '../types';
 
 export const useProducts = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -24,19 +24,54 @@ export const useProducts = () => {
     return { products, loading };
 };
 
+import { SHOPS } from '../constants';
+
 export const useShops = () => {
     const [shops, setShops] = useState<Shop[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const unsub = onSnapshot(collection(db, 'shops'), (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Shop));
+            const data = snapshot.docs.map(doc => {
+                const shopData = { id: doc.id, ...doc.data() } as Shop;
 
-            // Priority Sort: Liedts (schaerbeek) always first
+                // Override with verified constants for core shops to prevent map errors
+                const verifiedShop = SHOPS.find(s => s.id === shopData.id);
+                if (verifiedShop && (shopData.id === 'schaerbeek' || shopData.id === 'anderlecht' || shopData.id === 'molenbeek')) {
+                    return {
+                        ...shopData,
+                        coords: verifiedShop.coords,
+                        address: verifiedShop.address,
+                        name: verifiedShop.name,
+                        status: verifiedShop.status
+                    };
+                }
+                return shopData;
+            });
+
+            // Priority Sort: Liedts (schaerbeek) > Bara (anderlecht) > Tour & Taxis (molenbeek)
+            // Then group established shops (open/temp_closed) above "coming_soon"
+            const priorityIds = ['schaerbeek', 'anderlecht', 'molenbeek'];
+
             const sortedData = [...data].sort((a, b) => {
-                if (a.id === 'schaerbeek') return -1;
-                if (b.id === 'schaerbeek') return 1;
-                return 0;
+                const aIdx = priorityIds.indexOf(a.id as string);
+                const bIdx = priorityIds.indexOf(b.id as string);
+
+                // Both in priority list -> sort by index
+                if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+
+                // One in priority list -> that one goes top
+                if (aIdx !== -1) return -1;
+                if (bIdx !== -1) return 1;
+
+                // Status Sort: Established above Coming Soon
+                const aIsComing = a.status === 'coming_soon';
+                const bIsComing = b.status === 'coming_soon';
+                if (!aIsComing && bIsComing) return -1;
+                if (aIsComing && !bIsComing) return 1;
+
+                // Final sort by name
+                return a.name.localeCompare(b.name);
             });
 
             setShops(sortedData);
@@ -135,6 +170,26 @@ export const useRepairPrices = () => {
     return { prices, loading };
 };
 
+export const useBuybackPrices = () => {
+    const [prices, setPrices] = useState<BuybackPriceRecord[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const unsub = onSnapshot(collection(db, 'buyback_pricing'), (snap) => {
+            const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BuybackPriceRecord));
+            setPrices(data);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching 'buyback_pricing':", error);
+            setLoading(false);
+        });
+
+        return () => unsub();
+    }, []);
+
+    return { prices, loading };
+};
+
 export const useReservations = () => {
     const [reservations, setReservations] = useState<Reservation[]>([]);
     const [loading, setLoading] = useState(true);
@@ -204,4 +259,52 @@ export const useFranchiseApplications = () => {
     }, []);
 
     return { applications, loading };
+};
+
+export const useStockLogs = () => {
+    const [logs, setLogs] = useState<StockLog[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!auth.currentUser) {
+            const timeoutId = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(timeoutId);
+        }
+        const q = query(collection(db, 'stock_logs'), orderBy('date', 'desc'));
+        const unsub = onSnapshot(q, (snapshot) => {
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StockLog));
+            setLogs(data);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching stock logs:", error);
+            setLoading(false);
+        });
+        return () => unsub();
+    }, []);
+
+    return { logs, loading };
+};
+
+export const useContactMessages = () => {
+    const [messages, setMessages] = useState<ContactMessage[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!auth.currentUser) {
+            const timeoutId = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(timeoutId);
+        }
+        const q = query(collection(db, 'contact_messages'), orderBy('date', 'desc'));
+        const unsub = onSnapshot(q, (snapshot) => {
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContactMessage));
+            setMessages(data);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching contact messages:", error);
+            setLoading(false);
+        });
+        return () => unsub();
+    }, []);
+
+    return { messages, loading };
 };

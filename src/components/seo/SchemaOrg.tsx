@@ -3,6 +3,7 @@ import { Shop } from '../../types';
 
 interface SchemaOrgProps {
     shop?: Shop;
+    shops?: Shop[];
     service?: {
         id: string;
         name: { [key: string]: string };
@@ -14,62 +15,94 @@ interface SchemaOrgProps {
     price?: number;
 }
 
-const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, service, device, deviceModel, language, price }) => {
+const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, shops, service, device, deviceModel, language, price }) => {
     const baseUrl = 'https://belmobile.be';
     const schemas = [];
 
-    // 1. LocalBusiness / MobilePhoneStore Schema
-    if (shop) {
+    // 1. Organization Schema (Brand Authority)
+    schemas.push({
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Belmobile",
+        "url": baseUrl,
+        "logo": `${baseUrl}/logo.png`,
+        "sameAs": [
+            "https://www.facebook.com/belmobile",
+            "https://www.instagram.com/belmobile",
+            "https://www.tiktok.com/@belmobile.be"
+        ],
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+32 484 83 75 60",
+            "contactType": "customer service",
+            "areaServed": "BE",
+            "availableLanguage": ["English", "French", "Dutch"]
+        }
+    });
+
+    // 2. LocalBusiness / MobilePhoneStore Schema
+    const shopList = shop ? [shop] : shops || [];
+
+    shopList.forEach(s => {
         const storeSchema = {
             "@context": "https://schema.org",
             "@type": "MobilePhoneStore",
-            "name": shop.name,
-            "image": `${baseUrl}/logo.png`,
-            "@id": `${baseUrl}/${language}/stores/${shop.id}`,
-            "url": `${baseUrl}/${language}/stores/${shop.id}`,
-            "telephone": shop.phone,
-            "email": shop.email,
+            "name": s.name,
+            "image": s.photos && s.photos.length > 0 ? s.photos[0] : `${baseUrl}/logo.png`,
+            "@id": `${baseUrl}/${language}/stores/${s.id}`,
+            "url": `${baseUrl}/${language}/stores/${s.id}`,
+            "telephone": s.phone,
+            "email": s.email,
             "address": {
                 "@type": "PostalAddress",
-                "streetAddress": shop.address,
-                "addressLocality": shop.city || "Brussels",
-                "postalCode": shop.zip || "1000",
+                "streetAddress": s.address,
+                "addressLocality": s.city || "Brussels",
+                "postalCode": s.zip || "1000",
                 "addressCountry": "BE"
             },
             "geo": {
                 "@type": "GeoCoordinates",
-                "latitude": shop.coords?.lat || (shop as { coordinates?: { lat: number } }).coordinates?.lat || 0,
-                "longitude": shop.coords?.lng || (shop as { coordinates?: { lng: number } }).coordinates?.lng || 0
+                "latitude": s.coords?.lat || 0,
+                "longitude": s.coords?.lng || 0
             },
-            "openingHoursSpecification": shop.openingHours && shop.openingHours.length > 0 ? shop.openingHours.map(() => {
-                // Basic parsing, ideally we'd parse "Mon-Fri: 10:00 - 19:00" into structured data
+            "openingHoursSpecification": s.openingHours && s.openingHours.length > 0 ? s.openingHours.map(hourStr => {
+                // Better parsing for "Mon-Fri: 10:30 - 19:00"
+                const [dayRange, timeRange] = hourStr.split(':').map(str => str.trim());
+                if (!timeRange || timeRange.toLowerCase() === 'closed') {
+                    return null;
+                }
+
+                const [opens, closes] = timeRange.split('-').map(str => str.trim());
+                const dayMap: Record<string, string> = {
+                    'Mon': 'Monday', 'Tue': 'Tuesday', 'Wed': 'Wednesday', 'Thu': 'Thursday', 'Fri': 'Friday', 'Sat': 'Saturday', 'Sun': 'Sunday'
+                };
+
+                let dayOfWeek: string[] = [];
+                if (dayRange.includes('-')) {
+                    const [start, end] = dayRange.split('-').map(str => str.trim());
+                    const startIdx = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(start);
+                    const endIdx = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(end);
+                    if (startIdx !== -1 && endIdx !== -1) {
+                        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                        dayOfWeek = days.slice(startIdx, endIdx + 1);
+                    }
+                } else {
+                    dayOfWeek = [dayMap[dayRange] || dayRange];
+                }
+
                 return {
                     "@type": "OpeningHoursSpecification",
-                    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-                    "opens": "10:00",
-                    "closes": "19:00"
+                    "dayOfWeek": dayOfWeek,
+                    "opens": opens,
+                    "closes": closes
                 };
-            }) : [],
+            }).filter(Boolean) : [],
             "priceRange": "€€"
         };
         schemas.push(storeSchema);
-    } else {
-        // Organization Schema for general pages
-        schemas.push({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "Belmobile",
-            "url": baseUrl,
-            "logo": `${baseUrl}/logo.png`,
-            "contactPoint": {
-                "@type": "ContactPoint",
-                "telephone": "+32 2 123 45 67", // Default contact
-                "contactType": "customer service"
-            }
-        });
-    }
+    });
 
-    // 2. Service or Product Schema
+    // 3. Service or Product Schema
     if (service) {
         const serviceName = service.name[language as keyof typeof service.name] || service.name.en;
         const serviceDesc = service.description[language as keyof typeof service.description] || service.description.en;
@@ -99,11 +132,7 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, service, device, deviceMode
                     "name": shop.city || "Brussels"
                 } : {
                     "@type": "City",
-                    "name": "Brussels",
-                    "containedIn": {
-                        "@type": "Country",
-                        "name": "Belgium"
-                    }
+                    "name": "Brussels"
                 },
                 "offers": price ? {
                     "@type": "Offer",
@@ -114,8 +143,6 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, service, device, deviceMode
             };
             schemas.push(repairSchema);
         } else if (service.id === 'buyback') {
-            // For buyback, we can use a Product schema with an Offer to buy
-            // Or a Service schema for "Electronics Recycling"
             const buybackSchema = {
                 "@context": "https://schema.org",
                 "@type": "Service",
@@ -131,7 +158,7 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, service, device, deviceMode
         }
     }
 
-    // 3. BreadcrumbList Schema
+    // 4. BreadcrumbList Schema
     const breadcrumbItems = [
         {
             "@type": "ListItem",
@@ -146,7 +173,7 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, service, device, deviceMode
             "@type": "ListItem",
             "position": 2,
             "name": service.name[language as keyof typeof service.name] || service.name.en,
-            "item": `${baseUrl}/${language}/${service.id}` // Simplified URL construction
+            "item": `${baseUrl}/${language}/${service.id}`
         });
     }
 
@@ -189,3 +216,4 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, service, device, deviceMode
 };
 
 export default SchemaOrg;
+

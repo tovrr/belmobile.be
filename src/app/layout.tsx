@@ -14,6 +14,12 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.svg',
   },
+  manifest: '/manifest.json',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be'),
+};
+
+export const viewport = {
+  themeColor: '#2563eb',
 };
 
 export default function RootLayout({

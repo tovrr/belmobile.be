@@ -11,6 +11,7 @@ import { Shop } from '@/types';
 
 import BuybackRepair from '@/components/BuybackRepair';
 import DynamicSEOContent from '@/components/seo/DynamicSEOContent';
+import LocalPainPoints from '@/components/LocalPainPoints';
 import Hreflang from '@/components/seo/Hreflang';
 import SchemaOrg from '@/components/seo/SchemaOrg';
 import StoreLocator from '@/components/StoreLocator';
@@ -345,7 +346,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
             phone: l.phone,
             email: l.email,
             openingHours: l.openingHours,
-            coords: l.coordinates,
+            coords: l.coords,
             status: 'open' as const,
             googleMapUrl: l.googleMapUrl,
             slugs: l.slugs
@@ -451,6 +452,16 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                     model={deviceModel || undefined}
                     deviceType={deviceCategory}
                 />
+
+                {/* Local Pain Points (Anxiety Reducers) - Moved to bottom as requested */}
+                <div className="mt-12 mb-8">
+                    <LocalPainPoints
+                        lang={lang as 'fr' | 'nl' | 'en'}
+                        locationName={locationName || (lang === 'fr' ? 'Bruxelles' : lang === 'nl' ? 'Brussel' : 'Brussels')}
+                        deviceType={formattedModel || formattedBrand || deviceCategory}
+                        type={type}
+                    />
+                </div>
             </div>
         </div>
     );

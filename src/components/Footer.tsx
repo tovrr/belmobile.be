@@ -231,7 +231,7 @@ const Footer: React.FC = () => {
                                 className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
                             >
                                 <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
-                                {loc.name.replace('Belmobile ', '')}
+                                {loc.city.split('-')[0]}
                             </Link>
                         ))}
                     </div>
@@ -247,7 +247,7 @@ const Footer: React.FC = () => {
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-6 mt-4 md:mt-0">
+                    <div className="flex items-center gap-6 mt-4 md:mt-0 md:pr-24">
                         <Link href={`/${language}/sitemap`} className="hover:text-white transition-colors">{t('Sitemap')}</Link>
 
 
