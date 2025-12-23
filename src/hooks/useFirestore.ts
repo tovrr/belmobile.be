@@ -206,6 +206,10 @@ export const useReservations = () => {
             setLoading(false);
         }, (error) => {
             console.error("Error fetching reservations:", error);
+            // Diagnostic: check if error is permission related
+            if (error.code === 'permission-denied') {
+                console.error("DEBUG: Permission Denied for 'reservations'. Check rules and auth state.");
+            }
             setLoading(false);
         });
         return () => unsub();
@@ -230,6 +234,10 @@ export const useQuotes = () => {
             setLoading(false);
         }, (error) => {
             console.error("Error fetching quotes:", error);
+            // Diagnostic
+            if (error.code === 'permission-denied') {
+                console.error("DEBUG: Permission Denied for 'quotes'.");
+            }
             setLoading(false);
         });
         return () => unsub();
@@ -301,6 +309,10 @@ export const useContactMessages = () => {
             setLoading(false);
         }, (error) => {
             console.error("Error fetching contact messages:", error);
+            // Diagnostic
+            if (error.code === 'permission-denied') {
+                console.error("DEBUG: Permission Denied for 'contact_messages'.");
+            }
             setLoading(false);
         });
         return () => unsub();

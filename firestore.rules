@@ -39,6 +39,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+    // Product catalog pricing matrix
+    match /product_pricing/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
     match /blog_posts/{document=**} {
       allow read: if true;
       allow write: if isAdmin();

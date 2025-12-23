@@ -66,10 +66,10 @@ export const RepairPricingMatrix: React.FC<RepairPricingMatrixProps> = ({ device
     const { prices, loading, updatePrice } = useRobustPricing(deviceId);
 
     // DEBUG: Monitor incoming data
-    useEffect(() => {
-        console.log(`[RepairMatrix] DeviceID: "${deviceId}" | Category: "${category}"`);
-        console.log(`[RepairMatrix] Fetched Prices: ${prices.length} `, prices.slice(0, 3));
-    }, [deviceId, prices, category]);
+    // useEffect(() => {
+    //     console.log(`[RepairMatrix] DeviceID: "${deviceId}" | Category: "${category}"`);
+    //     console.log(`[RepairMatrix] Fetched Prices: ${prices.length} `, prices.slice(0, 3));
+    // }, [deviceId, prices, category]);
 
     // Local state for optimistic updates
     const [localState, setLocalState] = useState<Record<string, { value: string, status: 'idle' | 'saving' | 'saved', lastSaved: number }>>({});
@@ -172,7 +172,7 @@ export const RepairPricingMatrix: React.FC<RepairPricingMatrixProps> = ({ device
             return true;
         });
 
-        console.log('[RepairMatrix] Issues to render:', filteredFinal);
+        // console.log('[RepairMatrix] Issues to render:', filteredFinal);
         return new Set(filteredFinal);
     }, [prices, manuallyActiveIssues, category, globalSettings, deviceId, isFoldable]);
     useEffect(() => {
