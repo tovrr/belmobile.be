@@ -30,13 +30,16 @@ const Hero: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
                     {/* Left: Content */}
-                    <FadeIn direction="left" duration={0.8} className="text-center lg:text-left z-10">
-                        <div
+                    <div className="text-center lg:text-left z-10">
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
                             className="inline-flex items-center px-4 py-2 rounded-full bg-white dark:bg-slate-800 shadow-md shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700 mb-8"
                         >
                             <span className="flex h-2.5 w-2.5 rounded-full bg-cyber-citron mr-3 animate-pulse shadow-[0_0_10px_rgba(234,179,8,0.5)]"></span>
                             <span className="text-sm font-bold text-slate-600 dark:text-slate-300 tracking-wide">{t('New iPhone 17 Series Available')}</span>
-                        </div>
+                        </motion.div>
 
                         <h1
                             className="text-5xl sm:text-6xl lg:text-8xl font-black tracking-tight leading-[0.95] text-slate-900 dark:text-white mb-8 font-heading"
@@ -109,7 +112,7 @@ const Hero: React.FC = () => {
                                 <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('happy_customers')}</span>
                             </div>
                         </div>
-                    </FadeIn>
+                    </div>
 
                     {/* Right: 3D Visual */}
                     <FadeIn direction="right" duration={0.8} delay={0.4} className="relative lg:h-[600px] flex items-center justify-center perspective-1000 mt-12 lg:mt-0">

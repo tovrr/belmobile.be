@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import React, { Suspense } from 'react';
 
 import { SERVICES } from '@/data/services';
 import { LOCATIONS, Location } from '@/data/locations';
@@ -434,12 +435,14 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                 <h1 className="sr-only">{pageTitle}</h1>
 
                 <div className="mt-8">
-                    <BuybackRepair
-                        type={type}
-                        initialShop={initialShop}
-                        initialDevice={initialDevice}
-                        initialCategory={deviceCategory || undefined}
-                    />
+                    <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 dark:bg-slate-800 rounded-2xl" />}>
+                        <BuybackRepair
+                            type={type}
+                            initialShop={initialShop}
+                            initialDevice={initialDevice}
+                            initialCategory={deviceCategory || undefined}
+                        />
+                    </Suspense>
                 </div>
 
                 {/* Dynamic SEO Content (Bottom) */}

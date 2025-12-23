@@ -9,16 +9,16 @@ import { AuthProvider } from '../context/AuthContext';
 
 export function Providers({ children, lang }: { children: React.ReactNode; lang?: string }) {
     return (
-        <AuthProvider>
-            <ThemeProvider>
-                <LanguageProvider initialLanguage={lang as 'en' | 'fr' | 'nl' | undefined}>
-                    <DataProvider>
-                        <ShopProvider>
+        <ThemeProvider>
+            <LanguageProvider initialLanguage={lang as 'en' | 'fr' | 'nl' | undefined}>
+                <DataProvider>
+                    <ShopProvider>
+                        <AuthProvider>
                             {children}
-                        </ShopProvider>
-                    </DataProvider>
-                </LanguageProvider>
-            </ThemeProvider>
-        </AuthProvider>
+                        </AuthProvider>
+                    </ShopProvider>
+                </DataProvider>
+            </LanguageProvider>
+        </ThemeProvider>
     );
 }

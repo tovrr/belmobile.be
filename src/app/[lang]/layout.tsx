@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import Header from '../../components/Header';
 import Breadcrumbs from '../../components/Breadcrumbs';
 import { Providers } from '../../components/Providers';
@@ -21,12 +21,18 @@ export default async function LangLayout({
     return (
         <Providers lang={lang}>
             <div className="min-h-screen flex flex-col font-sans text-slate-900 dark:text-white bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
-                <Header />
-                <Breadcrumbs />
+                <Suspense fallback={<div className="h-20" />}>
+                    <Header />
+                </Suspense>
+                <Suspense fallback={<div className="h-6" />}>
+                    <Breadcrumbs />
+                </Suspense>
                 <main className="grow">
                     {children}
                 </main>
-                <Footer />
+                <Suspense fallback={<div className="h-40" />}>
+                    <Footer />
+                </Suspense>
                 <AIChatAssistantWrapper />
             </div>
         </Providers>

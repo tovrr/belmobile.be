@@ -60,8 +60,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     return (
         <AuthContext.Provider value={{ user, loading, logout, login, updateUserProfile, updateUserPassword }}>
-            {/* Prevent flashing of protected content or redirects while loading */}
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 };
