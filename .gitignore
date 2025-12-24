@@ -61,3 +61,5 @@ ts_errors*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.firebase/logs/
