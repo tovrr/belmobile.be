@@ -1,0 +1,50 @@
+# Belmobile Project Rules (Critical)
+
+You are working on the **Belmobile Next.js 16 (Canary)** project.
+Your goal is **Premium Quality** and **Zero Regression**.
+
+## 🛑 Strict Environment Rules
+1.  **Middleware Convention**: ALWAYS use `src/proxy.ts`. usage of `middleware.ts` is DEPRECATED and will break the build.
+    - Export `proxy` function, NOT `middleware`.
+2.  **Linting**: Ignore local `npm run lint` crashes (Windows/ESLint 9 incompatibility).
+    - **Trust only `npm run build`**. If build passes, code is valid.
+3.  **Vercel Settings**: Vercel Authentication is **DISABLED** on Staging. Do not re-enable it.
+    - Application-level protection is handled by `src/proxy.ts`.
+
+## 🏎️ Performance Doctrine (Core Vitals)
+1.  **Images (`next/image`)**:
+    - **Mandatory**: ALL images must use `next/image`.
+    - **LCP Rule**: The largest image above the fold MUST have `priority` or `loading="eager"`.
+    - **Sizes Prop**: You MUST provide a `sizes` prop for responsive sizing (e.g., `(max-width: 768px) 100vw, 50vw`) to avoid serving desktop images to mobile.
+    - **Format**: Rely on automatic WebP/AVIF optimization; do not hardcode `.png` paths if a localized component handles it.
+2.  **Dynamic Imports**:
+    - **Heavy Libs**: Libraries like `jspdf`, `framer-motion`, or `leaflet` MUST be dynamically imported inside `useEffect` or via `next/dynamic` if they are not critical for the initial paint.
+    - **Components**: "Below the fold" components (like `ReviewsSection`) should be lazy-loaded.
+3.  **Font Optimization**: Use `next/font/google`. NEVER use `<link>` tags for Google Fonts.
+
+## 🔎 SEO Strictness & Metadata
+1.  **Heading Hierarchy**:
+    - **H1**: EXACTLY ONE per page.
+    - **Nesting**: H2 must follow H1, H3 must follow H2. No skipping levels for style. Use CSS/Tailwind for sizing, not tags.
+2.  **Redirects**:
+    - **Source of Truth**: ALL legacy redirects belong in `src/utils/legacyUrlMap.ts`. Do not clutter `next.config.ts`.
+3.  **Schema Markup**:
+    - Manage JSON-LD via `src/components/DynamicSEOContent.tsx`. Do not scatter `<script>` tags in pages.
+4.  **Metadata**:
+    - Use the Next.js `generateMetadata` API. Never use manual `<head>` tags for title/description.
+
+## 📂 Architecture & Patterns
+1.  **Layouts**: Use "Client Wrappers" (e.g., `LayoutWrapper.tsx`) to hide headers/footers. Do NOT refactor into complex Route Groups (`(shop)`, `(main)`) as this breaks `legacyUrlMap` linking.
+2.  **Translations**:
+    - Prefer **lazy-loading** per-language JSONs.
+    - **Do NOT** add massive objects to `translations.ts` (deprecated pattern).
+3.  **Glassmorphism**: Follow `.agent/design-system.md`. Use `backdrop-blur-md` and `bg-white/70`, not solid opacities.
+
+## ⚠️ Common Pitfalls (Auto-Reject)
+- Renaming `proxy.ts` -> `middleware.ts`.
+- "Fixing" lines that rely on `any` casting *unless* you verify the type definition exists (Project has some tight casting for legacy data).
+- Removing `console.error` in `catch` blocks (We need observability).
+
+## 🧪 Verification
+- **Golden Rule**: Run `npm run build` after *any* significant change.
+- **Visual**: If modifying UI, enable "Mobile View" in devtools to verify responsive `sizes` and layout.
