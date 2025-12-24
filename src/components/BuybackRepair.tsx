@@ -182,8 +182,26 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         const normalizeModel = async () => {
             if (!selectedBrand) return;
             try {
-                // Use SEARCH_INDEX to map Slug -> Model Name
-                const searchItem = SEARCH_INDEX[createSlug(`${selectedBrand} ${selectedModel}`)];
+                // 1. Try exact match first
+                let slugKey = createSlug(`${selectedBrand} ${selectedModel}`);
+                let searchItem = SEARCH_INDEX[slugKey];
+
+                // 2. If not found, try stripping common legacy suffixes
+                if (!searchItem) {
+                    const suffixes = ['-prix', '-bruxelles', '-belgium', '-belgique', '-reparation', '-rachat'];
+                    let cleanedModel = selectedModel.toLowerCase();
+
+                    for (const suffix of suffixes) {
+                        if (cleanedModel.endsWith(suffix)) {
+                            cleanedModel = cleanedModel.replace(suffix, '');
+                        }
+                    }
+
+                    // Re-try with cleaned model
+                    slugKey = createSlug(`${selectedBrand} ${cleanedModel}`);
+                    searchItem = SEARCH_INDEX[slugKey];
+                }
+
                 if (searchItem && searchItem.model && searchItem.model !== selectedModel) {
                     setSelectedModel(searchItem.model);
                 }
