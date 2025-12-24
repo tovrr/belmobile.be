@@ -49,3 +49,8 @@ To ensure stability, continuity, and high performance while maintaining the orig
 - **Status Automation**: Triggers for review emails or status updates should be hooked directly into the Admin status change logic (e.g., `QuoteDetailsModal.tsx`).
 - **Satisfaction Gating**: Always preserve the logic where low ratings (<4) are kept private (alerting admins) and high ratings (4+) are directed to public platforms (Google Maps).
 
+## 10. Next.js 16 & Deployment Rules (Critical)
+- **Proxy Convention**: usage of `src/middleware.ts` is DEPRECATED in Next.js 16 Canary. You MUST use `src/proxy.ts` (exporting a `proxy` function) for middleware logic.
+- **Vercel Auth Conflict**: Vercel "Deployment Protection" (Authentication) conflicts with application-level middleware (PIN gates). It MUST be disabled for Staging/Preview environments to allow `proxy.ts` to handle protection.
+- **Linting vs Build**: Local `npm run lint` crashes with ESLint 9 + Next.js Canary are known and non-blocking if `npm run build` succeeds. Always prioritize a successful build over fixing local lint toolchain crashes.
+- **Layout Strategy**: Use "Client Wrappers" (e.g., `LayoutWrapper.tsx`) to conditionally hide layouts based on path, rather than complex Route Group refactors which break existing linking structures.
