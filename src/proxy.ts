@@ -44,7 +44,7 @@ const PATH_TRANSLATIONS: Record<string, Record<string, string>> = {
     }
 };
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const { pathname, searchParams } = request.nextUrl;
     const hostname = request.headers.get('host') || '';
 
@@ -65,7 +65,9 @@ export function middleware(request: NextRequest) {
             const STAGING_PIN = '2580';
 
             if (pinParam === STAGING_PIN) {
-                const response = NextResponse.next();
+                const url = request.nextUrl.clone();
+                url.searchParams.delete('pin');
+                const response = NextResponse.redirect(url);
                 response.cookies.set('staging_access_granted', 'true', {
                     maxAge: 60 * 60 * 24 * 7, // 1 week
                     path: '/',
@@ -102,6 +104,7 @@ export function middleware(request: NextRequest) {
             pathname.startsWith('/api') ||
             pathname.startsWith('/admin') ||
             pathname.startsWith('/migrate') ||
+            pathname.startsWith('/protected') ||
             pathname.includes('.')
         ) {
             return NextResponse.next();
@@ -135,3 +138,5 @@ export const config = {
         '/((?!api|_next/static|_next/image|favicon.ico).*)',
     ],
 };
+
+export default proxy;
