@@ -160,6 +160,15 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     // Service Point State
     const [servicePoint, setServicePoint] = useState<{ name: string; street: string; house_number: string; postal_code: string; city: string;[key: string]: unknown } | null>(null);
 
+    // Typewriter effect states for search bar
+    const [wizardPlaceholder, setWizardPlaceholder] = useState('');
+    const [wizardPlaceholderIndex, setWizardPlaceholderIndex] = useState(0);
+    const [wizardIsDeleting, setWizardIsDeleting] = useState(false);
+    const [wizardPlaceholderSpeed, setWizardPlaceholderSpeed] = useState(150);
+
+    // Load placeholders from i18n
+    const wizardPlaceholders = useMemo(() => (t('wizard_placeholders') || "").split('|').filter(Boolean), [t]);
+
     // URL Params State
     // URL Params State
 
@@ -179,6 +188,34 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             document.body.removeChild(script);
         };
     }, []);
+
+    // Placeholder typewriter effect for wizard search
+    useEffect(() => {
+        if (wizardPlaceholders.length === 0 || step !== 1) return;
+
+        const handleType = () => {
+            const current = wizardPlaceholders[wizardPlaceholderIndex % wizardPlaceholders.length];
+            const updatedText = wizardIsDeleting
+                ? current.substring(0, wizardPlaceholder.length - 1)
+                : current.substring(0, wizardPlaceholder.length + 1);
+
+            setWizardPlaceholder(updatedText);
+
+            if (!wizardIsDeleting && updatedText === current) {
+                setWizardPlaceholderSpeed(2000); // Wait before deleting
+                setWizardIsDeleting(true);
+            } else if (wizardIsDeleting && updatedText === '') {
+                setWizardIsDeleting(false);
+                setWizardPlaceholderIndex((prev) => prev + 1);
+                setWizardPlaceholderSpeed(150);
+            } else {
+                setWizardPlaceholderSpeed(wizardIsDeleting ? 50 : 150);
+            }
+        };
+
+        const timer = setTimeout(handleType, wizardPlaceholderSpeed);
+        return () => clearTimeout(timer);
+    }, [wizardPlaceholder, wizardIsDeleting, wizardPlaceholderIndex, wizardPlaceholderSpeed, wizardPlaceholders, step]);
 
     // Normalize Selected Model from Slug to Display Name
     // This ensures consistency between URL slugs (e.g. 'galaxy-s22') and Select options ('Galaxy S22')
@@ -1471,7 +1508,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                     <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" aria-hidden="true" />
                     <input
                         type="text"
-                        placeholder={t('Search your device (e.g. iPhone 13, Samsung S21...)')}
+                        placeholder={wizardPlaceholder || t('Search your device (e.g. iPhone 13, Samsung S21...)')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-bel-blue focus:ring-4 focus:ring-blue-500/10 transition-all text-lg"
