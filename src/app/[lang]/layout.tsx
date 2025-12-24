@@ -27,6 +27,10 @@ async function getTranslations(lang: string): Promise<TranslationDict> {
     }
 }
 
+import LayoutWrapper from '../../components/LayoutWrapper';
+
+// ... imports remain the same ...
+
 export default async function LangLayout({
     children,
     params,
@@ -40,21 +44,28 @@ export default async function LangLayout({
     return (
         <Providers lang={lang} translations={translations}>
             <div className="min-h-screen flex flex-col font-sans text-slate-900 dark:text-white bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
-                <Suspense fallback={<div className="h-20" />}>
-                    <Header />
-                </Suspense>
-                <Suspense fallback={<div className="h-6" />}>
-                    <Breadcrumbs />
-                </Suspense>
+                <LayoutWrapper>
+                    <Suspense fallback={<div className="h-20" />}>
+                        <Header />
+                    </Suspense>
+                    <Suspense fallback={<div className="h-6" />}>
+                        <Breadcrumbs />
+                    </Suspense>
+                </LayoutWrapper>
+
                 <main className="grow">
                     {children}
                 </main>
-                <Suspense fallback={<div className="h-40" />}>
-                    <Footer />
-                </Suspense>
-                <CookieConsent />
+
+                <LayoutWrapper>
+                    <Suspense fallback={<div className="h-40" />}>
+                        <Footer />
+                    </Suspense>
+                    <CookieConsent />
+                    <AIChatAssistantWrapper />
+                </LayoutWrapper>
+
                 <GoogleAnalytics />
-                <AIChatAssistantWrapper />
                 <SchemaMarkup type="organization" />
             </div>
         </Providers>
