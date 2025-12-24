@@ -125,6 +125,8 @@ const Hero: React.FC = () => {
                                     alt="Modern smartphone interface showing Belmobile services"
                                     fill
                                     priority
+                                    loading="eager"
+                                    sizes="(max-width: 768px) 100vw, 50vw"
                                     className="w-full h-full object-cover opacity-80"
                                 />
                                 <div className="absolute inset-0 bg-linear-to-t from-electric-indigo/50 to-transparent flex flex-col justify-end p-6">

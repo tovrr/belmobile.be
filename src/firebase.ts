@@ -11,13 +11,13 @@ import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyB-tTI2c7vVRjTcT-dP343kJVmXrWEKg04",
-    authDomain: "bemobile-be-live.firebaseapp.com",
-    projectId: "bemobile-be-live",
-    storageBucket: "bemobile-be-live.firebasestorage.app",
-    messagingSenderId: "762182430296",
-    appId: "1:762182430296:web:57265d4a4661bdc0cbe42d",
-    measurementId: "G-M3D46BYRSX"
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);

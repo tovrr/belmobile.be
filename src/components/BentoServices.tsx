@@ -28,6 +28,7 @@ const BentoServices: React.FC = () => {
                                 src="/images/bento/repair_bg.png"
                                 alt={t('Expert Repair')}
                                 fill
+                                sizes="(max-width: 768px) 100vw, 33vw"
                                 className="object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700 blur-[2px] group-hover:blur-0"
                             />
                             <div className="absolute inset-0 bg-linear-to-b from-slate-900/60 via-slate-900/40 to-slate-900/80"></div>
@@ -55,6 +56,7 @@ const BentoServices: React.FC = () => {
                                 src="/images/hero_phone_bg.png"
                                 alt={t('Sell Your Device')}
                                 fill
+                                sizes="(max-width: 768px) 100vw, 66vw"
                                 className="object-cover opacity-30 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700"
                             />
                             <div className="absolute inset-0 bg-linear-to-r from-slate-900/80 via-slate-900/40 to-transparent"></div>
@@ -78,6 +80,7 @@ const BentoServices: React.FC = () => {
                                 src="/images/bento/shop_bg.png"
                                 alt={t('bento_shop_alt')}
                                 fill
+                                sizes="(max-width: 768px) 100vw, 33vw"
                                 className="object-cover opacity-40 group-hover:opacity-60 group-hover:scale-110 transition-all duration-700"
                             />
                             <div className="absolute inset-0 bg-linear-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
@@ -100,6 +103,7 @@ const BentoServices: React.FC = () => {
                                 src="/images/bento/business_bg.png"
                                 alt={t('bento_business_alt')}
                                 fill
+                                sizes="(max-width: 768px) 100vw, 33vw"
                                 className="object-cover opacity-30 group-hover:opacity-50 group-hover:scale-110 transition-all duration-700"
                             />
                             <div className="absolute inset-0 bg-linear-to-tr from-slate-900/90 via-slate-900/20 to-transparent"></div>
