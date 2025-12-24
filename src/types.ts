@@ -16,6 +16,8 @@ export interface Shop {
     status: 'open' | 'coming_soon' | 'temporarily_closed';
     isHub?: boolean;
     googleMapUrl?: string;
+    googlePlaceId?: string;
+    googleReviewUrl?: string;
     description?: string;
     photos?: string[];
     services?: string[];
@@ -61,6 +63,10 @@ export interface Reservation {
     shopId: number | string;
     status: 'pending' | 'approved' | 'cancelled';
     date: string;
+    deliveryMethod?: 'pickup' | 'shipping';
+    shippingAddress?: string;
+    shippingCity?: string;
+    shippingZip?: string;
 }
 
 export interface Quote {
@@ -82,10 +88,13 @@ export interface Quote {
     iban?: string;
     idUrl?: string;
     shopId: number | string;
-    status: 'new' | 'processing' | 'responded' | 'closed';
+    status: 'new' | 'processing' | 'waiting_parts' | 'repaired' | 'shipped' | 'responded' | 'closed';
     date: string;
     photoUrl?: string;
     price?: number;
+    language?: string; // stored language for email notifications
+    trackingNumber?: string;
+    shippingLabelUrl?: string;
 }
 
 export interface FranchiseApplication {

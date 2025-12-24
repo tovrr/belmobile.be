@@ -34,8 +34,8 @@ export const LOCATIONS: Location[] = [
         openingHours: ['Tue-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Mon, Sun: Closed'],
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Liedts+Rue+Gallait+4+1030+Schaerbeek',
         photos: [
-            'https://images.unsplash.com/photo-1581092921461-eab62e97a782?q=80&w=800&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1592899671815-51527a557a7d?q=80&w=800&auto=format&fit=crop'
+            '/images/franchise_hero.png',
+            '/images/hero_phone_bg.png'
         ],
         slugs: {
             fr: 'schaerbeek',
@@ -55,8 +55,8 @@ export const LOCATIONS: Location[] = [
         openingHours: ['Mon-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Sun: Closed'],
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis+Rue+Ulens+88+1080+Molenbeek',
         photos: [
-            'https://images.unsplash.com/photo-1581092921461-eab62e97a782?q=80&w=800&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1592899671815-51527a557a7d?q=80&w=800&auto=format&fit=crop'
+            '/images/franchise_hero.png',
+            '/images/hero_phone_bg.png'
         ],
         slugs: {
             fr: 'molenbeek',

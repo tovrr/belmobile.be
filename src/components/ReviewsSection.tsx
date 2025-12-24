@@ -1,41 +1,170 @@
-import React from 'react';
-import { StarIcon } from '@heroicons/react/24/solid';
+'use client';
 
-const MOCK_REVIEWS = [
-    { id: 1, author: 'Jean Dupont', rating: 5, text: 'Service rapide et impeccable ! Mon iPhone est comme neuf.', date: '2 days ago' },
-    { id: 2, author: 'Marie Peeters', rating: 5, text: 'Très bon accueil à Schaerbeek. Je recommande.', date: '1 week ago' },
-    { id: 3, author: 'Ahmed Benali', rating: 4, text: 'Bon prix pour le rachat de mon Samsung.', date: '2 weeks ago' },
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { StarIcon } from '@heroicons/react/24/solid';
+import { useLanguage } from '../hooks/useLanguage';
+import FadeIn from './ui/FadeIn';
+
+interface Review {
+    id: string;
+    author: string;
+    rating: number;
+    text: string;
+    date: string;
+    shopName?: string;
+    photoUrl?: string;
+}
+
+const MOCK_REVIEWS: Review[] = [
+    { id: '1', author: 'Jean Dupont', rating: 5, text: 'Service rapide et impeccable ! Mon iPhone est comme neuf.', date: '2 days ago' },
+    { id: '2', author: 'Marie Peeters', rating: 5, text: 'Très bon accueil à Schaerbeek. Je recommande.', date: '1 week ago' },
+    { id: '3', author: 'Ahmed Benali', rating: 4, text: 'Bon prix pour le rachat de mon Samsung.', date: '2 weeks ago' },
 ];
 
-const ReviewsSection = ({ lang }: { lang: string }) => {
+const ReviewsSection: React.FC = () => {
+    const { t, language } = useLanguage();
+    const [reviews, setReviews] = useState<Review[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [showAll, setShowAll] = useState(false);
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            setIsLoading(true);
+            try {
+                const response = await fetch(`/api/reviews?lang=${language}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        setReviews(data);
+                    } else {
+                        setReviews(MOCK_REVIEWS);
+                    }
+                } else {
+                    setReviews(MOCK_REVIEWS);
+                }
+            } catch (error) {
+                console.error('Error fetching reviews:', error);
+                setReviews(MOCK_REVIEWS);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchReviews();
+    }, [language]);
+
+    // On mobile (< 768px), we show 3 reviews initially unless "showAll" is true
+    // On desktop, we always show all reviews (up to 9)
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    const displayReviews = isLoading ? [] : (isMobile && !showAll ? reviews.slice(0, 3) : reviews);
+
     return (
-        <div className="mt-12 mb-12">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white flex items-center gap-2">
-                <StarIcon className="h-6 w-6 text-yellow-400" />
-                {lang === 'fr' ? 'Avis Clients' : lang === 'nl' ? 'Klantenbeoordelingen' : 'Customer Reviews'}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {MOCK_REVIEWS.map(review => (
-                    <div key={review.id} className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm">
-                        <div className="flex items-center mb-4">
-                            <div className="w-10 h-10 bg-bel-blue/10 rounded-full flex items-center justify-center text-bel-blue font-bold mr-3">
-                                {review.author.charAt(0)}
-                            </div>
-                            <div>
-                                <div className="font-bold text-gray-900 dark:text-white">{review.author}</div>
-                                <div className="text-xs text-gray-500">{review.date}</div>
-                            </div>
-                        </div>
-                        <div className="flex mb-3">
+        <section className="py-20 relative">
+            <div className="container mx-auto px-4 relative z-10">
+                <FadeIn>
+                    <div className="text-center mb-16">
+                        <span className="text-electric-indigo font-bold tracking-widest text-xs uppercase mb-2 block">
+                            {t('Testimonials')}
+                        </span>
+                        <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4 flex items-center justify-center gap-3">
+                            {t('Customer Reviews')}
+                        </h2>
+                        <div className="flex items-center justify-center gap-1 mb-2">
                             {[...Array(5)].map((_, i) => (
-                                <StarIcon key={i} className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`} />
+                                <StarIcon key={i} className="h-6 w-6 text-yellow-400" />
                             ))}
                         </div>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">&quot;{review.text}&quot;</p>
+                        <p className="text-lg text-slate-500 dark:text-slate-400">4.9/5 {t('Average Rating')}</p>
                     </div>
-                ))}
+                </FadeIn>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                    {isLoading ? (
+                        // Skeleton Loaders
+                        [...Array(3)].map((_, i) => (
+                            <div key={i} className="h-64 bg-white dark:bg-slate-900/60 animate-pulse rounded-3xl border border-gray-100 dark:border-white/10 shadow-lg p-8" />
+                        ))
+                    ) : (
+                        displayReviews.map((review: Review, i: number) => (
+                            <FadeIn key={review.id} delay={i * 0.1}>
+                                <div className="h-full bg-white dark:bg-slate-900/60 backdrop-blur-xl p-8 rounded-3xl border border-gray-100 dark:border-white/10 shadow-lg hover:shadow-xl transition-all duration-300">
+                                    <div className="flex items-center mb-6">
+                                        {review.photoUrl ? (
+                                            <div className="relative w-12 h-12 rounded-full mr-4 border border-gray-100 dark:border-white/10 overflow-hidden">
+                                                <Image
+                                                    src={review.photoUrl}
+                                                    alt={review.author}
+                                                    width={48}
+                                                    height={48}
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="w-12 h-12 bg-electric-indigo/10 rounded-full flex items-center justify-center text-electric-indigo font-bold text-xl mr-4 border border-electric-indigo/20">
+                                                {review.author.charAt(0)}
+                                            </div>
+                                        )}
+                                        <div>
+                                            <div className="font-bold text-lg text-slate-900 dark:text-white">{review.author}</div>
+                                            <div className="text-sm text-slate-500">
+                                                {review.date}
+                                                {review.shopName && (
+                                                    <span className="text-xs opacity-55 ml-1 italic font-medium">
+                                                        ({t('at_shop').replace('{0}', review.shopName.replace('Belmobile ', ''))})
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex mb-4">
+                                        {[...Array(5)].map((_, i) => (
+                                            <StarIcon key={i} className={`h-5 w-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-slate-700'}`} />
+                                        ))}
+                                    </div>
+                                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed italic line-clamp-4">&quot;{review.text}&quot;</p>
+                                </div>
+                            </FadeIn>
+                        ))
+                    )}
+                </div>
+
+                {isMobile && reviews.length > 3 && (
+                    <div className="mt-8 text-center">
+                        <button
+                            onClick={() => setShowAll(!showAll)}
+                            className="px-6 py-2 rounded-full bg-electric-indigo/10 text-electric-indigo font-bold text-sm hover:bg-electric-indigo/20 transition-all"
+                        >
+                            {showAll ? t('Show Less') : t('Show More')}
+                        </button>
+                    </div>
+                )}
+
+                {!isLoading && (
+                    <div className="mt-12 text-center animate-fade-in">
+                        <a
+                            href="https://www.google.com/maps/search/Belmobile"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-sm font-bold text-electric-indigo hover:text-indigo-600 transition-colors"
+                        >
+                            <span>{t('View all reviews on Google')}</span>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                        </a>
+                    </div>
+                )}
             </div>
-        </div>
+        </section>
     );
 };
 

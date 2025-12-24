@@ -39,3 +39,13 @@ To ensure stability, continuity, and high performance while maintaining the orig
   - **No Placeholders**: Use AI-generated high-fidelity images and icons instead of generic boxes.
 
 
+## 8. Performance-First Architecture
+- **Lazy Translation Loading**: Always use the lazy-loading pattern for translations. Centralized `translations.ts` is deprecated in favor of per-language JSON assets in `public/locales/`.
+- **Heavy Library Deferral**: Never import heavy libraries (e.g., `jspdf`, `framer-motion`) at the top level of critical components. Use dynamic `import()` within utilities or user-triggered handlers.
+- **Client-Side Optimization**: Keep the initial JavaScript payload minimal by using dynamic imports for components that are "below the fold" or hidden behind modals.
+
+## 9. Automated Communication & Feedback
+- **Centralized Templates**: All email HTML generation must reside in `src/utils/emailTemplates.ts` to ensure consistent branding and easy localization.
+- **Status Automation**: Triggers for review emails or status updates should be hooked directly into the Admin status change logic (e.g., `QuoteDetailsModal.tsx`).
+- **Satisfaction Gating**: Always preserve the logic where low ratings (<4) are kept private (alerting admins) and high ratings (4+) are directed to public platforms (Google Maps).
+

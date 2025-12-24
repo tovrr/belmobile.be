@@ -22,7 +22,9 @@ export const SHOPS: Shop[] = [
         coords: { lat: 50.86486, lng: 4.36704 },
         status: 'open',
         city: 'Schaerbeek',
-        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Liedts+Rue+Gallait+4+1030+Schaerbeek'
+        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Liedts&query_place_id=ChIJk6VQXpHDw0cRNEdLpSrOUkY',
+        googlePlaceId: 'ChIJk6VQXpHDw0cRNEdLpSrOUkY',
+        googleReviewUrl: 'https://search.google.com/local/writereview?placeid=ChIJk6VQXpHDw0cRNEdLpSrOUkY'
     },
     {
         id: 'anderlecht',
@@ -35,7 +37,9 @@ export const SHOPS: Shop[] = [
         coords: { lat: 50.84079, lng: 4.33729 },
         status: 'open',
         city: 'Anderlecht',
-        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Bara+Rue+Lambert+Crickx+12+1070+Anderlecht'
+        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Bara&query_place_id=ChIJY6KmKtLDw0cRy7JDeNAZ2wQ',
+        googlePlaceId: 'ChIJY6KmKtLDw0cRy7JDeNAZ2wQ',
+        googleReviewUrl: 'https://search.google.com/local/writereview?placeid=ChIJY6KmKtLDw0cRy7JDeNAZ2wQ'
     },
     {
         id: 'molenbeek',
@@ -48,7 +52,9 @@ export const SHOPS: Shop[] = [
         coords: { lat: 50.86285, lng: 4.34240 },
         status: 'temporarily_closed',
         city: 'Molenbeek-Saint-Jean',
-        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis+Rue+Ulens+88+1080+Molenbeek'
+        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis&query_place_id=ChIJGxd7E8HDw0cR-MZLYJTdG2w',
+        googlePlaceId: 'ChIJGxd7E8HDw0cR-MZLYJTdG2w',
+        googleReviewUrl: 'https://search.google.com/local/writereview?placeid=ChIJGxd7E8HDw0cR-MZLYJTdG2w'
     },
     {
         id: 4,
@@ -94,7 +100,7 @@ export const MOCK_PRODUCTS: Product[] = [
         name: "iPhone 13",
         price: 599,
         description: "A15 Bionic chip, advanced dual-camera system.",
-        imageUrl: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?q=80&w=800&auto=format&fit=crop",
+        imageUrl: "/images/hero_phone_bg.png",
         category: "smartphone",
         brand: "Apple",
         condition: 'perfect',
@@ -104,6 +110,38 @@ export const MOCK_PRODUCTS: Product[] = [
         availability: { 'schaerbeek': 5, 'anderlecht': 2, 'molenbeek': 0 }
     }
 ];
+
+export const POPULAR_BUYBACKS = [
+    {
+        id: 'iphone-15-pro-max',
+        name: 'iPhone 15 Pro Max',
+        maxPrice: 950,
+        image: '/images/hero_phone_bg.png',
+        brand: 'Apple'
+    },
+    {
+        id: 'iphone-14-pro',
+        name: 'iPhone 14 Pro',
+        maxPrice: 680,
+        image: '/images/hero_phone_bg.png',
+        brand: 'Apple'
+    },
+    {
+        id: 'samsung-s24-ultra',
+        name: 'Galaxy S24 Ultra',
+        maxPrice: 820,
+        image: '/images/bento/repair_bg.png',
+        brand: 'Samsung'
+    },
+    {
+        id: 'macbook-air-m2',
+        name: 'MacBook Air M2',
+        maxPrice: 750,
+        image: '/images/bento/business_bg.png',
+        brand: 'Apple'
+    }
+];
+
 
 // Reordered: Repair > Buyback > Products > Stores.
 export const NAV_LINKS: NavLink[] = [
@@ -166,17 +204,17 @@ export const SEO_CONTENT: Record<string, { title: string; text: string; image: s
     buyback_step1: {
         title: "Sell Your Device for the Best Price",
         text: "Belmobile offers the highest buyback rates in Belgium. Whether it's an iPhone, Samsung, or MacBook, get an instant quote and fast payment. We recycle responsibly and give your device a second life.",
-        image: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?q=80&w=800&auto=format&fit=crop"
+        image: "/images/hero_phone_bg.png"
     },
     repair_step1: {
         title: "Expert Repair Services",
         text: "Broken screen? Battery draining fast? Our certified technicians use premium parts to restore your device to perfect condition. Most repairs are done in under 30 minutes.",
-        image: "https://images.unsplash.com/photo-1581092921461-eab62e97a782?q=80&w=800&auto=format&fit=crop"
+        image: "/images/bento/repair_bg.png"
     },
     buyback_smartphone: {
         title: "Sell Your Smartphone",
         text: "Upgrade to the latest model by selling your old smartphone. We accept all major brands including Apple, Samsung, Xiaomi, and more. Best price guaranteed.",
-        image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=800&auto=format&fit=crop"
+        image: "/images/hero_phone_bg.png"
     },
     repair_smartphone: {
         title: "Smartphone Repair Specialists",

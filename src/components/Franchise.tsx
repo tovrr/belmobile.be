@@ -76,7 +76,7 @@ const Franchise: React.FC = () => {
             <div className="relative bg-slate-900 overflow-hidden">
                 <div className="absolute inset-0">
                     <Image
-                        src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1600&auto=format&fit=crop"
+                        src="/images/franchise_hero.png"
                         fill
                         className="object-cover opacity-10"
                         alt="Mobile Shop Business"

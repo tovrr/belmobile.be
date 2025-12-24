@@ -17,6 +17,10 @@ Belmobile is a high-performance Next.js platform designed for local device repai
     - **Audit Logs**: Full history of inventory movements and price changes.
     - **Lead Notifications**: Real-time badges for new quotes and reservations.
 - **Automated Emails**: Integrated with Firebase "Trigger Email" to send PDF summaries to users.
+- **Reviews & Satisfaction Gate**:
+    - **Google Integration**: Fetches real-time reviews via Google Places API.
+    - **Satisfaction Gate**: Redirects happy customers to Google; captures private feedback from others.
+    - **Automated Triggers**: Schedules follow-up emails exactly 3 days after an order is closed.
 
 ## 🛠️ Getting Started
 

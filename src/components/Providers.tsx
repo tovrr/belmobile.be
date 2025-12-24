@@ -6,19 +6,20 @@ import { DataProvider } from '../context/DataContext';
 import { LanguageProvider } from '../hooks/useLanguage';
 import { ThemeProvider } from '../context/ThemeContext';
 import { AuthProvider } from '../context/AuthContext';
+import { TranslationDict } from '../utils/translations';
 
-export function Providers({ children, lang }: { children: React.ReactNode; lang?: string }) {
+export function Providers({ children, lang, translations }: { children: React.ReactNode; lang?: string; translations?: TranslationDict }) {
     return (
         <ThemeProvider>
-            <LanguageProvider initialLanguage={lang as 'en' | 'fr' | 'nl' | undefined}>
-                <DataProvider>
-                    <ShopProvider>
-                        <AuthProvider>
+            <AuthProvider>
+                <LanguageProvider initialLanguage={lang as 'en' | 'fr' | 'nl' | undefined} initialTranslations={translations}>
+                    <DataProvider>
+                        <ShopProvider>
                             {children}
-                        </AuthProvider>
-                    </ShopProvider>
-                </DataProvider>
-            </LanguageProvider>
+                        </ShopProvider>
+                    </DataProvider>
+                </LanguageProvider>
+            </AuthProvider>
         </ThemeProvider>
     );
 }

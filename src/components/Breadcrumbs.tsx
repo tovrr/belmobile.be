@@ -55,28 +55,7 @@ const Breadcrumbs: React.FC = () => {
         return null;
     }
 
-    const breadcrumbData = {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": `https://belmobile.be/#/${language}`
-            },
-            ...pathnames.map((name, index) => {
-                const path = `/${language}/${pathnames.slice(0, index + 1).join('/')}`;
-                const displayName = getDisplayName(name, t, products, language);
-                return {
-                    "@type": "ListItem",
-                    "position": index + 2,
-                    "name": displayName,
-                    "item": `https://belmobile.be/#${path}`
-                };
-            })
-        ]
-    };
+
 
     return (
         <nav aria-label="Breadcrumb" className="bg-gray-100 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 transition-colors duration-300">
@@ -117,9 +96,6 @@ const Breadcrumbs: React.FC = () => {
                     })}
                 </ol>
             </div>
-            <script type="application/ld+json">
-                {JSON.stringify(breadcrumbData)}
-            </script>
         </nav>
     );
 };

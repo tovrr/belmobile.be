@@ -6,7 +6,7 @@ import { MOCK_BLOG_POSTS } from '../../../../constants';
 import { db } from '../../../../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { BlogPost as BlogPostType } from '../../../../types';
-import { translations } from '../../../../utils/translations';
+import { TranslationDict } from '../../../../utils/translations';
 
 interface PageProps {
     params: Promise<{
@@ -58,9 +58,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     // Dynamic translation lookup (if available)
     // Keys follow the pattern: blog_title_1, blog_excerpt_1, etc.
-    const t = translations[lang as keyof typeof translations];
-    const translatedTitle = t?.[`blog_title_${post.id}` as keyof typeof t] || post.title;
-    const translatedExcerpt = t?.[`blog_excerpt_${post.id}` as keyof typeof t] || post.excerpt;
+    const translationsDict: TranslationDict = (await import(`../../../../data/i18n/${lang}.json`)).default;
+    const translatedTitle = translationsDict[`blog_title_${post.id}`] || post.title;
+    const translatedExcerpt = translationsDict[`blog_excerpt_${post.id}`] || post.excerpt;
 
     return {
         title: `${translatedTitle} | Belmobile Blog`,

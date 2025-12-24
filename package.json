@@ -4,13 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run generate-search-index && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate-search-index": "node scripts/build-search-index.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@heroicons/react": "^2.2.0",
+    "@next/third-parties": "^16.1.1",
     "@vercel/og": "^0.8.5",
     "axios": "^1.13.2",
     "cheerio": "^1.1.2",

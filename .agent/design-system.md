@@ -11,6 +11,9 @@ This document outlines the visual standards for all new features and components 
 | **Glass Light** | Surface (Light) | `rgba(255, 255, 255, 0.7)` with `backdrop-filter: blur(10px)` |
 | **Glass Dark** | Surface (Dark) | `rgba(15, 23, 42, 0.7)` with `backdrop-filter: blur(10px)` |
 | **Accent Gold** | Success / Feedback | `#F59E0B` |
+| **Deep Space** | Ultra-Dark Backgrounds | `#0B1120` (Rich dark blue/black) |
+| **Electric Indigo** | Glow Effects | `#6366f1` (Vibrant purple-blue) |
+| **Cyber Citron** | Secondary Highlights | `#EAB308` (Modern gold) |
 
 ## 2. Typography
 - **Primary Font**: `Inter` (Sans-serif) for clean, modern readability.
@@ -35,3 +38,8 @@ This document outlines the visual standards for all new features and components 
 - **Touch Targets**: Minimum 44x44px.
 - **Spacing**: Generous gutter (16-20px) on mobile screens.
 - **Bottom Bars**: Use floating rounded bars for primary mobile actions.
+
+## 6. Performance Engineering
+- **Asset Strategy**: All major visual assets and translations are lazy-loaded to ensure sub-1s LCP.
+- **Dependency Hygiene**: Heavy third-party libraries must be dynamically imported to avoid main-thread blocking.
+- **Interactive States**: Use skeleton loaders to handle asynchronous state transitions (e.g., during PDF generation or language switching) to maintain perceived speed.

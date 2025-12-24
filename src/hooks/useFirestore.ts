@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
-import { db, auth } from '../firebase';
+import { User } from 'firebase/auth'; // Import User type
+import { db } from '../firebase';
 import { Product, Shop, Service, BlogPost, RepairPricing, RepairPriceRecord, Reservation, Quote, FranchiseApplication, BuybackPriceRecord, StockLog, ContactMessage } from '../types';
 
 export const useProducts = () => {
@@ -190,15 +191,16 @@ export const useBuybackPrices = () => {
     return { prices, loading };
 };
 
-export const useReservations = () => {
+export const useReservations = (user: User | null) => {
     const [reservations, setReservations] = useState<Reservation[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!auth.currentUser) {
-            const timeoutId = setTimeout(() => setLoading(false), 0);
-            return () => clearTimeout(timeoutId);
+        if (!user) {
+            const timeout = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(timeout);
         }
+        const timeout = setTimeout(() => setLoading(true), 0);
         const q = query(collection(db, 'reservations'), orderBy('date', 'desc'));
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reservation));
@@ -206,27 +208,30 @@ export const useReservations = () => {
             setLoading(false);
         }, (error) => {
             console.error("Error fetching reservations:", error);
-            // Diagnostic: check if error is permission related
             if (error.code === 'permission-denied') {
                 console.error("DEBUG: Permission Denied for 'reservations'. Check rules and auth state.");
             }
             setLoading(false);
         });
-        return () => unsub();
-    }, []);
+        return () => {
+            clearTimeout(timeout);
+            unsub();
+        };
+    }, [user]);
 
     return { reservations, loading };
 };
 
-export const useQuotes = () => {
+export const useQuotes = (user: User | null) => {
     const [quotes, setQuotes] = useState<Quote[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!auth.currentUser) {
-            const timeoutId = setTimeout(() => setLoading(false), 0);
-            return () => clearTimeout(timeoutId);
+        if (!user) {
+            const timeout = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(timeout);
         }
+        const timeout = setTimeout(() => setLoading(true), 0);
         const q = query(collection(db, 'quotes'), orderBy('date', 'desc'));
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Quote));
@@ -234,27 +239,30 @@ export const useQuotes = () => {
             setLoading(false);
         }, (error) => {
             console.error("Error fetching quotes:", error);
-            // Diagnostic
             if (error.code === 'permission-denied') {
                 console.error("DEBUG: Permission Denied for 'quotes'.");
             }
             setLoading(false);
         });
-        return () => unsub();
-    }, []);
+        return () => {
+            clearTimeout(timeout);
+            unsub();
+        };
+    }, [user]);
 
     return { quotes, loading };
 };
 
-export const useFranchiseApplications = () => {
+export const useFranchiseApplications = (user: User | null) => {
     const [applications, setApplications] = useState<FranchiseApplication[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!auth.currentUser) {
-            const timeoutId = setTimeout(() => setLoading(false), 0);
-            return () => clearTimeout(timeoutId);
+        if (!user) {
+            const timeout = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(timeout);
         }
+        const timeout = setTimeout(() => setLoading(true), 0);
         const unsub = onSnapshot(collection(db, 'franchise_applications'), (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FranchiseApplication));
             setApplications(data);
@@ -263,21 +271,25 @@ export const useFranchiseApplications = () => {
             console.error("Error fetching franchise applications:", error);
             setLoading(false);
         });
-        return () => unsub();
-    }, []);
+        return () => {
+            clearTimeout(timeout);
+            unsub();
+        };
+    }, [user]);
 
     return { applications, loading };
 };
 
-export const useStockLogs = () => {
+export const useStockLogs = (user: User | null) => {
     const [logs, setLogs] = useState<StockLog[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!auth.currentUser) {
-            const timeoutId = setTimeout(() => setLoading(false), 0);
-            return () => clearTimeout(timeoutId);
+        if (!user) {
+            const timeout = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(timeout);
         }
+        const timeout = setTimeout(() => setLoading(true), 0);
         const q = query(collection(db, 'stock_logs'), orderBy('date', 'desc'));
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StockLog));
@@ -287,21 +299,25 @@ export const useStockLogs = () => {
             console.error("Error fetching stock logs:", error);
             setLoading(false);
         });
-        return () => unsub();
-    }, []);
+        return () => {
+            clearTimeout(timeout);
+            unsub();
+        };
+    }, [user]);
 
     return { logs, loading };
 };
 
-export const useContactMessages = () => {
+export const useContactMessages = (user: User | null) => {
     const [messages, setMessages] = useState<ContactMessage[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!auth.currentUser) {
-            const timeoutId = setTimeout(() => setLoading(false), 0);
-            return () => clearTimeout(timeoutId);
+        if (!user) {
+            const timeout = setTimeout(() => setLoading(false), 0);
+            return () => clearTimeout(timeout);
         }
+        const timeout = setTimeout(() => setLoading(true), 0);
         const q = query(collection(db, 'contact_messages'), orderBy('date', 'desc'));
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContactMessage));
@@ -309,14 +325,16 @@ export const useContactMessages = () => {
             setLoading(false);
         }, (error) => {
             console.error("Error fetching contact messages:", error);
-            // Diagnostic
             if (error.code === 'permission-denied') {
                 console.error("DEBUG: Permission Denied for 'contact_messages'.");
             }
             setLoading(false);
         });
-        return () => unsub();
-    }, []);
+        return () => {
+            clearTimeout(timeout);
+            unsub();
+        };
+    }, [user]);
 
     return { messages, loading };
 };

@@ -1,7 +1,7 @@
 import React, { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { translations } from '../../../../utils/translations';
+import { TranslationDict } from '../../../../utils/translations';
 import { SERVICES } from '../../../../data/services';
 import SchemaOrg from '../../../../components/seo/SchemaOrg';
 import Hreflang from '../../../../components/seo/Hreflang';
@@ -135,7 +135,8 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
         return notFound();
     }
 
-    const t = (key: string) => translations[lang as 'en' | 'fr' | 'nl']?.[key] || key;
+    const translationsDict: TranslationDict = (await import(`../../../../data/i18n/${lang}.json`)).default;
+    const t = (key: string) => translationsDict[key] || key;
 
     const hreflangSlugs = {
         fr: shop.slugs?.fr || String(shop.id),

@@ -38,7 +38,7 @@ const BrusselsHub: React.FC<BrusselsHubProps> = ({ lang, service, location, hubS
                 />
             </div>
 
-            <ReviewsSection lang={lang} />
+            <ReviewsSection />
 
             <div className="mt-12">
                 <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">

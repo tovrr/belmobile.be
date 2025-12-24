@@ -34,6 +34,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ initialProduct }) => {
 
     const product = initialProduct || products.find(p => p.slug === slug);
 
+    // Analytics: Track View Item
+    React.useEffect(() => {
+        if (product) {
+            import('../utils/analytics').then(({ trackViewItem }) => {
+                trackViewItem(product);
+            });
+        }
+    }, [product]);
+
     const isAvailable = useMemo(() => {
         if (!product) return false;
         if (selectedShop) {

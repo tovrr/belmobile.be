@@ -84,23 +84,23 @@ const Hero: React.FC = () => {
                         >
                             <div className="flex -space-x-3">
                                 <Image
-                                    className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 object-contain p-1"
-                                    src="/favicon.svg"
-                                    alt="Belmobile review logo 1"
+                                    className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 object-cover"
+                                    src="/images/avatars/avatar1.png"
+                                    alt="Belmobile review user 1"
                                     width={40}
                                     height={40}
                                 />
                                 <Image
-                                    className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 object-contain p-1"
-                                    src="/favicon.svg"
-                                    alt="Belmobile review logo 2"
+                                    className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 object-cover"
+                                    src="/images/avatars/avatar2.png"
+                                    alt="Belmobile review user 2"
                                     width={40}
                                     height={40}
                                 />
                                 <Image
-                                    className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 object-contain p-1"
-                                    src="/favicon.svg"
-                                    alt="Belmobile review logo 3"
+                                    className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 object-cover"
+                                    src="/images/avatars/avatar3.png"
+                                    alt="Belmobile review user 3"
                                     width={40}
                                     height={40}
                                 />
@@ -121,11 +121,11 @@ const Hero: React.FC = () => {
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-20"></div>
                             <div className="w-full h-full rounded-4xl overflow-hidden bg-slate-800 relative">
                                 <Image
-                                    src="https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=800&auto=format&fit=crop"
+                                    src="/images/hero_phone_bg.png"
                                     alt="Modern smartphone interface showing Belmobile services"
                                     fill
                                     priority
-                                    className="w-full h-full object-cover opacity-80 mix-blend-overlay"
+                                    className="w-full h-full object-cover opacity-80"
                                 />
                                 <div className="absolute inset-0 bg-linear-to-t from-electric-indigo/50 to-transparent flex flex-col justify-end p-6">
                                     {/* Abstract UI Elements */}

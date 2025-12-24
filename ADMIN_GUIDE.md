@@ -21,6 +21,17 @@ When a customer submits a request:
 2. A new record appears in your dashboard.
 3. You can update the status (Processing, Responded, Closed) to track the lead.
 
+## 🌟 Automated Review & Feedback
+The platform now includes an intelligent system to boost your Google Reviews:
+
+1.  **The Trigger**: When you set an order status to **"Closed"** (or "Picked Up"):
+    *   The system automaitcally schedules a "How was your experience?" email to be sent in **3 days**.
+    *   No manual action is required.
+
+2.  **The Satisfaction Gate**:
+    *   **4-5 Stars**: The customer is redirected to your Google Review page.
+    *   **1-3 Stars**: The customer sees a private feedback form. You receive an alert at `info@belmobile.be`.
+
 ## 📧 Setting Up Email Notifications
 The platform uses a direct integration with **Brevo** to send confirmation emails with PDF attachments.
 

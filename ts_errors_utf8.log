@@ -1,4 +1,0 @@
-﻿src/components/admin/Dashboard.tsx(6,23): error TS2305: Module '"../../constants"' has no exported member 'RESERVATIONS_CHART_DATA'.
-src/components/admin/Dashboard.tsx(6,48): error TS2305: Module '"../../constants"' has no exported member 'QUOTES_CHART_DATA'.
-src/components/admin/ServiceManagement.tsx(49,45): error TS2339: Property 'MOCK_SERVICES' does not exist on type 'typeof import("C:/Users/omero/Downloads/belmobile.be-react-to-next-js/next-platform/src/constants")'.
-src/components/admin/ServiceManagement.tsx(52,59): error TS7006: Parameter 'service' implicitly has an 'any' type.

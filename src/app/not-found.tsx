@@ -1,12 +1,43 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui';
 import { HomeIcon, MagnifyingGlassIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 
 export default function NotFound() {
     const router = useRouter();
+    const pathname = usePathname();
+
+    // Simple language detection from URL
+    const lang = pathname?.split('/')[1];
+    const currentLang = ['en', 'fr', 'nl'].includes(lang) ? lang : 'fr'; // Default to FR for Brussels
+
+    const translations = {
+        en: {
+            title: "Page Not Found",
+            text: "Oops! The page you are looking for has vanished into the digital void. It might have moved or never existed.",
+            home: "Go Home",
+            products: "Browse Products",
+            contact: "Contact Support"
+        },
+        fr: {
+            title: "Page Introuvable",
+            text: "Oups ! La page que vous recherchez a disparu dans le néant numérique. Elle a peut-être été déplacée ou n'a jamais existé.",
+            home: "Accueil",
+            products: "Voir Produits",
+            contact: "Contact"
+        },
+        nl: {
+            title: "Pagina Niet Gevonden",
+            text: "Oeps! De pagina die u zoekt is verdwenen in de digitale leegte. Misschien is hij verplaatst of heeft hij nooit bestaan.",
+            home: "Startpagina",
+            products: "Bekijk Producten",
+            contact: "Contact"
+        }
+    };
+
+    const t = translations[currentLang as keyof typeof translations];
 
     return (
         <div className="min-h-screen pt-24 pb-12 px-4 flex flex-col items-center justify-center bg-gray-50 dark:bg-slate-900 relative overflow-hidden">
@@ -23,40 +54,40 @@ export default function NotFound() {
                 </h1>
 
                 <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 -mt-10 animate-fade-in-up delay-100">
-                    Page Not Found
+                    {t.title}
                 </h2>
 
                 <p className="text-lg text-gray-600 dark:text-gray-300 mb-10 max-w-lg mx-auto animate-fade-in-up delay-200">
-                    Oops! The page you are looking for has vanished into the digital void. It might have been moved, deleted, or never existed.
+                    {t.text}
                 </p>
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up delay-300">
                     <Button
                         variant="primary"
-                        onClick={() => router.push('/')}
+                        onClick={() => router.push(`/${currentLang}`)}
                         icon={<HomeIcon className="h-5 w-5" />}
                         className="w-full sm:w-auto min-w-[160px]"
                     >
-                        Go Home
+                        {t.home}
                     </Button>
 
                     <Button
                         variant="ghost"
-                        onClick={() => router.push('/fr/produits')} // Defaulting to FR products for now, or could try to detect language
+                        onClick={() => router.push(`/${currentLang}/produits`)}
                         icon={<MagnifyingGlassIcon className="h-5 w-5" />}
                         className="w-full sm:w-auto min-w-[160px]"
                     >
-                        Browse Products
+                        {t.products}
                     </Button>
 
                     <Button
                         variant="ghost"
-                        onClick={() => router.push('/fr/contact')}
+                        onClick={() => router.push(`/${currentLang}/contact`)}
                         icon={<EnvelopeIcon className="h-5 w-5" />}
                         className="w-full sm:w-auto min-w-[160px]"
                     >
-                        Contact Support
+                        {t.contact}
                     </Button>
                 </div>
 

@@ -9,14 +9,15 @@ import {
     PhoneIcon,
     MapPinIcon,
     CalendarDaysIcon,
-    BanknotesIcon
+    BanknotesIcon,
+    TrashIcon
 } from '@heroicons/react/24/outline';
 import { useData } from '../../hooks/useData';
 import { FranchiseApplication } from '../../types';
 import FranchiseApplicationModal from './FranchiseApplicationModal';
 
 const FranchiseManagement: React.FC = () => {
-    const { franchiseApplications, loading } = useData();
+    const { franchiseApplications, loading, deleteFranchiseApplication } = useData();
     const [selectedApplication, setSelectedApplication] = useState<FranchiseApplication | null>(null);
     const [filterStatus, setFilterStatus] = useState<string>('all');
 
@@ -31,6 +32,18 @@ const FranchiseManagement: React.FC = () => {
             case 'approved': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
             case 'rejected': return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
             default: return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400';
+        }
+    };
+
+    const handleDelete = async (e: React.MouseEvent, id: number | string) => {
+        e.stopPropagation();
+        if (window.confirm('Are you sure you want to delete this application?')) {
+            try {
+                await deleteFranchiseApplication(id);
+            } catch (error) {
+                console.error("Failed to delete application:", error);
+                alert("Failed to delete application");
+            }
         }
     };
 
@@ -93,8 +106,8 @@ const FranchiseManagement: React.FC = () => {
                         >
                             {/* Status Accent Line */}
                             <div className={`absolute left-0 top-0 bottom-0 w-1 ${app.status === 'new' ? 'bg-blue-500' :
-                                    app.status === 'approved' ? 'bg-green-500' :
-                                        app.status === 'rejected' ? 'bg-red-500' : 'bg-orange-500'
+                                app.status === 'approved' ? 'bg-green-500' :
+                                    app.status === 'rejected' ? 'bg-red-500' : 'bg-orange-500'
                                 }`} />
 
                             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -144,6 +157,13 @@ const FranchiseManagement: React.FC = () => {
 
                                     <button className="p-3 rounded-xl bg-gray-50 dark:bg-slate-900/50 text-gray-400 group-hover:bg-bel-blue group-hover:text-white transition-all">
                                         <ChevronRightIcon className="h-5 w-5" />
+                                    </button>
+                                    <button
+                                        onClick={(e) => handleDelete(e, app.id)}
+                                        className="p-3 rounded-xl bg-gray-50 dark:bg-slate-900/50 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 transition-all z-10"
+                                        title="Delete"
+                                    >
+                                        <TrashIcon className="h-5 w-5" />
                                     </button>
                                 </div>
                             </div>

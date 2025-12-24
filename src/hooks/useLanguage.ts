@@ -1,37 +1,77 @@
 'use client';
 
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { translations, Language } from '../utils/translations';
+import { Language, TranslationDict } from '../utils/translations';
 
 interface LanguageContextType {
     language: Language;
     setLanguage: (language: Language) => void;
     t: (key: string, ...args: (string | number)[]) => string;
+    isLoading: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export const LanguageProvider: React.FC<{ children: ReactNode; initialLanguage?: Language }> = ({ children, initialLanguage }) => {
+export const LanguageProvider: React.FC<{ children: ReactNode; initialLanguage?: Language; initialTranslations?: TranslationDict }> = ({ children, initialLanguage, initialTranslations }) => {
     // Initialize language based on Prop -> Storage -> Browser -> Default
     const [language, setLanguageState] = useState<Language>(() => {
         if (initialLanguage) return initialLanguage;
 
-        // 1. Check Local Storage
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('belmobile_language');
             if (saved && ['en', 'fr', 'nl'].includes(saved)) {
                 return saved as Language;
             }
 
-            // 2. Check Browser Language
             const browserLang = navigator.language.toLowerCase();
             if (browserLang.startsWith('fr')) return 'fr';
             if (browserLang.startsWith('nl')) return 'nl';
         }
 
-        // 3. Default
         return 'en';
     });
+
+    const [translationsDict, setTranslationsDict] = useState<TranslationDict>(initialTranslations || {});
+    const [isLoading, setIsLoading] = useState(!initialTranslations);
+
+    // Dynamic loading of translation JSONs
+    React.useEffect(() => {
+        // If we already have translations for this language (from server), skip initial load
+        if (initialTranslations && language === initialLanguage) {
+            return;
+        }
+
+        let isMounted = true;
+        setIsLoading(true);
+
+        const loadTranslations = async () => {
+            try {
+                // Use dynamic import to create separate chunks for each language
+                let dict;
+                if (language === 'en') {
+                    dict = await import('../data/i18n/en.json');
+                } else if (language === 'fr') {
+                    dict = await import('../data/i18n/fr.json');
+                } else if (language === 'nl') {
+                    dict = await import('../data/i18n/nl.json');
+                }
+
+                if (isMounted && dict) {
+                    setTranslationsDict(dict.default || dict);
+                    setIsLoading(false);
+                }
+            } catch (error) {
+                console.error(`Failed to load translations for ${language}:`, error);
+                if (isMounted) setIsLoading(false);
+            }
+        };
+
+        loadTranslations();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [language, initialLanguage, initialTranslations]);
 
     // Sync state if initialLanguage changes (e.g. navigation)
     React.useEffect(() => {
@@ -47,8 +87,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode; initialLanguage?:
     };
 
     const t = (key: string, ...args: (string | number)[]): string => {
-        const langTranslations = translations[language];
-        let translation = langTranslations[key] || translations['en'][key] || key;
+        let translation = translationsDict[key] || key;
 
         if (args.length > 0) {
             args.forEach((arg, index) => {
@@ -61,7 +100,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode; initialLanguage?:
     };
 
     // Use React.createElement since this is a .ts file (though usually .tsx is preferred for Context providers)
-    return React.createElement(LanguageContext.Provider, { value: { language, setLanguage, t } }, children);
+    return React.createElement(LanguageContext.Provider, { value: { language, setLanguage, t, isLoading } }, children);
 };
 
 export const useLanguage = () => {

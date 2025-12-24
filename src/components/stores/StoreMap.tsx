@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Shop } from '../../types';
-import { translations } from '../../utils/translations';
+import { useLanguage } from '../../hooks/useLanguage';
 
 // Fix for default marker icons in Next.js/Leaflet
 const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
@@ -20,6 +20,7 @@ const StoreMap: React.FC<StoreMapProps> = ({ shops, lang }) => {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const markersRef = useRef<L.Marker[]>([]);
+    const { t } = useLanguage();
 
     useEffect(() => {
         if (!mapContainerRef.current || mapInstanceRef.current) return;
@@ -72,7 +73,7 @@ const StoreMap: React.FC<StoreMapProps> = ({ shops, lang }) => {
 
                 const url = `/${lang}/${storePathSegment}/${shopSlug}`;
 
-                const viewDetailsText = translations[lang as keyof typeof translations]?.['View Details'] || 'View Details';
+                const viewDetailsText = t('View Details') || 'View Details';
 
                 // Use the same pointer-style marker as the main Map component
                 const markerHtml = `
@@ -116,7 +117,7 @@ const StoreMap: React.FC<StoreMapProps> = ({ shops, lang }) => {
         if (bounds.isValid()) {
             map.setView([50.8503, 4.3517], 13);
         }
-    }, [shops, lang]);
+    }, [shops, lang, t]);
 
     return <div ref={mapContainerRef} className="w-full h-full z-0" />;
 };

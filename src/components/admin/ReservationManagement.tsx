@@ -2,18 +2,42 @@
 
 import React from 'react';
 import { useData } from '../../hooks/useData';
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const ReservationManagement: React.FC = () => {
-    const { reservations, shops, updateReservationStatus } = useData();
+    const { reservations, shops, updateReservationStatus, deleteReservation } = useData();
     const getShopName = (shopId: number | string) => shops.find(s => s.id === shopId)?.name || 'Unknown Shop';
 
-    const handleUpdateStatus = async (id: number | string, status: 'approved' | 'cancelled') => {
+    const handleUpdateStatus = async (reservation: any, status: 'approved' | 'cancelled') => {
         try {
-            await updateReservationStatus(id, status);
+            let paymentLink: string | undefined = undefined;
+
+            // If approving a Shipping reservation, ask for Payment Link
+            if (status === 'approved' && reservation.deliveryMethod === 'shipping') {
+                const link = window.prompt("Enter Mollie Payment Link for this order:", "");
+                if (link === null) return; // Cancelled prompt
+                if (link.trim() !== "") {
+                    paymentLink = link.trim();
+                } else {
+                    if (!window.confirm("Send without a specific payment link? (Generic link will be used)")) return;
+                }
+            }
+
+            await updateReservationStatus(reservation.id, status, paymentLink);
         } catch (error) {
             console.error("Failed to update reservation status:", error);
             alert("Failed to update status");
+        }
+    };
+
+    const handleDelete = async (id: number | string) => {
+        if (window.confirm('Are you sure you want to delete this reservation?')) {
+            try {
+                await deleteReservation(id);
+            } catch (error) {
+                console.error("Failed to delete reservation:", error);
+                alert("Failed to delete reservation");
+            }
         }
     };
 
@@ -33,7 +57,8 @@ const ReservationManagement: React.FC = () => {
                             <tr>
                                 <th scope="col" className="px-6 py-4">Customer</th>
                                 <th scope="col" className="px-6 py-4">Product</th>
-                                <th scope="col" className="px-6 py-4">Shop</th>
+                                <th scope="col" className="px-6 py-4">Type</th>
+                                <th scope="col" className="px-6 py-4">Shop/Addr</th>
                                 <th scope="col" className="px-6 py-4">Status</th>
                                 <th scope="col" className="px-6 py-4">Date</th>
                                 <th scope="col" className="px-6 py-4">Actions</th>
@@ -47,7 +72,13 @@ const ReservationManagement: React.FC = () => {
                                         <div className="text-xs text-gray-500 dark:text-gray-400">{res.customerEmail}</div>
                                     </td>
                                     <td className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">{res.productName}</td>
-                                    <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{getShopName(res.shopId)}</td>
+                                    <td className="px-6 py-4 text-xs font-bold uppercase text-gray-600 dark:text-gray-400">{res.deliveryMethod || 'pickup'}</td>
+                                    <td className="px-6 py-4 text-gray-600 dark:text-gray-400 text-xs">
+                                        {res.deliveryMethod === 'shipping'
+                                            ? `${res.shippingZip} ${res.shippingCity}`
+                                            : getShopName(res.shopId)
+                                        }
+                                    </td>
                                     <td className="px-6 py-4">
                                         <span className={`px-3 py-1 text-xs font-bold rounded-full capitalize ${res.status === 'approved' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
                                             res.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
@@ -67,7 +98,11 @@ const ReservationManagement: React.FC = () => {
                                                     <XCircleIcon className="h-5 w-5" />
                                                 </button>
                                             </>
+
                                         )}
+                                        <button onClick={() => handleDelete(res.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors" title="Delete">
+                                            <TrashIcon className="h-5 w-5" />
+                                        </button>
                                     </td>
                                 </tr>
                             ))}

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useLanguage } from '../hooks/useLanguage';
 import { MagnifyingGlassIcon, CheckCircleIcon, ClockIcon, WrenchScrewdriverIcon, TruckIcon, CurrencyEuroIcon, ClipboardDocumentCheckIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 import { db } from '../firebase';
@@ -18,20 +19,38 @@ const TrackOrder: React.FC = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleCheckStatus = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const id = searchParams.get('id');
+        const mail = searchParams.get('email');
+        if (id && mail) {
+            setOrderId(id);
+            setEmail(mail);
+            handleCheckStatus(undefined, id, mail);
+        }
+    }, [searchParams]);
+
+    const handleCheckStatus = async (e?: React.FormEvent, idOverride?: string, emailOverride?: string) => {
+        if (e) e.preventDefault();
+
+        const idToCheck = idOverride || orderId;
+        const emailToCheck = emailOverride || email;
+
+        if (!idToCheck || !emailToCheck) return;
+
         setLoading(true);
         setError('');
         setStatus(null);
 
         try {
-            const docRef = doc(db, 'quotes', orderId.trim());
+            const docRef = doc(db, 'quotes', idToCheck.trim());
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 // Simple email verification (case-insensitive)
-                if (data.customerEmail.toLowerCase() === email.toLowerCase()) {
+                if (data.customerEmail.toLowerCase() === emailToCheck.toLowerCase()) {
                     setStatus({
                         ...(data as Omit<Quote, 'id'>),
                         id: docSnap.id
@@ -53,8 +72,11 @@ const TrackOrder: React.FC = () => {
     const getRepairSteps = () => {
         const steps = [
             { id: 'pending', label: t('Processing'), icon: ClockIcon },
+            { id: 'waiting_parts', label: t('Waiting for Parts'), icon: WrenchScrewdriverIcon },
             { id: 'in_repair', label: t('In Repair'), icon: WrenchScrewdriverIcon },
+            { id: 'repaired', label: t('Repaired'), icon: CheckCircleIcon },
             { id: 'ready', label: t('Ready for Pickup'), icon: CheckCircleIcon },
+            { id: 'shipped', label: t('Shipped'), icon: TruckIcon },
             { id: 'completed', label: t('Completed'), icon: TruckIcon }
         ];
         return steps;
@@ -75,8 +97,12 @@ const TrackOrder: React.FC = () => {
         // Map status to index
         if (currentStatus === 'new') return 0;
         if (currentStatus === 'processing') return 1;
-        if (currentStatus === 'responded') return steps.length > 2 ? steps.length - 2 : 1;
-        if (currentStatus === 'closed') return steps.length - 1;
+        if (currentStatus === 'waiting_parts') return 1;
+        if (currentStatus === 'in_repair') return 2;
+        if (currentStatus === 'repaired') return 3;
+        if (currentStatus === 'ready') return 4;
+        if (currentStatus === 'shipped') return 5;
+        if (currentStatus === 'completed' || currentStatus === 'closed') return steps.length - 1;
 
         const index = steps.findIndex(s => s.id === currentStatus);
         return index === -1 ? 0 : index;

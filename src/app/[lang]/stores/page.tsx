@@ -1,7 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
-import Hreflang from '../../../components/seo/Hreflang';
 import StoresLayout from '../../../components/stores/StoresLayout';
+import SchemaMarkup from '../../../components/SchemaMarkup';
 
 interface PageProps {
     params: Promise<{
@@ -30,26 +30,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         }
     };
 
-    return metadataByLang[lang] || metadataByLang.en;
+    const baseMetadata = metadataByLang[lang] || metadataByLang.en;
+
+    return {
+        ...baseMetadata,
+        alternates: {
+            canonical: `https://belmobile.be/${lang}/stores`,
+            languages: {
+                'fr': 'https://belmobile.be/fr/magasins',
+                'nl': 'https://belmobile.be/nl/winkels',
+                'en': 'https://belmobile.be/en/stores'
+            }
+        }
+    };
 }
 
 export default async function StoresPage({ params }: PageProps) {
     const { lang } = await params;
-
-    const hreflangSlugs = {
-        fr: 'magasins',
-        nl: 'winkels',
-        en: 'stores'
-    };
-
     const pageTitle = lang === 'fr' ? 'Nos Magasins à Bruxelles' : lang === 'nl' ? 'Onze Winkels in Brussel' : 'Our Stores in Brussels';
 
     return (
         <div className="min-h-screen bg-transparent">
-            <Hreflang
-                slugs={hreflangSlugs}
-                baseUrl="https://belmobile.be"
-            />
+            {/* Inject Schema via SchemaMarkup */}
+            <SchemaMarkup type="organization" />
 
             {/* Hidden H1 for SEO consistency */}
             <h1 className="sr-only">{pageTitle}</h1>

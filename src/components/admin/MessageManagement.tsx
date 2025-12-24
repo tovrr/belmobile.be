@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import { useData } from '../../hooks/useData';
-import { EnvelopeIcon, CheckCircleIcon, EyeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { EnvelopeIcon, CheckCircleIcon, EyeIcon, MagnifyingGlassIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { ContactMessage } from '../../types';
 
 const MessageManagement: React.FC = () => {
-    const { contactMessages, updateContactMessageStatus, loading } = useData();
+    const { contactMessages, updateContactMessageStatus, deleteContactMessage, loading } = useData();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
 
@@ -18,6 +18,20 @@ const MessageManagement: React.FC = () => {
 
     const handleMarkAsRead = (id: string) => {
         updateContactMessageStatus(id, 'read');
+    };
+
+    const handleDelete = async (id: string) => {
+        if (window.confirm('Are you sure you want to delete this message?')) {
+            try {
+                await deleteContactMessage(id);
+                if (selectedMessage?.id === id) {
+                    setSelectedMessage(null); // Close modal if open
+                }
+            } catch (error) {
+                console.error("Failed to delete message:", error);
+                alert("Failed to delete message");
+            }
+        }
     };
 
     return (
@@ -96,6 +110,14 @@ const MessageManagement: React.FC = () => {
                                                         <CheckCircleIcon className="w-5 h-5" />
                                                     </button>
                                                 )}
+
+                                                <button
+                                                    onClick={() => handleDelete(msg.id)}
+                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                                    title="Delete"
+                                                >
+                                                    <TrashIcon className="w-5 h-5" />
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -148,6 +170,12 @@ const MessageManagement: React.FC = () => {
                             </div>
                         </div>
                         <div className="p-6 bg-gray-50 dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 flex justify-end gap-3">
+                            <button
+                                onClick={() => handleDelete(selectedMessage.id)}
+                                className="px-6 py-2.5 bg-red-50 text-red-600 border border-red-200 dark:border-red-900/50 dark:bg-red-900/20 rounded-xl font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-all mr-auto"
+                            >
+                                Delete
+                            </button>
                             <button
                                 onClick={() => setSelectedMessage(null)}
                                 className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-slate-700 transition-all"

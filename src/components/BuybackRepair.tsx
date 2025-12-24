@@ -10,7 +10,7 @@ import { useData } from '../hooks/useData';
 import { db, storage as firebaseStorage } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { jsPDF } from 'jspdf';
+
 
 import { usePublicPricing } from '../hooks/usePublicPricing';
 import { useLanguage } from '../hooks/useLanguage';
@@ -40,6 +40,20 @@ import { getDeviceImage } from '../data/deviceImages';
 import { SEARCH_INDEX } from '../data/search-index';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+
+declare global {
+    interface Window {
+        sendcloud?: {
+            servicePoints: {
+                open: (
+                    config: unknown,
+                    successCallback: (data: any) => void,
+                    failureCallback: (error: any) => void
+                ) => void;
+            };
+        };
+    }
+}
 
 interface BuybackRepairProps {
     type: 'buyback' | 'repair';
@@ -226,9 +240,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     }, [searchParams, initialDevice, deviceType]);
 
     const openServicePointPicker = () => {
-        // @ts-expect-error -- External script not typed
         if (window.sendcloud) {
-            // @ts-expect-error -- External script not typed
             window.sendcloud.servicePoints.open(
                 {
                     apiKey: process.env.NEXT_PUBLIC_SENDCLOUD_API_KEY,
@@ -527,11 +539,25 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     useEffect(() => {
         if (searchTerm.length > 2) {
             setIsSearching(true);
-            const results = Object.values(SEARCH_INDEX).filter((item) =>
-                (item.keywords || []).some((k: string) => k.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                item.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.model.toLowerCase().includes(searchTerm.toLowerCase())
-            ).slice(0, 5);
+            const normalizedSearch = searchTerm.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            const results = Object.values(SEARCH_INDEX).filter((item) => {
+                const brandLower = item.brand.toLowerCase();
+                const modelLower = item.model.toLowerCase();
+                const brandModelLower = (brandLower + modelLower).replace(/\s+/g, '');
+
+                return (
+                    // Literal matches
+                    brandLower.includes(searchTerm.toLowerCase()) ||
+                    modelLower.includes(searchTerm.toLowerCase()) ||
+                    (item.keywords || []).some(k => k.toLowerCase().includes(searchTerm.toLowerCase())) ||
+
+                    // Fuzzy matches (no spaces/hyphens)
+                    brandLower.replace(/[^a-z0-9]/g, '').includes(normalizedSearch) ||
+                    modelLower.replace(/[^a-z0-9]/g, '').includes(normalizedSearch) ||
+                    brandModelLower.includes(normalizedSearch)
+                );
+            }).slice(0, 5);
             setSearchResults(results);
         } else {
             setIsSearching(false);
@@ -827,304 +853,41 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         return await getDownloadURL(storageRef);
     };
 
-    const generatePDF = (orderId: string, data: Record<string, unknown>) => {
-        const doc = new jsPDF();
+    const generatePDF = async (orderId: string, data: Record<string, unknown>) => {
+        const { generateRepairBuybackPDF } = await import('../utils/pdfGenerator');
 
-        // --- DESIGN CONSTANTS ---
-        const primaryColor = [67, 56, 202]; // Belmobile Blue (#4338ca)
-        const lightGray = [245, 247, 250];
-        const lineHeight = 7;
-        let y = 0;
-
-        // --- HELPER FUNCTIONS ---
-        const addSectionTitle = (title: string, yPos: number) => {
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(30, 30, 30);
-            doc.text(title.toUpperCase(), 20, yPos);
-            doc.setDrawColor(200, 200, 200);
-            doc.line(20, yPos + 2, 190, yPos + 2);
-            return yPos + 10;
+        // Prepare data for the utility
+        const pdfData = {
+            type: data.type as 'buyback' | 'repair',
+            orderId: `ORD-${new Date().getFullYear()}-${orderId.substring(0, 6).toUpperCase()}`,
+            date: new Date().toLocaleDateString(lang === 'fr' ? 'fr-BE' : lang === 'nl' ? 'nl-BE' : 'en-US'),
+            customer: {
+                name: (data.customerName as string) || (data.name as string) || customerName || '',
+                email: (data.customerEmail as string) || (data.email as string) || customerEmail || '',
+                phone: (data.customerPhone as string) || (data.phone as string) || customerPhone || '',
+                address: deliveryMethod === 'send' ? `${(data.customerAddress as string) || customerAddress}, ${(data.customerZip as string) || customerZip} ${(data.customerCity as string) || customerCity}` : undefined
+            },
+            device: {
+                name: `${selectedBrand} ${selectedModel}`,
+                storage: (data.storage as string) || storage || undefined,
+                issue: data.type === 'repair' ? (data.issues as string[] || repairIssues).map(i => t(REPAIR_ISSUES.find(iss => iss.id === i)?.label || i)).join(', ') : undefined,
+                condition: data.type === 'buyback' ? `${t('Screen')}: ${t(screenState)}, ${t('Body')}: ${t(bodyState)}` : undefined
+            },
+            value: data.type === 'buyback' ? (data.price as number || buybackEstimate) : undefined,
+            cost: data.type === 'repair' ? (data.price as number || (selectedScreenQuality ? repairEstimates[selectedScreenQuality as keyof typeof repairEstimates] as number : (repairEstimates.original > 0 ? repairEstimates.original : repairEstimates.standard))) : undefined,
+            specs: data.type === 'buyback' ? {
+                'Turns On?': turnsOn || false,
+                'Fully Functional?': worksCorrectly || false,
+                'Unlocked?': isUnlocked || false,
+                ...(selectedBrand === 'Apple' ? {
+                    'Face ID Working?': faceIdWorking || false,
+                    'Battery Health': batteryHealth || 'normal'
+                } : {})
+            } : undefined
         };
 
-        const addField = (label: string, value: string, yPos: number, xOffset: number = 20) => {
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(100, 100, 100);
-            doc.text(label + ':', xOffset, yPos);
-
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(0, 0, 0);
-            // Handle long text wrapping if necessary? simplified for now
-            doc.text(value || '-', xOffset + 40, yPos);
-        };
-
-        // --- HEADER ---
-        // Blue Background
-        doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-        doc.rect(0, 0, 210, 40, 'F');
-
-        // Logo Text
-        doc.setFontSize(24);
-        doc.setTextColor(255, 255, 255);
-        doc.setFont('helvetica', 'bold');
-        doc.text('BELMOBILE', 20, 23);
-        doc.setTextColor(255, 222, 0); // Yellow
-        doc.text('.BE', 70, 23);
-
-        // Precise Justification for Slogan
-        const brandWidth = doc.getTextWidth('BELMOBILE');
-        const sloganText = 'BUYBACK & REPAIR';
-        doc.setFontSize(9);
-        doc.setTextColor(255, 255, 255);
-        doc.setFont('helvetica', 'normal');
-
-        const sloganWidth = doc.getTextWidth(sloganText);
-        const charSpace = (brandWidth - sloganWidth) / (sloganText.length - 1);
-        doc.text(sloganText, 20, 30, { charSpace });
-
-        // Document Type
-        doc.setFontSize(14);
-        doc.setTextColor(255, 255, 255);
-        doc.text(`${t('pdf_summary')} - ${type === 'buyback' ? t('Buyback') : t('Repair')}`, 190, 22, { align: 'right' });
-
-        y = 60;
-
-        // --- ORDER INFO ---
-        const formattedOrderId = `ORD-${new Date().getFullYear()}-${orderId.substring(0, 6).toUpperCase()}`;
-        const orderDate = new Date().toLocaleDateString(lang === 'fr' ? 'fr-BE' : lang === 'nl' ? 'nl-BE' : 'en-US');
-
-        doc.setFontSize(10);
-        doc.setTextColor(100, 100, 100);
-        doc.text(`${t('pdf_order_id')}:`, 20, 50);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(0, 0, 0);
-        doc.text(formattedOrderId, 80, 50);
-
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(100, 100, 100);
-        doc.text(`${t('pdf_date')}:`, 140, 50);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(0, 0, 0);
-        doc.text(orderDate, 155, 50);
-
-        // --- CUSTOMER DETAILS ---
-        // Use data object but fallback to state variables to ensure data presence
-        const cName = (data.customerName as string) || (data.name as string) || customerName || '';
-        const cEmail = (data.customerEmail as string) || (data.email as string) || customerEmail || '';
-        const cPhone = (data.customerPhone as string) || (data.phone as string) || customerPhone || '';
-        const cAddress = (data.customerAddress as string) || (data.address as string) || customerAddress || '';
-        const cZip = (data.customerZip as string) || (data.zip as string) || customerZip || '';
-        const cCity = (data.customerCity as string) || (data.city as string) || customerCity || '';
-        const cIban = (data.iban as string) || iban || '';
-
-        y = addSectionTitle(t('pdf_customer_details'), y);
-
-        addField(t('Name'), cName, y);
-        y += lineHeight;
-        addField(t('Email'), cEmail, y);
-        y += lineHeight;
-        addField(t('Phone'), cPhone, y);
-        y += lineHeight;
-
-        if (deliveryMethod === 'send') {
-            addField(t('Address'), `${cAddress}, ${cZip} ${cCity}`, y);
-            y += lineHeight;
-        }
-
-        if (cIban) {
-            addField(t('IBAN'), cIban, y);
-            y += lineHeight;
-        }
-        y += 5; // Spacer
-
-        // --- DEVICE DETAILS ---
-        y = addSectionTitle(t('pdf_device_details'), y);
-
-        const typeStr = (data.category as string) || deviceType || '';
-        // Translate type (e.g. "smartphone" -> "Smartphone") and capitalize if translation missing
-        const translatedType = t(typeStr);
-        const displayType = translatedType !== typeStr ? translatedType : (typeStr.charAt(0).toUpperCase() + typeStr.slice(1));
-
-        addField(t('pdf_device'), `${displayType} ${selectedBrand} ${selectedModel}`, y);
-        y += lineHeight;
-
-        if (data.storage || storage) {
-            addField(t('Storage'), (data.storage as string) || storage, y);
-            y += lineHeight;
-        }
-
-        // --- FUNCTIONALITY & SPECS (Buyback Only) ---
-        if (type === 'buyback') {
-            y = addSectionTitle(t('Functionality & Specs'), y);
-
-            // Standard Checks
-            addField(t('Turns On?'), turnsOn ? t('Yes') : t('No'), y);
-            y += lineHeight;
-
-            addField(t('Fully Functional?'), worksCorrectly ? t('Yes') : t('No'), y);
-            y += lineHeight;
-
-            addField(t('Unlocked?'), isUnlocked ? t('Yes') : t('No'), y);
-            y += lineHeight;
-
-            // Apple Specific
-            if (selectedBrand === 'Apple' && (deviceType === 'smartphone' || deviceType === 'tablet')) {
-                if (faceIdWorking !== null) {
-                    addField(t('Face ID Working?'), faceIdWorking ? t('Yes') : t('No'), y);
-                    y += lineHeight;
-                }
-
-                if (batteryHealth) {
-                    // Translate the value if it's a known key (e.g. "Normal (Above 80%)")
-                    addField(t('Battery Health'), t(batteryHealth), y);
-                    y += lineHeight;
-                }
-            }
-            y += 5;
-        }
-
-        // Issues / Condition Logic
-        if (type === 'repair') {
-            // Using state repairIssues directly as well
-            const dIssues = data.issues as string[] | undefined;
-            const issuesToPrint = (dIssues && dIssues.length > 0) ? dIssues : repairIssues;
-
-            if (issuesToPrint && issuesToPrint.length > 0) {
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(100, 100, 100);
-                doc.text(t('Repairs') + ':', 20, y);
-
-                doc.setFont('helvetica', 'normal');
-                doc.setTextColor(0, 0, 0);
-
-                issuesToPrint.forEach((issue: string, index: number) => {
-                    let issueLabel = t(REPAIR_ISSUES.find(i => i.id === issue)?.label || issue);
-
-                    if (issue === 'screen' && selectedScreenQuality) {
-                        const qualityLabel = selectedScreenQuality === 'generic' ? t('Generic / LCD') :
-                            selectedScreenQuality === 'oled' ? t('OLED / Soft') :
-                                t('Original Refurb');
-                        issueLabel += ` (${qualityLabel})`;
-                    }
-
-                    // Indented listing
-                    if (index === 0) doc.text(`- ${issueLabel}`, 60, y);
-                    else doc.text(`- ${issueLabel}`, 60, y + (index * lineHeight));
-                });
-                y += (issuesToPrint.length * lineHeight);
-            }
-        } else if (type === 'buyback') {
-            // Condition
-            const dCondition = data.condition as { screen?: string; body?: string } | undefined;
-            addField(t('Screen'), t(screenState as string || dCondition?.screen || '-'), y);
-            y += lineHeight;
-            addField(t('Body'), t(bodyState as string || dCondition?.body || '-'), y);
-            y += lineHeight;
-        }
-
-        // --- FUNCTIONALITY & SPECS (Buyback Only) ---
-        if (type === 'buyback') {
-            y += 5;
-            y = addSectionTitle(t('Functionality & Specs'), y);
-
-            // Standard Checks
-            addField(t('Turns On?'), turnsOn ? t('Yes') : t('No'), y);
-            y += lineHeight;
-
-            addField(t('Fully Functional?'), worksCorrectly ? t('Yes') : t('No'), y);
-            y += lineHeight;
-
-            addField(t('Unlocked?'), isUnlocked ? t('Yes') : t('No'), y);
-            y += lineHeight;
-
-            // Apple Specific
-            if (selectedBrand === 'Apple' && (deviceType === 'smartphone' || deviceType === 'tablet')) {
-                if (faceIdWorking !== null) {
-                    addField(t('Face ID Working?'), faceIdWorking ? t('Yes') : t('No'), y);
-                    y += lineHeight;
-                }
-
-                if (batteryHealth) {
-                    // Translate the value if it's a known key (e.g. "Normal (Above 80%)")
-                    addField(t('Battery Health'), t(batteryHealth), y);
-                    y += lineHeight;
-                }
-            }
-        }
-
-        y += 5;
-
-        // --- FINANCIAL SUMMARY ---
-        // Light background box for price
-        doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-        doc.setDrawColor(220, 220, 220);
-        doc.roundedRect(20, y, 170, 25, 3, 3, 'FD');
-
-        const priceLabel = type === 'buyback' ? t('pdf_estimated_value') : t('pdf_total_cost');
-
-        let calculatedPrice = 0;
-        if (type === 'buyback') {
-            calculatedPrice = buybackEstimate;
-        } else {
-            // Repair: use specific quality price if selected, otherwise fallback to original/standard
-            if (selectedScreenQuality && repairEstimates[selectedScreenQuality as keyof typeof repairEstimates]) {
-                calculatedPrice = repairEstimates[selectedScreenQuality as keyof typeof repairEstimates] as number;
-            } else {
-                calculatedPrice = repairEstimates.original > 0 ? repairEstimates.original : repairEstimates.standard || 0;
-            }
-        }
-
-        const priceValue = (data.price as number) || calculatedPrice;
-
-        doc.setFontSize(12);
-        doc.setTextColor(100, 100, 100);
-        doc.text(priceLabel.toUpperCase(), 30, y + 16);
-
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(67, 56, 202); // Belmobile Blue
-
-        // Show "On Request" if price is 0 or negative (which indicates call for price in our logic)
-        if (priceValue <= 0) {
-            doc.text(t('contact_for_price'), 150, y + 17, { align: 'right' });
-        } else {
-            doc.text(`€${Math.round(priceValue)}`, 150, y + 17, { align: 'right' });
-        }
-
-        y += 40;
-
-        // --- NEXT STEPS ---
-        y = addSectionTitle(t('pdf_next_steps'), y);
-
-        const step1 = type === 'buyback' ? t('success_step_backup') : t('repair_step_backup');
-        const step2 = type === 'buyback'
-            ? (deliveryMethod === 'send' ? t('success_step_post') : t('success_step_shop'))
-            : (deliveryMethod === 'send' ? t('repair_step_post') : t('repair_step_shop'));
-        const step3 = type === 'buyback'
-            ? (deliveryMethod === 'send' ? t('success_step_payment_post') : t('success_step_payment_shop'))
-            : (deliveryMethod === 'send' ? t('repair_step_payment_post') : t('repair_step_payment_shop'));
-
-        doc.setFontSize(10);
-        doc.setTextColor(60, 60, 60);
-        doc.setFont('helvetica', 'normal');
-
-        const nextSteps = [`1. ${step1}`, `2. ${step2}`, `3. ${step3}`];
-        nextSteps.forEach(stepText => {
-            const splitText = doc.splitTextToSize(stepText, 170);
-            doc.text(splitText, 20, y);
-            y += (splitText.length * 5) + 3;
-        });
-
-        // --- FOOTER ---
-        const pageHeight = doc.internal.pageSize.height;
-        doc.setFontSize(8);
-        doc.setTextColor(150, 150, 150);
-        doc.text('Belmobile.be - Your Expert in Mobile Services', 105, pageHeight - 15, { align: 'center' });
-        doc.text('www.belmobile.be', 105, pageHeight - 10, { align: 'center' });
-
-        return doc;
+        const result = generateRepairBuybackPDF(pdfData, t);
+        return result;
     };
 
 
@@ -1219,103 +982,117 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                 shopId: selectedShop?.id || null, // No fallback - shop is required for dropoff
                 shippingLabelUrl: shippingLabelUrl,
                 trackingNumber: trackingNumber,
-                servicePoint: servicePoint || null
+                servicePoint: servicePoint || null,
+                language: language // Save language preference
             };
 
             const docRef = await addDoc(collection(db, 'quotes'), orderData);
 
+            // --- ANALYTICS TRACKING ---
+            const eventPrice = orderData.price;
+            if (type === 'repair') {
+                import('../utils/analytics').then(({ trackRepairRequest }) => {
+                    // Check if repairIssues is array and join, or handle as string if needed (though defined as string[] | null)
+                    const issues = orderData.issues;
+                    const issueLabel = Array.isArray(issues) ? issues.join(', ') : 'unknown';
+                    trackRepairRequest(`${selectedBrand} ${selectedModel}`, issueLabel, eventPrice);
+                });
+            } else if (type === 'buyback') {
+                import('../utils/analytics').then(({ trackBuybackRequest }) => {
+                    trackBuybackRequest(`${selectedBrand} ${selectedModel}`, `${storage}GB`, eventPrice);
+                });
+            }
+            // --------------------------
+
             if (type === 'buyback' || type === 'repair') {
                 const finalOrderData = { ...orderData, iban };
-                const pdf = generatePDF(docRef.id, finalOrderData);
 
-                // Trigger auto-download
-                const safeFileName = `Belmobile_${type}_${docRef.id.substring(0, 6).toUpperCase()}.pdf`;
-                pdf.save(safeFileName);
+                generatePDF(docRef.id, finalOrderData).then(async ({ doc, pdfBase64, safeFileName }) => {
+                    // Trigger auto-download
+                    doc.save(safeFileName);
 
-                // Automate Email dispatch via Firestore Trigger
-                const pdfBase64 = pdf.output('datauristring').split(',')[1];
-
-                // 1. Send to Customer
-                await sendEmail(
-                    customerEmail,
-                    t('email_buyback_repair_subject', type === 'buyback' ? t('Buyback') : t('Repair'), docRef.id.substring(0, 6).toUpperCase()),
-                    `
-                    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
-                        <div style="background-color: #4338ca; padding: 30px; text-align: center;">
-                            <div style="display: inline-block; text-align: left;">
-                                <div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">
-                                    BELMOBILE<span style="color: #eab308;">.BE</span>
-                                </div>
-                                <div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">
-                                    BUYBACK & REPAIR
+                    // 1. Send to Customer
+                    await sendEmail(
+                        customerEmail,
+                        t('email_buyback_repair_subject', type === 'buyback' ? t('Buyback') : t('Repair'), docRef.id.substring(0, 6).toUpperCase()),
+                        `
+                        <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                            <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                                <div style="display: inline-block; text-align: left;">
+                                    <div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">
+                                        BELMOBILE<span style="color: #eab308;">.BE</span>
+                                    </div>
+                                    <div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">
+                                        BUYBACK & REPAIR
+                                    </div>
                                 </div>
                             </div>
+                            <div style="padding: 30px; line-height: 1.6;">
+
+                            <h2 style="color: #4338ca;">${t('email_buyback_repair_greeting', customerName)}</h2>
+                            <p>${t('email_buyback_repair_thanks', type === 'buyback' ? t('Buyback') : t('Repair'))}</p>
+                            <p>${t('email_buyback_repair_attachment')}</p>
+                            <hr style="border: 1px solid #eee; margin: 20px 0;">
+                            <p style="font-size: 12px; color: #666;">${t('email_automatic_message')}</p>
                         </div>
-                        <div style="padding: 30px; line-height: 1.6;">
-
-                        <h2 style="color: #4338ca;">${t('email_buyback_repair_greeting', customerName)}</h2>
-                        <p>${t('email_buyback_repair_thanks', type === 'buyback' ? t('Buyback') : t('Repair'))}</p>
-                        <p>${t('email_buyback_repair_attachment')}</p>
-                        <hr style="border: 1px solid #eee; margin: 20px 0;">
-                        <p style="font-size: 12px; color: #666;">${t('email_automatic_message')}</p>
+                        <div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;">
+                            <p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p>
+                            <p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p>
+                            <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
+                                &copy; ${new Date().getFullYear()} Belmobile. All rights reserved.
+                            </p>
+                        </div>
                     </div>
-                    <div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;">
-                        <p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p>
-                        <p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p>
-                        <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
-                            &copy; ${new Date().getFullYear()} Belmobile. All rights reserved.
-                        </p>
-                    </div>
-                </div>
-                    `,
-                    [{
-                        filename: `Belmobile_${type}_${docRef.id.substring(0, 6)}.pdf`,
-                        content: pdfBase64,
-                        encoding: 'base64'
-                    }]
-                );
+                        `,
+                        [{
+                            filename: `Belmobile_${type}_${docRef.id.substring(0, 6)}.pdf`,
+                            content: pdfBase64,
+                            encoding: 'base64'
+                        }]
+                    );
 
-                // 2. Send to Admin (Copy)
-                await sendEmail(
-                    'info@belmobile.be',
-                    `[ADMIN COPY] ${t('email_buyback_repair_subject', type === 'buyback' ? t('Buyback') : t('Repair'), docRef.id.substring(0, 6).toUpperCase())}`,
-                    `
-                    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
-                        <div style="background-color: #4338ca; padding: 30px; text-align: center;">
-                            <div style="display: inline-block; text-align: left;">
-                                <div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">
-                                    BELMOBILE<span style="color: #eab308;">.BE</span>
-                                </div>
-                                <div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">
-                                    BUYBACK & REPAIR
+                    // 2. Send to Admin (Copy)
+                    await sendEmail(
+                        'info@belmobile.be',
+                        `[ADMIN COPY] ${t('email_buyback_repair_subject', type === 'buyback' ? t('Buyback') : t('Repair'), docRef.id.substring(0, 6).toUpperCase())}`,
+                        `
+                        <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                            <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                                <div style="display: inline-block; text-align: left;">
+                                    <div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">
+                                        BELMOBILE<span style="color: #eab308;">.BE</span>
+                                    </div>
+                                    <div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">
+                                        BUYBACK & REPAIR
+                                    </div>
                                 </div>
                             </div>
+                            <div style="padding: 30px; line-height: 1.6;">
+
+                            <h2 style="color: #4338ca;">New ${type} Request</h2>
+                            <p>A new ${type} request has been submitted by <strong>${customerName}</strong> (${customerEmail}).</p>
+                            <p>ID: <strong>${docRef.id.substring(0, 6).toUpperCase()}</strong></p>
+                            <hr style="border: 1px solid #eee; margin: 20px 0;">
+                            <p style="font-size: 12px; color: #666;">This is an administrative copy.</p>
                         </div>
-                        <div style="padding: 30px; line-height: 1.6;">
-
-                        <h2 style="color: #4338ca;">New ${type} Request</h2>
-                        <p>A new ${type} request has been submitted by <strong>${customerName}</strong> (${customerEmail}).</p>
-                        <p>ID: <strong>${docRef.id.substring(0, 6).toUpperCase()}</strong></p>
-                        <hr style="border: 1px solid #eee; margin: 20px 0;">
-                        <p style="font-size: 12px; color: #666;">This is an administrative copy.</p>
+                        <div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;">
+                            <p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p>
+                            <p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p>
+                            <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
+                                &copy; ${new Date().getFullYear()} Belmobile. All rights reserved.
+                            </p>
+                        </div>
                     </div>
-                    <div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;">
-                        <p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p>
-                        <p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p>
-                        <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
-                            &copy; ${new Date().getFullYear()} Belmobile. All rights reserved.
-                        </p>
-                    </div>
-                </div>
-                    `,
-                    [{
-                        filename: `Belmobile_${type}_${docRef.id.substring(0, 6)}.pdf`,
-                        content: pdfBase64,
-                        encoding: 'base64'
-                    }]
-                );
+                        `,
+                        [{
+                            filename: `Belmobile_${type}_${docRef.id.substring(0, 6)}.pdf`,
+                            content: pdfBase64,
+                            encoding: 'base64'
+                        }]
+                    );
 
-                setSubmittedOrder({ id: docRef.id, data: finalOrderData });
+                    setSubmittedOrder({ id: docRef.id, data: finalOrderData });
+                });
             }
 
             setSubmitted(true);
@@ -2184,9 +1961,9 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                     {submittedOrder && (type === 'buyback' || type === 'repair') && (
                         <div className="mt-6 flex flex-col gap-3 items-center">
                             <button
-                                onClick={() => {
-                                    const pdf = generatePDF(submittedOrder.id, submittedOrder.data);
-                                    pdf.save(`Belmobile_${submittedOrder.id.substring(0, 6).toUpperCase()}.pdf`);
+                                onClick={async () => {
+                                    const { doc, safeFileName } = await generatePDF(submittedOrder.id, submittedOrder.data);
+                                    doc.save(safeFileName);
                                 }}
                                 className="text-bel-blue hover:text-blue-700 underline font-medium"
                             >
