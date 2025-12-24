@@ -258,7 +258,7 @@ const AIChatAssistant: React.FC = () => {
                 const details = parts.length > 0 ? parts.join(', ') : t('chat_quote_required');
                 const [brand, ...mParts] = rp.id.split('-');
                 const model = mParts.join('-');
-                return `- ${rp.id}: ${details} | [${t('chat_view_book_repair')}](/${language}/${rSlug}/${brand}/${model})`;
+                return `- ${rp.id}: ${details}. [${t('chat_click_to_book')}](/${language}/${rSlug}/${brand}/${model})`;
             }).join('\n');
 
             const buybackSummary = prioritizedBuybacks.map(item => {

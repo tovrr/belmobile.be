@@ -278,6 +278,7 @@
     "chat_get_buyback_quote": "Get Buyback Quote",
     "chat_default_whatsapp_message": "Hello, I would like more info regarding...",
     "chat_quote_required": "Quote required",
+    "chat_click_to_book": "Click here to View & Book",
     "chat_screen_original": "Screen (Original)",
     "chat_screen_oled": "Screen (OLED)",
     "chat_screen_generic": "Screen (Generic)",

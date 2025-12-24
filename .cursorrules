@@ -3,13 +3,21 @@
 You are working on the **Belmobile Next.js 16 (Canary)** project.
 Your goal is **Premium Quality** and **Zero Regression**.
 
-## 🛑 Strict Environment Rules
-1.  **Middleware Convention**: ALWAYS use `src/proxy.ts`. usage of `middleware.ts` is DEPRECATED and will break the build.
+## 🛑 Architecture & Deployment (Strict)
+1.  **Frontend Host**: Vercel ONLY.
+    - **Do NOT** run `firebase deploy` (without flags). This overwrites hosting.
+    - **ALLOWED**: `firebase deploy --only firestore:rules` (for security rule updates).
+    - **Do NOT** enable Vercel Authentication on Staging (breaks app-level PIN).
+2.  **Backend**: Firebase (Auth, Firestore, Storage) via SDK.
+    - All file uploads MUST go to `ref(storage, ...)` in Firebase SDK.
+    - Never store files locally or in `./public/uploads` (Vercel is ephemeral).
+3.  **Deployment Workflow**:
+    - **Staging**: Push to `staging` branch first. Verify on Vercel Preview.
+    - **Production**: Merge to `main`. Deploys to Vercel Production.
+4.  **Middleware Convention**: ALWAYS use `src/proxy.ts`. usage of `middleware.ts` is DEPRECATED and will break the build.
     - Export `proxy` function, NOT `middleware`.
-2.  **Linting**: Ignore local `npm run lint` crashes (Windows/ESLint 9 incompatibility).
+5.  **Linting**: Ignore local `npm run lint` crashes (Windows/ESLint 9 incompatibility).
     - **Trust only `npm run build`**. If build passes, code is valid.
-3.  **Vercel Settings**: Vercel Authentication is **DISABLED** on Staging. Do not re-enable it.
-    - Application-level protection is handled by `src/proxy.ts`.
 
 ## 🏎️ Performance Doctrine (Core Vitals)
 1.  **Images (`next/image`)**:

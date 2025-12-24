@@ -6,22 +6,23 @@ description: How to maintain and access the Staging Environment
 
 The staging environment (`dev.belmobile.be` or Vercel Preview URL) is a mirror of production used for final verification.
 
+> [!IMPORTANT]
+> **Workflow Policy**: ALWAYS push changes to the `staging` branch first. Only merge to `main` after verification and confirmation.
+
 ### 1. Accessing Staging
 - **URL**: `https://dev.belmobile.be` (or your Vercel preview link)
 - **PIN Code**: `2580`
 - **Protection**: The site is protected by `src/proxy.ts` application-level logic.
 
-### 2. Critical Vercel Configuration
-**WARNING**: Vercel automatically enables "Deployment Protection" (Vercel Authentication) for preview deployments. This **CONFLICTS** with our application-level PIN gate.
+### 2. Deployment Architecture
+- **Frontend**: Hosted on Vercel (Preview Environment).
+- **Backend**: Connected to Firebase Production (Same as main, but protected by PIN).
 
-**You MUST disable Vercel Authentication:**
-1.  Go to Vercel Dashboard -> Project -> Settings -> **Deployment Protection**.
-2.  Find **"Vercel Authentication"**.
-3.  Set "Enabled for Standard Protection" to **OFF**.
-4.  Click **Save**.
+### 3. Vercel Configuration
+- **Vercel Authentication**: Ensure "Deployment Protection" is **DISABLED** to allow our application-level `src/proxy.ts` PIN protection to function.
+- **Trigger**: Push to `staging` branch (or Pull Request).
 
-*If mistakenly enabled, users will be redirected to a Vercel Login screen instead of our PIN screen.*
-
-### 3. Build & Deploy
-- Pushing to the `staging` branch (or opening a PR) automatically triggers a deployment.
-- Check `src/proxy.ts` (Next.js 16) or `middleware.ts` (Next.js 15) logic if redirects behave identically in local dev but fail on Vercel.
+### 4. Verification
+1. Open the Preview URL.
+2. Enter PIN `2580`.
+3. Verify core flows (Buyback, Repair, Chat) work with live Firebase data.
