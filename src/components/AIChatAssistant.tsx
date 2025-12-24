@@ -25,15 +25,16 @@ interface Message {
     sender: 'user' | 'bot';
     timestamp?: number;
     metadata?: {
-        type?: 'product' | 'shop';
+        type?: 'product' | 'shop' | 'whatsapp';
         data?: {
-            id: string;
-            name: string;
+            id?: string;
+            name?: string;
             price?: number;
             image?: string;
             address?: string;
             city?: string;
             path?: string;
+            message?: string;
         };
     };
 }
@@ -249,21 +250,21 @@ const AIChatAssistant: React.FC = () => {
 
             const repairSummary = prioritizedRepairs.map(rp => {
                 const parts = [];
-                if (rp.screen_original) parts.push(`Screen (Original): €${rp.screen_original}`);
-                if (rp.screen_oled) parts.push(`Screen (OLED): €${rp.screen_oled}`);
-                if (rp.screen_generic) parts.push(`Screen (Generic): €${rp.screen_generic}`);
-                if (rp.battery) parts.push(`Battery: €${rp.battery}`);
+                if (rp.screen_original) parts.push(`${t('chat_screen_original')}: €${rp.screen_original}`);
+                if (rp.screen_oled) parts.push(`${t('chat_screen_oled')}: €${rp.screen_oled}`);
+                if (rp.screen_generic) parts.push(`${t('chat_screen_generic')}: €${rp.screen_generic}`);
+                if (rp.battery) parts.push(`${t('chat_battery')}: €${rp.battery}`);
 
-                const details = parts.length > 0 ? parts.join(', ') : 'Quote required';
+                const details = parts.length > 0 ? parts.join(', ') : t('chat_quote_required');
                 const [brand, ...mParts] = rp.id.split('-');
                 const model = mParts.join('-');
-                return `- ${rp.id}: ${details} | [View & Book Repair](/${language}/${rSlug}/${brand}/${model})`;
+                return `- ${rp.id}: ${details} | [${t('chat_view_book_repair')}](/${language}/${rSlug}/${brand}/${model})`;
             }).join('\n');
 
             const buybackSummary = prioritizedBuybacks.map(item => {
                 const [brand, ...mParts] = item.deviceId.split('-');
                 const model = mParts.join('-');
-                return `- ${item.deviceId}: Up to €${item.maxPrice} (Available for: ${item.storages.join(', ')}) | [Get Buyback Quote](/${language}/${bSlug}/${brand}/${model})`;
+                return `- ${item.deviceId}: ${t('chat_up_to')} €${item.maxPrice} (${t('chat_available_for')}: ${item.storages.join(', ')}) | [${t('chat_get_buyback_quote')}](/${language}/${bSlug}/${brand}/${model})`;
             }).join('\n');
 
             const systemInstruction = `
@@ -280,6 +281,13 @@ const AIChatAssistant: React.FC = () => {
                 5. BUYBACK: For selling, use "Up to €XX" based on the data provided as a MAXIMUM ESTIMATE for the best configuration. You MUST immediately state: "This is a maximum estimate. Please use the link below to get an exact quote for your specific storage and condition."
                 6. MODEL SPECIFICITY: Be extremely careful not to confuse "Standard" models with "Pro" or "Pro Max" models. If the user asks for "iPhone 15", do not give the price for "iPhone 15 Pro".
                 7. LINKS: Never show raw URLs. Always use the format [Title](URL). The direct link is the ONLY definitive source for an exact price. Encourage clicking it.
+                8. PRIORITY SHOP (SCHAERBEEK): Always prioritize "Belmobile Liedts" in Schaerbeek as our PRIMARY hub. If a user asks for a recommendation or location, push them towards Schaerbeek first. Mention it has the most stock and fastest repair times.
+                9. CLOSED LOCATIONS: Molenbeek (Tour & Taxis) is TEMPORARILY CLOSED. If asked, redirect users to Schaerbeek (Liedts), which is only 5 minutes away.
+                10. ANDERLECHT: Only mention Anderlecht if specifically asked or if the user is clearly closer to it. Otherwise, Schaerbeek is the preferred destination.
+                11. SMART HOOK: If the user seems ready to buy, asks for a custom quote, negotiation, complex repair, B2B services, or if you can't find a price, invite them to WhatsApp for a personalized solution.
+                    To do this, append the following tag to the end of your message: [WHATSAPP_HOOK: <Short summary of user request to pre-fill message>]
+                    Example: [WHATSAPP_HOOK: I need a quote for 5 iPhone 13 battery replacements]
+                    Example: [WHATSAPP_HOOK: Price for water damage repair on Samsung S21]
 
                 KNOWLEDGE BASE:
                 SHOPS: ${shopsContext}
@@ -329,8 +337,20 @@ const AIChatAssistant: React.FC = () => {
             // --- INTENT DETECTION (METADATA INJECTION) ---
             let metadata: Message['metadata'] = undefined;
 
+            // Check for Smart Hook
+            const whatsappMatch = text.match(/\[WHATSAPP_HOOK: (.*?)\]/);
+            if (whatsappMatch) {
+                text = text.replace(whatsappMatch[0], '').trim();
+                metadata = {
+                    type: 'whatsapp',
+                    data: {
+                        message: whatsappMatch[1]
+                    }
+                };
+            }
+
             const foundProduct = products.find(p => text.toLowerCase().includes(p.name.toLowerCase()) || userText.toLowerCase().includes(p.name.toLowerCase()));
-            if (foundProduct) {
+            if (!metadata && foundProduct) {
                 metadata = {
                     type: 'product',
                     data: {
@@ -341,7 +361,7 @@ const AIChatAssistant: React.FC = () => {
                         path: `/${language}/produits/${foundProduct.id}`
                     }
                 };
-            } else {
+            } else if (!metadata) {
                 const foundShop = shops.find(s => text.toLowerCase().includes(s.name.toLowerCase()) || userText.toLowerCase().includes(s.name.toLowerCase()));
                 if (foundShop) {
                     metadata = {
@@ -420,7 +440,7 @@ const AIChatAssistant: React.FC = () => {
                             <a
                                 href="tel:+3222759867"
                                 className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all hover:scale-110 shadow-lg"
-                                title="Call Support"
+                                title={t('chat_call_support')}
                             >
                                 <PhoneIcon className="w-5 h-5 text-white" />
                             </a>
@@ -429,7 +449,7 @@ const AIChatAssistant: React.FC = () => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-all hover:scale-110 shadow-lg"
-                                title="Contact on WhatsApp"
+                                title={t('chat_contact_whatsapp')}
                             >
                                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />

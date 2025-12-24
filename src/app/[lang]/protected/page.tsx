@@ -77,7 +77,7 @@ export default function ProtectedPage() {
                         <LockClosedIcon className="w-8 h-8 text-white" />
                     </div>
 
-                    <h1 className="text-3xl md:text-4xl font-black text-center mb-3 bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent">
+                    <h1 className="text-3xl md:text-4xl font-black text-center mb-3 bg-linear-to-br from-white to-white/60 bg-clip-text text-transparent">
                         {t.title}
                     </h1>
                     <p className="text-white/40 text-center mb-10 text-lg leading-relaxed font-medium">

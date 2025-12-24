@@ -170,6 +170,7 @@ const Footer: React.FC = () => {
                             <li><Link href={`/${language}/${language === 'fr' ? 'rachat' : language === 'nl' ? 'inkoop' : 'buyback'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Buyback')}</Link></li>
                             <li><Link href={`/${language}${language === 'fr' ? '/produits' : language === 'nl' ? '/producten' : '/products'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Products')}</Link></li>
                             <li><Link href={`/${language}/business`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Business Solutions')}</Link></li>
+                            <li><Link href={`/${language}/express-courier`} className="hover:text-white hover:translate-x-1 inline-block duration-200 font-bold text-cyber-citron transition-all animate-pulse hover:animate-none">{t('Express Courier')}</Link></li>
                             <li><Link href={`/${language}/franchise`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Become a Partner')}</Link></li>
                             <li><Link href={`/${language}/${language === 'fr' ? 'carrieres' : language === 'nl' ? 'vacatures' : 'jobs'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Careers')}</Link></li>
                         </ul>

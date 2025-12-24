@@ -13,6 +13,9 @@ export interface Location {
     openingHours: string[];
     googleMapUrl: string;
     isHub?: boolean; // True for "Brussels" city page
+    status?: 'open' | 'coming_soon' | 'temporarily_closed';
+    isPrimary?: boolean;
+    badge?: string;
     photos?: string[];
     slugs: {
         fr: string;
@@ -33,6 +36,8 @@ export const LOCATIONS: Location[] = [
         coords: { lat: 50.86486, lng: 4.36704 },
         openingHours: ['Tue-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Mon, Sun: Closed'],
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Liedts+Rue+Gallait+4+1030+Schaerbeek',
+        isPrimary: true,
+        badge: 'Recommended',
         photos: [
             '/images/franchise_hero.png',
             '/images/hero_phone_bg.png'
@@ -41,27 +46,6 @@ export const LOCATIONS: Location[] = [
             fr: 'schaerbeek',
             nl: 'schaarbeek',
             en: 'schaerbeek'
-        }
-    },
-    {
-        id: 'molenbeek',
-        name: 'Belmobile Tour & Taxis',
-        address: 'Rue Ulens 88',
-        city: 'Molenbeek-Saint-Jean',
-        zip: '1080',
-        phone: '02/306.76.56',
-        email: 'molenbeek@belmobile.be',
-        coords: { lat: 50.86285, lng: 4.34240 },
-        openingHours: ['Mon-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Sun: Closed'],
-        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis+Rue+Ulens+88+1080+Molenbeek',
-        photos: [
-            '/images/franchise_hero.png',
-            '/images/hero_phone_bg.png'
-        ],
-        slugs: {
-            fr: 'molenbeek',
-            nl: 'molenbeek',
-            en: 'molenbeek'
         }
     },
     {
@@ -83,6 +67,28 @@ export const LOCATIONS: Location[] = [
             fr: 'anderlecht',
             nl: 'anderlecht',
             en: 'anderlecht'
+        }
+    },
+    {
+        id: 'molenbeek',
+        name: 'Belmobile Tour & Taxis',
+        address: 'Rue Ulens 88',
+        city: 'Molenbeek-Saint-Jean',
+        zip: '1080',
+        phone: '02/306.76.56',
+        email: 'molenbeek@belmobile.be',
+        coords: { lat: 50.86285, lng: 4.34240 },
+        openingHours: ['Temporarily Closed'],
+        status: 'temporarily_closed',
+        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis+Rue+Ulens+88+1080+Molenbeek',
+        photos: [
+            '/images/franchise_hero.png',
+            '/images/hero_phone_bg.png'
+        ],
+        slugs: {
+            fr: 'molenbeek',
+            nl: 'molenbeek',
+            en: 'molenbeek'
         }
     },
     {

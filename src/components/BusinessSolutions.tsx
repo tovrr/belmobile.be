@@ -3,10 +3,11 @@
 import React from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { motion } from 'framer-motion';
-import { BuildingOffice2Icon, WrenchScrewdriverIcon, DevicePhoneMobileIcon, CurrencyEuroIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { BuildingOffice2Icon, WrenchScrewdriverIcon, DevicePhoneMobileIcon, CurrencyEuroIcon, CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 
 const BusinessSolutions: React.FC = () => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     const benefits = [
         {
@@ -84,10 +85,49 @@ const BusinessSolutions: React.FC = () => {
                             </p>
                         </motion.div>
                     ))}
+
+                    {/* NEW: Fleet Management Detail Card */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="md:col-span-2 bg-bel-blue text-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden group"
+                    >
+                        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                            <div className="flex-1">
+                                <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-black uppercase tracking-widest mb-4 inline-block">Pro Fleet Management</span>
+                                <h3 className="text-3xl md:text-5xl font-black mb-6 leading-tight">Managing 50+ devices? <br /> We have a portal for that.</h3>
+                                <p className="text-blue-100 text-lg mb-8 max-w-2xl">
+                                    Our Schaerbeek hub handles large-scale deployments, device end-of-life recycling, and 24h express repairs for corporate fleets. Get a dedicated account manager and a 10% lifetime discount on parts.
+                                </p>
+                                <div className="flex flex-wrap gap-4">
+                                    <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
+                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" /> <span>24h Express SLA</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
+                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" /> <span>Monthly Invoicing</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
+                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" /> <span>Loaner Devices</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="w-full md:w-auto">
+                                <Link
+                                    href={`/${language}/express-courier`}
+                                    className="px-8 py-6 bg-white text-bel-blue font-black rounded-2xl shadow-xl hover:scale-105 transition-all flex items-center gap-3 whitespace-nowrap"
+                                >
+                                    Explore Corporate Bridge <ArrowRightIcon className="h-5 w-5" />
+                                </Link>
+                            </div>
+                        </div>
+                        {/* Abstract Background for the card */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:bg-white/10 transition-colors"></div>
+                    </motion.div>
                 </div>
 
                 {/* Trust Section */}
-                <div className="bg-slate-900 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden">
+                <div className="bg-slate-900 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden group">
                     <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
                     <div className="relative z-10">
                         <h2 className="text-3xl md:text-4xl font-black text-white mb-12">
@@ -100,7 +140,7 @@ const BusinessSolutions: React.FC = () => {
                                 "Flexible Payment Terms"
                             ].map((item, i) => (
                                 <div key={i} className="flex flex-col items-center">
-                                    <CheckCircleIcon className="h-12 w-12 text-green-400 mb-4" />
+                                    <CheckCircleIcon className="h-12 w-12 text-green-400 mb-4 group-hover:scale-110 transition-transform" />
                                     <span className="text-xl font-bold text-white">{t(item)}</span>
                                 </div>
                             ))}

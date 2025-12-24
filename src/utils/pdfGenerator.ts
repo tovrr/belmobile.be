@@ -29,6 +29,7 @@ interface RepairBuybackData {
     specs?: {
         [key: string]: string | boolean;
     };
+    perks?: string[];
 }
 
 export const generateReservationPDF = (data: ReservationData, t: (key: string) => string) => {
@@ -175,7 +176,23 @@ export const generateRepairBuybackPDF = (data: RepairBuybackData, t: (key: strin
     doc.setTextColor(67, 56, 202);
     doc.text(`€${data.value || data.cost}`, 180, nextY + 16, { align: 'right' });
 
+    // Perks Section
+    if (data.perks && data.perks.length > 0) {
+        nextY += 35;
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text(`${t('pdf_exclusive_perks')}:`, 20, nextY);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        data.perks.forEach((perk, index) => {
+            doc.text(`• ${perk}`, 25, nextY + 7 + (index * 5));
+        });
+        nextY += (data.perks.length * 5) + 2;
+    }
+
     // Footer
+    nextY = Math.max(nextY + 15, 275); // Ensure it doesn't overlap or go too low
     doc.setTextColor(100, 116, 139);
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');

@@ -23,8 +23,15 @@ const Contact: React.FC = () => {
     // Sort shops: Active shops first, Coming Soon last
     const sortedShops = useMemo(() => {
         return [...shops].sort((a, b) => {
+            // Priority 1: isPrimary shops always first
+            if (a.isPrimary && !b.isPrimary) return -1;
+            if (!a.isPrimary && b.isPrimary) return 1;
+
+            // Priority 2: Not 'coming_soon' before 'coming_soon'
             if (a.status === 'coming_soon' && b.status !== 'coming_soon') return 1;
             if (a.status !== 'coming_soon' && b.status === 'coming_soon') return -1;
+
+            // Priority 3: Alphabetical by name
             return a.name.localeCompare(b.name);
         });
     }, [shops]);
@@ -261,12 +268,23 @@ const Contact: React.FC = () => {
                                         <div
                                             className={`
                                                 relative bg-white dark:bg-slate-800 p-8 rounded-3xl border transition-all duration-300 group
-                                                ${shop.status === 'coming_soon'
-                                                    ? 'border-dashed border-gray-300 dark:border-slate-700 opacity-90'
-                                                    : 'border-gray-100 dark:border-white/5 shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-1 hover:border-bel-blue/30 dark:hover:border-blue-500/30'
+                                                ${shop.isPrimary
+                                                    ? 'border-bel-blue ring-2 ring-bel-blue/20 shadow-xl shadow-bel-blue/10'
+                                                    : shop.status === 'coming_soon'
+                                                        ? 'border-dashed border-gray-300 dark:border-slate-700 opacity-90'
+                                                        : 'border-gray-100 dark:border-white/5 shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-1 hover:border-bel-blue/30 dark:hover:border-blue-500/30'
                                                 }
                                             `}
                                         >
+                                            {/* Priority Badge */}
+                                            {shop.badge && (
+                                                <div className="absolute top-0 right-0">
+                                                    <div className="bg-bel-blue text-white text-[10px] font-bold px-3 py-1 rounded-tr-3xl rounded-bl-xl uppercase tracking-tighter animate-pulse">
+                                                        {shop.badge}
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
                                                     <h3 className={`text-xl font-bold mb-1 ${shop.status === 'coming_soon' ? 'text-gray-500 dark:text-gray-400' : 'text-bel-dark dark:text-white group-hover:text-bel-blue dark:group-hover:text-blue-400 transition-colors'}`}>
@@ -275,6 +293,11 @@ const Contact: React.FC = () => {
                                                     {shop.status === 'coming_soon' ? (
                                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
                                                             {t('Coming Soon')}
+                                                        </span>
+                                                    ) : shop.status === 'temporarily_closed' ? (
+                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                                                            <span className="w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span>
+                                                            {t('Temporarily Closed')}
                                                         </span>
                                                     ) : isShopOpen(shop.openingHours) ? (
                                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
@@ -288,7 +311,7 @@ const Contact: React.FC = () => {
                                                         </span>
                                                     )}
                                                 </div>
-                                                <div className="w-10 h-10 rounded-full bg-gray-50 dark:bg-slate-700 flex items-center justify-center text-gray-400 group-hover:bg-bel-blue group-hover:text-white transition-all duration-300">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${shop.isPrimary ? 'bg-bel-blue text-white' : 'bg-gray-50 dark:bg-slate-700 text-gray-400 group-hover:bg-bel-blue group-hover:text-white'}`}>
                                                     <MapPinIcon className="w-5 h-5" />
                                                 </div>
                                             </div>
