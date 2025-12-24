@@ -1,7 +1,0 @@
-{
-  "name": "Belmobile.be(dev)",
-  "description": "A modern, responsive website for Belmobile.be, featuring a product catalog, online reservations, buyback/repair quotes, a store locator, and a comprehensive CMS dashboard for management.",
-  "requestFramePermissions": [
-    "geolocation"
-  ]
-}
