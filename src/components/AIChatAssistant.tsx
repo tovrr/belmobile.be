@@ -285,7 +285,7 @@ const AIChatAssistant: React.FC = () => {
                 9. CLOSED LOCATIONS: Molenbeek (Tour & Taxis) is TEMPORARILY CLOSED. If asked, redirect users to Schaerbeek (Liedts), which is only 5 minutes away.
                 10. ANDERLECHT: Only mention Anderlecht if specifically asked or if the user is clearly closer to it. Otherwise, Schaerbeek is the preferred destination.
                 11. SMART HOOK: If the user seems ready to buy, asks for a custom quote, negotiation, complex repair, B2B services, or if you can't find a price, invite them to WhatsApp for a personalized solution.
-                    To do this, append the following tag to the end of your message: [WHATSAPP_HOOK: <Short summary of user request to pre-fill message>]
+                    To do this, append the following tag to the end of your message: [WHATSAPP_HOOK: <Short summary of user request to pre-fill message IN THE SAME LANGUAGE AS THE CONVERSATION>]
                     Example: [WHATSAPP_HOOK: I need a quote for 5 iPhone 13 battery replacements]
                     Example: [WHATSAPP_HOOK: Price for water damage repair on Samsung S21]
 
