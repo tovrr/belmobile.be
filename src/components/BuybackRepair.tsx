@@ -1101,6 +1101,13 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                             <h2 style="color: #4338ca;">${t('email_buyback_repair_greeting', customerName)}</h2>
                             <p>${t('email_buyback_repair_thanks', type === 'buyback' ? t('Buyback') : t('Repair'))}</p>
                             <p>${t('email_buyback_repair_attachment')}</p>
+                            
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="https://belmobile.be/${language}/track-order?id=${docRef.id}&email=${encodeURIComponent(customerEmail)}" style="background-color: #4338ca; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                    ${t('email_track_button')}
+                                </a>
+                            </div>
+
                             <hr style="border: 1px solid #eee; margin: 20px 0;">
                             <p style="font-size: 12px; color: #666;">${t('email_automatic_message')}</p>
                         </div>

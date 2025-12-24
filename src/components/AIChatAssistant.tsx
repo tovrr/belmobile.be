@@ -51,6 +51,43 @@ const AIChatAssistant: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    // Typewriter effect states
+    const [currentPlaceholder, setCurrentPlaceholder] = useState('');
+    const [placeholderIndex, setPlaceholderIndex] = useState(0);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [placeholderSpeed, setPlaceholderSpeed] = useState(150);
+
+    // Load placeholders from i18n
+    const placeholders = (t('chat_placeholders') || "").split('|').filter(Boolean);
+
+    // Placeholder typewriter effect
+    useEffect(() => {
+        if (placeholders.length === 0) return;
+
+        const handleType = () => {
+            const current = placeholders[placeholderIndex % placeholders.length];
+            const updatedText = isDeleting
+                ? current.substring(0, currentPlaceholder.length - 1)
+                : current.substring(0, currentPlaceholder.length + 1);
+
+            setCurrentPlaceholder(updatedText);
+
+            if (!isDeleting && updatedText === current) {
+                setPlaceholderSpeed(2000); // Wait before deleting
+                setIsDeleting(true);
+            } else if (isDeleting && updatedText === '') {
+                setIsDeleting(false);
+                setPlaceholderIndex((prev) => prev + 1);
+                setPlaceholderSpeed(150);
+            } else {
+                setPlaceholderSpeed(isDeleting ? 50 : 150);
+            }
+        };
+
+        const timer = setTimeout(handleType, placeholderSpeed);
+        return () => clearTimeout(timer);
+    }, [currentPlaceholder, isDeleting, placeholderIndex, placeholderSpeed, placeholders]);
+
     // 1. Session & History Initialization
     useEffect(() => {
         const initChat = async () => {
@@ -284,10 +321,10 @@ const AIChatAssistant: React.FC = () => {
                 8. PRIORITY SHOP (SCHAERBEEK): Always prioritize "Belmobile Liedts" in Schaerbeek as our PRIMARY hub. If a user asks for a recommendation or location, push them towards Schaerbeek first. Mention it has the most stock and fastest repair times.
                 9. CLOSED LOCATIONS: Molenbeek (Tour & Taxis) is TEMPORARILY CLOSED. If asked, redirect users to Schaerbeek (Liedts), which is only 5 minutes away.
                 10. ANDERLECHT: Only mention Anderlecht if specifically asked or if the user is clearly closer to it. Otherwise, Schaerbeek is the preferred destination.
-                11. SMART HOOK: If the user seems ready to buy, asks for a custom quote, negotiation, complex repair, B2B services, or if you can't find a price, invite them to WhatsApp for a personalized solution.
-                    To do this, append the following tag to the end of your message: [WHATSAPP_HOOK: <Short summary of user request to pre-fill message IN THE SAME LANGUAGE AS THE CONVERSATION>]
-                    Example: [WHATSAPP_HOOK: I need a quote for 5 iPhone 13 battery replacements]
-                    Example: [WHATSAPP_HOOK: Price for water damage repair on Samsung S21]
+                11. SMART HOOK: Append the following tag ONLY if the user asks for a CUSTOM quote, complex repair, B2B services, or if you can't find a price. DO NOT use it for general greeting or basic information.
+                    Tag format: [WHATSAPP_HOOK: <Short summary of user request to pre-fill message IN THE SAME LANGUAGE AS THE CONVERSATION>]
+                12. ORDER TRACKING: If the user provides an Order ID (like 7A2B9C) or asks to track their order, and you find that ID in the conversation or they just provided it, you MUST use the following tag to trigger the tracking UI: [TRACK_ORDER: <ORDER_ID>]
+
 
                 KNOWLEDGE BASE:
                 SHOPS: ${shopsContext}
@@ -347,6 +384,36 @@ const AIChatAssistant: React.FC = () => {
                         message: whatsappMatch[1]
                     }
                 };
+            }
+
+            // Check for Track Order Hook
+            const trackMatch = text.match(/\[TRACK_ORDER: (.*?)\]/);
+            if (trackMatch) {
+                const orderId = trackMatch[1].trim();
+                text = text.replace(trackMatch[0], '').trim();
+
+                try {
+                    const docRef = doc(db, 'quotes', orderId);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        const status = data.status || 'pending';
+                        const statusTranslated = t(status);
+                        const brand = data.brand || '';
+                        const model = data.model || '';
+
+                        text += `\n\n✅ **${t('Order Status')}**: ${statusTranslated}\n📦 **${t('Device')}**: ${brand} ${model}\n🆔 **ID**: ${orderId}`;
+
+                        // We can also add a link to the full tracking page
+                        text += `\n\n[→ ${t('email_track_order')}](/${language}/track-order?id=${orderId}&email=${encodeURIComponent(data.customerEmail)})`;
+                    } else {
+                        text += `\n\n❌ ${t('Order not found. Please check your details.')}`;
+                    }
+                } catch (err) {
+                    console.error("Error fetching order via AI:", err);
+                    text += `\n\n❌ ${t('Order not found. Please check your details.')}`;
+                }
             }
 
             const foundProduct = products.find(p => text.toLowerCase().includes(p.name.toLowerCase()) || userText.toLowerCase().includes(p.name.toLowerCase()));
@@ -527,7 +594,7 @@ const AIChatAssistant: React.FC = () => {
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
-                                placeholder={t('ai_placeholder')}
+                                placeholder={currentPlaceholder || t('ai_placeholder')}
                                 className="flex-1 p-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-bel-blue focus:border-transparent transition-all text-sm text-slate-900! placeholder:text-slate-400"
                             />
                             <button

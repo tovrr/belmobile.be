@@ -158,29 +158,57 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 const snap = await getDoc(docRef);
                 if (snap.exists()) {
                     const data = snap.data() as Reservation;
+                    const lang = (data as any).language || 'fr';
                     const isShipping = data.deliveryMethod === 'shipping';
-                    const subject = isShipping ? "Action Required: Payment for your Order" : "Your Reservation is Ready!";
 
-                    // PLACEHOLDER PAYMENT LINK - User can update this
+                    const subjects: Record<string, string> = {
+                        en: isShipping ? "Action Required: Payment for your Order" : "Your Reservation is Ready!",
+                        fr: isShipping ? "Action Requise : Paiement de votre commande" : "Votre réservation est prête !",
+                        nl: isShipping ? "Actie vereist: Betaling voor uw bestelling" : "Uw reservering ligt klaar!"
+                    };
+
+                    const trackButtons: Record<string, string> = {
+                        en: "Track Order",
+                        fr: "Suivre la commande",
+                        nl: "Volg bestelling"
+                    };
+
+                    const trackingUrl = `https://belmobile.be/${lang}/track-order?id=${id}&email=${encodeURIComponent(data.customerEmail)}`;
                     const paymentLink = `https://buy.stripe.com/test_payment_link_placeholder?prefilled_email=${encodeURIComponent(data.customerEmail)}`;
 
                     const htmlContent = isShipping
-                        ? `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-                            <h2 style="color: #4338ca;">Good news! Your order is confirmed.</h2>
-                            <p>We have verified your order for <strong>${data.productName}</strong>.</p>
-                            <p>To finalize the shipment to <strong>${data.shippingCity}</strong>, please complete the payment using the secure link below:</p>
-                            <div style="text-align: center; margin: 30px 0;">
-                                <a href="${paymentLink}" style="background-color: #4338ca; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">Pay Now Securely</a>
+                        ? `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                            <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                                <div style="color: #ffffff; font-size: 24px; font-weight: bold;">BELMOBILE.BE</div>
                             </div>
-                            <p style="color: #666; font-size: 12px;">Link not working? Paste this into your browser: ${paymentLink}</p>
+                            <div style="padding: 30px;">
+                                <h2 style="color: #4338ca;">${lang === 'fr' ? 'Bonne nouvelle ! Votre commande est confirmée.' : lang === 'nl' ? 'Goed nieuws! Uw bestelling is bevestigd.' : 'Good news! Your order is confirmed.'}</h2>
+                                <p>${lang === 'fr' ? `Nous avons vérifié votre commande pour <strong>${data.productName}</strong>.` : lang === 'nl' ? `We hebben uw bestelling voor <strong>${data.productName}</strong> geverifieerd.` : `We have verified your order for <strong>${data.productName}</strong>.`}</p>
+                                <p>${lang === 'fr' ? `Pour finaliser l'expédition à <strong>${data.shippingCity}</strong>, veuillez effectuer le paiement via le lien sécurisé ci-dessous :` : lang === 'nl' ? `Om de verzending naar <strong>${data.shippingCity}</strong> te voltooien, dient u de betaling uit te voeren via de onderstaande beveiligde link:` : `To finalize the shipment to <strong>${data.shippingCity}</strong>, please complete the payment using the secure link below:`}</p>
+                                <div style="text-align: center; margin: 30px 0;">
+                                    <a href="${paymentLink}" style="background-color: #4338ca; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">${lang === 'fr' ? 'Payer en toute sécurité' : lang === 'nl' ? 'Nu veilig betalen' : 'Pay Now Securely'}</a>
+                                </div>
+                                <div style="text-align: center; margin-bottom: 20px;">
+                                    <a href="${trackingUrl}" style="color: #4338ca; font-weight: bold; text-decoration: underline;">${trackButtons[lang]}</a>
+                                </div>
+                                <p style="color: #666; font-size: 11px;">${lang === 'fr' ? 'Le lien ne fonctionne pas ? Copiez ceci :' : lang === 'nl' ? 'Link werkt niet? Plak dit :' : 'Link not working? Paste this :'} ${paymentLink}</p>
+                            </div>
                            </div>`
-                        : `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-                            <h2 style="color: #4338ca;">Your device is ready!</h2>
-                            <p>Your reservation for <strong>${data.productName}</strong> has been approved.</p>
-                            <p>You can come to pick it up at the shop whenever you are ready.</p>
+                        : `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                            <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                                <div style="color: #ffffff; font-size: 24px; font-weight: bold;">BELMOBILE.BE</div>
+                            </div>
+                            <div style="padding: 30px;">
+                                <h2 style="color: #4338ca;">${lang === 'fr' ? 'Votre appareil est prêt !' : lang === 'nl' ? 'Uw apparaat ligt klaar!' : 'Your device is ready!'}</h2>
+                                <p>${lang === 'fr' ? `Votre réservation pour <strong>${data.productName}</strong> a été approuvée.` : lang === 'nl' ? `Uw reservering voor <strong>${data.productName}</strong> is goedgekeurd.` : `Your reservation for <strong>${data.productName}</strong> has been approved.`}</p>
+                                <p>${lang === 'fr' ? 'Vous pouvez venir le récupérer en magasin quand vous le souhaitez.' : lang === 'nl' ? 'U kunt het in de winkel komen ophalen wanneer u maar wilt.' : 'You can come to pick it up at the shop whenever you are ready.'}</p>
+                                <div style="text-align: center; margin: 30px 0;">
+                                    <a href="${trackingUrl}" style="background-color: #4338ca; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">${trackButtons[lang]}</a>
+                                </div>
+                            </div>
                            </div>`;
 
-                    await sendEmail(data.customerEmail, subject, htmlContent);
+                    await sendEmail(data.customerEmail, subjects[lang] || subjects['en'], htmlContent);
                 }
             }
         } catch (error) {
@@ -245,6 +273,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
                     const message = statusMessages[lang]?.[status] || statusMessages['en'][status] || `Status updated to: ${status}`;
                     const subject = subjects[lang] || subjects['en'];
+                    const trackButton = lang === 'fr' ? 'Suivre la commande' : lang === 'nl' ? 'Volg bestelling' : 'Track Order';
 
                     await sendEmail(
                         data.customerEmail,
@@ -255,10 +284,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                                 <div style="color: #ffffff; font-size: 24px; font-weight: bold;">BELMOBILE.BE</div>
                             </div>
                             <div style="padding: 30px;">
-                                <h2 style="color: #4338ca;">Order Update</h2>
+                                <h2 style="color: #4338ca;">${lang === 'fr' ? 'Mise à jour de la commande' : lang === 'nl' ? 'Bestellingsupdate' : 'Order Update'}</h2>
                                 <p>${message}</p>
                                 <div style="text-align: center; margin: 30px 0;">
-                                    <a href="${trackingUrl}" style="background-color: #4338ca; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Track Your Order</a>
+                                    <a href="${trackingUrl}" style="background-color: #4338ca; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">${trackButton}</a>
                                 </div>
                                 <hr style="border: 1px solid #eee; margin: 20px 0;">
                                 <p style="font-size: 12px; color: #666;">Order ID: ${id}</p>
