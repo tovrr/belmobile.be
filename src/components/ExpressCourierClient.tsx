@@ -12,23 +12,23 @@ const ExpressCourierClient: React.FC = () => {
     const steps = [
         {
             icon: DevicePhoneMobileIcon,
-            title: "Request Online",
-            desc: "Use our wizard to select your repair and choose 'Express Courier'."
+            title: t('courier_step1_title'),
+            desc: t('courier_step1_desc')
         },
         {
             icon: TruckIcon,
-            title: "We Pick Up",
-            desc: "A dedicated courier picks up your device from your desk at Tour & Taxis."
+            title: t('courier_step2_title'),
+            desc: t('courier_step2_desc')
         },
         {
             icon: ClockIcon,
-            title: "Express Repair",
-            desc: "Your device is repaired at our Schaerbeek hub within 2-4 hours."
+            title: t('courier_step3_title'),
+            desc: t('courier_step3_desc')
         },
         {
             icon: ShieldCheckIcon,
-            title: "Same-Day Return",
-            desc: "We deliver your fixed device back to your office before you leave!"
+            title: t('courier_step4_title'),
+            desc: t('courier_step4_desc')
         }
     ];
 
@@ -43,25 +43,22 @@ const ExpressCourierClient: React.FC = () => {
                             animate={{ opacity: 1, y: 0 }}
                             className="inline-block px-4 py-2 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-black text-xs uppercase tracking-widest mb-6"
                         >
-                            Exclusive: Tour & Taxis Corporate Bridge
+                            {t('courier_hero_badge')}
                         </motion.span>
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
                             className="text-4xl md:text-7xl font-black text-slate-900 dark:text-white mb-8 leading-tight"
-                        >
-                            Working at <span className="text-bel-blue">Tour & Taxis</span>? <br />
-                            Get your phone fixed by lunch.
-                        </motion.h1>
+                            dangerouslySetInnerHTML={{ __html: t('courier_hero_title') }}
+                        />
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
                             className="text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-2xl mx-auto"
                         >
-                            Our legendary Molenbeek shop moved, but your convenience stays.
-                            Enjoy free courier pick-up and return for all corporate employees at Gare Maritime and Tour & Taxis.
+                            {t('courier_hero_subtitle')}
                         </motion.p>
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
@@ -73,13 +70,13 @@ const ExpressCourierClient: React.FC = () => {
                                 href={`/${language}/repair`}
                                 className="px-8 py-5 bg-bel-blue text-white font-black rounded-2xl shadow-xl hover:scale-105 transition-all text-lg flex items-center justify-center gap-2"
                             >
-                                Book Express Repair <ArrowRightIcon className="h-5 w-5" />
+                                {t('courier_cta_book')} <ArrowRightIcon className="h-5 w-5" />
                             </Link>
                             <a
                                 href="tel:+32484837560"
                                 className="px-8 py-5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-2 border-slate-100 dark:border-slate-700 font-bold rounded-2xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-all text-lg"
                             >
-                                Call for Pickup
+                                {t('courier_cta_call')}
                             </a>
                         </motion.div>
                     </div>
@@ -94,8 +91,8 @@ const ExpressCourierClient: React.FC = () => {
             <div className="py-24 bg-white dark:bg-deep-space">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-4">The Digital Bridge in 4 Steps</h2>
-                        <p className="text-slate-500 dark:text-slate-400">Zero downtime. Zero travel. Just results.</p>
+                        <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-4">{t('courier_zone_title')}</h2>
+                        <p className="text-slate-500 dark:text-slate-400">{t('courier_zone_subtitle')}</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -127,34 +124,46 @@ const ExpressCourierClient: React.FC = () => {
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div>
-                            <span className="text-bel-blue font-bold uppercase tracking-widest text-sm mb-4 block">Our Service Zone</span>
-                            <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">Serving the Entire <br /> <span className="text-bel-blue">Nord North</span> Business Park</h2>
-                            <ul className="space-y-4 mb-10 text-lg">
-                                <li className="flex items-center gap-3">
-                                    <CheckCircleIcon className="h-6 w-6 text-bel-blue" /> Gare Maritime & Picard
+                            <span className="text-bel-blue font-bold uppercase tracking-widest text-sm mb-4 block">{t('courier_hero_badge')}</span>
+                            <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">{t('courier_zone_title')}</h2>
+                            <ul className="space-y-6 mb-10 text-lg">
+                                <li className="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
+                                    <div className="p-2 bg-bel-blue/20 rounded-lg shrink-0">
+                                        <CheckCircleIcon className="h-6 w-6 text-bel-blue" />
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-xl">{t('courier_zone_tt_title')}</p>
+                                        <p className="text-slate-400 text-sm mt-1">{t('courier_zone_tt_desc')}</p>
+                                        <span className="inline-block mt-2 text-xs font-black uppercase text-amber-400 px-2 py-0.5 border border-amber-400/30 rounded">Free / Gratuit / Gratis</span>
+                                    </div>
                                 </li>
-                                <li className="flex items-center gap-3">
-                                    <CheckCircleIcon className="h-6 w-6 text-bel-blue" /> Entrepôt Royal
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <CheckCircleIcon className="h-6 w-6 text-bel-blue" /> Sheds & Buildings
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <CheckCircleIcon className="h-6 w-6 text-bel-blue" /> Environment Brussels (BIM)
+                                <li className="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
+                                    <div className="p-2 bg-bel-blue/20 rounded-lg shrink-0">
+                                        <CheckCircleIcon className="h-6 w-6 text-bel-blue" />
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-xl">{t('courier_zone_bxl_title')}</p>
+                                        <p className="text-slate-400 text-sm mt-1">{t('courier_zone_bxl_desc')}</p>
+                                        <span className="inline-block mt-2 text-xs font-black uppercase text-amber-400 px-2 py-0.5 border border-amber-400/30 rounded">15€ Flat Fee</span>
+                                    </div>
                                 </li>
                             </ul>
                             <div className="p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20">
                                 <p className="text-sm italic opacity-80">
-                                    "Since our Molenbeek workshop is temporarily closed for renovation, we've dedicated a scooter fleet to bridge the 5-minute gap to our Schaerbeek HQ. Same technicians, same quality, zero travel for you."
+                                    {language === 'fr'
+                                        ? "Depuis que notre atelier de Molenbeek est temporairement fermé, nous avons dédié une flotte de coursiers pour réduire la distance. Mêmes techniciens, même qualité, zéro déplacement pour vous."
+                                        : language === 'nl'
+                                            ? "Sinds onze werkplaats in Molenbeek tijdelijk gesloten is, hebben we een vloot koeriers ingezet om de afstand te overbruggen. Dezelfde technici, dezelfde kwaliteit, nul verplaatsing voor u."
+                                            : "Since our Molenbeek workshop is temporarily closed, we've dedicated a courier fleet to bridge the gap. Same technicians, same quality, zero travel for you."
+                                    }
                                 </p>
                             </div>
                         </div>
                         <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10">
-                            {/* Placeholder for a map or illustration of the 5-min bridge */}
                             <div className="absolute inset-0 bg-linear-to-br from-bel-blue/20 to-slate-900 border border-white/20 flex flex-col items-center justify-center p-8 text-center">
                                 <MapPinIcon className="h-16 w-16 text-bel-blue mb-4 animate-bounce" />
-                                <p className="font-bold text-2xl mb-2">5-Minute Express Route</p>
-                                <p className="text-slate-400">Tour & Taxis ↔ Schaerbeek Hub</p>
+                                <p className="font-bold text-2xl mb-2">Brussels Express Hub</p>
+                                <p className="text-slate-400 italic">1030 Schaerbeek ↔ 1000 Brussels Hub</p>
                             </div>
                         </div>
                     </div>
@@ -164,12 +173,12 @@ const ExpressCourierClient: React.FC = () => {
             {/* CTA Final */}
             <div className="py-24 text-center">
                 <div className="container mx-auto px-4">
-                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-8">Ready to bridge the gap?</h2>
+                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-8">{t('courier_footer_title')}</h2>
                     <Link
                         href={`/${language}/repair`}
                         className="inline-block px-12 py-6 bg-bel-blue text-white font-black rounded-3xl shadow-2xl hover:scale-105 transition-all text-2xl"
                     >
-                        Start Your Request Now
+                        {t('courier_footer_button')}
                     </Link>
                 </div>
             </div>
