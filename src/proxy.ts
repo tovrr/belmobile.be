@@ -56,7 +56,7 @@ export function proxy(request: NextRequest) {
         const isProtectedPath = !pathname.includes('/_next') &&
             !pathname.includes('/api/') &&
             !pathname.includes('/favicon.ico') &&
-            !pathname.startsWith('/protected') &&
+            !pathname.includes('/protected') &&
             !pathname.includes('/images/');
 
         if (isProtectedPath) {
