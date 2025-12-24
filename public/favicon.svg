@@ -1,15 +1,19 @@
-<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="512" height="512" rx="120" fill="url(#paint0_linear)"/>
-<path d="M294.5 256H192V160H282.5C318.5 160 344.5 178.5 344.5 208C344.5 232.5 326 250 294.5 256ZM294.5 256C335 260.5 359.5 282 359.5 314.5C359.5 353 327 384 282.5 384H192V256H294.5Z" fill="white" stroke="white" stroke-width="30" stroke-linejoin="round"/>
-<path d="M192 160V384" stroke="url(#paint1_linear)" stroke-width="30" stroke-linecap="round"/>
-<defs>
-<linearGradient id="paint0_linear" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-<stop stop-color="#4338CA"/>
-<stop offset="1" stop-color="#6366F1"/>
-</linearGradient>
-<linearGradient id="paint1_linear" x1="192" y1="160" x2="192" y2="384" gradientUnits="userSpaceOnUse">
-<stop stop-color="#FACC15"/>
-<stop offset="1" stop-color="#EAB308"/>
-</linearGradient>
-</defs>
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: scale(0.6) translate(6.5px, -5px); }
+            50% { opacity: 0.6; transform: scale(0.7) translate(5.5px, -4px); }
+        }
+        .star {
+            animation: twinkle 3s ease-in-out infinite;
+            transform-origin: center;
+        }
+    </style>
+    <!-- Smartphone Outline -->
+    <rect x="6.5" y="3" width="11" height="19" rx="2" stroke="#eab308" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M10.5 4.5h3" stroke="#eab308" stroke-width="1.5" stroke-linecap="round"/>
+    
+    <!-- Single Top-Right Star (Animated) -->
+    <!-- Note: Transform is handled in CSS for animation, base path is centered-ish -->
+    <path class="star" d="M12 2L14.39 8.26L21 10.5L14.39 12.74L12 19L9.61 12.74L3 10.5L9.61 8.26L12 2Z" fill="#eab308" style="transform-box: fill-box; transform-origin: center;" />
 </svg>

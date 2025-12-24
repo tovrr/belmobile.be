@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#000000" viewBox="0 0 16 16">
+  <!-- Left Joycon -->
+  <path d="M3.5 3h1v10h-1A2.5 2.5 0 0 1 1 10.5v-5A2.5 2.5 0 0 1 3.5 3z"/>
+  <!-- Screen Frame -->
+  <path d="M5.5 3h5v10h-5z"/>
+  <!-- Right Joycon -->
+  <path d="M11.5 3h1a2.5 2.5 0 0 1 2.5 2.5v5a2.5 2.5 0 0 1-2.5 2.5h-1z"/>
+  <!-- Details: Joystick Negative Space (White circles) -->
+  <circle cx="2.75" cy="6" r="1" fill="white"/>
+  <circle cx="13.25" cy="10" r="1" fill="white"/>
+</svg>
