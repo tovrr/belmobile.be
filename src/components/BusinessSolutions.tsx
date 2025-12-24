@@ -12,23 +12,23 @@ const BusinessSolutions: React.FC = () => {
     const benefits = [
         {
             icon: WrenchScrewdriverIcon,
-            title: "Priority Repair Service",
-            desc: "Skip the queue with our dedicated B2B repair line. Most repairs completed within 1 hour."
+            title: t('biz_benefit_priority_title'),
+            desc: t('biz_benefit_priority_desc')
         },
         {
             icon: CurrencyEuroIcon,
-            title: "Exclusive B2B Pricing",
-            desc: "Get special volume discounts on repairs and refurbished devices for your fleet."
+            title: t('biz_benefit_pricing_title'),
+            desc: t('biz_benefit_pricing_desc')
         },
         {
             icon: DevicePhoneMobileIcon,
-            title: "Fleet Management",
-            desc: "We buy back your old company devices at top market rates, helping you upgrade cost-effectively."
+            title: t('biz_benefit_fleet_title'),
+            desc: t('biz_benefit_fleet_desc')
         },
         {
             icon: BuildingOffice2Icon,
-            title: "On-Site Service",
-            desc: "For large fleets, we can arrange pick-up and drop-off or even on-site repairs (Brussels area)."
+            title: t('biz_benefit_onsite_title'),
+            desc: t('biz_benefit_onsite_desc')
         }
     ];
 
@@ -38,13 +38,13 @@ const BusinessSolutions: React.FC = () => {
                 {/* Hero Section */}
                 <div className="text-center mb-20 animate-fade-in">
                     <span className="text-electric-indigo font-bold tracking-widest uppercase text-sm mb-4 block">
-                        {t('For Companies')}
+                        {t('biz_hero_badge')}
                     </span>
                     <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-6">
-                        {t('Mobile Solutions for Business')}
+                        {t('biz_hero_title')}
                     </h1>
                     <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
-                        {t('Keep your team connected with our professional repair and fleet management services. Fast, reliable, and cost-effective.')}
+                        {t('biz_hero_subtitle')}
                     </p>
 
                     <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
@@ -52,13 +52,13 @@ const BusinessSolutions: React.FC = () => {
                             href="mailto:b2b@belmobile.be"
                             className="px-8 py-4 bg-electric-indigo text-white font-bold rounded-xl shadow-lg hover:bg-indigo-600 hover:scale-105 transition-all"
                         >
-                            {t('Contact B2B Team')}
+                            {t('biz_cta_contact')}
                         </a>
                         <a
                             href="tel:+32484837560"
                             className="px-8 py-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-all"
                         >
-                            {t('Call Us')}
+                            {t('biz_cta_call')}
                         </a>
                     </div>
                 </div>
@@ -78,10 +78,10 @@ const BusinessSolutions: React.FC = () => {
                                 <benefit.icon className="h-8 w-8" />
                             </div>
                             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                                {t(benefit.title)}
+                                {benefit.title}
                             </h3>
                             <p className="text-slate-600 dark:text-slate-400 text-lg">
-                                {t(benefit.desc)}
+                                {benefit.desc}
                             </p>
                         </motion.div>
                     ))}
@@ -95,20 +95,20 @@ const BusinessSolutions: React.FC = () => {
                     >
                         <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
                             <div className="flex-1">
-                                <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-black uppercase tracking-widest mb-4 inline-block">Pro Fleet Management</span>
-                                <h3 className="text-3xl md:text-5xl font-black mb-6 leading-tight">Managing 50+ devices? <br /> We have a portal for that.</h3>
+                                <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-black uppercase tracking-widest mb-4 inline-block">{t('biz_fleet_badge')}</span>
+                                <h3 className="text-3xl md:text-5xl font-black mb-6 leading-tight" dangerouslySetInnerHTML={{ __html: t('biz_fleet_title') }} />
                                 <p className="text-blue-100 text-lg mb-8 max-w-2xl">
-                                    Our Schaerbeek hub handles large-scale deployments, device end-of-life recycling, and 24h express repairs for corporate fleets. Get a dedicated account manager and a 10% lifetime discount on parts.
+                                    {t('biz_fleet_desc')}
                                 </p>
                                 <div className="flex flex-wrap gap-4">
                                     <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" /> <span>24h Express SLA</span>
+                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" /> <span>{t('biz_fleet_sla')}</span>
                                     </div>
                                     <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" /> <span>Monthly Invoicing</span>
+                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" /> <span>{t('biz_fleet_invoice')}</span>
                                     </div>
                                     <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" /> <span>Loaner Devices</span>
+                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" /> <span>{t('biz_fleet_loaner')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -117,7 +117,7 @@ const BusinessSolutions: React.FC = () => {
                                     href={`/${language}/express-courier`}
                                     className="px-8 py-6 bg-white text-bel-blue font-black rounded-2xl shadow-xl hover:scale-105 transition-all flex items-center gap-3 whitespace-nowrap"
                                 >
-                                    Explore Corporate Bridge <ArrowRightIcon className="h-5 w-5" />
+                                    {t('biz_fleet_cta')} <ArrowRightIcon className="h-5 w-5" />
                                 </Link>
                             </div>
                         </div>
@@ -131,17 +131,17 @@ const BusinessSolutions: React.FC = () => {
                     <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
                     <div className="relative z-10">
                         <h2 className="text-3xl md:text-4xl font-black text-white mb-12">
-                            {t('Why Partner with Belmobile?')}
+                            {t('biz_trust_title')}
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {[
-                                "Official Invoice & VAT",
-                                "Dedicated Account Manager",
-                                "Flexible Payment Terms"
+                                { key: "biz_trust_invoice", icon: CheckCircleIcon },
+                                { key: "biz_trust_manager", icon: CheckCircleIcon },
+                                { key: "biz_trust_terms", icon: CheckCircleIcon }
                             ].map((item, i) => (
                                 <div key={i} className="flex flex-col items-center">
-                                    <CheckCircleIcon className="h-12 w-12 text-green-400 mb-4 group-hover:scale-110 transition-transform" />
-                                    <span className="text-xl font-bold text-white">{t(item)}</span>
+                                    <item.icon className="h-12 w-12 text-green-400 mb-4 group-hover:scale-110 transition-transform" />
+                                    <span className="text-xl font-bold text-white">{t(item.key)}</span>
                                 </div>
                             ))}
                         </div>
