@@ -14,7 +14,8 @@ import {
     FaceSmileIcon,
     WifiIcon,
     HandRaisedIcon,
-    CubeIcon
+    CubeIcon,
+    ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import WaterDamageIcon from '../components/icons/WaterDamageIcon';
 import SoftwareIssueIcon from '../components/icons/SoftwareIssueIcon';

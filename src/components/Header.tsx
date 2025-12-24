@@ -125,7 +125,7 @@ const Header: React.FC = () => {
                                         key={link.name}
                                         href={href}
                                         aria-label={t(link.name)}
-                                        className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${isActive
+                                        className={`px-3.5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${isActive
                                             ? 'bg-white dark:bg-slate-700 text-electric-indigo dark:text-indigo-300 shadow-sm scale-105'
                                             : 'text-slate-600 dark:text-slate-300 hover:text-electric-indigo dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-700/50 hover:scale-105'
                                             }`
@@ -140,12 +140,12 @@ const Header: React.FC = () => {
                         {/* Actions */}
                         <div className="flex items-center space-x-3">
                             {/* Call Support CTA - Desktop */}
-                            <div className="hidden md:flex items-center gap-3">
-                                <span className="hidden lg:block text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('need_help')}</span>
+                            <div className="hidden lg:flex items-center gap-3">
+                                <span className="hidden xl:block text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('need_help')}</span>
                                 <a
                                     href="tel:+3222759867"
                                     aria-label={t('call_support')}
-                                    className="flex items-center gap-2 bg-electric-indigo/90 hover:bg-electric-indigo text-white rounded-full px-4 py-2 transition-all shadow-lg hover:shadow-indigo-500/30 font-bold text-sm tracking-wide group"
+                                    className="flex items-center gap-2 bg-electric-indigo/90 hover:bg-electric-indigo text-white rounded-full px-4 py-2 transition-all shadow-lg hover:shadow-indigo-500/30 font-bold text-sm tracking-wide group whitespace-nowrap"
                                 >
                                     <PhoneIcon className="h-4 w-4 group-hover:animate-pulse" aria-hidden="true" />
                                     <span>{t('call_support')}</span>

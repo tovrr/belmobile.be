@@ -15,6 +15,8 @@ export interface Shop {
     coords: { lat: number; lng: number };
     status: 'open' | 'coming_soon' | 'temporarily_closed';
     isHub?: boolean;
+    isPrimary?: boolean;
+    badge?: string;
     googleMapUrl?: string;
     googlePlaceId?: string;
     googleReviewUrl?: string;

@@ -29,8 +29,12 @@ import {
     TrashIcon,
     ShieldCheckIcon,
     BanknotesIcon,
-    DocumentTextIcon
+    DocumentTextIcon,
+    ClockIcon,
+    MapPinIcon,
+    ChevronLeftIcon
 } from '@heroicons/react/24/outline';
+import { CheckIcon } from '@heroicons/react/20/solid';
 import { DEVICE_TYPES, REPAIR_ISSUES } from '../constants';
 import { DEVICE_BRANDS } from '../data/brands';
 import { createSlug } from '../utils/slugs';
@@ -122,7 +126,9 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     const [bodyState, setBodyState] = useState<'flawless' | 'scratches' | 'dents' | 'bent'>('flawless');
 
     const [repairIssues, setRepairIssues] = useState<string[]>([]);
-    const [deliveryMethod, setDeliveryMethod] = useState<'dropoff' | 'send'>('dropoff');
+    const [hasHydrogel, setHasHydrogel] = useState(false);
+    const [deliveryMethod, setDeliveryMethod] = useState<'dropoff' | 'send' | 'courier' | null>('dropoff');
+    const [courierTier, setCourierTier] = useState<'bridge' | 'brussels'>('bridge');
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [iban, setIban] = useState('');
     const [honeypot, setHoneypot] = useState('');
@@ -215,16 +221,19 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
 
 
 
-    // Handle initialShop prop - only set if shop is OPEN
+    // Handle initialShop prop - ONLY if explicitly provided
     useEffect(() => {
-        if (initialShop && setSelectedShop && shops.length > 0) {
-            const shop = shops.find(s => createSlug(s.name) === initialShop || s.id === initialShop);
-            // Only set the shop if it exists AND has status 'open' (not coming_soon)
+        if (!selectedShop && setSelectedShop && shops.length > 0 && initialShop) {
+            const shop = shops.find(s =>
+                createSlug(s.name) === initialShop ||
+                s.id === initialShop
+            );
+
             if (shop && shop.status === 'open') {
                 setSelectedShop(shop);
             }
         }
-    }, [initialShop, setSelectedShop, shops]);
+    }, [initialShop, setSelectedShop, shops, selectedShop]);
 
     // Handle initialCategory prop
     useEffect(() => {
@@ -257,6 +266,13 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
 
     }, [searchParams, initialDevice, deviceType]);
 
+    // --- PHASE 2: BUNDLE UPSELL LOGIC ---
+    useEffect(() => {
+        if (type === 'repair' && repairIssues.includes('screen') && !hasHydrogel) {
+            setHasHydrogel(true);
+        }
+    }, [repairIssues, type]);
+
     const openServicePointPicker = () => {
         if (window.sendcloud) {
             window.sendcloud.servicePoints.open(
@@ -275,6 +291,8 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                     setCustomerZip(servicePointObject.postal_code);
                 },
                 (errors: unknown) => {
+                    // Ignore "Closed" error as it just means the user closed the picker without selection
+                    if (Array.isArray(errors) && errors[0] === "Closed") return;
                     console.error('Service Point Picker errors:', errors);
                 }
             );
@@ -396,7 +414,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             const key = `buyback_state_${createSlug(selectedBrand)}_${createSlug(selectedModel)}`;
             const stateToSave = {
                 step, storage, turnsOn, worksCorrectly, isUnlocked, batteryHealth,
-                faceIdWorking, screenState, bodyState, repairIssues, deliveryMethod,
+                faceIdWorking, screenState, bodyState, repairIssues, hasHydrogel, deliveryMethod, courierTier,
                 iban, termsAccepted, selectedScreenQuality, customerName, customerEmail,
                 customerPhone, customerAddress, customerCity, customerZip, timestamp: Date.now()
             };
@@ -404,8 +422,8 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         }
     }, [
         selectedBrand, selectedModel, step, storage, turnsOn, worksCorrectly, isUnlocked,
-        batteryHealth, faceIdWorking, screenState, bodyState, repairIssues,
-        deliveryMethod, iban, termsAccepted, selectedScreenQuality, isInitialized,
+        batteryHealth, faceIdWorking, screenState, bodyState, repairIssues, hasHydrogel,
+        deliveryMethod, courierTier, iban, termsAccepted, selectedScreenQuality, isInitialized,
         customerName, customerEmail, customerPhone, customerAddress, customerCity, customerZip
     ]);
 
@@ -487,7 +505,9 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                 if (parsed.screenState !== undefined) setScreenState(parsed.screenState);
                                 if (parsed.bodyState !== undefined) setBodyState(parsed.bodyState);
                                 if (parsed.repairIssues !== undefined) setRepairIssues(parsed.repairIssues);
+                                if (parsed.hasHydrogel !== undefined) setHasHydrogel(parsed.hasHydrogel);
                                 if (parsed.deliveryMethod !== undefined) setDeliveryMethod(parsed.deliveryMethod);
+                                if (parsed.courierTier !== undefined) setCourierTier(parsed.courierTier);
                                 if (parsed.iban !== undefined) setIban(parsed.iban);
                                 if (parsed.termsAccepted !== undefined) setTermsAccepted(parsed.termsAccepted);
                                 if (parsed.selectedScreenQuality !== undefined) setSelectedScreenQuality(parsed.selectedScreenQuality);
@@ -788,13 +808,29 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             }
         });
 
+        // Add Hydrogel price if selected (ONLY in Step 5 confirmation, not Step 3 summary)
+        if (type === 'repair' && hasHydrogel && step > 3) {
+            const hydroPrice = 15;
+            if (isStandardValid) standardTotal += hydroPrice;
+            if (isOledValid) oledTotal += hydroPrice;
+            if (isOriginalValid) originalTotal += hydroPrice;
+        }
+
+        // Add Courier Fee if Brussels-wide tier is selected
+        if (type === 'repair' && deliveryMethod === 'courier' && courierTier === 'brussels') {
+            const courierFee = 15;
+            if (isStandardValid) standardTotal += courierFee;
+            if (isOledValid) oledTotal += courierFee;
+            if (isOriginalValid) originalTotal += courierFee;
+        }
+
         return {
             standard: isStandardValid ? Math.round(standardTotal) : -1,
             oled: isOledValid ? Math.round(oledTotal) : -1,
             original: isOriginalValid ? Math.round(originalTotal) : -1,
             hasScreen
         };
-    }, [type, selectedModel, repairIssues, dynamicRepairPrices, getSingleIssuePrice]);
+    }, [type, selectedModel, repairIssues, hasHydrogel, dynamicRepairPrices, getSingleIssuePrice, step, deliveryMethod, courierTier]);
 
     const handleBack = () => {
         if (step > 1) {
@@ -901,7 +937,22 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                     'Face ID Working?': faceIdWorking || false,
                     'Battery Health': batteryHealth || 'normal'
                 } : {})
-            } : undefined
+            } : undefined,
+            perks: (() => {
+                const p: string[] = [];
+                const finalCost = data.type === 'repair' ? (data.price as number || (selectedScreenQuality ? repairEstimates[selectedScreenQuality as keyof typeof repairEstimates] as number : (repairEstimates.original > 0 ? repairEstimates.original : repairEstimates.standard))) : 0;
+
+                if (data.type === 'repair' && finalCost > 100 && data.shopId === 'schaerbeek') {
+                    p.push(t('Free Uber/Bolt trip for repairs > 100€!'));
+                }
+                if (data.deliveryMethod === 'courier') {
+                    p.push(t('Tour & Taxis Corporate Bridge'));
+                }
+                if (data.type === 'repair' && hasHydrogel) {
+                    p.push(t('hydrogel_protection'));
+                }
+                return p.length > 0 ? p : undefined;
+            })()
         };
 
         const result = generateRepairBuybackPDF(pdfData, t);
@@ -1176,14 +1227,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                     />
                 </div>
 
-                {step > 1 && (
-                    <button
-                        onClick={handleBack}
-                        className="lg:hidden absolute top-0 left-0 p-4 text-gray-500"
-                    >
-                        <ArrowLeftIcon className="h-6 w-6" />
-                    </button>
-                )}
+
             </div>
         );
     };
@@ -1485,7 +1529,12 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         return (
             <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
                 <div className="flex-1">
-                    <h2 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">{t('Select Brand & Model')}</h2>
+                    <div className="flex items-center gap-2 mb-8">
+                        <button onClick={handleBack} className="lg:hidden p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
+                            <ChevronLeftIcon className="h-6 w-6" />
+                        </button>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('Select Brand & Model')}</h2>
+                    </div>
 
                     <div className="mb-8">
                         <label className="block text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">{t('Brand')}</label>
@@ -1562,7 +1611,12 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             return (
                 <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
                     <div className="flex-1 space-y-8">
-                        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">{t('Functionality & Specs')}</h2>
+                        <div className="flex items-center gap-2 mb-6">
+                            <button onClick={handleBack} className="lg:hidden p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
+                                <ChevronLeftIcon className="h-6 w-6" />
+                            </button>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('Functionality & Specs')}</h2>
+                        </div>
                         <div>
                             <label className="block text-sm font-bold text-gray-500 mb-3 uppercase">{t('Storage')}</label>
                             <div className="grid grid-cols-3 gap-3">
@@ -1664,7 +1718,12 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             return (
                 <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
                     <div className="flex-1">
-                        <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">{t('What needs fixing?')}</h2>
+                        <div className="flex items-center gap-2 mb-2">
+                            <button onClick={handleBack} className="lg:hidden p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
+                                <ChevronLeftIcon className="h-6 w-6" />
+                            </button>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('What needs fixing?')}</h2>
+                        </div>
                         <p className="text-gray-500 mb-8">{selectedBrand} {selectedModel}</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                             {REPAIR_ISSUES.filter(issue => {
@@ -1913,7 +1972,12 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         }
         return (
             <div className="lg:hidden bg-white dark:bg-slate-900 rounded-3xl p-6 mb-8 border border-gray-200 dark:border-slate-800 shadow-sm animate-fade-in">
-                <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-4">{t('Summary')}</h3>
+                <div className="flex items-center gap-2 mb-4">
+                    <button onClick={handleBack} className="p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
+                        <ChevronLeftIcon className="h-6 w-6" />
+                    </button>
+                    <h3 className="font-bold text-xl text-gray-900 dark:text-white">{t('Summary')}</h3>
+                </div>
                 {(selectedModel && getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`))) && (
                     <div className="relative w-full h-48 mb-4 bg-gray-50 dark:bg-slate-950 rounded-xl p-4">
                         <Image
@@ -2010,7 +2074,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                         <div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('How would you like to proceed?')}</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div onClick={() => setDeliveryMethod('dropoff')} className={`cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'dropoff' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
+                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'dropoff' ? null : 'dropoff')} className={`cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'dropoff' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
                                     <div className="flex items-start">
                                         <BuildingStorefrontIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-400'}`} />
                                         <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Visit Store')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Come to one of our shops in Brussels. No appointment needed.')}</p></div>
@@ -2049,25 +2113,33 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                                                 </button>
                                                             </div>
                                                             <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-slate-800 max-h-60 overflow-y-auto bg-white dark:bg-slate-900">
-                                                                {shops.filter(s => s.status === 'open').map(shop => (
-                                                                    <button
-                                                                        key={shop.id}
-                                                                        type="button"
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            setSelectedShop(shop);
-                                                                            setShopSelectionError(false);
-                                                                            setIsShopListOpen(false);
-                                                                        }}
-                                                                        className="w-full py-4 px-6 text-left hover:bg-gray-50 dark:hover:bg-slate-800 transition flex items-center justify-between group"
-                                                                    >
-                                                                        <div>
-                                                                            <div className="font-bold text-gray-900 dark:text-white group-hover:text-bel-blue transition-colors">{shop.name.replace('Belmobile ', '')}</div>
-                                                                            <div className="text-xs text-gray-500 mt-1">{shop.address}</div>
-                                                                        </div>
-                                                                        <ChevronRightIcon className="h-4 w-4 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                                    </button>
-                                                                ))}
+                                                                {shops
+                                                                    .filter(s => s.status === 'open')
+                                                                    .sort((a, b) => (a.isPrimary ? -1 : 1))
+                                                                    .map(shop => (
+                                                                        <button
+                                                                            key={shop.id}
+                                                                            type="button"
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                setSelectedShop(shop);
+                                                                                setShopSelectionError(false);
+                                                                                setIsShopListOpen(false);
+                                                                            }}
+                                                                            className={`w-full py-4 px-6 text-left hover:bg-gray-50 dark:hover:bg-slate-800 transition flex items-center justify-between group ${shop.isPrimary ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''}`}
+                                                                        >
+                                                                            <div className="flex-1">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <div className={`font-bold text-gray-900 dark:text-white group-hover:text-bel-blue transition-colors ${shop.isPrimary ? 'text-bel-blue' : ''}`}>{shop.name.replace('Belmobile ', '')}</div>
+                                                                                    {shop.isPrimary && (
+                                                                                        <span className="bg-bel-blue text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">⚡ {t('Available Today')}</span>
+                                                                                    )}
+                                                                                </div>
+                                                                                <div className="text-xs text-gray-500 mt-1">{shop.address}</div>
+                                                                            </div>
+                                                                            <ChevronRightIcon className="h-4 w-4 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                        </button>
+                                                                    ))}
                                                             </div>
                                                         </div>
                                                     )}
@@ -2076,8 +2148,18 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                                 <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border-2 border-bel-blue">
                                                     <div className="flex items-start justify-between">
                                                         <div>
-                                                            <p className="font-bold text-bel-blue">{selectedShop.name.replace('Belmobile ', '')}</p>
+                                                            <div className="flex items-center gap-2">
+                                                                <p className="font-bold text-bel-blue">{selectedShop.name.replace('Belmobile ', '')}</p>
+                                                                {selectedShop.id === 'schaerbeek' && (
+                                                                    <span className="bg-amber-100 text-amber-800 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">🚕 {t('Digital Taxi Protocol')}</span>
+                                                                )}
+                                                            </div>
                                                             <p className="text-sm text-gray-600 dark:text-gray-300">{selectedShop.address}</p>
+                                                            {selectedShop.id === 'schaerbeek' && (
+                                                                <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-1 font-medium italic">
+                                                                    {t('taxi_refund_notice') || 'Coming from Molenbeek/Anderlecht? We refund your Uber/Bolt trip (up to 10€) for any repair above 100€!'}
+                                                                </p>
+                                                            )}
                                                         </div>
                                                         <button
                                                             type="button"
@@ -2096,7 +2178,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                         </div>
                                     )}
                                 </div>
-                                <div onClick={() => setDeliveryMethod('send')} className={`cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'send' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
+                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'send' ? null : 'send')} className={`cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'send' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
                                     <div className="flex items-start">
                                         <TruckIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'send' ? 'text-bel-blue' : 'text-gray-400'}`} />
                                         <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'send' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Send by Post')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Free shipping label provided. Secure and insured.')}</p></div>
@@ -2131,6 +2213,70 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                                     <p>{servicePoint.postal_code} {servicePoint.city}</p>
                                                 </div>
                                             )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* NEW: Express Courier (Tour & Taxis Bridge) */}
+                                <div
+                                    onClick={() => setDeliveryMethod(deliveryMethod === 'courier' ? null : 'courier')}
+                                    className={`col-span-1 sm:col-span-2 cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'courier' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}
+                                >
+                                    <div className="flex items-start">
+                                        <div className="relative">
+                                            <TruckIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'courier' ? 'text-bel-blue' : 'text-gray-400'}`} />
+                                            <div className="absolute -top-3 -right-3 bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-sm z-10">{t('free')}</div>
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`block font-bold text-lg ${deliveryMethod === 'courier' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Express Courier (Brussels)')}</span>
+                                                <span className="bg-bel-yellow text-bel-blue text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter shadow-sm">{t('Tour & Taxis Bridge')}</span>
+                                            </div>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                {t('courier_promo_desc')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {deliveryMethod === 'courier' && (
+                                        <div className="mt-4 space-y-3 animate-fade-in">
+                                            <div
+                                                onClick={(e) => { e.stopPropagation(); setCourierTier('bridge'); }}
+                                                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between ${courierTier === 'bridge' ? 'border-bel-blue bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-blue' : 'border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 hover:border-bel-blue/30'}`}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${courierTier === 'bridge' ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-800 text-gray-400'}`}>
+                                                        <MapPinIcon className="h-5 w-5" />
+                                                    </div>
+                                                    <div>
+                                                        <p className={`font-bold text-sm ${courierTier === 'bridge' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Tour & Taxis Bridge')}</p>
+                                                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">{t('Free Pickup')}</p>
+                                                    </div>
+                                                </div>
+                                                {courierTier === 'bridge' && <CheckCircleIcon className="h-5 w-5 text-bel-blue" />}
+                                            </div>
+
+                                            <div
+                                                onClick={(e) => { e.stopPropagation(); setCourierTier('brussels'); }}
+                                                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between ${courierTier === 'brussels' ? 'border-bel-blue bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-blue' : 'border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 hover:border-bel-blue/30'}`}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${courierTier === 'brussels' ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-800 text-gray-400'}`}>
+                                                        <TruckIcon className="h-5 w-5" />
+                                                    </div>
+                                                    <div>
+                                                        <p className={`font-bold text-sm ${courierTier === 'brussels' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Grand-Bruxelles')}</p>
+                                                        <p className="text-[10px] text-bel-blue font-black uppercase tracking-wider">{t('All 19 municipalities')} (+15€)</p>
+                                                    </div>
+                                                </div>
+                                                {courierTier === 'brussels' && <CheckCircleIcon className="h-5 w-5 text-bel-blue" />}
+                                            </div>
+
+                                            <div className="p-4 bg-white/50 dark:bg-black/20 rounded-xl border border-bel-blue/10">
+                                                <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                                                    <ClockIcon className="h-3.5 w-3.5 text-bel-blue" />
+                                                    {courierTier === 'bridge' ? t('Please provide your corporate address. A technician will contact you shortly.') : t('Courier will pick up from your home/office anywhere in Brussels.')}
+                                                </p>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -2257,6 +2403,31 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                             </div>
                                         </>
                                     )}
+                                </div>
+                            )}
+                            {type === 'repair' && (
+                                <div className="bg-bel-blue/5 dark:bg-blue-900/10 p-6 rounded-3xl border border-bel-blue/10 mb-6 mt-8">
+                                    <h4 className="text-sm font-bold text-bel-blue uppercase tracking-widest mb-4">{t('Extra Options')}</h4>
+                                    <div
+                                        onClick={() => setHasHydrogel(!hasHydrogel)}
+                                        className={`cursor-pointer p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${hasHydrogel ? 'border-bel-blue bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/50 hover:border-bel-blue/30'}`}
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className={`p-3 rounded-xl ${hasHydrogel ? 'bg-bel-blue text-white shadow-lg' : 'bg-white dark:bg-slate-800 text-gray-400 border border-gray-100 dark:border-slate-700'}`}>
+                                                <ShieldCheckIcon className="h-6 w-6" />
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`font-bold text-base ${hasHydrogel ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('hydrogel_protection')}</span>
+                                                    <span className="bg-bel-yellow text-bel-blue text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">+15€</span>
+                                                </div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('hydrogel_protection_desc')}</p>
+                                            </div>
+                                        </div>
+                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${hasHydrogel ? 'border-bel-blue bg-bel-blue' : 'border-gray-300 dark:border-slate-700'}`}>
+                                            {hasHydrogel && <CheckIcon className="h-4 w-4 text-white font-bold" />}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                             {(type === 'buyback' || type === 'repair') && (

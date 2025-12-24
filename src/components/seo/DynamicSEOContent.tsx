@@ -99,7 +99,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                     return `Besoin d'une réparation smartphone à Schaerbeek (1030) ? Situé Chaussée de Haecht, Belmobile est votre expert local. Écran cassé, batterie à plat ? Réparation en 30 min sans rendez-vous.`;
                 }
                 if (locationName.includes('Molenbeek')) {
-                    return `Belmobile Molenbeek (1080) sur la Chaussée de Gand. Votre spécialiste en réparation iPhone et Samsung. Service express, techniciens qualifiés et garantie incluse.`;
+                    return `Besoin d'une réparation smartphone à Molenbeek-Saint-Jean (1080) ? Notre boutique de Tour & Taxis est temporairement fermée, mais pas d'inquiétude ! Notre centre principal de Schaerbeek (Liedts) est à 5 min. Plus de techniciens, plus de stock, réparation en 30 min garantie. On vous offre même le taxi/Uber !`;
                 }
                 if (locationName.includes('Anderlecht')) {
                     return `Expert réparation GSM à Anderlecht (1070), Chaussée de Mons. Belmobile répare votre téléphone ou tablette en un temps record. Pièces d'origine et devis gratuit.`;

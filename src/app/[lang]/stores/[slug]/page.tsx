@@ -213,6 +213,39 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
             <div className="container mx-auto px-4 relative z-10 -mt-8 md:-mt-20">
                 <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-t-3xl md:rounded-3xl shadow-xl overflow-hidden">
 
+                    {/* INTERCEPTOR BANNER */}
+                    {!isHub && (isTempClosed || !shop.isPrimary) && (
+                        <div className={`p-6 border-b border-white/10 ${isTempClosed ? 'bg-amber-500/20' : 'bg-bel-blue/10'}`}>
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-4 max-w-5xl mx-auto">
+                                <div className="flex items-center gap-4">
+                                    <div className={`p-3 rounded-2xl ${isTempClosed ? 'bg-amber-500' : 'bg-bel-blue'} text-white shadow-lg`}>
+                                        {isTempClosed ? (
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                        ) : (
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-white text-lg">
+                                            {isTempClosed ? t('interceptor_closed_title') || 'This location is temporarily closed' : t('interceptor_primary_title') || 'Need a faster service?'}
+                                        </h4>
+                                        <p className="text-sm text-slate-300">
+                                            {isTempClosed
+                                                ? t('interceptor_closed_desc') || 'Our Schaerbeek shop is only 5 minutes away and open now!'
+                                                : t('interceptor_primary_desc') || 'Our Schaerbeek hub has the largest stock and express repair parts available today.'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <a
+                                    href={`/${lang}/stores/schaerbeek`}
+                                    className="px-6 py-3 bg-white text-bel-blue font-black rounded-xl hover:scale-105 transition-transform shadow-xl whitespace-nowrap"
+                                >
+                                    {t('Go to Schaerbeek')} →
+                                </a>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Content Section */}
                     <div className="p-5 md:p-10 relative z-10 bg-transparent rounded-t-3xl md:rounded-none">
                         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-8">

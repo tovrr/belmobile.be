@@ -21,6 +21,8 @@ export const SHOPS: Shop[] = [
         slugs: { fr: 'schaerbeek', nl: 'schaarbeek', en: 'schaerbeek' },
         coords: { lat: 50.86486, lng: 4.36704 },
         status: 'open',
+        isPrimary: true,
+        badge: 'Recommended',
         city: 'Schaerbeek',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Liedts&query_place_id=ChIJk6VQXpHDw0cRNEdLpSrOUkY',
         googlePlaceId: 'ChIJk6VQXpHDw0cRNEdLpSrOUkY',
@@ -47,7 +49,7 @@ export const SHOPS: Shop[] = [
         address: 'Rue Ulens 88, 1080 Molenbeek-Saint-Jean',
         phone: '02/306.76.56',
         email: 'molenbeek@belmobile.be',
-        openingHours: ['Mon-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Sun: Closed'],
+        openingHours: ['Temporarily Closed'],
         slugs: { fr: 'molenbeek', nl: 'molenbeek', en: 'molenbeek' },
         coords: { lat: 50.86285, lng: 4.34240 },
         status: 'temporarily_closed',
@@ -148,6 +150,7 @@ export const NAV_LINKS: NavLink[] = [
     { name: 'Repair', path: '/repair' },
     { name: 'Buyback', path: '/buyback' },
     { name: 'Products', path: '/products' },
+    { name: 'Business', path: '/business' },
     { name: 'Store Locator', path: '/stores' },
 ];
 
