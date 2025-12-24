@@ -592,10 +592,12 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     }, [turnsOn]);
 
     const handleBrandSelect = (brand: string) => {
-        setIsTransitioning(false); // Disable overlay transition for smoother feel
+        setIsTransitioning(false);
         setSelectedBrand(brand);
         setSelectedModel('');
-        router.push(`/${lang}/${typeSlug}/${createSlug(brand)}?category=${deviceType}`);
+        // Immediately clear potential stale data view
+        setModelsData({});
+        router.push(`/${lang}/${typeSlug}/${createSlug(brand)}?category=${deviceType}`, { scroll: false });
     };
 
     // Auto-scroll to model selector when data is ready (UX improvement for mobile)
@@ -1617,22 +1619,21 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                         <div ref={modelSelectRef} className="mb-8 animate-fade-in">
                             <label className="block text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">{t('Model')}</label>
                             <div className="relative min-h-[56px]">
-                                {isLoadingData ? (
-                                    <div className="absolute inset-0 bg-gray-50 dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 flex items-center justify-center space-x-3 z-10 transition-opacity duration-200">
+                                <Select
+                                    value={selectedModel}
+                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleModelSelect(e.target.value)}
+                                    options={[
+                                        { value: "", label: isLoadingData ? t('Loading models...') : t('Select your model...') },
+                                        ...availableModels.map(model => ({ value: model, label: model }))
+                                    ]}
+                                    className="text-lg font-medium w-full"
+                                    disabled={isLoadingData}
+                                />
+
+                                {isLoadingData && (
+                                    <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 rounded-xl flex items-center justify-center space-x-3 z-10 animate-fade-in backdrop-blur-[1px]">
                                         <div className="w-5 h-5 border-2 border-bel-blue border-t-transparent rounded-full animate-spin"></div>
-                                        <span className="text-gray-500 font-medium animate-pulse">{t('Loading models...')}</span>
                                     </div>
-                                ) : (
-                                    <Select
-                                        value={selectedModel}
-                                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleModelSelect(e.target.value)}
-                                        options={[
-                                            { value: "", label: t('Select your model...') },
-                                            ...availableModels.map(model => ({ value: model, label: model }))
-                                        ]}
-                                        className="text-lg font-medium w-full"
-                                        disabled={isLoadingData}
-                                    />
                                 )}
                             </div>
                         </div>
