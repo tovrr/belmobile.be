@@ -5,9 +5,15 @@ type GTagEvent = {
     value?: number;
 };
 
+declare global {
+    interface Window {
+        gtag?: (type: string, action: string, params: Record<string, unknown>) => void;
+    }
+}
+
 export const sendGAEvent = ({ action, category, label, value }: GTagEvent) => {
-    if (typeof window !== "undefined" && (window as any).gtag) {
-        (window as any).gtag("event", action, {
+    if (typeof window !== "undefined" && window.gtag) {
+        window.gtag("event", action, {
             event_category: category,
             event_label: label,
             value: value,

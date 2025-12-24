@@ -13,7 +13,7 @@ import { MODELS as DellModels } from './models/dell';
 import { MODELS as NintendoModels } from './models/nintendo';
 import { MODELS as XboxModels } from './models/xbox';
 
-export const modelsData: Record<string, any> = {
+export const modelsData: Record<string, Record<string, Record<string, number>>> = {
     'apple': AppleModels,
     'samsung': SamsungModels,
     'google': GoogleModels,

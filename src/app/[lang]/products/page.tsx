@@ -1,6 +1,8 @@
 import Products from '../../../components/Products';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 type Props = {
     params: Promise<{ lang: string }>
 };

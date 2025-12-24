@@ -35,9 +35,9 @@ const Settings: React.FC = () => {
             const fullName = `${firstName} ${lastName}`.trim();
             await updateUserProfile(fullName, email);
             alert('Profile updated successfully!');
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error updating profile:', error);
-            alert(`Failed to update profile: ${error.message}`);
+            alert(`Failed to update profile: ${(error as Error).message}`);
         } finally {
             setIsProfileLoading(false);
         }
@@ -64,9 +64,10 @@ const Settings: React.FC = () => {
             setCurrentPassword('');
             setNewPassword('');
             setConfirmPassword('');
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error updating password:', error);
-            alert(`Failed to update password: ${error.message}`);
+            // Safe to assume error has message if we cast or check
+            alert(`Failed to update password: ${(error as Error).message}`);
         } finally {
             setIsPasswordLoading(false);
         }
@@ -89,7 +90,7 @@ const Settings: React.FC = () => {
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">Profile Information</h2>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Update your account's profile information and email address.</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Update your account&apos;s profile information and email address.</p>
                             </div>
                         </div>
 

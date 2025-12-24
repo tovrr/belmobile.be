@@ -17,8 +17,8 @@ export const useProductPricing = (deviceId: string) => {
     useEffect(() => {
         if (!deviceId) return; // Wait for ID
 
-        // Reset state on ID change (handled by setPrices below naturally, but for clarity)
-        setLoading(true);
+        // Reset state on ID change (defer to avoid sync render warning)
+        setTimeout(() => setLoading(true), 0);
 
         const q = query(
             collection(db, 'product_pricing'),

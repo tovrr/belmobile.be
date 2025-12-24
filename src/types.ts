@@ -67,6 +67,7 @@ export interface Reservation {
     shippingAddress?: string;
     shippingCity?: string;
     shippingZip?: string;
+    estimatedPrice?: number; // Added for Analytics (Potential Revenue)
 }
 
 export interface Quote {
@@ -153,6 +154,8 @@ export interface AdminStat {
     label: string;
     value: string;
     icon: React.ElementType;
+    trend?: string;
+    color?: string; // Text color class for icon/value e.g. "text-green-600"
 }
 
 export interface ChartData {

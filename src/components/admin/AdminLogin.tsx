@@ -20,7 +20,7 @@ export default function AdminLogin() {
         try {
             await login(email, password);
             router.push('/admin/dashboard');
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
             setError('Invalid email or password');
         } finally {

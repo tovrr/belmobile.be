@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useData } from '../../hooks/useData';
+import { useAuth } from '../../context/AuthContext';
 import { PencilIcon, TrashIcon, PlusIcon, ArchiveBoxIcon, DocumentDuplicateIcon, MagnifyingGlassIcon, FunnelIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
 import ProductModal from './ProductModal';
 import BatchActionMenu from './BatchActionMenu';
@@ -9,7 +10,10 @@ import { Product } from '../../types';
 import Image from 'next/image';
 
 const ProductManagement: React.FC = () => {
-    const { products, deleteProduct, stockLogs } = useData();
+    const { user } = useAuth();
+    const { products, deleteProduct, stockLogs, updateProduct, logStockMovement, shops } = useData();
+    const [viewMode, setViewMode] = useState<'list' | 'stock'>('list');
+    const [savingStock, setSavingStock] = useState<Record<string, boolean>>({});
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -50,6 +54,40 @@ const ProductManagement: React.FC = () => {
         return Object.values(p.availability).reduce((a, b) => a + (Number(b) || 0), 0);
     };
 
+    const handleStockUpdate = async (product: Product, shopId: string, newStock: number) => {
+        const key = `${product.id}-${shopId}`;
+        setSavingStock(prev => ({ ...prev, [key]: true }));
+
+        try {
+            const oldStock = product.availability?.[shopId] || 0;
+            const updatedProduct = {
+                ...product,
+                availability: {
+                    ...product.availability,
+                    [shopId]: newStock
+                }
+            };
+
+            await updateProduct(updatedProduct);
+
+            // Log the change
+            await logStockMovement({
+                productId: String(product.id),
+                productName: product.name,
+                type: 'stock_update',
+                change: `${shops.find(s => String(s.id) === String(shopId))?.name || 'Shop'}: ${oldStock} -> ${newStock}`,
+                userEmail: user?.email || 'admin',
+                targetShopId: String(shopId)
+            });
+
+        } catch (error) {
+            console.error("Failed to update stock", error);
+            alert("Failed to save stock update");
+        } finally {
+            setSavingStock(prev => ({ ...prev, [key]: false }));
+        }
+    };
+
     const categories = ['all', ...new Set(products.map(p => p.category).filter(Boolean))];
     const brands = ['all', ...new Set(products.map(p => p.brand).filter(Boolean))];
 
@@ -84,6 +122,20 @@ const ProductManagement: React.FC = () => {
                     <p className="text-gray-500 dark:text-gray-400 mt-1">Manage device stock and pricing across all shops</p>
                 </div>
                 <div className="flex gap-4 w-full sm:w-auto">
+                    <div className="flex bg-gray-100 dark:bg-slate-700 p-1 rounded-xl">
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`px-4 py-2 rounded-lg text-sm font-bold transition ${viewMode === 'list' ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                        >
+                            List
+                        </button>
+                        <button
+                            onClick={() => setViewMode('stock')}
+                            className={`px-4 py-2 rounded-lg text-sm font-bold transition ${viewMode === 'stock' ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                        >
+                            ⚡ Quick Stock
+                        </button>
+                    </div>
                     <button
                         onClick={() => setShowLogs(!showLogs)}
                         className={`flex items-center px-6 py-3 rounded-2xl font-bold transition-all hover:scale-[1.02] border-2 shadow-sm ${showLogs ? 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-100' : 'bg-white dark:bg-slate-800 border-gray-100 dark:border-slate-700 text-gray-700 dark:text-gray-200 shadow-gray-100'}`}
@@ -155,88 +207,149 @@ const ProductManagement: React.FC = () => {
             )}
 
             {!showLogs ? (
-                <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                            <thead className="text-xs text-gray-500 dark:text-gray-400 uppercase bg-gray-50/50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700">
-                                <tr>
-                                    <th scope="col" className="px-6 py-4">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedProducts.size === filteredProducts.length && filteredProducts.length > 0}
-                                            onChange={toggleAllSelection}
-                                            className="w-4 h-4 rounded border-gray-300 text-bel-blue focus:ring-bel-blue"
-                                        />
-                                    </th>
-                                    <th scope="col" className="px-6 py-4 font-bold">Product</th>
-                                    <th scope="col" className="px-6 py-4 font-bold text-right">Price</th>
-                                    <th scope="col" className="px-6 py-4 font-bold text-center">Global Stock</th>
-                                    <th scope="col" className="px-6 py-4 font-bold">Status</th>
-                                    <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
-                                {filteredProducts.map(product => {
-                                    const stock = getTotalStock(product);
-                                    const isSelected = selectedProducts.has(product.id);
-                                    return (
-                                        <tr key={product.id} className={`transition-colors ${isSelected ? 'bg-blue-50/30 dark:bg-blue-900/10' : 'hover:bg-gray-50/50 dark:hover:bg-slate-700/50'}`}>
-                                            <td className="px-6 py-4">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={isSelected}
-                                                    onChange={() => toggleProductSelection(product.id)}
-                                                    className="w-4 h-4 rounded border-gray-300 text-bel-blue focus:ring-bel-blue"
-                                                />
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="h-12 w-12 rounded-xl bg-gray-100 dark:bg-slate-700 overflow-hidden shrink-0 border border-gray-200 dark:border-slate-600 relative">
-                                                        <Image src={product.imageUrl} alt="" fill className="object-cover" />
+                viewMode === 'list' ? (
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                <thead className="text-xs text-gray-500 dark:text-gray-400 uppercase bg-gray-50/50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700">
+                                    <tr>
+                                        <th scope="col" className="px-6 py-4">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedProducts.size === filteredProducts.length && filteredProducts.length > 0}
+                                                onChange={toggleAllSelection}
+                                                className="w-4 h-4 rounded border-gray-300 text-bel-blue focus:ring-bel-blue"
+                                            />
+                                        </th>
+                                        <th scope="col" className="px-6 py-4 font-bold">Product</th>
+                                        <th scope="col" className="px-6 py-4 font-bold text-right">Price</th>
+                                        <th scope="col" className="px-6 py-4 font-bold text-center">Global Stock</th>
+                                        <th scope="col" className="px-6 py-4 font-bold">Status</th>
+                                        <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+                                    {filteredProducts.map(product => {
+                                        const stock = getTotalStock(product);
+                                        const isSelected = selectedProducts.has(product.id);
+                                        return (
+                                            <tr key={product.id} className={`transition-colors ${isSelected ? 'bg-blue-50/30 dark:bg-blue-900/10' : 'hover:bg-gray-50/50 dark:hover:bg-slate-700/50'}`}>
+                                                <td className="px-6 py-4">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isSelected}
+                                                        onChange={() => toggleProductSelection(product.id)}
+                                                        className="w-4 h-4 rounded border-gray-300 text-bel-blue focus:ring-bel-blue"
+                                                    />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="h-12 w-12 rounded-xl bg-gray-100 dark:bg-slate-700 overflow-hidden shrink-0 border border-gray-200 dark:border-slate-600 relative">
+                                                            <Image src={product.imageUrl} alt="" fill className="object-cover" />
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-bold text-gray-900 dark:text-white">{product.name}</div>
+                                                            <div className="text-xs text-gray-400">ID: #{product.id}</div>
+                                                            <div className="text-xs text-gray-400 bg-gray-100 dark:bg-slate-700 px-2 py-0.5 rounded text-[10px] mt-1 inline-block">{product.capacity || 'N/A'}</div>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <div className="font-bold text-gray-900 dark:text-white">{product.name}</div>
-                                                        <div className="text-xs text-gray-400">ID: #{product.id}</div>
+                                                </td>
+                                                <td className="px-6 py-4 font-bold text-gray-900 dark:text-white text-right">€{product.price.toFixed(2)}</td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <ArchiveBoxIcon className="h-4 w-4 text-gray-400" />
+                                                        <span className="font-medium text-gray-700 dark:text-gray-300">{stock}</span>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 font-bold text-gray-900 dark:text-white text-right">€{product.price.toFixed(2)}</td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <ArchiveBoxIcon className="h-4 w-4 text-gray-400" />
-                                                    <span className="font-medium text-gray-700 dark:text-gray-300">{stock}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${stock > 5
-                                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                                                    : stock > 0
-                                                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
-                                                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                                                    }`}>
-                                                    {stock > 5 ? 'In Stock' : stock > 0 ? 'Low Stock' : 'Out of Stock'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <button onClick={() => handleEdit(product)} className="p-2 text-gray-500 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-slate-700 dark:hover:text-blue-400 rounded-xl transition-all" title="Edit">
-                                                        <PencilIcon className="h-4 w-4" />
-                                                    </button>
-                                                    <button onClick={() => handleDuplicate(product)} className="p-2 text-gray-500 hover:bg-gray-100 hover:text-green-600 dark:text-gray-400 dark:hover:bg-slate-700 dark:hover:text-green-400 rounded-xl transition-all" title="Duplicate">
-                                                        <DocumentDuplicateIcon className="h-4 w-4" />
-                                                    </button>
-                                                    <button onClick={() => handleDelete(product.id)} className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 rounded-xl transition-all" title="Delete">
-                                                        <TrashIcon className="h-4 w-4" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${stock > 5
+                                                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                                                        : stock > 0
+                                                            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
+                                                            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                                                        }`}>
+                                                        {stock > 5 ? 'In Stock' : stock > 0 ? 'Low Stock' : 'Out of Stock'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button onClick={() => handleEdit(product)} className="p-2 text-gray-500 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-slate-700 dark:hover:text-blue-400 rounded-xl transition-all" title="Edit">
+                                                            <PencilIcon className="h-4 w-4" />
+                                                        </button>
+                                                        <button onClick={() => handleDuplicate(product)} className="p-2 text-gray-500 hover:bg-gray-100 hover:text-green-600 dark:text-gray-400 dark:hover:bg-slate-700 dark:hover:text-green-400 rounded-xl transition-all" title="Duplicate">
+                                                            <DocumentDuplicateIcon className="h-4 w-4" />
+                                                        </button>
+                                                        <button onClick={() => handleDelete(product.id)} className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 rounded-xl transition-all" title="Delete">
+                                                            <TrashIcon className="h-4 w-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm animate-fade-in">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                <thead className="text-xs text-gray-500 dark:text-gray-400 uppercase bg-gray-50/50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700">
+                                    <tr>
+                                        <th className="px-6 py-4 font-bold">Product</th>
+                                        {shops.map(shop => (
+                                            <th key={shop.id} className="px-6 py-4 font-bold text-center">
+                                                {shop.city || shop.name}
+                                            </th>
+                                        ))}
+                                        <th className="px-6 py-4 font-bold text-center">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+                                    {filteredProducts.map(product => {
+                                        const totalStock = getTotalStock(product);
+                                        return (
+                                            <tr key={product.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-700/50">
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="font-bold text-gray-900 dark:text-white">{product.name}</div>
+                                                        <div className="text-xs text-gray-400 bg-gray-100 dark:bg-slate-700 px-2 py-0.5 rounded text-[10px]">{product.capacity || 'N/A'}</div>
+                                                    </div>
+                                                </td>
+                                                {shops.map(shop => {
+                                                    const currentStock = product.availability?.[shop.id] || 0;
+                                                    const isSaving = savingStock[`${product.id}-${shop.id}`];
+
+                                                    return (
+                                                        <td key={shop.id} className="px-4 py-2 text-center">
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                className={`w-20 text-center px-2 py-1.5 rounded-lg border outline-none font-bold transition-all
+                                                                    ${currentStock > 0 ? 'bg-blue-50 border-blue-100 text-blue-700' : 'bg-gray-50 border-gray-200 text-gray-400'}
+                                                                    ${isSaving ? 'opacity-50' : 'focus:ring-2 focus:ring-bel-blue'}
+                                                                `}
+                                                                value={currentStock}
+                                                                onChange={(e) => {
+                                                                    const val = parseInt(e.target.value);
+                                                                    if (!isNaN(val)) handleStockUpdate(product, String(shop.id), val);
+                                                                }}
+                                                            />
+                                                        </td>
+                                                    );
+                                                })}
+                                                <td className="px-6 py-4 text-center font-black text-gray-900 dark:text-white">
+                                                    {totalStock}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )
             ) : (
                 <div className="space-y-4 animate-slide-up">
                     <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm">
@@ -265,9 +378,9 @@ const ProductManagement: React.FC = () => {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${log.type === 'stock_update' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
-                                                        log.type === 'price_update' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
-                                                            log.type === 'creation' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
-                                                                'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                                                    log.type === 'price_update' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
+                                                        log.type === 'creation' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                                                            'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
                                                     }`}>
                                                     {log.type.replace('_', ' ')}
                                                 </span>

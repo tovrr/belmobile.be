@@ -16,9 +16,12 @@ export const useRepairData = (brand: string, model: string) => {
 
     useEffect(() => {
         if (!brand || !model) {
-            setData(null);
-            setLoading(false);
-            return;
+            // Reset state if inputs invalid (defer to avoid sync render warning)
+            const timer = setTimeout(() => {
+                setData(null);
+                setLoading(false);
+            }, 0);
+            return () => clearTimeout(timer);
         }
 
         const slug = createSlug(`${brand} ${model}`);
@@ -63,7 +66,7 @@ export const useRepairData = (brand: string, model: string) => {
             });
         } catch (err) {
             console.warn("Firestore subscription failed", err);
-            setLoading(false);
+            setTimeout(() => setLoading(false), 0);
         }
 
         return () => unsubscribe();

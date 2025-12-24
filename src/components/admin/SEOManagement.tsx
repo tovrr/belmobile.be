@@ -80,7 +80,7 @@ const SEOManagement: React.FC = () => {
                             />
                             <GlobeAltIcon className="h-5 w-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">Used as the default template for all pages like "%s | {title}".</p>
+                        <p className="text-xs text-gray-500 mt-2">Used as the default template for all pages like &quot;%s | {'{title}'}&quot;.</p>
                     </div>
 
                     <div>

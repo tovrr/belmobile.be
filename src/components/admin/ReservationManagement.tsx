@@ -8,7 +8,7 @@ const ReservationManagement: React.FC = () => {
     const { reservations, shops, updateReservationStatus, deleteReservation } = useData();
     const getShopName = (shopId: number | string) => shops.find(s => s.id === shopId)?.name || 'Unknown Shop';
 
-    const handleUpdateStatus = async (reservation: any, status: 'approved' | 'cancelled') => {
+    const handleUpdateStatus = async (reservation: { id: string | number, deliveryMethod?: string }, status: 'approved' | 'cancelled') => {
         try {
             let paymentLink: string | undefined = undefined;
 
@@ -91,10 +91,10 @@ const ReservationManagement: React.FC = () => {
                                     <td className="px-6 py-4 flex space-x-2">
                                         {res.status === 'pending' && (
                                             <>
-                                                <button onClick={() => handleUpdateStatus(res.id, 'approved')} className="p-2 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/20 rounded-xl transition-colors" title="Approve">
+                                                <button onClick={() => handleUpdateStatus(res, 'approved')} className="p-2 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/20 rounded-xl transition-colors" title="Approve">
                                                     <CheckCircleIcon className="h-5 w-5" />
                                                 </button>
-                                                <button onClick={() => handleUpdateStatus(res.id, 'cancelled')} className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-colors" title="Cancel">
+                                                <button onClick={() => handleUpdateStatus(res, 'cancelled')} className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-colors" title="Cancel">
                                                     <XCircleIcon className="h-5 w-5" />
                                                 </button>
                                             </>

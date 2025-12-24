@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Product } from '../../types';
 import { useData } from '../../hooks/useData';
 import { XMarkIcon } from '@heroicons/react/24/outline';
@@ -117,9 +118,10 @@ const ProductModal: React.FC<ProductModalProps> = ({ onClose, product }) => {
             if (isEditing && product) {
                 await updateProduct(productData);
             } else {
-                // Remove ID for new product creation if addProduct expects Omit<Product, 'id'>
-                const { id, ...newProductData } = productData;
-                await addProduct(newProductData);
+                // Remove ID for new product creation
+                const { id: _id, ...newProductData } = productData as Product;
+                void _id;
+                await addProduct(newProductData as Omit<Product, 'id'>);
             }
             onClose();
         } catch (error) {
@@ -146,7 +148,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ onClose, product }) => {
                         <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Product Image</label>
                         <div className="flex items-center space-x-6">
                             {formData.imageUrl && (
-                                <img src={formData.imageUrl} alt="Preview" className="h-24 w-24 object-contain rounded-2xl border border-gray-200 dark:border-slate-700 p-2 bg-white" />
+                                <div className="relative h-24 w-24 rounded-2xl border border-gray-200 dark:border-slate-700 p-2 bg-white overflow-hidden">
+                                    <Image src={formData.imageUrl} alt={formData.name || "Product Image Preview"} fill className="object-cover" sizes="128px" />
+                                </div>
                             )}
                             <div className="flex-1">
                                 <label className="block w-full cursor-pointer">
@@ -332,7 +336,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ onClose, product }) => {
                                 name="condition"
                                 id="condition"
                                 value={formData.condition}
-                                onChange={(e) => setFormData({ ...formData, condition: e.target.value as any })}
+                                onChange={(e) => setFormData({ ...formData, condition: e.target.value as "perfect" | "very_good" | "good" })}
                                 className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition"
                             >
                                 <option value="perfect">Perfect</option>

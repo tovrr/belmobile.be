@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { DEVICE_BRANDS } from '../../data/brands';
 import { modelsData } from '../../data/deviceData';
 import { createSlug } from '../../utils/slugs';
@@ -8,12 +9,7 @@ import { useRepairData } from '../../hooks/useRepairData';
 import { db } from '../../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { compressImage } from '../../utils/imageUtils';
-import {
-    PhotoIcon,
-    CurrencyEuroIcon,
-    DevicePhoneMobileIcon,
-    ArrowPathIcon
-} from '@heroicons/react/24/outline';
+import { DevicePhoneMobileIcon, PhotoIcon, ArrowPathIcon, CurrencyEuroIcon } from '@heroicons/react/24/outline';
 
 const getAllModels = (brand: string) => {
     if (!brand) return [];
@@ -22,9 +18,9 @@ const getAllModels = (brand: string) => {
     if (!data) return [];
 
     const models: string[] = [];
-    Object.values(data).forEach((category: any) => {
-        if (typeof category === 'object') {
-            models.push(...Object.keys(category));
+    Object.values(data).forEach((category: unknown) => {
+        if (typeof category === 'object' && category !== null) {
+            models.push(...Object.keys(category as Record<string, unknown>));
         }
     });
     return models.sort();
@@ -40,7 +36,7 @@ const DeviceManager = () => {
     const { data: repairData } = useRepairData(selectedBrand, selectedModel);
 
     // Form State
-    const [priceData, setPriceData] = useState<any>({});
+    const [priceData, setPriceData] = useState<Record<string, number>>({});
     const [customImage, setCustomImage] = useState<string>('');
     const [uploading, setUploading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -58,14 +54,15 @@ const DeviceManager = () => {
     // Update form when data loads
     useEffect(() => {
         if (repairData) {
+            const getNum = (val: unknown) => typeof val === 'number' ? val : 0;
             setPriceData({
-                screen_generic: repairData.screen_generic || 0,
-                screen_oled: repairData.screen_oled || 0,
-                screen_original: repairData.screen_original || 0,
-                battery: repairData.battery || 0,
-                charging: repairData.charging || 0,
-                other: repairData.other || 0,
-                storage: repairData.storage || 0,
+                screen_generic: getNum(repairData.screen_generic),
+                screen_oled: getNum(repairData.screen_oled),
+                screen_original: getNum(repairData.screen_original),
+                battery: getNum(repairData.battery),
+                charging: getNum(repairData.charging),
+                other: getNum(repairData.other),
+                storage: getNum(repairData.storage),
             });
             setCustomImage(repairData.imageUrl || '');
         } else {
@@ -180,7 +177,7 @@ const DeviceManager = () => {
 
                         <div className="aspect-square relative rounded-xl overflow-hidden bg-gray-50 dark:bg-slate-900 mb-4 border border-dashed border-gray-300 dark:border-slate-600 flex items-center justify-center group">
                             {customImage ? (
-                                <img src={customImage} alt="Device" className="w-full h-full object-contain p-4" />
+                                <Image src={customImage} alt="Device" fill className="object-contain p-4" sizes="200px" />
                             ) : (
                                 <div className="text-gray-400 text-center">
                                     <DevicePhoneMobileIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />

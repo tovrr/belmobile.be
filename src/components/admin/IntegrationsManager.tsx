@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowDownTrayIcon, ClipboardDocumentIcon, CheckCircleIcon, ShoppingBagIcon, WrenchScrewdriverIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { ArrowDownTrayIcon, ClipboardDocumentIcon, ShoppingBagIcon, WrenchScrewdriverIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { RepairPriceRecord } from '../../types';
 
@@ -27,8 +27,8 @@ export const IntegrationsManager: React.FC = () => {
                 const q = query(collection(db, 'repair_prices'), where('isActive', '==', true));
                 const snap = await getDocs(q);
 
-                snap.forEach(doc => {
-                    const data = doc.data() as RepairPriceRecord;
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() as RepairPriceRecord;
                     // Format: "iPhone 13", "Screen Replacement", "290"
                     const model = capitalizeSlug(data.deviceId);
                     const issue = capitalizeSlug(data.issueId);
@@ -42,8 +42,8 @@ export const IntegrationsManager: React.FC = () => {
                 const q = query(collection(db, 'buyback_pricing'));
                 const snap = await getDocs(q);
 
-                snap.forEach(doc => {
-                    const data = doc.data() as any;
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() as { deviceId: string, storage: string, condition: string, price: number };
                     if (!data.price || data.price <= 0) return;
                     const model = capitalizeSlug(data.deviceId);
                     csvContent += `"${model}","${data.storage}","${data.condition}","${data.price}"\n`;
@@ -56,9 +56,9 @@ export const IntegrationsManager: React.FC = () => {
                 const q = query(collection(db, 'products'));
                 const snap = await getDocs(q);
 
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    const totalStock = data.availability ? Object.values(data.availability as Record<string, number>).reduce((a, b) => a + (Number(b) || 0), 0) : 0;
+                snap.forEach(docSnap => {
+                    const data = docSnap.data() as { id: string | number, name: string, price: number, availability?: Record<string, number> };
+                    const totalStock = data.availability ? Object.values(data.availability).reduce((a, b) => a + (Number(b) || 0), 0) : 0;
                     csvContent += `"${data.id}","${data.name}","${data.price}","${totalStock > 0 ? 'In Stock' : 'Out of Stock'}","${totalStock}"\n`;
                 });
             }
@@ -76,8 +76,8 @@ export const IntegrationsManager: React.FC = () => {
 
             alert(`✅ ${type.toUpperCase()} list exported successfully!`);
 
-        } catch (e) {
-            console.error("Export failed:", e);
+        } catch (error) {
+            console.error("Export failed:", error);
             alert("Export failed. See console.");
         } finally {
             setGenerating(false);
@@ -135,7 +135,7 @@ export const IntegrationsManager: React.FC = () => {
                     </div>
 
                     <div className="mt-6 pt-6 border-t border-gray-100 dark:border-slate-700 text-xs text-gray-500">
-                        <p>ℹ️ <strong>How to use:</strong> Copy these URLs into Meta Commerce Manager &gt; Catalog &gt; Data Sources &gt; Data Feed. Set schedule to "Hourly".</p>
+                        <p>ℹ️ <strong>How to use:</strong> Copy these URLs into Meta Commerce Manager &gt; Catalog &gt; Data Sources &gt; Data Feed. Set schedule to &quot;Hourly&quot;.</p>
                     </div>
                 </div>
 

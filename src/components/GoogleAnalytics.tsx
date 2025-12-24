@@ -10,7 +10,8 @@ const GoogleAnalytics = () => {
         // 1. Check if already accepted
         const currentConsent = localStorage.getItem('cookie_consent');
         if (currentConsent === 'accepted') {
-            setConsentGiven(true);
+            // Defer update to avoid synchronous render warning
+            setTimeout(() => setConsentGiven(true), 0);
         }
 
         // 2. Listen for new consent

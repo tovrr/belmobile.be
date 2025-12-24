@@ -1,5 +1,8 @@
 import TrackOrder from '../../../components/TrackOrder';
 import { Metadata } from 'next';
+import { Suspense } from 'react';
+
+export const dynamic = 'force-dynamic';
 
 type Props = {
     params: Promise<{ lang: string }>
@@ -29,5 +32,10 @@ export function generateStaticParams() {
 }
 
 export default function TrackOrderPage() {
-    return <TrackOrder />;
+    return (
+        <Suspense fallback={<div className="min-h-screen animate-pulse" />}>
+            <TrackOrder />
+        </Suspense>
+    );
 }
+
