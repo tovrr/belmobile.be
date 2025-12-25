@@ -227,8 +227,9 @@ const Header: React.FC = () => {
 
                             <div className="mt-2 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl text-center">
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">{t('need_help')}</p>
-                                <a href="tel:+3222759867" className="block w-full py-3 bg-electric-indigo text-white rounded-xl font-bold shadow-lg shadow-indigo-500/30">
-                                    {t('call_support')}
+                                <a href="tel:+3222759867" className="flex items-center justify-center gap-2 w-full py-3 bg-electric-indigo text-white rounded-xl font-bold shadow-lg shadow-indigo-500/30 group">
+                                    <PhoneIcon className="h-5 w-5 group-hover:animate-pulse" aria-hidden="true" />
+                                    <span>{t('call_support')}</span>
                                 </a>
                             </div>
                         </div>
