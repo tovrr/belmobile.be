@@ -1950,7 +1950,12 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         return (
             <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-3 sm:p-4 lg:p-8">
                 <div className="flex-1 space-y-8">
-                    <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">{t('Cosmetic Condition')}</h2>
+                    <div className="flex items-center gap-2 mb-6">
+                        <button onClick={handleBack} className="lg:hidden p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
+                            <ChevronLeftIcon className="h-6 w-6" />
+                        </button>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('Cosmetic Condition')}</h2>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                             <label className="block text-sm font-bold text-gray-500 mb-3 uppercase">{t('Screen Condition')}</label>
