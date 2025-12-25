@@ -2194,13 +2194,13 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                                     <div className="flex items-start justify-between">
                                                         <div>
                                                             <div className="flex items-center gap-2">
-                                                                <p className="font-bold text-bel-blue">{selectedShop.name.replace('Belmobile ', '')}</p>
-                                                                {false && selectedShop.id === 'schaerbeek' && (
+                                                                <p className="font-bold text-bel-blue">{selectedShop?.name?.replace('Belmobile ', '')}</p>
+                                                                {false && selectedShop?.id === 'schaerbeek' && (
                                                                     <span className="bg-amber-100 text-amber-800 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">🚕 {t('Digital Taxi Protocol')}</span>
                                                                 )}
                                                             </div>
                                                             <p className="text-sm text-gray-600 dark:text-gray-300">{selectedShop.address}</p>
-                                                            {false && selectedShop.id === 'schaerbeek' && (
+                                                            {false && selectedShop?.id === 'schaerbeek' && (
                                                                 <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-1 font-medium italic">
                                                                     {t('taxi_refund_notice') || 'Coming from Molenbeek/Anderlecht? We refund your Uber/Bolt trip (up to 10€) for any repair above 100€!'}
                                                                 </p>
