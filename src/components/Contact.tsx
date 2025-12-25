@@ -137,14 +137,14 @@ const Contact: React.FC = () => {
 
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
                     <span className="inline-block py-1 px-3 rounded-full bg-bel-blue/10 text-bel-blue dark:text-blue-400 text-sm font-bold mb-6 animate-fade-in-up">
-                        {t('Get in Touch')}
+                        {t('contact_hero_badge')}
                     </span>
                     <h1 className="text-5xl lg:text-7xl font-extrabold text-bel-dark dark:text-white tracking-tight mb-6 animate-fade-in-up delay-100">
-                        {t('Contact Us')}
+                        {t('contact_hero_title')}
                     </h1>
                     <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto animate-fade-in-up delay-200">
-                        {t("Have a question? We'd love to hear from you.")} <br />
-                        <span className="text-bel-blue dark:text-blue-400">{t('Visit a store')}</span> {t('or send us a message below.')}
+                        {t('contact_hero_subtitle')} <br />
+                        <span className="text-bel-blue dark:text-blue-400">{t('contact_visit_store')}</span> {t('contact_or_send')}
                     </p>
                 </div>
             </div>
@@ -160,14 +160,14 @@ const Contact: React.FC = () => {
                                     <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
                                         <PaperAirplaneIcon className="w-10 h-10 text-green-600 dark:text-green-400" />
                                     </div>
-                                    <h2 className="text-3xl font-bold text-bel-dark dark:text-white mb-4">{t('Message Sent!')}</h2>
-                                    <p className="text-lg text-gray-600 dark:text-gray-300">{t("Thank you for contacting us. We will get back to you soon.")}</p>
+                                    <h2 className="text-3xl font-bold text-bel-dark dark:text-white mb-4">{t('contact_success_title')}</h2>
+                                    <p className="text-lg text-gray-600 dark:text-gray-300">{t('contact_success_desc')}</p>
                                     <Button
                                         onClick={() => setSubmitted(false)}
                                         variant="ghost"
                                         className="mt-8 mx-auto"
                                     >
-                                        {t('Send another message')}
+                                        {t('contact_send_another')}
                                     </Button>
                                 </div>
                             ) : (
@@ -187,34 +187,34 @@ const Contact: React.FC = () => {
                                             <EnvelopeIcon className="w-6 h-6" />
                                         </div>
                                         <div>
-                                            <h3 className="text-xl font-bold text-bel-dark dark:text-white">{t('Send a Message')}</h3>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">{t('We typically reply within 24 hours.')}</p>
+                                            <h3 className="text-xl font-bold text-bel-dark dark:text-white">{t('contact_form_title')}</h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{t('contact_form_subtitle')}</p>
                                         </div>
                                     </div>
 
                                     <Input
                                         id="name"
                                         name="name"
-                                        label={t('Full Name')}
-                                        placeholder="John Doe"
+                                        label={t('contact_full_name')}
+                                        placeholder={t('contact_placeholder_name')}
                                         required
                                     />
 
                                     <Input
                                         id="email"
                                         name="email"
-                                        label={t('Email Address')}
+                                        label={t('contact_email_address')}
                                         type="email"
-                                        placeholder="john@example.com"
+                                        placeholder={t('contact_placeholder_email')}
                                         required
                                     />
 
                                     <Textarea
                                         id="message"
                                         name="message"
-                                        label={t('Your Message')}
+                                        label={t('contact_your_message')}
                                         rows={5}
-                                        placeholder="How can we help you today?"
+                                        placeholder={t('contact_placeholder_message')}
                                         required
                                     />
 
@@ -229,7 +229,7 @@ const Contact: React.FC = () => {
                                             <PaperAirplaneIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                         )}
                                     >
-                                        {isSubmitting ? t('Sending...') : t('Send Message')}
+                                        {isSubmitting ? t('contact_sending') : t('contact_send_button')}
                                     </Button>
                                 </form>
                             )}
@@ -239,8 +239,8 @@ const Contact: React.FC = () => {
                     {/* Stores List */}
                     <div className="space-y-8 animate-fade-in-up delay-400">
                         <div>
-                            <h2 className="text-3xl font-bold text-bel-dark dark:text-white mb-2">{t('Our Locations')}</h2>
-                            <p className="text-gray-500 dark:text-gray-400">{t('Find a Belmobile store near you.')}</p>
+                            <h2 className="text-3xl font-bold text-bel-dark dark:text-white mb-2">{t('contact_locations_title')}</h2>
+                            <p className="text-gray-500 dark:text-gray-400">{t('contact_locations_subtitle')}</p>
                         </div>
 
                         {loadingShops && shops.length === 0 ? (
