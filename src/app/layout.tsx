@@ -12,7 +12,12 @@ export const metadata: Metadata = {
   title: "Belmobile.be - Buyback & Repair Service",
   description: "The best place to sell your old device or get it repaired in Brussels. Fast, reliable, and eco-friendly.",
   icons: {
-    icon: '/favicon.svg',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
   },
   manifest: '/manifest.json',
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be'),
