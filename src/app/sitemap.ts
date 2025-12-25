@@ -3,7 +3,7 @@ import { SERVICES } from '../data/services';
 import { LOCATIONS } from '../data/locations';
 import { DEVICE_BRANDS } from '../data/brands';
 import { createSlug } from '../utils/slugs';
-import { MOCK_BLOG_POSTS } from '../constants';
+import { MOCK_BLOG_POSTS, MOCK_PRODUCTS } from '../constants';
 
 // Import Models
 import { MODELS as AppleModels } from '../data/models/apple';
@@ -164,11 +164,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
         });
     });
 
+    // 3.5 Individual Products (Refurbished/Sales)
+    languages.forEach(lang => {
+        const basePath = lang === 'fr' ? 'acheter' : lang === 'nl' ? 'kopen' : 'buy';
+        MOCK_PRODUCTS.forEach(product => {
+            if (product.slug) {
+                sitemap.push({
+                    url: `${BASE_URL}/${lang}/${basePath}/${product.category}/${product.slug}`,
+                    lastModified: new Date(),
+                    changeFrequency: 'weekly',
+                    priority: 0.8,
+                });
+            }
+        });
+    });
+
     // 4. Other Static Pages
     const staticPages = [
         'stores', 'contact', 'faq', 'legal', 'privacy',
         'terms', 'warranty', 'jobs', 'careers', 'franchise',
-        'business', 'track-order'
+        'business', 'track-order', 'products', 'cookies',
+        'feedback', 'express-courier'
     ];
 
     languages.forEach(lang => {
