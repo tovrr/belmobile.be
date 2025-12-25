@@ -11,29 +11,14 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { lang } = await params;
 
-    const metadataByLang: Record<string, Metadata> = {
-        fr: {
-            title: "Réparation Professionnelle iPhone & Smartphone Bruxelles | Belmobile",
-            description: "Service de réparation professionnelle pour votre iPhone, iPad ou Samsung à Bruxelles. Remplacement d'écran et batterie en 30 min. Garantie 1 an.",
-            keywords: "réparation iphone bruxelles, réparation ecran iphone, magasin gsm bruxelles, rachat iphone, belmobile",
-        },
-        nl: {
-            title: "Professionele iPhone & Smartphone Reparatie Brussel | Belmobile",
-            description: "Professionele reparatieservice voor uw iPhone, iPad of Samsung in Brussel. Scherm en batterij vervangen in 30 minuten. 1 jaar garantie.",
-            keywords: "iphone reparatie brussel, scherm vervangen, gsm winkel brussel, iphone verkopen, belmobile",
-        },
-        en: {
-            title: "Professional iPhone & Smartphone Repair Brussels | Belmobile",
-            description: "Professional repair service for your iPhone, iPad or Samsung in Brussels. Screen and battery replacement in 30 minutes. 1 year warranty.",
-            keywords: "iphone repair brussels, screen repair, phone shop brussels, sell iphone, belmobile",
-        }
-    };
+    // Load translations manually for metadata as this is a server component
+    const translations = await import(`../../../src/data/i18n/${lang}.json`).then(m => m.default);
 
-    const meta = metadataByLang[lang] || metadataByLang.en;
     const baseUrl = 'https://belmobile.be';
 
     return {
-        ...meta,
+        title: translations.meta_home_title,
+        description: translations.meta_home_description,
         alternates: {
             canonical: `${baseUrl}/${lang}`,
             languages: {
@@ -43,8 +28,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             },
         },
         openGraph: {
-            title: meta.title ?? '',
-            description: meta.description ?? '',
+            title: translations.meta_home_title,
+            description: translations.meta_home_description,
             url: `${baseUrl}/${lang}`,
             siteName: 'Belmobile',
             locale: lang,

@@ -128,7 +128,7 @@ const Contact: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-deep-space">
-            <SchemaMarkup type="organization" shops={shops} />
+            <SchemaMarkup type="contact" shops={shops} />
 
             {/* Hero Section */}
             <div className="relative py-20 lg:py-28 overflow-hidden">
@@ -184,7 +184,7 @@ const Contact: React.FC = () => {
                                     </div>
                                     <div className="flex items-center gap-4 mb-8">
                                         <div className="w-12 h-12 rounded-2xl bg-bel-blue/10 flex items-center justify-center text-bel-blue dark:text-blue-400">
-                                            <EnvelopeIcon className="w-6 h-6" />
+                                            <EnvelopeIcon className="w-6 h-6" aria-hidden="true" />
                                         </div>
                                         <div>
                                             <h3 className="text-xl font-bold text-bel-dark dark:text-white">{t('contact_form_title')}</h3>
@@ -224,9 +224,9 @@ const Contact: React.FC = () => {
                                         className="w-full"
                                         disabled={isSubmitting}
                                         icon={isSubmitting ? (
-                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true" />
                                         ) : (
-                                            <PaperAirplaneIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                            <PaperAirplaneIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                                         )}
                                     >
                                         {isSubmitting ? t('contact_sending') : t('contact_send_button')}

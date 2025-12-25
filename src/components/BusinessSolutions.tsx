@@ -5,6 +5,7 @@ import { useLanguage } from '../hooks/useLanguage';
 import { motion } from 'framer-motion';
 import { BuildingOffice2Icon, WrenchScrewdriverIcon, DevicePhoneMobileIcon, CurrencyEuroIcon, CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import SchemaMarkup from './SchemaMarkup';
 
 const BusinessSolutions: React.FC = () => {
     const { t, language } = useLanguage();
@@ -34,6 +35,7 @@ const BusinessSolutions: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-deep-space pt-24 pb-12 px-4 transition-colors duration-300">
+            <SchemaMarkup type="organization" />
             <div className="max-w-7xl mx-auto">
                 {/* Hero Section */}
                 <div className="text-center mb-20 animate-fade-in">
@@ -75,7 +77,7 @@ const BusinessSolutions: React.FC = () => {
                             className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl hover:border-bel-blue/30 transition-all"
                         >
                             <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-bel-blue mb-6">
-                                <benefit.icon className="h-8 w-8" />
+                                <benefit.icon className="h-8 w-8" aria-hidden="true" />
                             </div>
                             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
                                 {benefit.title}
@@ -102,13 +104,13 @@ const BusinessSolutions: React.FC = () => {
                                 </p>
                                 <div className="flex flex-wrap gap-4">
                                     <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" /> <span>{t('biz_fleet_sla')}</span>
+                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" aria-hidden="true" /> <span>{t('biz_fleet_sla')}</span>
                                     </div>
                                     <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" /> <span>{t('biz_fleet_invoice')}</span>
+                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" aria-hidden="true" /> <span>{t('biz_fleet_invoice')}</span>
                                     </div>
                                     <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" /> <span>{t('biz_fleet_loaner')}</span>
+                                        <CheckCircleIcon className="h-5 w-5 text-bel-yellow" aria-hidden="true" /> <span>{t('biz_fleet_loaner')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -117,7 +119,7 @@ const BusinessSolutions: React.FC = () => {
                                     href={`/${language}/express-courier`}
                                     className="px-8 py-6 bg-white text-bel-blue font-black rounded-2xl shadow-xl hover:scale-105 transition-all flex items-center gap-3 whitespace-nowrap"
                                 >
-                                    {t('biz_fleet_cta')} <ArrowRightIcon className="h-5 w-5" />
+                                    {t('biz_fleet_cta')} <ArrowRightIcon className="h-5 w-5" aria-hidden="true" />
                                 </Link>
                             </div>
                         </div>
@@ -140,7 +142,7 @@ const BusinessSolutions: React.FC = () => {
                                 { key: "biz_trust_terms", icon: CheckCircleIcon }
                             ].map((item, i) => (
                                 <div key={i} className="flex flex-col items-center">
-                                    <item.icon className="h-12 w-12 text-green-400 mb-4 group-hover:scale-110 transition-transform" />
+                                    <item.icon className="h-12 w-12 text-green-400 mb-4 group-hover:scale-110 transition-transform" aria-hidden="true" />
                                     <span className="text-xl font-bold text-white">{t(item.key)}</span>
                                 </div>
                             ))}

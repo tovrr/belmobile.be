@@ -4,6 +4,7 @@ import React from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import dynamic from 'next/dynamic';
 import Hero from './Hero';
+import SchemaMarkup from './SchemaMarkup';
 
 const TrustSignals = dynamic(() => import('./TrustSignals'), {
     loading: () => <div className="h-40" />
@@ -24,6 +25,7 @@ const HomeClient: React.FC = () => {
 
     return (
         <div className="bg-transparent transition-colors duration-300">
+            <SchemaMarkup type="organization" />
             <Hero />
             <h2 className="sr-only">{t('home_trust_section_title')}</h2>
             <TrustSignals />

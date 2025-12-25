@@ -7,20 +7,23 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang } = await params;
-    const titles: Record<string, string> = {
-        en: 'Contact Us | Belmobile',
-        fr: 'Contactez-nous | Belmobile',
-        nl: 'Neem contact op | Belmobile'
-    };
-    const descriptions: Record<string, string> = {
-        en: 'Get in touch with Belmobile for any questions or inquiries.',
-        fr: 'Contactez Belmobile pour toute question ou demande.',
-        nl: 'Neem contact op met Belmobile voor vragen of verzoeken.'
-    };
+
+    // Load translations manually for metadata as this is a server component
+    const translations = await import(`../../../../src/data/i18n/${lang}.json`).then(m => m.default);
+
+    const baseUrl = 'https://belmobile.be';
 
     return {
-        title: titles[lang] || titles['en'],
-        description: descriptions[lang] || descriptions['en'],
+        title: translations.meta_contact_title,
+        description: translations.meta_contact_description,
+        alternates: {
+            canonical: `${baseUrl}/${lang}/contact`,
+            languages: {
+                'en': `${baseUrl}/en/contact`,
+                'fr': `${baseUrl}/fr/contact`,
+                'nl': `${baseUrl}/nl/contact`,
+            }
+        },
     };
 }
 

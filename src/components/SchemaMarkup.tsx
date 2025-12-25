@@ -6,7 +6,7 @@ import { SHOPS } from '../constants';
 import { Product, Shop } from '../types';
 
 interface SchemaProps {
-    type?: 'organization' | 'product' | 'breadcrumb' | 'faq' | 'article';
+    type?: 'organization' | 'product' | 'breadcrumb' | 'faq' | 'article' | 'contact';
     product?: Product;
     breadcrumbs?: { name: string; item: string }[];
     faqItems?: { question: string; answer: string }[];
@@ -145,6 +145,16 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
         "description": product.description
     } : null;
 
+    // 7. ContactPage Schema
+    const contactPageSchema = type === 'contact' ? {
+        "@context": "https://schema.org",
+        "@type": "ContactPage",
+        "name": "Belmobile Contact",
+        "description": "Contact channels for Belmobile.be",
+        "url": `https://belmobile.be/${language}/contact`,
+        "mainEntity": organizationSchema
+    } : null;
+
     return (
         <>
             {type === 'organization' && (
@@ -171,9 +181,12 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
             {type === 'article' && articleSchema && (
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
             )}
+
+            {type === 'contact' && contactPageSchema && (
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(contactPageSchema) }} />
+            )}
         </>
     );
 };
 
 export default SchemaMarkup;
-

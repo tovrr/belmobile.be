@@ -7,20 +7,23 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang } = await params;
-    const titles: Record<string, string> = {
-        en: 'Business Solutions | Belmobile',
-        fr: 'Solutions Entreprises | Belmobile',
-        nl: 'Zakelijke Oplossingen | Belmobile'
-    };
-    const descriptions: Record<string, string> = {
-        en: 'Belmobile B2B services: Fleet repair, buyback, and refurbished devices for companies in Brussels.',
-        fr: 'Services B2B Belmobile : Réparation de flotte, rachat et appareils reconditionnés pour les entreprises à Bruxelles.',
-        nl: 'Belmobile B2B-diensten: Vlootreparatie, terugkoop en gereviseerde apparaten voor bedrijven in Brussel.'
-    };
+
+    // Load translations manually for metadata as this is a server component
+    const translations = await import(`../../../../src/data/i18n/${lang}.json`).then(m => m.default);
+
+    const baseUrl = 'https://belmobile.be';
 
     return {
-        title: titles[lang] || titles['en'],
-        description: descriptions[lang] || descriptions['en'],
+        title: translations.meta_business_title,
+        description: translations.meta_business_description,
+        alternates: {
+            canonical: `${baseUrl}/${lang}/business`,
+            languages: {
+                'en': `${baseUrl}/en/business`,
+                'fr': `${baseUrl}/fr/business`,
+                'nl': `${baseUrl}/nl/business`,
+            }
+        },
     };
 }
 
