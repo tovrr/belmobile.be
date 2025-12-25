@@ -284,7 +284,10 @@ export interface ContactMessage {
     id: string;
     name: string;
     email: string;
+    phone?: string;
+    subject?: string;
     message: string;
+    attachmentUrl?: string;
     status: 'new' | 'read' | 'replied';
     date: string;
     createdAt: string;
