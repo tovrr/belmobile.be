@@ -1497,7 +1497,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     };
 
     const renderStep1 = () => (
-        <div className="animate-fade-in w-full max-w-4xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
+        <div className="animate-fade-in w-full max-w-4xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-3 sm:p-4 lg:p-8">
             {!hideStep1Title && (
                 <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
                     {t(type === 'buyback' ? 'buyback_step1_title' : 'repair_step1_title')}
@@ -1573,7 +1573,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         const availableModels = modelsData[deviceType] ? Object.keys(modelsData[deviceType]) : [];
 
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
+            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-3 sm:p-4 lg:p-8">
                 <div className="flex-1">
                     <div className="flex items-center gap-2 mb-8">
                         <button onClick={handleBack} className="lg:hidden p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
@@ -1654,7 +1654,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             }
 
             return (
-                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
+                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-3 sm:p-4 lg:p-8">
                     <div className="flex-1 space-y-8">
                         <div className="flex items-center gap-2 mb-6">
                             <button onClick={handleBack} className="lg:hidden p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
@@ -1761,7 +1761,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             // const isApple = selectedBrand?.toLowerCase() === 'apple';
 
             return (
-                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
+                <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-3 sm:p-4 lg:p-8">
                     <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                             <button onClick={handleBack} className="lg:hidden p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
@@ -1948,7 +1948,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     const renderStep4 = () => {
         if (type !== 'buyback') return null;
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
+            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-3 sm:p-4 lg:p-8">
                 <div className="flex-1 space-y-8">
                     <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">{t('Cosmetic Condition')}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -2016,7 +2016,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
             }
         }
         return (
-            <div className="lg:hidden bg-white dark:bg-slate-900 rounded-3xl p-6 mb-8 border border-gray-200 dark:border-slate-800 shadow-sm animate-fade-in">
+            <div className="lg:hidden bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-6 mb-8 border border-gray-200 dark:border-slate-800 shadow-sm animate-fade-in">
                 <div className="flex items-center gap-2 mb-4">
                     <button onClick={handleBack} className="p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
                         <ChevronLeftIcon className="h-6 w-6" />
@@ -2112,14 +2112,14 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
         }
 
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-8">
+            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-3 sm:p-8">
                 <MobileSummary />
                 <div className="flex-1">
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('How would you like to proceed?')}</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'dropoff' ? null : 'dropoff')} className={`cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'dropoff' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
+                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'dropoff' ? null : 'dropoff')} className={`cursor-pointer p-4 sm:p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'dropoff' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
                                     <div className="flex items-start">
                                         <BuildingStorefrontIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-400'}`} />
                                         <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Visit Store')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Come to one of our shops in Brussels. No appointment needed.')}</p></div>
@@ -2223,7 +2223,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                         </div>
                                     )}
                                 </div>
-                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'send' ? null : 'send')} className={`cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'send' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
+                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'send' ? null : 'send')} className={`cursor-pointer p-4 sm:p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'send' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
                                     <div className="flex items-start">
                                         <TruckIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'send' ? 'text-bel-blue' : 'text-gray-400'}`} />
                                         <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'send' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Send by Post')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Free shipping label provided. Secure and insured.')}</p></div>
@@ -2265,7 +2265,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                 {/* NEW: Express Courier (Tour & Taxis Bridge) */}
                                 <div
                                     onClick={() => setDeliveryMethod(deliveryMethod === 'courier' ? null : 'courier')}
-                                    className={`col-span-1 sm:col-span-2 cursor-pointer p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'courier' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}
+                                    className={`col-span-1 sm:col-span-2 cursor-pointer p-4 sm:p-6 rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'courier' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}
                                 >
                                     <div className="flex items-start">
                                         <div className="relative">
@@ -2327,7 +2327,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-gray-200 dark:border-slate-800">
+                        <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-6 border border-gray-200 dark:border-slate-800">
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">{t('Your Details')}</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <Input
@@ -2451,7 +2451,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                                 </div>
                             )}
                             {type === 'repair' && (
-                                <div className="bg-bel-blue/5 dark:bg-blue-900/10 p-6 rounded-3xl border border-bel-blue/10 mb-6 mt-8">
+                                <div className="bg-bel-blue/5 dark:bg-blue-900/10 p-4 sm:p-6 rounded-3xl border border-bel-blue/10 mb-6 mt-8">
                                     <h4 className="text-sm font-bold text-bel-blue uppercase tracking-widest mb-4">{t('Extra Options')}</h4>
                                     <div
                                         onClick={() => setHasHydrogel(!hasHydrogel)}
@@ -2503,7 +2503,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
                             </Button>
 
                             {/* Trust Signals Block - Moved below button */}
-                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6 border border-bel-blue/20 mt-8">
+                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-4 sm:p-6 border border-bel-blue/20 mt-8">
                                 <h4 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                                     <CheckCircleIcon className="h-5 w-5 text-bel-blue" />
                                     {t('trust_title')}
@@ -2566,7 +2566,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = ({ type, initialShop, initia
     };
 
     return (
-        <div className="bg-transparent pt-0 pb-12 px-4 relative min-h-[600px]">
+        <div className="bg-transparent pt-0 pb-12 px-1 sm:px-4 relative min-h-[600px]">
             {/* Global Transition Overlay - Hoisted to root to prevent unmounting flickers */}
             {(isTransitioning || isLoadingData) && (
                 <div className="absolute inset-0 z-100 flex flex-col items-center justify-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl animate-fade-in pointer-events-none h-full w-full">
