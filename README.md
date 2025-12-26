@@ -10,7 +10,7 @@ Belmobile is a high-performance Next.js platform designed for local device repai
 - **PDF Generation**: [jsPDF](https://rawgit.com/MrRio/jsPDF/master/docs/index.html)
 
 ## ✨ Core Features
-- **Buyback/Repair Wizard**: A multi-step interactive flow with real-time price estimation.
+- **Buyback/Repair Wizard**: High-integrity interactive flow using decentralized state management (React Context + Hooks) for real-time pricing.
 - **AI Assistant**: A context-aware chatbot that understands device specifics and store locations.
 - **Admin Power Tools**:
     - **Batch Actions**: Bulk update prices and stock levels across multiple shops.
@@ -40,8 +40,9 @@ npm run dev
 ## 📂 Project Structure
 - `/src/app`: Next.js 13+ App Router pages.
 - `/src/components`: UI components (Admin tools, Wizard, AI Chat).
-- `/src/context`: Global state (Data & Localization).
-- `/src/hooks`: Custom hooks for Firestore real-time data.
+- `/src/context`: Global state (WizardContext, Data & Localization).
+- `/src/hooks`: Domain-specific hooks (`useWizardActions`, `useWizardPricing`, etc).
+- `/src/services`: Business logic layer (order handling, API interactions).
 - `/public`: Static assets (Logo, PWA manifest).
 
 ## 📊 Administrative Dashboard
