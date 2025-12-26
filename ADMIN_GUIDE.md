@@ -20,6 +20,7 @@ When a customer submits a request:
 1. They receive an automated email with a **PDF Confirmation**.
 2. A new record appears in your dashboard.
 3. You can update the status (Processing, Responded, Closed) to track the lead.
+4. **Service Architecture**: The system uses a centralized `orderService` for high-integrity data handling, ensuring PDF generation and Firebase syncing are reliable.
 
 ## 🌟 Automated Review & Feedback
 The platform now includes an intelligent system to boost your Google Reviews:

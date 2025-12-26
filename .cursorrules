@@ -47,6 +47,13 @@ Your goal is **Premium Quality** and **Zero Regression**.
     - Prefer **lazy-loading** per-language JSONs.
     - **Do NOT** add massive objects to `translations.ts` (deprecated pattern).
 3.  **Glassmorphism**: Follow `.agent/design-system.md`. Use `backdrop-blur-md` and `bg-white/70`, not solid opacities.
+4.  **Wizard Pattern (Buyback/Repair)**:
+    - **State Management**: Use `WizardContext` and `useWizard` hook. Never prop-drill wizard state.
+    - **Actions**: Use `useWizardActions` for navigation and selection logic.
+    - **Pricing**: Use `useWizardPricing` for all estimate calculations.
+    - **Components**: Keep step components modular in `src/components/wizard/steps/`. Use `StepWrapper` for animations and `StepIndicator` for progress.
+    - **Services**: Complex logic (PDF generation, order submission) MUST go in `src/services/orderService.ts`.
+    - **Responsive Padding**: Wizard outer containers should use `p-3 sm:p-6 lg:p-8` to maximize mobile space.
 
 ## ⚠️ Common Pitfalls (Auto-Reject)
 - Renaming `proxy.ts` -> `middleware.ts`.
