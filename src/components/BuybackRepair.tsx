@@ -6,6 +6,8 @@ import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
 import { useRouter } from 'next/navigation';
 
+import { AnimatePresence } from 'framer-motion';
+
 import { createSlug } from '../utils/slugs';
 import { WizardProvider, useWizard } from '../context/WizardContext';
 import { useWizardActions } from '../hooks/useWizardActions';
@@ -120,20 +122,13 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         nextDisabled = !selectedBrand || !selectedModel;
     }
 
-    // Toggle logic for Step 3 repair issues (Search handling passed to actions)
-    const toggleRepairIssue = (issue: string) => {
-        // This is mainly for MobileBottomBar if it needs it, but mostly StepCondition handles it.
-        // Actually, MobileBottomBar doesn't need to toggle. StepCondition does.
-        // We expose dispatch for child if needed, but they use context.
-    };
-
     return (
         <div className="min-h-screen bg-gray-50/50 dark:bg-slate-950/50 pb-32">
-            <StepIndicator step={step} totalSteps={type === 'buyback' ? 5 : 5} type={type} />
+            <StepIndicator step={step} type={type} t={t} />
 
             <AnimatePresence mode="wait">
                 {step === 1 && (
-                    <StepWrapper key="step1">
+                    <StepWrapper key="step1" stepKey="step1">
                         <StepCategorySelection
                             type={type}
                             step={step}
@@ -143,7 +138,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                 )}
 
                 {step === 2 && (
-                    <StepWrapper key="step2">
+                    <StepWrapper key="step2" stepKey="step2">
                         <StepDeviceSelection
                             type={type}
                             step={step}
@@ -155,7 +150,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                 )}
 
                 {step === 3 && (
-                    <StepWrapper key="step3">
+                    <StepWrapper key="step3" stepKey="step3">
                         <StepCondition
                             type={type}
                             step={step}
@@ -166,13 +161,11 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                 )}
 
                 {step === 4 && (
-                    <StepWrapper key="step4">
+                    <StepWrapper key="step4" stepKey="step4">
                         <StepUserInfo
                             type={type}
                             step={step}
-                            onNext={handleSubmit} // Submit at end of step 4? No, step 5 is summary? 
-                            // Wait, original wizard had 4 steps? 
-                            // Step 4 is User Info & Submit.
+                            onNext={() => formRef.current?.requestSubmit()}
                             onBack={handleBack}
                             handleSubmit={handleSubmit}
                             formRef={formRef}
@@ -185,10 +178,8 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
             {/* Mobile Bottom Bar */}
             <MobileBottomBar
                 type={type}
-                step={step}
                 onNext={step === 4 ? () => formRef.current?.requestSubmit() : handleNext}
                 nextDisabled={nextDisabled || isLoadingData || isTransitioning}
-                isTransitioning={isTransitioning}
                 estimateDisplay={sidebarEstimate}
                 t={t}
             />
