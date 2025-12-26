@@ -415,7 +415,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                 price={minPrice}
             />
 
-            <div className="container mx-auto px-4 py-8">
+            <div className="container mx-auto px-1 sm:px-4 py-8">
 
                 {/* Hub Map (Only for Hub pages) */}
                 {isHub && (

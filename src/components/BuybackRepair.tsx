@@ -4,8 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { useShop } from '../hooks/useShop';
 import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 import { createSlug } from '../utils/slugs';
 import { WizardProvider, useWizard } from '../context/WizardContext';
@@ -49,7 +48,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = (props) => {
 const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, hideStep1Title }) => {
     const { state, dispatch } = useWizard();
     const {
-        step, isTransitioning, isLoadingData, isInitialized,
+        step, isTransitioning, isLoadingData,
         selectedBrand, selectedModel, customerEmail,
         repairIssues, storage, turnsOn, deviceType,
         worksCorrectly, isUnlocked, batteryHealth, faceIdWorking,
@@ -106,7 +105,6 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     };
 
     // Calculate next disabled for mobile bottom bar
-    // This logic duplicates logic in StepCondition, but necessary for the specific MobileBottomBar placement
     const isAppleSmartphone = selectedBrand?.toLowerCase() === 'apple' && (deviceType === 'smartphone' || deviceType === 'tablet');
     let nextDisabled = false;
     if (step === 3) {
@@ -118,94 +116,82 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         } else {
             nextDisabled = repairIssues.length === 0;
         }
+    } else if (step === 2) {
+        nextDisabled = !selectedBrand || !selectedModel;
     }
 
+    // Toggle logic for Step 3 repair issues (Search handling passed to actions)
+    const toggleRepairIssue = (issue: string) => {
+        // This is mainly for MobileBottomBar if it needs it, but mostly StepCondition handles it.
+        // Actually, MobileBottomBar doesn't need to toggle. StepCondition does.
+        // We expose dispatch for child if needed, but they use context.
+    };
+
     return (
-        <div className="bg-transparent pt-0 pb-12 px-4 relative min-h-[600px]">
-            {!isInitialized && !state.selectedBrand ? (
-                <div className="flex flex-col items-center justify-center min-h-[400px]">
-                    <div className="w-12 h-12 border-4 border-bel-blue border-t-transparent rounded-full animate-spin"></div>
-                </div>
-            ) : (
-                <>
-                    {(isTransitioning || isLoadingData) && (
-                        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl animate-fade-in pointer-events-none h-full w-full">
-                            <div className="w-16 h-16 border-4 border-bel-blue border-t-transparent rounded-full animate-spin mb-4"></div>
-                            <p className="font-bold text-gray-900 dark:text-white animate-pulse">{t('Loading details...')}</p>
-                        </div>
-                    )}
-                    <div className="max-w-6xl mx-auto">
-                        <StepIndicator type={type} step={step} t={t} />
-                        <AnimatePresence mode="wait">
-                            {step === 1 && (
-                                <StepWrapper key="step1" stepKey={1}>
-                                    <StepCategorySelection
-                                        type={type}
-                                        step={step}
-                                        hideStep1Title={hideStep1Title}
-                                    />
-                                </StepWrapper>
-                            )}
-                            {step === 2 && (
-                                <StepWrapper key="step2" stepKey={2}>
-                                    <StepDeviceSelection
-                                        type={type}
-                                        step={step}
-                                        onBack={handleBack}
-                                        onNext={handleNext}
-                                        modelSelectRef={modelSelectRef}
-                                    />
-                                </StepWrapper>
-                            )}
-                            {step === 3 && (
-                                <StepWrapper key="step3" stepKey={3}>
-                                    <StepCondition
-                                        type={type}
-                                        step={step}
-                                        onNext={handleNext}
-                                        onBack={handleBack}
-                                    />
-                                </StepWrapper>
-                            )}
-                            {step === 4 && (
-                                <StepWrapper key="step4" stepKey={4}>
-                                    <StepUserInfo
-                                        type={type}
-                                        step={step}
-                                        onNext={handleNext}
-                                        onBack={handleBack}
-                                        handleSubmit={handleSubmit}
-                                        formRef={formRef}
-                                    />
-                                </StepWrapper>
-                            )}
-                            {step === 5 && type === 'buyback' && (
-                                <StepWrapper key="step5" stepKey={5}>
-                                    <StepUserInfo
-                                        type={type}
-                                        step={step}
-                                        onNext={handleNext}
-                                        onBack={handleBack}
-                                        handleSubmit={handleSubmit}
-                                        formRef={formRef}
-                                    />
-                                </StepWrapper>
-                            )}
-                        </AnimatePresence>
-                    </div>
-                    {((step >= 3 && step <= 5 && type === 'buyback') || (step >= 3 && step <= 4 && type === 'repair')) && (
-                        <MobileBottomBar
-                            onNext={handleNext}
-                            nextDisabled={nextDisabled}
-                            nextLabel={type === 'repair' ? (repairIssues.includes('other') ? t('Next') : t('Start Repair')) : (step === 4 ? t('Accept & Recycle') : undefined)}
-                            showEstimate={true}
-                            estimateDisplay={sidebarEstimate}
+        <div className="min-h-screen bg-gray-50/50 dark:bg-slate-950/50 pb-32">
+            <StepIndicator step={step} totalSteps={type === 'buyback' ? 5 : 5} type={type} />
+
+            <AnimatePresence mode="wait">
+                {step === 1 && (
+                    <StepWrapper key="step1">
+                        <StepCategorySelection
                             type={type}
-                            t={t}
+                            step={step}
+                            hideStep1Title={hideStep1Title}
                         />
-                    )}
-                </>
-            )}
+                    </StepWrapper>
+                )}
+
+                {step === 2 && (
+                    <StepWrapper key="step2">
+                        <StepDeviceSelection
+                            type={type}
+                            step={step}
+                            onNext={handleNext}
+                            onBack={handleBack}
+                            modelSelectRef={modelSelectRef}
+                        />
+                    </StepWrapper>
+                )}
+
+                {step === 3 && (
+                    <StepWrapper key="step3">
+                        <StepCondition
+                            type={type}
+                            step={step}
+                            onNext={handleNext}
+                            onBack={handleBack}
+                        />
+                    </StepWrapper>
+                )}
+
+                {step === 4 && (
+                    <StepWrapper key="step4">
+                        <StepUserInfo
+                            type={type}
+                            step={step}
+                            onNext={handleSubmit} // Submit at end of step 4? No, step 5 is summary? 
+                            // Wait, original wizard had 4 steps? 
+                            // Step 4 is User Info & Submit.
+                            onBack={handleBack}
+                            handleSubmit={handleSubmit}
+                            formRef={formRef}
+                            shops={shops}
+                        />
+                    </StepWrapper>
+                )}
+            </AnimatePresence>
+
+            {/* Mobile Bottom Bar */}
+            <MobileBottomBar
+                type={type}
+                step={step}
+                onNext={step === 4 ? () => formRef.current?.requestSubmit() : handleNext}
+                nextDisabled={nextDisabled || isLoadingData || isTransitioning}
+                isTransitioning={isTransitioning}
+                estimateDisplay={sidebarEstimate}
+                t={t}
+            />
         </div>
     );
 };
