@@ -1,7 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { BuybackPriceRecord, RepairPriceRecord } from '../types';
+import { pricingService } from '../services/pricingService';
+import { createSlug } from '../utils/slugs';
 
 /**
  * STATE DEFINITION
@@ -166,6 +168,42 @@ const WizardContext = createContext<WizardContextType | undefined>(undefined);
 
 export const WizardProvider: React.FC<{ children: ReactNode, initialProps?: Partial<WizardState> }> = ({ children, initialProps }) => {
     const [state, dispatch] = useReducer(wizardReducer, { ...initialState, ...initialProps });
+
+    // --- Global Pricing Fetcher (Phase 1 Fix) ---
+    useEffect(() => {
+        const { selectedBrand, selectedModel, pricingData } = state;
+
+        // 1. Check eligibility
+        if (!selectedBrand || !selectedModel) return;
+
+        const slug = createSlug(`${selectedBrand} ${selectedModel}`);
+
+        // 2. Check cache/loading status
+        if (pricingData.loadedForModel === slug || pricingData.isLoading) return;
+
+        // 3. Fetch
+        const fetchPricing = async () => {
+            dispatch({ type: 'SET_PRICING_DATA', payload: { isLoading: true } });
+            try {
+                const data = await pricingService.fetchDevicePricing(slug);
+                dispatch({
+                    type: 'SET_PRICING_DATA',
+                    payload: {
+                        repairPrices: data.repairPrices,
+                        buybackPrices: data.buybackPrices,
+                        deviceImage: data.deviceImage,
+                        isLoading: false,
+                        loadedForModel: slug
+                    }
+                });
+            } catch (err) {
+                console.error("Global pricing fetch failed", err);
+                dispatch({ type: 'SET_PRICING_DATA', payload: { isLoading: false } });
+            }
+        };
+
+        fetchPricing();
+    }, [state.selectedBrand, state.selectedModel, state.pricingData.loadedForModel, state.pricingData.isLoading]);
 
     return (
         <WizardContext.Provider value={{ state, dispatch }}>

@@ -39,19 +39,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {children}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                  for(let registration of registrations) {
-                    registration.unregister();
-                  }
-                });
-              }
-            `,
-          }}
-        />
+        <script async src="https://embed.sendcloud.sc/spp/1.0.0/api.min.js"></script>
       </body>
     </html>
   );

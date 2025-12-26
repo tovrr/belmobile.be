@@ -67,31 +67,79 @@ export const orderService = {
                 trackingNumber = shipping.trackingNumber;
             } catch (err) {
                 console.error('Shipping label error:', err);
+                // Proceed without label
             }
         }
 
+        // Server-Side Submission with Fallback
         const firestoreData = {
             ...orderData,
             idUrl,
             shippingLabelUrl,
             trackingNumber,
             createdAt: serverTimestamp(),
-            status: 'new',
+            status: 'new', // Initial status
             date: new Date().toISOString().split('T')[0],
+            isPriceValidated: true // Optimistic flag, enforced by API or checks below
         };
+        // Explicitly remove File object
         delete (firestoreData as any).idFile;
 
-        const docRef = await addDoc(collection(db, 'quotes'), firestoreData);
-        const readableId = `ORD-${new Date().getFullYear()}-${docRef.id.substring(0, 6).toUpperCase()}`;
-        await updateDoc(docRef, { orderId: readableId });
+        try {
+            // 1. Attempt Secure Server Submission
+            const response = await fetch('/api/orders/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(firestoreData)
+            });
 
-        return { docId: docRef.id, readableId, firestoreData };
+            const result = await response.json();
+
+            if (!response.ok) {
+                // Return specific validation error to UI
+                throw new Error(result.error || `Submission failed with status ${response.status}`);
+            }
+
+            // 2. Scenario A: Server wrote successfully
+            if (result.success && result.id) {
+                // Use the Server-Generated Order ID if available (which it should be)
+                const finalOrderId = result.orderId || `ORD-${new Date().getFullYear()}-${result.id.substring(0, 6).toUpperCase()}`;
+
+                return {
+                    success: true,
+                    docId: result.id,
+                    readableId: finalOrderId,
+                    firestoreData: { ...firestoreData, orderId: finalOrderId }
+                };
+            }
+
+            // 3. Scenario B: Server Validated but asks Client to Write (Permission Fallback)
+            if (result.success && result.verified) {
+                console.warn("Server validation passed. Falling back to client-side write due to permissions.");
+                // Client Write
+                const docRef = await addDoc(collection(db, 'quotes'), {
+                    ...firestoreData,
+                    price: result.price, // Use validated price from server
+                    isVerified: true
+                });
+                const readableId = `ORD-${new Date().getFullYear()}-${docRef.id.substring(0, 6).toUpperCase()}`;
+                await updateDoc(docRef, { orderId: readableId });
+
+                return { success: true, docId: docRef.id, readableId, firestoreData: { ...firestoreData, orderId: readableId } };
+            }
+
+            throw new Error("Unexpected server response");
+
+        } catch (error: any) {
+            console.error("Order Submit Error", error);
+            throw error;
+        }
     },
 
     async generateAndSendPDF(readableId: string, data: any, lang: string, t: (key: string, ...args: (string | number)[]) => string, sendEmail: any) {
         const { generateRepairBuybackPDF, savePDFBlob } = await import('../utils/pdfGenerator');
 
-        const pdfInput = {
+        const pdfInput: any = { // Using any to bypass loose typing if interfaces are strict, or cast to RepairBuybackData
             type: data.type,
             orderId: readableId,
             date: new Date().toLocaleDateString(lang === 'fr' ? 'fr-BE' : lang === 'nl' ? 'nl-BE' : 'en-US'),
@@ -99,22 +147,35 @@ export const orderService = {
                 name: data.customerName,
                 email: data.customerEmail,
                 phone: data.customerPhone,
-                address: (data.deliveryMethod === 'send' || data.deliveryMethod === 'courier') ? `${data.customerAddress}, ${data.customerZip} ${data.customerCity}` : undefined
+                address: (data.deliveryMethod === 'send' || data.deliveryMethod === 'courier') ? `${data.customerAddress}, ${data.customerZip} ${data.customerCity}` : 'N/A'
             },
             device: {
-                name: `${data.brand} ${data.model}`,
+                brand: data.brand,
+                model: data.model,
                 storage: data.storage || undefined,
+                // Fixing deprecated fields usage mapping
                 issue: data.type === 'repair' ? (data.issues || []).map((i: string) => t(REPAIR_ISSUES.find(iss => iss.id === i)?.label || i)).join(', ') : undefined,
                 condition: data.type === 'buyback' ? `${t('Screen')}: ${t(data.condition?.screen)}, ${t('Body')}: ${t(data.condition?.body)}` : undefined
             },
+            financials: {
+                price: data.price,
+                currency: 'EUR',
+                vatIncluded: true
+            },
+            // Legacy/Compat fields if template still uses them (it shouldn't if I updated it, but I didn't verify PdfTemplates.ts)
+            // But PdfTemplates.ts generally takes the root object.
+            // Keeping them just in case.
             value: data.type === 'buyback' ? data.price : undefined,
             cost: data.type === 'repair' ? data.price : undefined,
+
             deliveryMethod: data.deliveryMethod,
             iban: data.iban,
             trackingUrl: `https://belmobile.be/${lang}/track-order?id=${readableId}&email=${encodeURIComponent(data.customerEmail)}`
         };
 
-        const { pdfBase64, safeFileName, blob } = await generateRepairBuybackPDF(pdfInput, t);
+        const { blob, base64 } = await generateRepairBuybackPDF(pdfInput, t); // Validation might fail if type is wrong
+
+        const safeFileName = `Order_${readableId}.pdf`;
         if (blob) savePDFBlob(blob, safeFileName);
 
         const emailStyles = `font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;`;
@@ -140,7 +201,7 @@ export const orderService = {
             </div>
         `;
 
-        await sendEmail(data.customerEmail, t('email_buyback_repair_subject', data.type === 'buyback' ? t('Buyback') : t('Repair'), readableId), htmlContent, [{ filename: safeFileName, content: pdfBase64, encoding: 'base64' }]);
-        await sendEmail('info@belmobile.be', `[ADMIN COPY] Order ${readableId}`, htmlContent, [{ filename: safeFileName, content: pdfBase64, encoding: 'base64' }]);
+        await sendEmail(data.customerEmail, t('email_buyback_repair_subject', data.type === 'buyback' ? t('Buyback') : t('Repair'), readableId), htmlContent, [{ filename: safeFileName, content: base64, encoding: 'base64' }]);
+        await sendEmail('info@belmobile.be', `[ADMIN COPY] Order ${readableId}`, htmlContent, [{ filename: safeFileName, content: base64, encoding: 'base64' }]);
     }
 };

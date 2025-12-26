@@ -124,17 +124,17 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <div className="p-6 space-y-6">
                     <div className="space-y-3 text-sm">
                         {deviceType && (
-                            <div className="flex justify-between">
-                                <span className="text-gray-500">{t('Device')}</span>
-                                <span className="font-medium text-gray-900 dark:text-white truncate max-w-[150px] text-right">
+                            <div className="flex justify-between items-start">
+                                <span className="text-gray-500 shrink-0">{t('Device')}</span>
+                                <span className="font-medium text-gray-900 dark:text-white text-right break-all pl-2">
                                     {t(DEVICE_TYPES.find(d => d.id === deviceType)?.label || '')}
                                 </span>
                             </div>
                         )}
                         {selectedBrand && (
-                            <div className="flex justify-between">
-                                <span className="text-gray-500">{t('Model')}</span>
-                                <span className="font-medium text-gray-900 dark:text-white truncate max-w-[150px] text-right">
+                            <div className="flex justify-between items-start">
+                                <span className="text-gray-500 shrink-0">{t('Model')}</span>
+                                <span className="font-medium text-gray-900 dark:text-white text-right break-all pl-2">
                                     {selectedBrand && selectedModel ? (
                                         selectedModel.toLowerCase().includes(selectedBrand.toLowerCase())
                                             ? slugToDisplayName(selectedModel)
@@ -143,6 +143,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 </span>
                             </div>
                         )}
+
+                        {/* ... Existing Storage/Issues Blocks ... */}
+
+                        {/* ... (Previous blocks remain similar but we jump to button logic) ... */}
+
                         {isBuyback && storage && (
                             <div className="flex justify-between">
                                 <span className="text-gray-500">{t('Storage')}</span>
@@ -184,7 +189,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
                                         return (
                                             <li key={issueId} className="flex justify-between text-gray-900 dark:text-white font-medium">
-                                                <span className="truncate max-w-[150px]" title={label}>{label}</span>
+                                                <span className="break-all max-w-[150px]" title={label}>{label}</span>
                                                 <span>
                                                     {issueId === 'other' ? (
                                                         <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span>
@@ -279,7 +284,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                     )}
 
                     <div className="space-y-3">
-                        {step < 5 && (
+                        {/* Display Next button for non-final steps */}
+                        {((isBuyback && step < 5) || (!isBuyback && step < 4)) && (
                             <button
                                 onClick={onNext}
                                 disabled={nextDisabled}
@@ -288,6 +294,19 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 {nextLabel || t('Next')}
                             </button>
                         )}
+
+                        {/* Display Complete Request button for final steps */}
+                        {((isBuyback && step === 5) || (!isBuyback && step === 4)) && (
+                            <button
+                                onClick={onNext} // Reusing onNext for submission as it triggers the handler in StepUserInfo
+                                disabled={nextDisabled}
+                                className="w-full bg-bel-blue text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-100 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                <CheckBadgeIcon className="w-5 h-5" />
+                                {t('Complete Request')}
+                            </button>
+                        )}
+
                         {step > 1 && (
                             <button
                                 onClick={handleBack}

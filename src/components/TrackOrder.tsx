@@ -53,6 +53,7 @@ const TrackOrder: React.FC = () => {
                 data = docSnap.data();
             } else {
                 // 2. If not found, try Querying by 'orderId' field (the "ORD-..." format)
+                console.log(`[TrackOrder] Searching by field 'orderId' == ${idToCheck.trim()}`);
                 const q = query(
                     collection(db, 'quotes'),
                     where('orderId', '==', idToCheck.trim())
@@ -62,10 +63,14 @@ const TrackOrder: React.FC = () => {
                     docSnap = querySnapshot.docs[0]; // Take the first match
                     data = docSnap.data();
                     docId = docSnap.id;
+                    console.log(`[TrackOrder] Found document via orderId: ${docId}`);
+                } else {
+                    console.log(`[TrackOrder] No document found for orderId: ${idToCheck.trim()}`);
                 }
             }
 
             if (data) {
+                console.log(`[TrackOrder] validating email: ${emailToCheck} vs ${data.customerEmail || data.email}`);
                 // Simple email verification (case-insensitive)
                 if (data.customerEmail && data.customerEmail.toLowerCase() === emailToCheck.toLowerCase().trim()) {
                     setStatus({

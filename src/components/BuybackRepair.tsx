@@ -47,6 +47,9 @@ const BuybackRepair: React.FC<BuybackRepairProps> = (props) => {
     );
 };
 
+import { auth } from '../firebase';
+import { signInAnonymously } from 'firebase/auth';
+
 const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, hideStep1Title }) => {
     const { state, dispatch } = useWizard();
     const {

@@ -22,6 +22,10 @@ async function getTranslations(lang: string): Promise<TranslationDict> {
         const fileContent = await fs.readFile(filePath, 'utf8');
         return JSON.parse(fileContent);
     } catch (error) {
+        // Ignorer les erreurs pour les fichiers système ou robots
+        if (lang === 'favicon.ico' || lang === 'robots.txt' || lang === 'sitemap.xml' || lang.startsWith('.well-known')) {
+            return {};
+        }
         console.error(`Missing translation file for ${lang}`, error);
         return {};
     }

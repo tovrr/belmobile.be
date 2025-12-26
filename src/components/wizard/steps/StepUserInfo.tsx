@@ -110,9 +110,9 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
 
     // SendCloud / Service Point logic
     const openServicePointPicker = () => {
-        // Logic placeholder
-        if (typeof window !== 'undefined' && (window as any).sendcloud) {
-            (window as any).sendcloud.servicePointPicker.open({
+        const sendcloud = (window as any).sendcloud;
+        if (typeof window !== 'undefined' && sendcloud && sendcloud.servicePointPicker) {
+            sendcloud.servicePointPicker.open({
                 apiKey: 'AIzaSyDbBU2HDNb_CravJAIbYKqsWhhbAgVBelY', // TODO: Move to config
                 country: 'be',
                 language: 'en-us',
@@ -122,6 +122,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
             });
         } else {
             console.warn("SendCloud not loaded");
+            alert(t ? t('Service Point Picker is loading...') : "Service Point Picker is loading...");
         }
     };
 
@@ -762,7 +763,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 type="submit"
                                 disabled={!termsAccepted}
                                 variant="primary"
-                                className="w-full mt-6"
+                                className="w-full mt-6 lg:hidden"
                             >
                                 {t('Confirm Request')}
                             </Button>

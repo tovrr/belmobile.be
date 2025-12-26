@@ -138,6 +138,33 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
         trackingInfo: t('pdf_tracking_info'),
         trackingUrl: quote.orderId && quote.customerEmail
             ? `https://belmobile.be/track-order?id=${quote.orderId}&email=${encodeURIComponent(quote.customerEmail)}`
-            : undefined
+            : undefined,
+        labels: {
+            orderId: t('Order ID'),
+            date: t('Date'),
+            method: t('Method'),
+            clientDetails: t('Customer Details'),
+            name: t('Name'),
+            email: t('Email'),
+            phone: t('Phone'),
+            address: t('Address'),
+            featuresSpecs: t('Device Details'),
+            shop: t('Shop'),
+            model: t('Model'),
+            // repairDetails: t('Description'), // Not in interface
+            // buybackDetails: t('Description'), // Not in interface
+            // financials: t('Financials'), // Not in interface
+            paymentIban: t('Payment IBAN'),
+            scanToTrack: t('Scan to Track'),
+            description: t('Description'),
+            price: t('Price'),
+            // vatIncluded: t('VAT Included'), // Not in interface
+            // total: t('Total'), // Not in interface
+            // subtotal: t('Subtotal'), // Not in interface
+            followOrder: t('Follow Order'),
+            nextSteps: t('Next Steps'),
+            page: t('Page'),
+            of: t('of')
+        }
     };
 };
