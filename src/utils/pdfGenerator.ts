@@ -129,7 +129,27 @@ export const generateReservationPDF = async (data: ReservationData, t: (key: str
         totalLabel: t('pdf_total_cost'),
         totalPrice: data.productPrice,
         nextSteps: data.nextSteps || [],
-        footerHelpText: capitalizedHelp
+        footerHelpText: capitalizedHelp,
+        labels: {
+            orderId: t('Order ID'),
+            date: t('Date'),
+            method: t('Method'),
+            clientDetails: t('Customer Details'),
+            name: t('Name'),
+            email: t('Email'),
+            phone: t('Phone'),
+            address: t('Address'),
+            shop: t('Shop'),
+            featuresSpecs: t('Features & Specs'),
+            description: t('Description'),
+            price: t('Price'),
+            paymentIban: t('Payment IBAN'),
+            followOrder: t('Track Your Order'),
+            nextSteps: t('Next Steps'),
+            scanToTrack: t('Scan to Track'),
+            page: t('Page'),
+            of: t('of')
+        }
     };
 
     // 2. Generate
@@ -196,7 +216,27 @@ export const generateRepairBuybackPDF = async (data: RepairBuybackData, t: (key:
         iban: data.iban,
         footerHelpText: capitalizedHelp,
         trackingInfo: t('pdf_tracking_info'),
-        trackingUrl: data.trackingUrl
+        trackingUrl: data.trackingUrl,
+        labels: {
+            orderId: t('Order ID'),
+            date: t('Date'),
+            method: t('Method'),
+            clientDetails: t('Customer Details'),
+            name: t('Name'),
+            email: t('Email'),
+            phone: t('Phone'),
+            address: t('Address'),
+            model: t('Model'),
+            featuresSpecs: t('Features & Specs'),
+            description: t('Description'),
+            price: t('Price'),
+            paymentIban: t('Payment IBAN'),
+            followOrder: t('Track Your Order'),
+            nextSteps: t('Next Steps'),
+            scanToTrack: t('Scan to Track'),
+            page: t('Page'),
+            of: t('of')
+        }
     };
 
     // 2. Generate

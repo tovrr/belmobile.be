@@ -10,6 +10,7 @@ import { useWizard } from '../../../context/WizardContext';
 import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useWizardPricing } from '../../../hooks/useWizardPricing';
 import { useLanguage } from '../../../hooks/useLanguage';
+import { slugToDisplayName } from '../../../utils/slugs';
 
 interface StepDeviceSelectionProps {
     type: 'buyback' | 'repair';
@@ -47,21 +48,33 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
     // Local handler to wrap the action if needed, or stick to direct usage
     const onBrandClick = (brand: string) => {
         handleBrandSelect(brand);
-        // Scroll or focus handling if needed
+        // Wait for state update/render then scroll
+        setTimeout(() => {
+            if (modelSelectRef?.current) {
+                modelSelectRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 100);
     };
 
     return (
         <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
             <div className="flex-1">
                 <div className="flex items-center gap-2 mb-8">
-                    <button onClick={onBack} className="lg:hidden p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
+                    <button
+                        onClick={onBack}
+                        type="button"
+                        className="lg:hidden p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors"
+                        aria-label={t('Back')}
+                    >
                         <ChevronLeftIcon className="h-6 w-6" />
                     </button>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('Select Brand & Model')}</h2>
                 </div>
 
                 <div className="mb-8">
-                    <label className="block text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">{t('Brand')}</label>
+                    <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
+                        {t('Brand')}
+                    </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                         {brands.map((brand: string, index: number) => (
                             <button
@@ -95,7 +108,9 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
 
                 {selectedBrand && (
                     <div ref={modelSelectRef} className="mb-8 animate-fade-in">
-                        <label className="block text-sm font-bold text-gray-500 mb-3 uppercase tracking-wider">{t('Model')}</label>
+                        <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
+                            {t('Model')}
+                        </label>
                         <div className="relative min-h-[56px]">
                             <Select
                                 value={selectedModel || ''}

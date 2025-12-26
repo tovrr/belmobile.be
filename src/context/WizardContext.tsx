@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import { BuybackPriceRecord, RepairPriceRecord } from '../types';
 
 /**
  * STATE DEFINITION
@@ -45,6 +46,15 @@ export interface WizardState {
     modelsData: Record<string, Record<string, number>>;
     specsData: Record<string, string[]>;
 
+    // Global Pricing Persistence (Phase 1 Fix)
+    pricingData: {
+        repairPrices: Record<string, number>;
+        buybackPrices: BuybackPriceRecord[];
+        deviceImage: string | null;
+        isLoading: boolean;
+        loadedForModel: string | null;
+    };
+
     // UI/UX Logic State
     isTransitioning: boolean;
     isLoadingData: boolean;
@@ -85,6 +95,13 @@ const initialState: WizardState = {
     honeypot: '',
     modelsData: {},
     specsData: {},
+    pricingData: {
+        repairPrices: {},
+        buybackPrices: [],
+        deviceImage: null,
+        isLoading: false,
+        loadedForModel: null,
+    },
     isTransitioning: false,
     isLoadingData: false,
     isInitialized: false,
@@ -104,6 +121,7 @@ type WizardAction =
     | { type: 'SET_USER_INFO'; payload: Partial<WizardState> }
     | { type: 'SET_UI_STATE'; payload: Partial<WizardState> }
     | { type: 'SET_WIZARD_DATA'; payload: Partial<WizardState> }
+    | { type: 'SET_PRICING_DATA'; payload: Partial<WizardState['pricingData']> } // Phase 1 Fix
     | { type: 'RESET_WIZARD' }
     | { type: 'HYDRATE'; payload: Partial<WizardState> };
 
@@ -124,6 +142,11 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
         case 'HYDRATE':
             const updateProps = action.type === 'HYDRATE' ? { isInitialized: true } : {};
             return { ...state, ...action.payload, ...updateProps };
+        case 'SET_PRICING_DATA':
+            return {
+                ...state,
+                pricingData: { ...state.pricingData, ...action.payload }
+            };
         case 'RESET_WIZARD':
             return { ...initialState, isInitialized: true };
         default:

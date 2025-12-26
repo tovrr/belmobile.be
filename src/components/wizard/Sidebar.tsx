@@ -35,11 +35,11 @@ interface SidebarProps {
     handleBack: () => void;
     nextDisabled?: boolean;
     nextLabel?: string;
-    // Dynamic Pricing & Logic Props needed for rendering details
     selectedScreenQuality?: string | null;
     repairEstimates: any;
     dynamicRepairPrices?: any;
     getSingleIssuePrice?: (id: string) => number | null;
+    loading?: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -57,8 +57,9 @@ const Sidebar: React.FC<SidebarProps> = ({
     nextLabel,
     selectedScreenQuality,
     repairEstimates,
-    dynamicRepairPrices,
-    getSingleIssuePrice
+    dynamicRepairPrices, // This prop is no longer used in the component logic for price calculation, but kept for now if needed elsewhere.
+    getSingleIssuePrice,
+    loading
 }) => {
     const { t } = useLanguage();
     const isBuyback = type === 'buyback';
@@ -106,7 +107,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                         </AnimatePresence>
                     )}
                     <p className="text-blue-100 text-sm font-medium relative z-10">
-                        {(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase())) ? slugToDisplayName(selectedModel) : `${selectedBrand} ${slugToDisplayName(selectedModel || '')}`}
+                        {selectedBrand && selectedModel ? (
+                            selectedModel.toLowerCase().includes(selectedBrand.toLowerCase())
+                                ? slugToDisplayName(selectedModel)
+                                : `${selectedBrand} ${slugToDisplayName(selectedModel)}`
+                        ) : selectedBrand || ''}
                     </p>
                 </div>
 
@@ -124,7 +129,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <div className="flex justify-between">
                                 <span className="text-gray-500">{t('Model')}</span>
                                 <span className="font-medium text-gray-900 dark:text-white truncate max-w-[150px] text-right">
-                                    {(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase())) ? slugToDisplayName(selectedModel) : `${selectedBrand} ${slugToDisplayName(selectedModel || '')}`}
+                                    {selectedBrand && selectedModel ? (
+                                        selectedModel.toLowerCase().includes(selectedBrand.toLowerCase())
+                                            ? slugToDisplayName(selectedModel)
+                                            : `${selectedBrand} ${slugToDisplayName(selectedModel)}`
+                                    ) : selectedBrand || ''}
                                 </span>
                             </div>
                         )}
@@ -171,7 +180,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                                             <li key={issueId} className="flex justify-between text-gray-900 dark:text-white font-medium">
                                                 <span className="truncate max-w-[150px]" title={label}>{label}</span>
                                                 <span>
-                                                    {issueId === 'other' ? <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span> : (price > 0 ? <>&euro;{price}</> : <span>-</span>)}
+                                                    {issueId === 'other' ? (
+                                                        <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span>
+                                                    ) : (
+                                                        price && price > 0 ? (
+                                                            <>&euro;{price}</>
+                                                        ) : (
+                                                            price === 0 ? t('contact_for_price') : <span>-</span>
+                                                        )
+                                                    )}
                                                 </span>
                                             </li>
                                         );
@@ -197,9 +214,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                             </div>
                         </div>
                         <div className="text-3xl font-extrabold text-bel-dark dark:text-white">
-                            {typeof estimateDisplay === 'number' ? (
-                                estimateDisplay > 0 ? <>&euro;{estimateDisplay}</> : (estimateDisplay === -1 ? t('contact_for_price') : <span className="text-gray-400">-</span>)
-                            ) : estimateDisplay}
+                            {loading ? (
+                                <span className="animate-pulse opacity-50">...</span>
+                            ) : (
+                                typeof estimateDisplay === 'number' ? (
+                                    estimateDisplay > 0 ? <>&euro;{estimateDisplay}</> : (estimateDisplay === -1 ? t('contact_for_price') : <span className="text-gray-400">-</span>)
+                                ) : estimateDisplay
+                            )}
                         </div>
                         <p className="text-xs font-medium text-gray-500 mt-2">
                             {isBuyback ? t('Paid instantly via cash or bank transfer') : t('Includes labor and premium parts')}
@@ -257,27 +278,4 @@ const Sidebar: React.FC<SidebarProps> = ({
 };
 
 // Optimization: Prevent re-renders on text input changes in main form
-export default memo(Sidebar, (prev, next) => {
-    // Return TRUE if props are equal (DO NOT RE-RENDER)
-
-    // Critical: If step changes, always re-render
-    if (prev.step !== next.step) return false;
-
-    // If brand/model/issues/storage change, re-render
-    if (
-        prev.selectedBrand !== next.selectedBrand ||
-        prev.selectedModel !== next.selectedModel ||
-        prev.storage !== next.storage ||
-        prev.repairIssues !== next.repairIssues ||
-        prev.selectedScreenQuality !== next.selectedScreenQuality
-    ) return false;
-
-    // Deep compare estimateDisplay (it's a node, but cheap refs usually)
-    // Actually, simple equality might fail if parent reconstructs it.
-    // However, since we pass scalar props like prices/storage separately, 
-    // we can trust that if those didn't change, the display SHOULD be same.
-    // The parent passes `estimateDisplay` as a constructed ReactNode.
-    // We can assume if prices didn't change, it's fine.
-
-    return true; // Assume equal otherwise
-});
+export default memo(Sidebar);

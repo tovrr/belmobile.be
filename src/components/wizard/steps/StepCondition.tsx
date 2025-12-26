@@ -7,6 +7,7 @@ import { useWizard } from '../../../context/WizardContext';
 import { useWizardPricing } from '../../../hooks/useWizardPricing';
 import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useLanguage } from '../../../hooks/useLanguage';
+import { slugToDisplayName } from '../../../utils/slugs';
 
 interface StepConditionProps {
     type: 'buyback' | 'repair';
@@ -41,7 +42,8 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
         repairEstimates,
         dynamicRepairPrices,
         dynamicBuybackPrices,
-        getSingleIssuePrice
+        getSingleIssuePrice,
+        loading
     } = useWizardPricing(type);
 
     const {
@@ -94,7 +96,12 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
             <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
                 <div className="flex-1 space-y-8">
                     <div className="flex items-center gap-2 mb-6">
-                        <button onClick={onBack} className="lg:hidden p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
+                        <button
+                            onClick={onBack}
+                            type="button"
+                            className="lg:hidden p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors"
+                            aria-label={t('Back')}
+                        >
                             <ChevronLeftIcon className="h-6 w-6" />
                         </button>
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('Functionality & Specs')}</h2>
@@ -102,7 +109,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
 
                     {/* Storage Selection */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-500 mb-3 uppercase">{t('Storage')}</label>
+                        <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Storage')}</label>
                         <div className="grid grid-cols-3 gap-3">
                             {(() => {
                                 const staticOptions = (specsData && selectedModel ? specsData[selectedModel] : []) || [];
@@ -141,7 +148,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
 
                     {/* Functional Questions */}
                     <div className="space-y-4">
-                        <label className="block text-sm font-bold text-gray-500 uppercase">{t('Functionality')}</label>
+                        <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Functionality')}</label>
                         {[
                             { label: 'Turns On?', state: turnsOn, setter: setTurnsOn },
                             { label: 'Everything Works?', state: worksCorrectly, setter: setWorksCorrectly },
@@ -180,7 +187,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                     {/* Battery Health (Apple Only) */}
                     {isAppleSmartphone && (
                         <div className={turnsOn === false ? 'opacity-50 pointer-events-none' : ''}>
-                            <label className="block text-sm font-bold text-gray-500 mb-3 uppercase">{t('Battery Health')}</label>
+                            <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Battery Health')}</label>
                             <div className="grid grid-cols-2 gap-3">
                                 <button type="button" onClick={() => setBatteryHealth('normal')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border ${batteryHealth === 'normal' ? 'bg-green-600 text-white border-green-600' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}>{t('Normal (Above 80%)')}</button>
                                 <button type="button" onClick={() => setBatteryHealth('service')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border ${batteryHealth === 'service' ? 'bg-red-600 text-white border-red-600' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'}`}>{t('Service Required (Below 80%)')}</button>
@@ -206,6 +213,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                     repairEstimates={repairEstimates}
                     dynamicRepairPrices={dynamicRepairPrices}
                     getSingleIssuePrice={getSingleIssuePrice}
+                    loading={loading}
                 />
             </div>
         );
@@ -223,12 +231,17 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
             <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
                 <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                        <button onClick={onBack} className="lg:hidden p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
+                        <button
+                            onClick={onBack}
+                            type="button"
+                            className="lg:hidden p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors"
+                            aria-label={t('Back')}
+                        >
                             <ChevronLeftIcon className="h-6 w-6" />
                         </button>
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('What needs fixing?')}</h2>
                     </div>
-                    <p className="text-gray-500 mb-8">{selectedBrand} {selectedModel}</p>
+                    <p className="text-gray-500 mb-8">{selectedBrand} {slugToDisplayName(selectedModel || '')}</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                         {REPAIR_ISSUES.filter(issue => {
@@ -390,6 +403,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                     repairEstimates={repairEstimates}
                     dynamicRepairPrices={dynamicRepairPrices}
                     getSingleIssuePrice={getSingleIssuePrice}
+                    loading={loading}
                 />
             </div>
         );

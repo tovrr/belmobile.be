@@ -10,7 +10,7 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
     const { state } = useWizard();
     const { t } = useLanguage();
 
-    const { repairPrices: dynamicRepairPrices, buybackPrices: dynamicBuybackPrices } = usePublicPricing(
+    const { repairPrices: dynamicRepairPrices, buybackPrices: dynamicBuybackPrices, loading } = usePublicPricing(
         state.selectedModel ? createSlug(`${state.selectedBrand} ${state.selectedModel}`) : ''
     );
 
@@ -85,30 +85,34 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
 
         state.repairIssues.forEach(issueId => {
             const basePrice = getSingleIssuePrice(issueId);
-            if (basePrice !== null && basePrice !== undefined) {
-                if (issueId === 'screen') {
-                    hasScreen = true;
-                    const d = dynamicRepairPrices;
 
-                    const pGeneric = (d?.screen_generic !== undefined && d.screen_generic >= 0) ? d.screen_generic : -1;
-                    const pOled = (d?.screen_oled !== undefined && d.screen_oled >= 0) ? d.screen_oled : -1;
-                    const pOriginal = (d?.screen_original !== undefined && d.screen_original >= 0) ? d.screen_original : -1;
+            if (issueId === 'screen') {
+                hasScreen = true;
+                const d = dynamicRepairPrices;
 
-                    if (pGeneric >= 0) {
-                        if (pGeneric === 0) isStandardValid = false;
-                        standardTotal += pGeneric;
-                    } else isStandardValid = false;
+                const pGeneric = (d?.screen_generic !== undefined && d.screen_generic !== null) ? d.screen_generic : -1;
+                const pOled = (d?.screen_oled !== undefined && d.screen_oled !== null) ? d.screen_oled : -1;
+                const pOriginal = (d?.screen_original !== undefined && d.screen_original !== null) ? d.screen_original : -1;
 
-                    if (pOled >= 0) {
-                        if (pOled === 0) isOledValid = false;
-                        oledTotal = (oledTotal === 0 ? pOled : oledTotal + pOled);
-                    } else isOledValid = false;
+                if (pGeneric > 0) standardTotal += pGeneric;
+                else if (pGeneric === 0) isStandardValid = false; // "Sur Devis" explicitly
+                else if (pOled > 0) standardTotal += pOled;
+                else if (pOled === 0) isStandardValid = false;
+                else if (pOriginal > 0) standardTotal += pOriginal;
+                else if (pOriginal === 0) isStandardValid = false;
+                else isStandardValid = false; // All are -1 (hidden/missing)
 
-                    if (pOriginal >= 0) {
-                        if (pOriginal === 0) isOriginalValid = false;
-                        originalTotal = (originalTotal === 0 ? pOriginal : originalTotal + pOriginal);
-                    } else isOriginalValid = false;
-                } else {
+                // OLED Total
+                if (pOled > 0) oledTotal += pOled;
+                else if (pOriginal > 0) oledTotal += pOriginal; // Fallback to original if OLED missing
+                else isOledValid = false;
+
+                // Original Total
+                if (pOriginal > 0) originalTotal += pOriginal;
+                else isOriginalValid = false;
+
+            } else {
+                if (basePrice !== null && basePrice !== undefined) {
                     if (basePrice === 0) {
                         isStandardValid = false;
                         isOledValid = false;
@@ -117,6 +121,11 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
                     standardTotal += basePrice;
                     oledTotal += basePrice;
                     originalTotal += basePrice;
+                } else {
+                    // Item selected but NOT in database -> Force "Contact Us"
+                    isStandardValid = false;
+                    isOledValid = false;
+                    isOriginalValid = false;
                 }
             }
         });
@@ -145,9 +154,11 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
 
     const sidebarEstimate = useMemo(() => {
         if (type === 'buyback') return buybackEstimate;
-        // Logic for repair display in sidebar if needed, or just return relevant object
+        // Logic for repair display in sidebar
+        // If it's -1 (Contact Us), we want to show that, not 0 (which shows as dash)
+        if (repairEstimates.standard === -1 && state.repairIssues.length > 0) return -1;
         return repairEstimates.standard > 0 ? repairEstimates.standard : 0;
-    }, [type, buybackEstimate, repairEstimates]);
+    }, [type, buybackEstimate, repairEstimates, state.repairIssues.length]);
 
     return {
         sidebarEstimate,
@@ -155,6 +166,7 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
         repairEstimates,
         getSingleIssuePrice,
         dynamicRepairPrices,
-        dynamicBuybackPrices
+        dynamicBuybackPrices,
+        loading
     };
 };

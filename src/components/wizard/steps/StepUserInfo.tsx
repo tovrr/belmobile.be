@@ -57,7 +57,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
         repairEstimates,
         dynamicRepairPrices,
         getSingleIssuePrice,
-        buybackEstimate
+        buybackEstimate,
+        loading
     } = useWizardPricing(type);
 
     const {
@@ -147,7 +148,9 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     const renderMobileSummary = () => {
         const isBuyback = type === 'buyback';
         let estimateDisplay: React.ReactNode = null;
-        if (isBuyback) {
+        if (loading) {
+            estimateDisplay = <span className="animate-pulse opacity-50">...</span>;
+        } else if (isBuyback) {
             estimateDisplay = buybackEstimate > 0 ? <>&euro;{buybackEstimate}</> : <span className="text-bel-blue dark:text-blue-400 text-lg">{t('contact_for_price')}</span>;
         } else {
             if (repairIssues.length === 0) {
@@ -160,17 +163,26 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                     else if (selectedScreenQuality === 'oled') estimateDisplay = repairEstimates.oled > 0 ? <>&euro;{repairEstimates.oled}</> : <span className="text-bel-blue dark:text-blue-400 uppercase font-bold text-sm tracking-tighter">{t('contact_for_price')}</span>;
                     else if (selectedScreenQuality === 'generic') estimateDisplay = repairEstimates.standard > 0 ? <>&euro;{repairEstimates.standard}</> : <span className="text-bel-blue dark:text-blue-400 uppercase font-bold text-sm tracking-tighter">{t('contact_for_price')}</span>;
                     else estimateDisplay = <span className="text-bel-blue dark:text-blue-400 text-sm italic">{t('select_quality_short')}</span>;
-                } else if (repairEstimates.hasScreen && !selectedScreenQuality) {
-                    estimateDisplay = <span className="text-bel-blue dark:text-blue-400 text-sm italic">{t('select_quality_short')}</span>;
                 } else {
-                    estimateDisplay = repairEstimates.standard > 0 ? <>&euro;{repairEstimates.standard}</> : <span className="text-bel-blue dark:text-blue-400 uppercase font-bold text-sm tracking-tighter">{t('contact_for_price')}</span>;
+                    if (repairEstimates.standard > 0) {
+                        estimateDisplay = <>&euro;{repairEstimates.standard}</>;
+                    } else if (repairEstimates.standard === -1 && repairIssues.length > 0) {
+                        estimateDisplay = <span className="text-bel-blue dark:text-blue-400 uppercase font-bold text-sm tracking-tighter">{t('contact_for_price')}</span>;
+                    } else {
+                        estimateDisplay = <span className="text-gray-400">-</span>;
+                    }
                 }
             }
         }
         return (
             <div className="lg:hidden bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 mb-8 border border-gray-200 dark:border-slate-800 shadow-sm animate-fade-in mx-auto w-full">
                 <div className="flex items-center gap-2 mb-4">
-                    <button onClick={onBack} className="p-1 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 dark:text-gray-500">
+                    <button
+                        onClick={onBack}
+                        type="button"
+                        className="p-2 -ml-2 mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white transition-colors"
+                        aria-label={t('Back')}
+                    >
                         <ChevronLeftIcon className="h-6 w-6" />
                     </button>
                     <h3 className="font-bold text-xl text-gray-900 dark:text-white">{t('Summary')}</h3>
@@ -186,7 +198,16 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                     </div>
                 )}
                 <div className="space-y-2 text-sm mb-6">
-                    <div className="flex justify-between"><span className="text-gray-500">{t('Device')}</span><span className="font-medium text-gray-900 dark:text-white">{(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase())) ? slugToDisplayName(selectedModel) : `${selectedBrand} ${slugToDisplayName(selectedModel || '')}`}</span></div>
+                    <div className="flex justify-between">
+                        <span className="text-gray-500">{t('Device')}</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
+                            {selectedBrand && selectedModel ? (
+                                selectedModel.toLowerCase().includes(selectedBrand.toLowerCase())
+                                    ? slugToDisplayName(selectedModel)
+                                    : `${selectedBrand} ${slugToDisplayName(selectedModel)}`
+                            ) : selectedBrand || ''}
+                        </span>
+                    </div>
                     {isBuyback && storage && (<div className="flex justify-between"><span className="text-gray-500">{t('Storage')}</span><span className="font-medium text-gray-900 dark:text-white">{storage}</span></div>)}
                     {!isBuyback && repairIssues.length > 0 && (<div className="border-t border-gray-100 dark:border-slate-700 pt-2 mt-2">{repairIssues.map(issueId => {
                         const issue = REPAIR_ISSUES.find(i => i.id === issueId);
@@ -205,7 +226,15 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             <div key={issueId} className="flex justify-between text-gray-900 dark:text-white">
                                 <span>{t(issue.id)} {issueId === 'screen' && selectedScreenQuality !== 'generic' ? (selectedScreenQuality === 'oled' ? `(${t('OLED / Soft')})` : `(${t('Original Refurb')})`) : ''}</span>
                                 <span>
-                                    {issueId === 'other' ? <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span> : (price > 0 ? <>&euro;{price}</> : <span>-</span>)}
+                                    {issueId === 'other' ? (
+                                        <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span>
+                                    ) : (
+                                        price && price > 0 ? (
+                                            <>&euro;{price}</>
+                                        ) : (
+                                            price === 0 ? t('contact_for_price') : <span>-</span>
+                                        )
+                                    )}
                                 </span>
                             </div>
                         );
@@ -239,10 +268,20 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
         return (
             <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
                 <div className="flex-1 space-y-8">
-                    <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">{t('Cosmetic Condition')}</h2>
+                    <div className="flex items-center gap-2 mb-6">
+                        <button
+                            onClick={onBack}
+                            type="button"
+                            className="lg:hidden p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors"
+                            aria-label={t('Back')}
+                        >
+                            <ChevronLeftIcon className="h-6 w-6" />
+                        </button>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('Cosmetic Condition')}</h2>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
-                            <label className="block text-sm font-bold text-gray-500 mb-3 uppercase">{t('Screen Condition')}</label>
+                            <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Screen Condition')}</label>
                             <div className="grid grid-cols-1 gap-3">
                                 {[
                                     { id: 'flawless', label: 'Flawless', desc: 'Like new, no scratches' },
@@ -262,7 +301,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-gray-500 mb-3 uppercase">{t('Body Condition')}</label>
+                            <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Body Condition')}</label>
                             <div className="grid grid-cols-1 gap-3">
                                 {[
                                     { id: 'flawless', label: 'Flawless', desc: 'Like new, no dents or scratches' },
@@ -316,13 +355,14 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                 <div className="flex-1">
                     <form ref={(formRef as any)} onSubmit={handleSubmit} className="space-y-8">
                         <div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('How would you like to proceed?')}</h3>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">{t('Contact & Delivery')}</h2>
+                            <label className="block text-xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">{t('delivery_title')}</label>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                                 {/* Visit Store */}
                                 <div onClick={() => setDeliveryMethod(deliveryMethod === 'dropoff' ? null : 'dropoff')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'dropoff' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
                                     <div className="flex items-start">
                                         <BuildingStorefrontIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-400'}`} />
-                                        <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Visit Store')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Come to one of our shops in Brussels. No appointment needed.')}</p></div>
+                                        <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('delivery_visit_store_title')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('delivery_visit_store_desc')}</p></div>
                                     </div>
                                     {deliveryMethod === 'dropoff' && (
                                         <div className="mt-4 w-full animate-fade-in">
@@ -524,7 +564,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
 
                         {/* User Details */}
                         <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200 dark:border-slate-800">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">{t('Your Details')}</h3>
+                            <label className="block text-xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">{t('Your Details')}</label>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <Input
                                     label={t('contact_full_name')}

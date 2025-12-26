@@ -97,6 +97,27 @@ export interface PdfData {
     footerHelpText: string;
     trackingInfo?: string;
     trackingUrl?: string;
+    labels: {
+        orderId: string;
+        date: string;
+        method: string;
+        clientDetails: string;
+        name: string;
+        email: string;
+        phone: string;
+        address: string;
+        shop?: string; // "Magasin"
+        model?: string; // "Modèle"
+        featuresSpecs: string;
+        description: string;
+        price: string;
+        paymentIban: string;
+        followOrder: string;
+        nextSteps: string;
+        scanToTrack: string;
+        page: string; // "Page" (if needed, or x / y)
+        of: string; // "/" or "of"
+    };
 }
 
 export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
@@ -141,21 +162,21 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     {
                         width: '*',
                         stack: [
-                            { text: 'ID de Commande', style: 'label' },
+                            { text: data.labels.orderId, style: 'label' },
                             { text: data.orderId, style: 'valueBold', margin: [0, 2, 0, 0] }
                         ]
                     },
                     {
                         width: '*',
                         stack: [
-                            { text: 'Date', style: 'label' },
+                            { text: data.labels.date, style: 'label' },
                             { text: data.date, style: 'valueBold', margin: [0, 2, 0, 0] }
                         ]
                     },
                     {
                         width: '*',
                         stack: [
-                            { text: 'Method', style: 'label' },
+                            { text: data.labels.method, style: 'label' },
                             { text: data.method, style: 'valueBold', margin: [0, 2, 0, 0] }
                         ]
                     },
@@ -164,7 +185,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         width: 'auto',
                         stack: [
                             { qr: data.trackingUrl, fit: 45, alignment: 'right', margin: [0, -5, 0, 0] },
-                            { text: 'Scan to Track', style: 'label', alignment: 'right', fontSize: 6, margin: [0, 2, 0, 0] }
+                            { text: data.labels.scanToTrack, style: 'label', alignment: 'right', fontSize: 6, margin: [0, 2, 0, 0] }
                         ]
                     }] as any[] : [])
                 ],
@@ -178,14 +199,14 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     {
                         width: '*',
                         stack: [
-                            { text: 'DÉTAILS CLIENT', style: 'sectionHeader' },
-                            { text: 'Nom', style: 'label', margin: [0, 5, 0, 0] },
+                            { text: data.labels.clientDetails, style: 'sectionHeader' },
+                            { text: data.labels.name, style: 'label', margin: [0, 5, 0, 0] },
                             { text: data.customer.name, style: 'value' },
-                            { text: 'Email', style: 'label', margin: [0, 5, 0, 0] },
+                            { text: data.labels.email, style: 'label', margin: [0, 5, 0, 0] },
                             { text: data.customer.email || '-', style: 'value' },
-                            { text: 'Téléphone', style: 'label', margin: [0, 5, 0, 0] },
+                            { text: data.labels.phone, style: 'label', margin: [0, 5, 0, 0] },
                             { text: data.customer.phone, style: 'value' },
-                            data.customer.address ? { text: 'Adresse', style: 'label', margin: [0, 5, 0, 0] } : {},
+                            data.customer.address ? { text: data.labels.address, style: 'label', margin: [0, 5, 0, 0] } : {},
                             data.customer.address ? { text: data.customer.address, style: 'value' } : {}
                         ]
                     },
@@ -195,7 +216,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         stack: [
                             { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader' },
                             // Name (Shop or Device)
-                            { text: data.type === 'reservation' ? 'Magasin' : 'Modèle', style: 'label', margin: [0, 5, 0, 0] },
+                            { text: data.type === 'reservation' ? (data.labels.shop || 'Magasin') : (data.labels.model || 'Modèle'), style: 'label', margin: [0, 5, 0, 0] },
                             { text: data.shopOrDevice.name, style: 'value' },
                             // Dynamic Details List
                             ...data.shopOrDevice.details.map(detail => ({
@@ -214,7 +235,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
             // 4. Specs (Buyback)
             ...(data.specs ? [
                 { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 10, 0, 10] } as Content,
-                { text: 'FONCTIONNALITÉS & SPÉCIFICATIONS', style: 'sectionHeader' } as Content,
+                { text: data.labels.featuresSpecs, style: 'sectionHeader' } as Content,
                 {
                     columns: [
                         {
@@ -241,9 +262,10 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     widths: ['*', 'auto'],
                     body: [
                         // Header
+                        // Header
                         [
-                            { text: 'DESCRIPTION', style: 'tableHeader', margin: [5, 5, 5, 5] },
-                            { text: 'PRIX', style: 'tableHeader', alignment: 'right', margin: [5, 5, 5, 5] }
+                            { text: data.labels.description, style: 'tableHeader', margin: [5, 5, 5, 5] },
+                            { text: data.labels.price, style: 'tableHeader', alignment: 'right', margin: [5, 5, 5, 5] }
                         ],
                         // Rows
                         ...data.priceBreakdown.map(item => [
@@ -293,7 +315,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         widths: ['*'],
                         body: [[{
                             text: [
-                                { text: 'IBAN de Paiement: ', style: 'label' },
+                                { text: data.labels.paymentIban + ': ', style: 'label' },
                                 { text: data.iban, style: 'valueBold' }
                             ],
                             margin: [10, 10, 10, 10]
@@ -314,7 +336,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
             ...(data.trackingInfo ? [
                 {
                     stack: [
-                        { text: 'SUIVRE VOTRE COMMANDE', style: 'sectionHeader' },
+                        { text: data.labels.followOrder, style: 'sectionHeader' },
                         { text: data.trackingInfo, style: 'value' }
                     ],
                     margin: [0, 0, 0, 20]
@@ -323,7 +345,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
 
             // 9. Next Steps
             ...(data.nextSteps.length > 0 ? [
-                { text: 'PROCHAINES ÉTAPES', style: 'sectionHeader' } as Content,
+                { text: data.labels.nextSteps, style: 'sectionHeader' } as Content,
                 {
                     ol: data.nextSteps.map(step => ({ text: step, style: 'value', margin: [0, 0, 0, 5] })),
                     margin: [0, 0, 0, 20]

@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { getDeviceImage } from '../../data/deviceImages';
-import { createSlug } from '../../utils/slugs';
+import { createSlug, slugToDisplayName } from '../../utils/slugs';
 import { REPAIR_ISSUES } from '../../constants';
 
 interface MobileSummaryProps {
@@ -15,10 +15,12 @@ interface MobileSummaryProps {
     storage?: string;
     repairIssues: string[];
     estimateDisplay: React.ReactNode;
+    dynamicRepairPrices?: any;
     handleBack: () => void;
     repairEstimates: any;
     selectedScreenQuality?: string | null;
     getSingleIssuePrice: (id: string) => number | null;
+    loading?: boolean;
 }
 
 const MobileSummary: React.FC<MobileSummaryProps> = ({
@@ -32,7 +34,8 @@ const MobileSummary: React.FC<MobileSummaryProps> = ({
     handleBack,
     repairEstimates,
     selectedScreenQuality,
-    getSingleIssuePrice
+    getSingleIssuePrice,
+    loading
 }) => {
     const isBuyback = type === 'buyback';
 
@@ -62,9 +65,11 @@ const MobileSummary: React.FC<MobileSummaryProps> = ({
                 <div className="flex justify-between">
                     <span className="text-gray-500">{t('Device')}</span>
                     <span className="font-medium text-gray-900 dark:text-white">
-                        {(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase()))
-                            ? selectedModel
-                            : `${selectedBrand} ${selectedModel}`}
+                        {selectedBrand && selectedModel ? (
+                            selectedModel.toLowerCase().includes(selectedBrand.toLowerCase())
+                                ? slugToDisplayName(selectedModel)
+                                : `${selectedBrand} ${slugToDisplayName(selectedModel)}`
+                        ) : selectedBrand || ''}
                     </span>
                 </div>
                 {isBuyback && storage && (
@@ -96,9 +101,15 @@ const MobileSummary: React.FC<MobileSummaryProps> = ({
                                             : ''}
                                     </span>
                                     <span>
-                                        {issueId === 'other'
-                                            ? <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span>
-                                            : (price > 0 ? <>&euro;{price}</> : <span>-</span>)}
+                                        {issueId === 'other' ? (
+                                            <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span>
+                                        ) : (
+                                            price && price > 0 ? (
+                                                <>&euro;{price}</>
+                                            ) : (
+                                                price === 0 ? t('contact_for_price') : <span>-</span>
+                                            )
+                                        )}
                                     </span>
                                 </div>
                             );
@@ -110,7 +121,15 @@ const MobileSummary: React.FC<MobileSummaryProps> = ({
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
                     {isBuyback ? t('Estimated Value') : t('Total Cost')}
                 </p>
-                <div className="text-3xl font-extrabold text-bel-dark dark:text-white">{estimateDisplay}</div>
+                <div className="text-3xl font-extrabold text-bel-dark dark:text-white">
+                    {loading ? (
+                        <span className="animate-pulse opacity-50">...</span>
+                    ) : (
+                        typeof estimateDisplay === 'number' ? (
+                            estimateDisplay > 0 ? <>&euro;{estimateDisplay}</> : (estimateDisplay === -1 ? t('contact_for_price') : <span className="text-gray-400">-</span>)
+                        ) : estimateDisplay
+                    )}
+                </div>
             </div>
         </div>
     );

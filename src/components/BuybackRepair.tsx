@@ -63,7 +63,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     const { setSelectedShop } = useShop();
 
     const { handleNext, handleBack, handleModelSelect, loadBrandData } = useWizardActions(type);
-    const { sidebarEstimate, buybackEstimate, repairEstimates } = useWizardPricing(type);
+    const { sidebarEstimate, buybackEstimate, repairEstimates, loading: pricingLoading } = useWizardPricing(type);
 
     const formRef = useRef<HTMLFormElement>(null);
     const modelSelectRef = useRef<HTMLDivElement>(null);
@@ -123,7 +123,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     }
 
     return (
-        <div className="min-h-screen bg-gray-50/50 dark:bg-slate-950/50 pb-32">
+        <div className="w-full pb-32">
             <StepIndicator step={step} type={type} t={t} />
 
             <AnimatePresence mode="wait">
@@ -179,8 +179,10 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
             <MobileBottomBar
                 type={type}
                 onNext={step === 4 ? () => formRef.current?.requestSubmit() : handleNext}
-                nextDisabled={nextDisabled || isLoadingData || isTransitioning}
-                estimateDisplay={sidebarEstimate}
+                nextDisabled={nextDisabled || isLoadingData || isTransitioning || pricingLoading}
+                showEstimate={step > 1}
+                estimateDisplay={pricingLoading ? <span className="animate-pulse opacity-50">...</span> : sidebarEstimate}
+                hideNextButton={step < 3}
                 t={t}
             />
         </div>

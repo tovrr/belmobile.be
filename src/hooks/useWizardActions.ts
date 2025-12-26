@@ -1,16 +1,19 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useWizard } from '../context/WizardContext';
 import { createSlug } from '../utils/slugs';
 import { useLanguage } from './useLanguage';
+
+const BRAND_DATA_CACHE = new Set<string>();
 
 export const useWizardActions = (type: 'buyback' | 'repair') => {
     const { state, dispatch } = useWizard();
     const router = useRouter();
     const searchParams = useSearchParams();
     const { language: lang } = useLanguage();
+    const [isPending, startTransition] = useTransition();
 
     const getLocalizedTypeSlug = useCallback((currentType: 'buyback' | 'repair') => {
         if (currentType === 'repair') {
@@ -65,19 +68,21 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
 
     const handleBrandSelect = useCallback((brand: string) => {
         dispatch({ type: 'SET_DEVICE_INFO', payload: { selectedBrand: brand, selectedModel: '' } });
-        router.push(`/${lang}/${typeSlug}/${createSlug(brand)}?category=${state.deviceType}`, { scroll: false });
+        startTransition(() => {
+            router.push(`/${lang}/${typeSlug}/${createSlug(brand)}?category=${state.deviceType}`, { scroll: false });
+        });
     }, [dispatch, lang, typeSlug, state.deviceType, router]);
 
     const handleModelSelect = useCallback((model: string) => {
         dispatch({ type: 'SET_DEVICE_INFO', payload: { selectedModel: model } });
         dispatch({ type: 'SET_UI_STATE', payload: { isInitialized: false } });
 
-        setTimeout(() => {
+        startTransition(() => {
             const key = `buyback_state_${createSlug(state.selectedBrand)}_${createSlug(model)}`;
             localStorage.removeItem(key);
             router.push(`/${lang}/${typeSlug}/${createSlug(state.selectedBrand)}/${createSlug(model)}?category=${state.deviceType}`);
             if (state.step < 3) dispatch({ type: 'SET_STEP', payload: 3 });
-        }, 100);
+        });
     }, [dispatch, state.selectedBrand, state.deviceType, state.step, lang, typeSlug, router]);
 
     // Brand data loading logic
@@ -85,21 +90,26 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
     const loadBrandData = useCallback(async (brandSlug: string) => {
         if (loadedBrandRef.current === brandSlug) return;
         loadedBrandRef.current = brandSlug;
-        dispatch({ type: 'SET_UI_STATE', payload: { isLoadingData: true } });
+
+        // Skip loading indicator if already in global cache
+        const shouldShowLoading = !BRAND_DATA_CACHE.has(brandSlug);
+        if (shouldShowLoading) {
+            dispatch({ type: 'SET_UI_STATE', payload: { isLoadingData: true } });
+        }
 
         try {
             const brandModule = await import(`../data/models/${brandSlug}`);
             if (brandModule && brandModule.MODELS) {
-                // This would normally be handled by a local models state, 
-                // but we'll add it to the context if we want to be fully centralized.
-                // For now, let's assume WizardContext handles it.
+                BRAND_DATA_CACHE.add(brandSlug);
                 dispatch({ type: 'SET_DEVICE_INFO', payload: { modelsData: brandModule.MODELS, specsData: brandModule.SPECS || {} } as any });
             }
         } catch (error) {
             console.error(`Failed to load data for ${brandSlug}:`, error);
             loadedBrandRef.current = null;
         } finally {
-            dispatch({ type: 'SET_UI_STATE', payload: { isLoadingData: false } });
+            if (shouldShowLoading) {
+                dispatch({ type: 'SET_UI_STATE', payload: { isLoadingData: false } });
+            }
         }
     }, [dispatch]);
 
@@ -109,6 +119,7 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
         handleBrandSelect,
         handleModelSelect,
         loadBrandData,
-        typeSlug
+        typeSlug,
+        isPending
     };
 };

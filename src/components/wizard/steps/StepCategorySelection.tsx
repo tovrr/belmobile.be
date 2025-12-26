@@ -1,18 +1,21 @@
 import React, { useState, useMemo, memo } from 'react';
 import Image from 'next/image';
-import { MagnifyingGlassIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, DevicePhoneMobileIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { DEVICE_TYPES } from '../../../constants';
 import TypewriterInput from '../../ui/TypewriterInput';
 import { SEARCH_INDEX } from '../../../data/search-index';
+import { getDeviceImage } from '../../../data/deviceImages';
 import { createSlug } from '../../../utils/slugs';
 import { useWizard } from '../../../context/WizardContext';
 import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useLanguage } from '../../../hooks/useLanguage';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 interface SearchResult {
     brand: string;
     model: string;
     category: string;
+    keywords?: string[];
 }
 
 interface StepCategorySelectionProps {
@@ -41,16 +44,29 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
 
     // Local Search State
     const [searchTerm, setSearchTerm] = useState('');
+    const [isFocused, setIsFocused] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
 
+    // Filtered search results
+    const debouncedSearchTerm = useDebounce(searchTerm, 150);
+
     const searchResults = useMemo(() => {
-        if (!searchTerm || searchTerm.length < 2) return [];
-        const term = createSlug(searchTerm);
+        if (!debouncedSearchTerm || debouncedSearchTerm.length < 2) return [];
+        const term = createSlug(debouncedSearchTerm);
         return Object.values(SEARCH_INDEX).filter(item =>
             createSlug(item.brand + ' ' + item.model).includes(term) ||
-            createSlug(item.model).includes(term)
+            createSlug(item.model).includes(term) ||
+            item.keywords?.some(k => k.includes(term))
         ).slice(0, 5) as SearchResult[];
-    }, [searchTerm]);
+    }, [debouncedSearchTerm]);
+
+    // Popular suggestions (Hand-picked for immediate value)
+    const popularSuggestions = useMemo(() => {
+        const popularKeys = ['iphone-16-pro-max', 'iphone-15-pro', 'galaxy-s24-ultra', 'nintendo-switch-oled', 'pixel-9-pro'];
+        return popularKeys
+            .map(key => SEARCH_INDEX[key])
+            .filter(Boolean) as SearchResult[];
+    }, []);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -59,20 +75,29 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
 
     const onSearchSelect = (item: SearchResult) => {
         dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: item.category, selectedBrand: item.brand, selectedModel: item.model } });
-        // Jump to logic for selecting model (Step 3 usually)
         dispatch({ type: 'SET_STEP', payload: 3 });
+        setIsFocused(false);
     };
+
+    const showDropdown = isFocused && (isSearching || (searchTerm.length === 0 && popularSuggestions.length > 0));
 
     return (
         <div className="animate-fade-in w-full max-w-4xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
             {!hideStep1Title && (
                 <div className="text-center mb-12">
                     <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">
-                        {type === 'buyback' ? t('Sell') : t('Repair')}
-                        <TypewriterInput
-                            phrases={DEVICE_TYPES.map(dt => t(dt.label))}
-                            className="text-bel-blue ml-3"
-                        />
+                        <span className="sr-only">
+                            {type === 'buyback'
+                                ? "Sell Your Smartphone, Tablet, or Laptop at the Best Price"
+                                : "Professional Repair for Smartphone, Tablet, or Laptop"}
+                        </span>
+                        <span aria-hidden="true" className="inline-block relative">
+                            {type === 'buyback' ? t('Sell') : t('Repair')}
+                            <TypewriterInput
+                                phrases={DEVICE_TYPES.map(dt => t(dt.label))}
+                                className="text-bel-blue ml-3"
+                            />
+                        </span>
                     </h2>
                     <p className="text-xl text-gray-500 dark:text-gray-400 font-medium">
                         {t(type === 'buyback' ? 'buyback_step1_title' : 'repair_step1_title')}
@@ -82,35 +107,58 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
 
             {/* Search Bar */}
             <div className={`relative max-w-lg mx-auto ${hideStep1Title ? 'mb-8' : 'mb-12'}`}>
-                <div className="relative">
+                <div className="relative z-20">
                     <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" aria-hidden="true" />
                     <input
                         type="text"
                         placeholder={wizardPlaceholder || t('Search...')}
                         value={searchTerm}
                         onChange={handleSearchChange}
-                        className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-bel-blue focus:ring-4 focus:ring-blue-500/10 transition-all text-lg"
+                        onFocus={() => setIsFocused(true)}
+                        onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                        className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-bel-blue focus:ring-4 focus:ring-blue-500/10 transition-all text-lg shadow-sm"
+                        aria-expanded={showDropdown}
+                        aria-haspopup="listbox"
                     />
                 </div>
 
-                {/* Search Results Dropdown */}
-                {isSearching && searchResults.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden z-50">
-                        {searchResults.map((item, idx) => (
-                            <button
-                                key={idx}
-                                onClick={() => onSearchSelect(item)}
-                                className="w-full px-6 py-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-slate-800 transition text-left border-b border-gray-50 dark:border-slate-800 last:border-0"
-                            >
-                                <div className="w-10 h-10 relative bg-gray-100 dark:bg-slate-800 rounded-lg p-1">
-                                    <DevicePhoneMobileIcon className="w-full h-full text-gray-400" aria-hidden="true" />
-                                </div>
-                                <div>
-                                    <div className="font-bold text-gray-900 dark:text-white">{item.brand} {item.model}</div>
-                                    <div className="text-xs text-gray-500 capitalize">{t(DEVICE_TYPES.find(d => d.id === item.category)?.label || item.category)}</div>
-                                </div>
-                            </button>
-                        ))}
+                {/* Dropdown: Popular Suggestions or Search Results */}
+                {showDropdown && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 overflow-hidden z-20 animate-in fade-in slide-in-from-top-2 duration-200">
+                        {searchTerm.length === 0 ? (
+                            <div className="p-2">
+                                <div className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">{t('popular_devices')}</div>
+                                {popularSuggestions.map((item, idx) => (
+                                    <SearchResultItem
+                                        key={`popular-${idx}`}
+                                        item={item}
+                                        onSelect={onSearchSelect}
+                                        type={type}
+                                        t={t}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="p-2">
+                                {searchResults.length > 0 ? (
+                                    searchResults.map((item, idx) => (
+                                        <SearchResultItem
+                                            key={`result-${idx}`}
+                                            item={item}
+                                            onSelect={onSearchSelect}
+                                            type={type}
+                                            t={t}
+                                        />
+                                    ))
+                                ) : (
+                                    <div className="px-6 py-8 text-center text-gray-500">
+                                        <div className="mb-2">🔍</div>
+                                        {t('no_results_found')}{' '}
+                                        <span className="font-bold text-gray-900 dark:text-white">"{searchTerm}"</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -145,3 +193,77 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
         </div>
     );
 });
+
+interface SearchResultItemProps {
+    item: SearchResult;
+    onSelect: (item: SearchResult) => void;
+    type: 'buyback' | 'repair';
+    t: (key: string) => string;
+}
+
+const SearchResultItem: React.FC<SearchResultItemProps> = ({ item, onSelect, type, t }) => {
+    const slug = createSlug(`${item.brand} ${item.model}`);
+    const deviceImg = getDeviceImage(slug) || getDeviceImage(createSlug(item.brand));
+
+    return (
+        <button
+            onMouseDown={(e) => {
+                e.preventDefault(); // Prevent input onBlur
+                onSelect(item);
+            }}
+            className="w-full px-4 py-3 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-slate-800 transition rounded-xl text-left"
+        >
+            <div className="w-14 h-14 relative bg-gray-50 dark:bg-slate-800 rounded-xl overflow-hidden shrink-0 border border-gray-100 dark:border-slate-700">
+                {deviceImg ? (
+                    <Image
+                        src={deviceImg}
+                        alt={item.model}
+                        fill
+                        placeholder="blur"
+                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+                        sizes="56px"
+                        className="object-contain p-1"
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-300">
+                        <DevicePhoneMobileIcon className="w-6 h-6" />
+                    </div>
+                )}
+            </div>
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-xs font-bold text-bel-blue uppercase tracking-tight">{item.brand}</span>
+                    <span className="w-1 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></span>
+                    <span className="text-xs text-gray-500 uppercase">{t(DEVICE_TYPES.find(d => d.id === item.category)?.label || item.category)}</span>
+                </div>
+                <div className="font-bold text-gray-900 dark:text-white truncate">{item.model}</div>
+
+                {/* Visual Tags Mirroring the provided reference */}
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                    {type === 'repair' ? (
+                        <>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-100 dark:border-blue-800 uppercase">
+                                {t('screen')}
+                            </span>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-100 dark:border-green-800 uppercase">
+                                {t('battery')}
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 uppercase">
+                                {t('instant_cash')}
+                            </span>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-100 dark:border-purple-800 uppercase">
+                                {t('eco_friendly')}
+                            </span>
+                        </>
+                    )}
+                </div>
+            </div>
+            <div className="text-gray-300 dark:text-gray-600">
+                <ChevronLeftIcon className="w-5 h-5 rotate-180" />
+            </div>
+        </button>
+    );
+};

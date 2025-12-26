@@ -1,34 +1,57 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { RepairPriceRecord, BuybackPriceRecord } from '../types';
 import { standardizeDeviceId } from '../utils/pricing-utils';
+import { useWizard } from '../context/WizardContext';
 
 export const usePublicPricing = (deviceSlug: string) => {
-    const [repairPrices, setRepairPrices] = useState<Record<string, number>>({});
-    const [buybackPrices, setBuybackPrices] = useState<BuybackPriceRecord[]>([]);
-    const [deviceImage, setDeviceImage] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
+    const { state, dispatch } = useWizard();
+    const { pricingData } = state;
 
     useEffect(() => {
+        // Optimization: If no slug, or if data for this slug is already loaded (or loading), skip fetch.
         if (!deviceSlug) {
-            setRepairPrices({});
-            setBuybackPrices([]);
-            setDeviceImage(null);
+            // Optional: clear data if slug is empty?
+            // For now, let's just not fetch. If user goes back, we might want to keep the old data until new one loads.
             return;
         }
 
+        // Check if we already have data for this model
+        if (pricingData.loadedForModel === deviceSlug) return;
+
+        // Prevent double-fetch if already loading THIS model
+        // Note: We use a separate 'loadedForModel' to track *completed* loads, 
+        // but we might want to track *pending* loads to avoid race conditions if multiple components mount.
+        // For simple usage, checking `isLoading` alongside a "target" ref would be better, 
+        // but since we update Context closely, `isLoading` check helps. 
+        // A better check is: is it loading? AND is it loading *this* slug? 
+        // Context doesn't store "loadingForWhichSlug", just "isLoading".
+        // We will assume if it is loading, it is loading the current desired slug (since step navigation is linear).
+        if (pricingData.isLoading) return;
+
         const fetchPrices = async () => {
             const dId = standardizeDeviceId(deviceSlug);
-            setLoading(true);
+
+            // 1. Set Loading State
+            dispatch({
+                type: 'SET_PRICING_DATA',
+                payload: { isLoading: true, loadedForModel: null } // Clear loadedForModel temporarily or set it to 'pending'? 
+                // Better: set loadedForModel only on success. 
+            });
+
             try {
+                let imageUrl: string | null = null;
+                const rPrices: Record<string, number> = {};
+                let bPrices: BuybackPriceRecord[] = [];
+
                 // --- 0. Fetch Device Metadata (Image) ---
                 const mainDocRef = doc(db, 'repair_prices', dId);
                 const mainSnap = await getDoc(mainDocRef);
                 if (mainSnap.exists()) {
                     const data = mainSnap.data();
                     if (data.imageUrl) {
-                        setDeviceImage(data.imageUrl);
+                        imageUrl = data.imageUrl;
                     }
                 }
 
@@ -39,7 +62,7 @@ export const usePublicPricing = (deviceSlug: string) => {
                     where('isActive', '==', true)
                 );
                 const repairSnap = await getDocs(repairQ);
-                const rPrices: Record<string, number> = {};
+
                 // Helper to manage deterministic updates
                 const updates: Record<string, { price: number, priority: number }> = {};
                 const updatePrice = (key: string, price: number, priority: number) => {
@@ -48,22 +71,9 @@ export const usePublicPricing = (deviceSlug: string) => {
                         updates[key] = { price, priority };
                         return;
                     }
-                    // Strategy:
-                    // 1. Higher priority wins.
-                    // 2. Same priority? Use Math.min (cheaper price wins, also ensures -1/disabled wins if present).
-                    //    This ensures stability (no random fluctuation on refresh).
                     if (priority > existing.priority) {
                         updates[key] = { price, priority };
                     } else if (priority === existing.priority) {
-                        // Special handling: if one is -1 (disabled), does it win?
-                        // If we want to hide it, -1 should probably win?
-                        // Or if we have a valid price (100) and a disabled one (-1), maybe the valid one implies availability?
-                        // User intent: If they have a duplicate, likely one is "Ghost".
-                        // Usually "Ghost" is the Base Price legacy garbage.
-                        // If Explicit Variant (Priority 2) has duplicates:
-                        // 1. 'Generic' (-1) and 'Generic' (139).
-                        // Min is -1. So it becomes disabled. Correct.
-
                         updates[key] = { price: Math.min(existing.price, price), priority };
                     }
                 };
@@ -81,7 +91,6 @@ export const usePublicPricing = (deviceSlug: string) => {
                                 updatePrice('screen_original', data.price, 2);
                                 mapped = true;
                             }
-                            // Check 'oled' separately to handle duplicates
                             if (variantValues.some(v => v.includes('oled') || v.includes('ams') || v.includes('soft') || v.includes('hard'))) {
                                 updatePrice('screen_oled', data.price, 2);
                                 mapped = true;
@@ -91,19 +100,17 @@ export const usePublicPricing = (deviceSlug: string) => {
                                 mapped = true;
                             }
                         }
-
-                        // Fallback: If NOT mapped to a variant, it's a generic base screen.
                         if (!mapped) {
-                            updatePrice('screen_generic', data.price, 1); // Low Priority
+                            updatePrice('screen_generic', data.price, 1);
                         }
                     }
                     // --- BATTERY ---
                     else if (data.issueId === 'battery') {
                         const isOriginal = data.variants && Object.values(data.variants).some(v => String(v).toLowerCase().includes('original'));
                         if (isOriginal) {
-                            updatePrice('battery', data.price, 2); // High Priority
+                            updatePrice('battery', data.price, 2);
                         } else {
-                            updatePrice('battery', data.price, 1); // Low Priority
+                            updatePrice('battery', data.price, 1);
                         }
                     }
                     // --- OTHERS ---
@@ -112,12 +119,9 @@ export const usePublicPricing = (deviceSlug: string) => {
                     }
                 });
 
-                // Finalize to flat map
                 Object.entries(updates).forEach(([key, val]) => {
                     rPrices[key] = val.price;
                 });
-
-                setRepairPrices(rPrices);
 
                 // --- 2. Fetch Buyback Prices ---
                 const buybackQ = query(
@@ -125,21 +129,44 @@ export const usePublicPricing = (deviceSlug: string) => {
                     where('deviceId', '==', dId)
                 );
                 const buybackSnap = await getDocs(buybackQ);
-                const bPrices: BuybackPriceRecord[] = [];
+
                 buybackSnap.forEach(doc => {
                     bPrices.push(doc.data() as BuybackPriceRecord);
                 });
-                setBuybackPrices(bPrices);
+
+                // Dispatch Success
+                dispatch({
+                    type: 'SET_PRICING_DATA',
+                    payload: {
+                        repairPrices: rPrices,
+                        buybackPrices: bPrices,
+                        deviceImage: imageUrl,
+                        isLoading: false,
+                        loadedForModel: deviceSlug
+                    }
+                });
 
             } catch (error) {
                 console.error("Error fetching public pricing:", error);
-            } finally {
-                setLoading(false);
+                dispatch({ type: 'SET_PRICING_DATA', payload: { isLoading: false } });
             }
         };
 
         fetchPrices();
-    }, [deviceSlug]);
+    }, [deviceSlug, pricingData.loadedForModel, pricingData.isLoading, dispatch]);
 
-    return { repairPrices, buybackPrices, deviceImage, loading };
+    // Return the global state (plus calculated loading status)
+    // IMPORTANT: If the context has data for a DIFFERENT model than requested, 
+    // we should temporarily return specific flags or empty data to prevent mixing models?
+    // But since the wizard is linear, 'state.selectedModel' drives both 'deviceSlug' and context.
+
+    // Safety check: if loadedForModel !== deviceSlug, effectively treat as loading
+    const effectivelyLoading = pricingData.isLoading || (deviceSlug && pricingData.loadedForModel !== deviceSlug);
+
+    return {
+        repairPrices: pricingData.repairPrices,
+        buybackPrices: pricingData.buybackPrices,
+        deviceImage: pricingData.deviceImage,
+        loading: effectivelyLoading
+    };
 };

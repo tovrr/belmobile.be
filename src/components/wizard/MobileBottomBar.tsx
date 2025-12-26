@@ -10,6 +10,7 @@ interface MobileBottomBarProps {
     nextLabel?: string;
     showEstimate?: boolean;
     estimateDisplay?: React.ReactNode;
+    hideNextButton?: boolean;
     t: (key: string) => string;
 }
 
@@ -20,6 +21,7 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
     nextLabel = '',
     showEstimate = false,
     estimateDisplay = null,
+    hideNextButton = false,
     t
 }) => {
     const isBuyback = type === 'buyback';
@@ -48,14 +50,16 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
                         </div>
                     </div>
                 )}
-                <button
-                    onClick={onNext}
-                    disabled={nextDisabled}
-                    className={`flex-1 bg-bel-blue text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-base flex items-center justify-center gap-2 transition-all ${!showEstimate || !estimateDisplay ? 'w-full' : ''}`}
-                >
-                    <span>{nextLabel || t('Next')}</span>
-                    <ChevronRightIcon className="h-5 w-5" />
-                </button>
+                {!hideNextButton && (
+                    <button
+                        onClick={onNext}
+                        disabled={nextDisabled}
+                        className={`flex-1 bg-bel-blue text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-base flex items-center justify-center gap-2 transition-all ${!showEstimate || !estimateDisplay ? 'w-full' : ''}`}
+                    >
+                        <span>{nextLabel || t('Next')}</span>
+                        <ChevronRightIcon className="h-5 w-5" />
+                    </button>
+                )}
             </div>
         </div>
     );
