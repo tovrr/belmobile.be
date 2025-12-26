@@ -10,7 +10,7 @@ import {
 import { useLanguage } from '../../hooks/useLanguage';
 import { REPAIR_ISSUES, DEVICE_TYPES } from '../../constants';
 import { getDeviceImage } from '../../data/deviceImages';
-import { createSlug } from '../../utils/slugs';
+import { createSlug, slugToDisplayName } from '../../utils/slugs';
 import { TRUST_SIGNALS, SignalContext } from '../../data/trustSignals';
 
 // Map string icon names to components
@@ -106,7 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         </AnimatePresence>
                     )}
                     <p className="text-blue-100 text-sm font-medium relative z-10">
-                        {(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase())) ? selectedModel : `${selectedBrand} ${selectedModel}`}
+                        {(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase())) ? slugToDisplayName(selectedModel) : `${selectedBrand} ${slugToDisplayName(selectedModel || '')}`}
                     </p>
                 </div>
 
@@ -124,7 +124,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                             <div className="flex justify-between">
                                 <span className="text-gray-500">{t('Model')}</span>
                                 <span className="font-medium text-gray-900 dark:text-white truncate max-w-[150px] text-right">
-                                    {(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase())) ? selectedModel : `${selectedBrand} ${selectedModel}`}
+                                    {(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase())) ? slugToDisplayName(selectedModel) : `${selectedBrand} ${slugToDisplayName(selectedModel || '')}`}
                                 </span>
                             </div>
                         )}
@@ -197,7 +197,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                             </div>
                         </div>
                         <div className="text-3xl font-extrabold text-bel-dark dark:text-white">
-                            {estimateDisplay}
+                            {typeof estimateDisplay === 'number' ? (
+                                estimateDisplay > 0 ? <>&euro;{estimateDisplay}</> : (estimateDisplay === -1 ? t('contact_for_price') : <span className="text-gray-400">-</span>)
+                            ) : estimateDisplay}
                         </div>
                         <p className="text-xs font-medium text-gray-500 mt-2">
                             {isBuyback ? t('Paid instantly via cash or bank transfer') : t('Includes labor and premium parts')}

@@ -9,7 +9,7 @@ import Sidebar from '../Sidebar';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
 import Image from 'next/image';
-import { createSlug } from '../../../utils/slugs';
+import { createSlug, slugToDisplayName } from '../../../utils/slugs';
 import { getDeviceImage } from '../../../data/deviceImages';
 import { REPAIR_ISSUES } from '../../../constants';
 import { parseAddressString } from '../../../utils/addressParser';
@@ -151,7 +151,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
             estimateDisplay = buybackEstimate > 0 ? <>&euro;{buybackEstimate}</> : <span className="text-bel-blue dark:text-blue-400 text-lg">{t('contact_for_price')}</span>;
         } else {
             if (repairIssues.length === 0) {
-                estimateDisplay = <>&euro;0</>;
+                estimateDisplay = <span className="text-gray-400">-</span>;
             } else if (repairIssues.includes('other')) {
                 estimateDisplay = <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span>;
             } else {
@@ -186,7 +186,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                     </div>
                 )}
                 <div className="space-y-2 text-sm mb-6">
-                    <div className="flex justify-between"><span className="text-gray-500">{t('Device')}</span><span className="font-medium text-gray-900 dark:text-white">{(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase())) ? selectedModel : `${selectedBrand} ${selectedModel}`}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">{t('Device')}</span><span className="font-medium text-gray-900 dark:text-white">{(selectedBrand && selectedModel && selectedModel.toLowerCase().startsWith(selectedBrand.toLowerCase())) ? slugToDisplayName(selectedModel) : `${selectedBrand} ${slugToDisplayName(selectedModel || '')}`}</span></div>
                     {isBuyback && storage && (<div className="flex justify-between"><span className="text-gray-500">{t('Storage')}</span><span className="font-medium text-gray-900 dark:text-white">{storage}</span></div>)}
                     {!isBuyback && repairIssues.length > 0 && (<div className="border-t border-gray-100 dark:border-slate-700 pt-2 mt-2">{repairIssues.map(issueId => {
                         const issue = REPAIR_ISSUES.find(i => i.id === issueId);
@@ -216,7 +216,9 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                         <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{isBuyback ? t('Estimated Value') : t('Total Cost')}</p>
                         <InformationCircleIcon className="h-3 w-3 text-gray-400" />
                     </div>
-                    <div className="text-3xl font-extrabold text-bel-dark dark:text-white">{estimateDisplay}</div>
+                    <div className="text-3xl font-extrabold text-bel-dark dark:text-white">
+                        {estimateDisplay}
+                    </div>
 
                     {/* Tooltip for Mobile Summary */}
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-gray-900 text-white text-[10px] rounded-lg opacity-0 pointer-events-none group-active/tooltip:opacity-100 transition-opacity z-50 shadow-xl border border-white/10">
