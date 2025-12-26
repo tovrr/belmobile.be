@@ -5,12 +5,20 @@ export async function POST(request: Request) {
         const { to, subject, html, attachments } = await request.json();
         const apiKey = process.env.BREVO_API_KEY?.trim();
 
-        if (!apiKey) {
-            console.error('BREVO_API_KEY is missing');
-            return NextResponse.json({ error: 'Mail server configuration error' }, { status: 500 });
+        if (!to || !to.includes('@')) {
+            console.error('Invalid recipient email:', to);
+            return NextResponse.json({ error: 'Invalid recipient email' }, { status: 400 });
         }
 
-        console.log('Sending email to:', to);
+        if (!apiKey) {
+            console.error('BREVO_API_KEY is missing');
+            return NextResponse.json({
+                error: 'Mail server configuration error (API Key Missing)',
+                details: 'Please check if BREVO_API_KEY is defined in .env.local'
+            }, { status: 500 });
+        }
+
+        console.log(`[EmailAPI] Attempting to send email to: ${to} | Subject: ${subject}`);
 
         interface BrevoEmailBody {
             sender: { name: string; email: string };
@@ -20,24 +28,31 @@ export async function POST(request: Request) {
             attachment?: { name: string; content: string }[];
         }
 
+        const senderEmail = process.env.SENDER_EMAIL || "info@belmobile.be";
         const body: BrevoEmailBody = {
             sender: {
                 name: "Belmobile.be",
-                email: "info@belmobile.be"
+                email: senderEmail
             },
             to: [{ email: to.trim().toLowerCase() }],
             subject: subject,
             htmlContent: html,
         };
 
-        if (attachments && attachments.length > 0) {
-            body.attachment = attachments.map((att: { filename: string; content: string }) => ({
-                name: att.filename,
-                content: att.content
-            }));
+        if (attachments && Array.isArray(attachments)) {
+            console.log(`[EmailAPI] Processing ${attachments.length} attachment(s)`);
+            body.attachment = attachments.map((att: any) => {
+                const content = att.content;
+                const size = content ? content.length : 0;
+                console.log(`[EmailAPI] Attachment: ${att.filename || 'document.pdf'} Size: ${size} chars`);
+                return {
+                    name: att.filename || att.name || 'document.pdf',
+                    content: content
+                };
+            });
         }
 
-        console.log('Brevo API Request Body (sanitized):', { ...body, htmlContent: '...' });
+        console.log('[EmailAPI] Sending to Brevo...');
 
         const response = await fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
@@ -51,13 +66,12 @@ export async function POST(request: Request) {
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Brevo API error response:', {
+            console.error('[EmailAPI] Brevo rejected the request:', {
                 status: response.status,
-                statusText: response.statusText,
                 body: errorText
             });
             return NextResponse.json({
-                error: 'Failed to send email',
+                error: 'Brevo failed to send email',
                 details: errorText,
                 status: response.status
             }, { status: response.status });

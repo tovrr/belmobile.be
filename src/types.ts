@@ -87,12 +87,19 @@ export interface Quote {
     customerAddress?: string;
     customerCity?: string;
     customerZip?: string;
-    deliveryMethod?: 'dropoff' | 'send';
+    customerStreet?: string;
+    customerHouseNumber?: string;
+    customerFirstName?: string;
+    customerLastName?: string;
+    phoneNumber?: string;
+    deliveryMethod?: 'dropoff' | 'send' | 'courier';
     iban?: string;
     idUrl?: string;
     shopId: number | string;
-    status: 'new' | 'processing' | 'waiting_parts' | 'repaired' | 'shipped' | 'responded' | 'closed';
+    status: 'new' | 'processing' | 'waiting_parts' | 'in_repair' | 'repaired' | 'ready' | 'shipped' | 'responded' | 'closed' | 'completed' | 'cancelled';
     date: string;
+    createdAt?: { seconds: number; nanoseconds: number }; // Firestore Timestamp
+    orderId?: string; // Readable ID (ORD-...)
     photoUrl?: string;
     price?: number;
     language?: string; // stored language for email notifications

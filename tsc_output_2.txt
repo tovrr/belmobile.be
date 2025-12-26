@@ -1,0 +1,3 @@
+﻿src/components/wizard/steps/StepCategorySelection.tsx(49,29): error TS2349: This expression is not callable.
+  Type '{ brand: string; category: string; model: string; keywords?: string[] | undefined; }' has no call signatures.
+src/components/wizard/steps/StepCategorySelection.tsx(49,36): error TS7006: Parameter 'item' implicitly has an 'any' type.

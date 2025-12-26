@@ -27,7 +27,7 @@ import {
 } from '../hooks/useFirestore';
 
 type ReservationStatus = 'pending' | 'approved' | 'cancelled';
-type QuoteStatus = 'new' | 'processing' | 'waiting_parts' | 'repaired' | 'shipped' | 'responded' | 'closed';
+type QuoteStatus = Quote['status'];
 type FranchiseApplicationStatus = 'new' | 'reviewing' | 'approved' | 'rejected';
 type ContactMessageStatus = 'new' | 'read' | 'replied';
 
@@ -501,18 +501,18 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         if (!response.ok) {
             let errorData;
+            const text = await response.text();
             try {
-                errorData = await response.json();
+                errorData = JSON.parse(text);
             } catch {
-                const text = await response.text();
-                errorData = { error: 'Could not parse JSON', details: text };
+                errorData = { error: 'Could not parse JSON', rawBody: text };
             }
-            console.error('Email API Error Details:', {
+            console.error('[DataContext] Email API Error:', {
                 status: response.status,
                 statusText: response.statusText,
                 data: errorData
             });
-            throw new Error(errorData.error || `Failed to send email (Status ${response.status})`);
+            throw new Error(errorData.error || errorData.details || `Failed to send email (Status ${response.status})`);
         }
     };
 

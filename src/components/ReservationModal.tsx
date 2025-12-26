@@ -16,7 +16,7 @@ interface ReservationModalProps {
 
 const ReservationModal: React.FC<ReservationModalProps> = ({ product, initialShop, onClose }) => {
     const { addReservation, shops, sendEmail } = useData();
-    const { t } = useLanguage();
+    const { t, language: lang } = useLanguage();
     const [selectedShop, setSelectedShop] = useState<Shop | null>(initialShop || null);
     const [submitted, setSubmitted] = useState(false);
     const [deliveryMethod, setDeliveryMethod] = useState<'pickup' | 'shipping'>('pickup');
@@ -55,70 +55,89 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ product, initialSho
 
         // Generate PDF dynamically (Modified to show Delivery info)
         const generatePDF = async () => {
-            const { generateReservationPDF } = await import('../utils/pdfGenerator');
+            const { generateReservationPDF, savePDFBlob } = await import('../utils/pdfGenerator');
             // Mocking shop name for PDF if shipping
             const shopNameForPdf = deliveryMethod === 'shipping' ? 'Belmobile Online (Shipping)' : selectedShop!.name;
 
-            const { doc, pdfBase64, safeFileName } = generateReservationPDF({
+            const { doc, pdfBase64, safeFileName, blob } = await generateReservationPDF({
+                orderId: `RES-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+                date: new Date().toLocaleDateString(lang === 'fr' ? 'fr-BE' : lang === 'nl' ? 'nl-BE' : 'en-US'),
                 productName: product.name,
                 productPrice: product.price,
                 shopName: shopNameForPdf,
                 customerName: name,
-                customerPhone: phone
+                customerPhone: phone,
+                deliveryMethod: deliveryMethod,
+                shippingAddress: deliveryMethod === 'shipping' ? `${shippingAddress}, ${shippingZip} ${shippingCity}` : undefined,
+                nextSteps: [
+                    t('res_step_1'),
+                    t('res_step_2'),
+                    t('res_step_3')
+                ]
             }, t);
 
-            // Trigger auto-download
-            doc.save(safeFileName);
+            if (blob) {
+                savePDFBlob(blob, safeFileName);
+            }
             return pdfBase64;
         };
 
-        generatePDF().then((pdfBase64) => {
+        generatePDF().then(async (pdfBase64) => {
             // Send Email to Customer
             const emailTitle = deliveryMethod === 'shipping' ? t('Reservation Received - Waiting for Payment Link') : t('email_reservation_title');
             const emailBody = deliveryMethod === 'shipping'
                 ? `<p>${t('thank_you_shipping_request', product.name)}</p>`
                 : `<p>${t('email_reservation_success', product.name, selectedShop!.name)}</p>`;
 
-            sendEmail(
-                email,
-                t('email_reservation_subject', product.name),
-                `<div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
-                    <div style="background-color: #4338ca; padding: 30px; text-align: center;">
-                         <div style="color: #ffffff; font-size: 24px; font-weight: bold;">BELMOBILE.BE</div>
-                    </div>
-                    <div style="padding: 30px; line-height: 1.6;">
-                        <h2 style="color: #4338ca; margin-top: 0;">${emailTitle}</h2>
-                        ${emailBody}
-                        ${deliveryMethod === 'shipping'
-                    ? `<p><strong>${t('Next Step:')}</strong> ${t('We will review your request and send you a secure payment link shorty.')}</p>`
-                    : `<p>${t('email_buyback_repair_attachment')}</p>`
-                }
-                        <hr style="border: 1px solid #eee; margin: 20px 0;">
-                        <p style="font-size: 12px; color: #666;">${t('email_automatic_message')}</p>
-                    </div>
-                 </div>`,
-                [{
-                    filename: `Reservation_${product.name.replace(/\s+/g, '_')}.pdf`,
-                    content: pdfBase64,
-                    encoding: 'base64'
-                }]
-            );
+            try {
+                await sendEmail(
+                    email,
+                    t('email_reservation_subject', product.name),
+                    `<div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                        <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                             <div style="color: #ffffff; font-size: 24px; font-weight: bold;">BELMOBILE.BE</div>
+                        </div>
+                        <div style="padding: 30px; line-height: 1.6;">
+                            <h2 style="color: #4338ca; margin-top: 0;">${emailTitle}</h2>
+                            ${emailBody}
+                            ${deliveryMethod === 'shipping'
+                        ? `<p><strong>${t('Next Step:')}</strong> ${t('We will review your request and send you a secure payment link shorty.')}</p>`
+                        : `<p>${t('email_buyback_repair_attachment')}</p>`
+                    }
+                            <hr style="border: 1px solid #eee; margin: 20px 0;">
+                            <p style="font-size: 12px; color: #666;">${t('email_automatic_message')}</p>
+                        </div>
+                     </div>`,
+                    [{
+                        filename: `Reservation_${product.name.replace(/\s+/g, '_')}.pdf`,
+                        content: pdfBase64,
+                        encoding: 'base64'
+                    }]
+                );
+            } catch (emailErr) {
+                console.error('Failed to send reservation email:', emailErr);
+                alert(t('email_error_customer') || 'Reservation saved, but confirmation email failed. We will contact you soon.');
+            }
 
             // Send Email Copy to Admin
-            sendEmail(
-                'info@belmobile.be',
-                `[NEW RESERVATION] ${deliveryMethod === 'shipping' ? '📦 SHIP' : '🏪 PICKUP'} - ${product.name}`,
-                `<div style="font-family: sans-serif;">
-                    <h2>New Reservation Request</h2>
-                    <p><strong>Type:</strong> ${deliveryMethod?.toUpperCase()}</p>
-                    <p><strong>Customer:</strong> ${name} (${email})</p>
-                    ${deliveryMethod === 'shipping'
-                    ? `<p><strong>Address:</strong> ${shippingAddress}, ${shippingZip} ${shippingCity}</p>`
-                    : `<p><strong>Shop:</strong> ${selectedShop?.name}</p>`
-                }
-                    <p><strong>Phone:</strong> ${phone}</p>
-                </div>`
-            );
+            try {
+                await sendEmail(
+                    'info@belmobile.be',
+                    `[NEW RESERVATION] ${deliveryMethod === 'shipping' ? '📦 SHIP' : '🏪 PICKUP'} - ${product.name}`,
+                    `<div style="font-family: sans-serif;">
+                        <h2>New Reservation Request</h2>
+                        <p><strong>Type:</strong> ${deliveryMethod?.toUpperCase()}</p>
+                        <p><strong>Customer:</strong> ${name} (${email})</p>
+                        ${deliveryMethod === 'shipping'
+                        ? `<p><strong>Address:</strong> ${shippingAddress}, ${shippingZip} ${shippingCity}</p>`
+                        : `<p><strong>Shop:</strong> ${selectedShop?.name}</p>`
+                    }
+                        <p><strong>Phone:</strong> ${phone}</p>
+                    </div>`
+                );
+            } catch (adminEmailErr) {
+                console.error('Failed to send admin reservation copy:', adminEmailErr);
+            }
 
             setSubmitted(true);
         });
