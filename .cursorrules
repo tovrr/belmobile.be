@@ -1,4 +1,6 @@
 # Belmobile Project Rules (Critical)
+> [!IMPORTANT]
+> **AI CONTEXT**: Always reference `.agent/system-memory.md` for high-level architecture diagrams, tech stack versions, and core refactor history. This prevents context drift.
 
 You are working on the **Belmobile Next.js 16 (Canary)** project.
 Your goal is **Premium Quality** and **Zero Regression**.
