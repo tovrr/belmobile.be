@@ -160,12 +160,12 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                     </StepWrapper>
                 )}
 
-                {step === 4 && (
+                {(step === 4 || (step === 5 && type === 'buyback')) && (
                     <StepWrapper key="step4" stepKey="step4">
                         <StepUserInfo
                             type={type}
                             step={step}
-                            onNext={() => formRef.current?.requestSubmit()}
+                            onNext={(type === 'buyback' && step === 4) ? handleNext : () => formRef.current?.requestSubmit()}
                             onBack={handleBack}
                             handleSubmit={handleSubmit}
                             formRef={formRef}
@@ -178,8 +178,8 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
             {/* Mobile Bottom Bar */}
             <MobileBottomBar
                 type={type}
-                onNext={step === 4 ? () => formRef.current?.requestSubmit() : handleNext}
-                nextDisabled={nextDisabled || isLoadingData || isTransitioning || pricingLoading}
+                onNext={((type === 'buyback' && step === 5) || (type === 'repair' && step === 4)) ? () => formRef.current?.requestSubmit() : handleNext}
+                nextDisabled={!!(nextDisabled || isLoadingData || isTransitioning || pricingLoading)}
                 showEstimate={step > 1}
                 estimateDisplay={pricingLoading ? <span className="animate-pulse opacity-50">...</span> : sidebarEstimate}
                 hideNextButton={step < 3}

@@ -40,6 +40,9 @@ interface SidebarProps {
     dynamicRepairPrices?: any;
     getSingleIssuePrice?: (id: string) => number | null;
     loading?: boolean;
+    deliveryMethod?: string | null;
+    courierTier?: string;
+    hasHydrogel?: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -59,7 +62,10 @@ const Sidebar: React.FC<SidebarProps> = ({
     repairEstimates,
     dynamicRepairPrices, // This prop is no longer used in the component logic for price calculation, but kept for now if needed elsewhere.
     getSingleIssuePrice,
-    loading
+    loading,
+    deliveryMethod,
+    courierTier,
+    hasHydrogel
 }) => {
     const { t } = useLanguage();
     const isBuyback = type === 'buyback';
@@ -193,6 +199,26 @@ const Sidebar: React.FC<SidebarProps> = ({
                                             </li>
                                         );
                                     })}
+                                </ul>
+                            </div>
+                        )}
+
+                        {!isBuyback && (deliveryMethod === 'courier' || hasHydrogel) && (
+                            <div className="border-t border-gray-100 dark:border-slate-800 pt-3 mt-3">
+                                <span className="block text-gray-500 mb-2">{t('Extras')}</span>
+                                <ul className="space-y-1">
+                                    {hasHydrogel && (
+                                        <li className="flex justify-between text-gray-900 dark:text-white font-medium">
+                                            <span>{t('hydrogel_protection')}</span>
+                                            <span>&euro;15</span>
+                                        </li>
+                                    )}
+                                    {deliveryMethod === 'courier' && (
+                                        <li className="flex justify-between text-gray-900 dark:text-white font-medium">
+                                            <span>{t('Express Courier')}</span>
+                                            <span>{courierTier === 'brussels' ? <>&euro;15</> : <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span>}</span>
+                                        </li>
+                                    )}
                                 </ul>
                             </div>
                         )}

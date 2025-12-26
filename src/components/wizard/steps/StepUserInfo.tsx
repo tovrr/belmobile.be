@@ -239,6 +239,22 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             </div>
                         );
                     })}</div>)}
+                    {!isBuyback && (deliveryMethod === 'courier' || hasHydrogel) && (
+                        <div className="border-t border-gray-100 dark:border-slate-700 pt-2 mt-2">
+                            {hasHydrogel && (
+                                <div className="flex justify-between text-gray-900 dark:text-white mb-1">
+                                    <span>{t('hydrogel_protection')}</span>
+                                    <span>&euro;15</span>
+                                </div>
+                            )}
+                            {deliveryMethod === 'courier' && (
+                                <div className="flex justify-between text-gray-900 dark:text-white">
+                                    <span>{t('Express Courier')}</span>
+                                    <span>{courierTier === 'brussels' ? <>&euro;15</> : <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span>}</span>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
                 <div className="bg-gray-50 dark:bg-slate-950/50 rounded-xl p-4 text-center group/tooltip relative">
                     <div className="flex items-center justify-center gap-1 mb-1">
@@ -826,6 +842,9 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                     repairEstimates={repairEstimates}
                     dynamicRepairPrices={dynamicRepairPrices}
                     getSingleIssuePrice={getSingleIssuePrice}
+                    deliveryMethod={deliveryMethod}
+                    courierTier={courierTier}
+                    hasHydrogel={hasHydrogel}
                 />
             </div>
         );
