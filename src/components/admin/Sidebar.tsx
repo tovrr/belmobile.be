@@ -9,9 +9,9 @@ import {
 } from '@heroicons/react/24/outline';
 
 const adminNavLinks = [
+    { name: 'Dashboard', path: '/admin/dashboard', icon: ChartPieIcon },
     { name: 'Reservations', path: '/admin/reservations', icon: PhoneIcon },
     { name: 'Messages', path: '/admin/messages', icon: EnvelopeIcon },
-    { name: 'Dashboard', path: '/admin/dashboard', icon: ChartPieIcon },
     { name: 'Products', path: '/admin/products', icon: CubeIcon },
     { name: 'Services', path: '/admin/services', icon: WrenchScrewdriverIcon },
     { name: 'Shops', path: '/admin/shops', icon: BuildingStorefrontIcon },
