@@ -161,6 +161,14 @@ const MessageManagement: React.FC = () => {
                                     <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Email</label>
                                     <p className="text-lg font-medium text-bel-blue dark:text-blue-400 mt-1">{selectedMessage.email}</p>
                                 </div>
+                                <div>
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Phone</label>
+                                    <p className="text-lg font-medium text-gray-600 dark:text-gray-300 mt-1">{selectedMessage.phone || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Subject</label>
+                                    <p className="text-lg font-medium text-gray-600 dark:text-gray-300 mt-1">{selectedMessage.subject || 'N/A'}</p>
+                                </div>
                             </div>
                             <div>
                                 <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Message</label>
@@ -168,6 +176,20 @@ const MessageManagement: React.FC = () => {
                                     {selectedMessage.message}
                                 </div>
                             </div>
+                            {selectedMessage.attachmentUrl && (
+                                <div className="pt-4">
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-2">Attachment</label>
+                                    <a
+                                        href={selectedMessage.attachmentUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 rounded-xl text-bel-blue dark:text-blue-400 font-bold hover:bg-gray-200 dark:hover:bg-slate-700 transition-all"
+                                    >
+                                        <EyeIcon className="w-5 h-5" />
+                                        View Attachment
+                                    </a>
+                                </div>
+                            )}
                         </div>
                         <div className="p-6 bg-gray-50 dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 flex justify-end gap-3">
                             <button

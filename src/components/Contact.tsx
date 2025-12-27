@@ -89,7 +89,7 @@ const Contact: React.FC = () => {
                 name,
                 email,
                 phone: phone || null,
-                subject: subject || null,
+                subject: subject || 'General Inquiry',
                 message,
                 attachmentUrl
             });
