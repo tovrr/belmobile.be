@@ -20,7 +20,15 @@ When a customer submits a request:
 1. They receive an automated email with a **PDF Confirmation**.
 2. A new record appears in your dashboard.
 3. You can update the status (Processing, Responded, Closed) to track the lead.
-4. **Service Architecture**: The system uses a centralized `orderService` for high-integrity data handling, ensuring PDF generation and Firebase syncing are reliable.
+4. **Service Architecture**: The system uses a centralized `orderService`.
+
+### 🛠️ Advanced Quote Management
+Click on any row in the "Orders & Quotes" table to open the **Details View**:
+
+- **Internal Notes**: A private text area (yellow box) to share notes with other staff. These are **never** shown to the customer.
+- **Activity Log**: At the bottom of the modal, see exactly who changed a price or status and when.
+- **PDF Download**: Click the **PDF** button next to "Close" to download the official quote/receipt. This is useful if you change the price and need a new document.
+- **Edit Price**: Click the ✏️ icon next to the price to override the estimated value. This updates the "Financials" in the PDF.
 
 ## 🌟 Automated Review & Feedback
 The platform now includes an intelligent system to boost your Google Reviews:

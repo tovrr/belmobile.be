@@ -2,11 +2,17 @@
 
 import React, { useState } from 'react';
 import { useData } from '../../hooks/useData';
+import { useAuth } from '../../context/AuthContext';
 import { EyeIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { Quote } from '../../types';
-import QuoteDetailsModal from './QuoteDetailsModal';
+import dynamic from 'next/dynamic';
+
+const QuoteDetailsModal = dynamic(() => import('./QuoteDetailsModal'), {
+    loading: () => <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"><div className="w-10 h-10 border-4 border-white/30 border-t-white rounded-full animate-spin"></div></div>
+});
 
 const QuoteManagement: React.FC = () => {
+    const { profile } = useAuth();
     const { quotes, shops } = useData();
     const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -85,10 +91,10 @@ const QuoteManagement: React.FC = () => {
                     <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                         <thead className="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-slate-900/50">
                             <tr>
+                                <th scope="col" className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">ID / Shop</th>
                                 <th scope="col" className="px-6 py-4">Customer</th>
                                 <th scope="col" className="px-6 py-4">Type</th>
                                 <th scope="col" className="px-6 py-4">Device</th>
-                                <th scope="col" className="px-6 py-4">Shop</th>
                                 <th scope="col" className="px-6 py-4">Status</th>
                                 <th scope="col" className="px-6 py-4">Actions</th>
                             </tr>
@@ -96,6 +102,17 @@ const QuoteManagement: React.FC = () => {
                         <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                             {filteredQuotes.map(quote => (
                                 <tr key={quote.id} className="bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="font-mono text-[10px] text-gray-400">#{quote.id?.toString().slice(-6).toUpperCase()}</span>
+                                            <span className="text-gray-600 dark:text-gray-400 text-xs font-semibold">{getShopName(quote.shopId)}</span>
+                                            {profile?.role === 'super_admin' && (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-black bg-bel-blue/10 text-bel-blue uppercase tracking-tighter w-fit">
+                                                    📍 {quote.shopId}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </td>
                                     <td className="px-6 py-4">
                                         <div className="font-bold text-gray-900 dark:text-white">{quote.customerName}</div>
                                         <div className="text-xs text-gray-500 dark:text-gray-400">{quote.customerEmail}</div>
@@ -109,7 +126,6 @@ const QuoteManagement: React.FC = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">{quote.brand} {quote.model}</td>
-                                    <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{getShopName(quote.shopId)}</td>
                                     <td className="px-6 py-4">
                                         <span className={`px-3 py-1 text-xs font-bold rounded-full capitalize ${quote.status === 'new' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
                                             quote.status === 'responded' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' :

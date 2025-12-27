@@ -8,34 +8,26 @@ import { useWizardPricing } from '../../../hooks/useWizardPricing';
 import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { slugToDisplayName } from '../../../utils/slugs';
+import { WizardFAQ } from '../WizardFAQ';
 
 interface StepConditionProps {
     type: 'buyback' | 'repair';
-    step: number;
-    onNext: () => void;
-    onBack: () => void;
+    step?: number;
+    onNext?: () => void;
+    onBack?: () => void;
 }
 
 export const StepCondition: React.FC<StepConditionProps> = memo(({
-    type,
-    step,
-    onNext,
-    onBack
+    type
 }) => {
     const { state, dispatch } = useWizard();
     const { t } = useLanguage();
-    const {
-        handleNext, // If we want to use the hook's handleNext instead of passed onNext? 
-        // Actually Steps usually call handleNext on button click.
-        // But here we rely on standard next.
-        // Let's use the passed onNext or the hook's handleNext?
-        // The parent BuybackRepair passes a handleNext that scrolls window.
-        // If we use hook's handleNext, it might not scroll.
-        // So we should stick to passed onNext/onBack if they are passed, or fallback.
-        // But wait, in BuybackRepair.tsx I removed the props passed to the component?
-        // No, I likely passed onNext={handleNext} etc.
-        // Let's check BuybackRepair.tsx later. Safe to keep props.
-    } = useWizardActions(type);
+    const { handleNext, handleBack } = useWizardActions(type);
+
+    const step = state.step;
+    const onNext = handleNext;
+    const onBack = handleBack;
+
 
     const {
         sidebarEstimate,
@@ -194,6 +186,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             </div>
                         </div>
                     )}
+                    <WizardFAQ currentStep={step} flow={type} />
                 </div>
 
                 <Sidebar
@@ -384,6 +377,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             );
                         })}
                     </div>
+                    <WizardFAQ currentStep={step} flow={type} />
                 </div>
 
                 <Sidebar

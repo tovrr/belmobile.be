@@ -1,73 +1,85 @@
 import { TDocumentDefinitions, StyleDictionary, Content } from 'pdfmake/interfaces';
 
-// Design System
+// Design System - INK SAVER MODE
 const COLORS = {
-    Primary: '#4338ca',    // Deep Indigo
-    Accent: '#FFDE00',     // Yellow
-    TextDark: '#111827',   // Gray-900 
-    TextGray: '#6b7280',   // Gray-500
-    Border: '#e5e7eb',     // Gray-200
-    Background: '#f9fafb', // Gray-50
+    Primary: '#4338ca',    // Deep Indigo - Used sparingly for accents
+    Accent: '#4338ca',     // Same as primary for consistency/single ink usage
+    TextDark: '#000000',   // Pure Black for max contrast
+    TextGray: '#4b5563',   // Dark Gray for labels
+    Border: '#d1d5db',     // Gray-300 for thin borders
     White: '#ffffff'
 };
 
 const STYLES: StyleDictionary = {
     headerTitle: {
-        fontSize: 24,
+        fontSize: 22,
         bold: true,
         color: COLORS.TextDark
     },
     headerSubtitle: {
-        fontSize: 8,
+        fontSize: 9,
         color: COLORS.TextGray,
-        margin: [0, 2, 0, 0] // Top margin for slogan
+        margin: [0, 2, 0, 0],
+        characterSpacing: 1
     },
     documentTitle: {
-        fontSize: 14,
+        fontSize: 12,
         bold: true,
-        color: COLORS.Primary,
+        color: COLORS.TextDark,
         alignment: 'right'
     },
     sectionHeader: {
-        fontSize: 10,
+        fontSize: 11,
         bold: true,
-        color: COLORS.TextDark,
-        margin: [0, 10, 0, 5]
+        color: COLORS.Primary, // Pop of color just on text
+        margin: [0, 15, 0, 8]
     },
     label: {
-        fontSize: 8,
-        color: COLORS.TextGray
+        fontSize: 9,
+        color: COLORS.TextGray,
+        lineHeight: 1.2
     },
     value: {
-        fontSize: 9,
+        fontSize: 10,
         color: COLORS.TextDark,
-        bold: false
+        bold: false,
+        lineHeight: 1.2
     },
     valueBold: {
-        fontSize: 10,
+        fontSize: 11,
         color: COLORS.TextDark,
         bold: true
     },
     tableHeader: {
-        fontSize: 8,
+        fontSize: 9,
         bold: true,
-        color: COLORS.TextGray,
-        fillColor: COLORS.Background
+        color: COLORS.TextDark,
+        // No fill color
     },
     tableCell: {
-        fontSize: 9,
+        fontSize: 10,
         color: COLORS.TextDark
     },
     totalLabel: {
         fontSize: 14,
         bold: true,
-        color: COLORS.Primary
+        color: COLORS.TextDark
     },
     totalValue: {
-        fontSize: 14,
+        fontSize: 16,
         bold: true,
         color: COLORS.Primary,
         alignment: 'right'
+    },
+    stepIndex: {
+        fontSize: 12,
+        bold: true,
+        color: COLORS.Primary
+    },
+    stepText: {
+        fontSize: 10,
+        color: COLORS.TextDark,
+        margin: [5, 1, 0, 0]
     }
 };
 
@@ -95,6 +107,7 @@ export interface PdfData {
     specs?: Record<string, string | boolean>;
     iban?: string;
     footerHelpText: string;
+    documentTitle: string;
     trackingInfo?: string;
     trackingUrl?: string;
     labels: {
@@ -109,6 +122,7 @@ export interface PdfData {
         shop?: string; // "Magasin"
         model?: string; // "Modèle"
         featuresSpecs: string;
+        financials: string; // Ensure this is present
         description: string;
         price: string;
         paymentIban: string;
@@ -123,10 +137,10 @@ export interface PdfData {
 export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
     return {
         pageSize: 'A4',
-        pageMargins: [40, 40, 40, 60], // [left, top, right, bottom]
+        pageMargins: [40, 40, 40, 40], // [left, top, right, bottom]
 
         content: [
-            // 1. Header
+            // 1. Header (Clean, Text Only)
             {
                 columns: [
                     {
@@ -143,81 +157,107 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     },
                     {
                         width: 'auto',
-                        text: data.type === 'buyback' ? 'BUYBACK OFFER' : (data.type === 'repair' ? 'REPAIR ORDER' : 'RESERVATION'),
+                        text: data.documentTitle.toUpperCase(),
                         style: 'documentTitle',
-                        margin: [0, 10, 0, 0]
+                        margin: [0, 8, 0, 0]
                     }
                 ]
             } as any,
 
-            // Divider Line
+            // Single Minimal Divider
             {
-                canvas: [{ type: 'line', x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 1, lineColor: COLORS.Primary }],
-                margin: [0, 10, 0, 20]
+                canvas: [{ type: 'line', x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 1.5, lineColor: COLORS.Primary }],
+                margin: [0, 5, 0, 20]
             } as any,
 
-            // 2. Info Bar (Order ID, Date, Method)
+            // 2. Info Box (Bordered Card, No Fill)
             {
-                columns: [
-                    {
-                        width: '*',
-                        stack: [
-                            { text: data.labels.orderId, style: 'label' },
-                            { text: data.orderId, style: 'valueBold', margin: [0, 2, 0, 0] }
-                        ]
-                    },
-                    {
-                        width: '*',
-                        stack: [
-                            { text: data.labels.date, style: 'label' },
-                            { text: data.date, style: 'valueBold', margin: [0, 2, 0, 0] }
-                        ]
-                    },
-                    {
-                        width: '*',
-                        stack: [
-                            { text: data.labels.method, style: 'label' },
-                            { text: data.method, style: 'valueBold', margin: [0, 2, 0, 0] }
-                        ]
-                    },
-                    // QR Code Column
-                    ...(data.trackingUrl ? [{
-                        width: 'auto',
-                        stack: [
-                            { qr: data.trackingUrl, fit: 45, alignment: 'right', margin: [0, -5, 0, 0] },
-                            { text: data.labels.scanToTrack, style: 'label', alignment: 'right', fontSize: 6, margin: [0, 2, 0, 0] }
-                        ]
-                    }] as any[] : [])
-                ],
-                margin: [0, 0, 0, 20]
+                table: {
+                    widths: ['*', '*', '*', 'auto'],
+                    body: [[
+                        {
+                            stack: [
+                                { text: data.labels.orderId, style: 'label' },
+                                { text: data.orderId, style: 'valueBold' }
+                            ],
+                            border: [false, false, false, false]
+                        },
+                        {
+                            stack: [
+                                { text: data.labels.date, style: 'label' },
+                                { text: data.date, style: 'valueBold' }
+                            ],
+                            border: [true, false, false, false],
+                            borderColor: [COLORS.Border, '#000', '#000', '#000']
+                        },
+                        {
+                            stack: [
+                                { text: data.labels.method, style: 'label' },
+                                { text: data.method, style: 'valueBold' }
+                            ],
+                            border: [true, false, false, false],
+                            borderColor: [COLORS.Border, '#000', '#000', '#000']
+                        },
+                        // QR Code inside the box if exists
+                        (data.trackingUrl ? {
+                            stack: [
+                                { qr: data.trackingUrl, fit: 40, alignment: 'right' },
+                            ],
+                            border: [true, false, false, false],
+                            borderColor: [COLORS.Border, '#000', '#000', '#000']
+                        } : { text: '', border: [false, false, false, false] })
+                    ]]
+                },
+                layout: {
+                    defaultBorder: false,
+                    paddingLeft: (i: number) => i === 0 ? 0 : 10,
+                    paddingRight: (i: number) => 10,
+                    paddingTop: () => 5,
+                    paddingBottom: () => 5
+                },
             } as any,
 
-            // 3. Main Grid (Customer | Shop/Device)
+            // 3. Main Grid (Customer | Shop/Device) - Divider Lines
             {
                 columns: [
                     // Left: Customer
                     {
                         width: '*',
                         stack: [
-                            { text: data.labels.clientDetails, style: 'sectionHeader' },
+                            {
+                                stack: [
+                                    { text: data.labels.clientDetails.toUpperCase(), style: 'sectionHeader', margin: [0, 15, 0, 2] },
+                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 240, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                                ]
+                            },
                             { text: data.labels.name, style: 'label', margin: [0, 5, 0, 0] },
                             { text: data.customer.name, style: 'value' },
+
                             { text: data.labels.email, style: 'label', margin: [0, 5, 0, 0] },
                             { text: data.customer.email || '-', style: 'value' },
+
                             { text: data.labels.phone, style: 'label', margin: [0, 5, 0, 0] },
                             { text: data.customer.phone, style: 'value' },
-                            data.customer.address ? { text: data.labels.address, style: 'label', margin: [0, 5, 0, 0] } : {},
-                            data.customer.address ? { text: data.customer.address, style: 'value' } : {}
+
+                            ...(data.customer.address ? [
+                                { text: data.labels.address, style: 'label', margin: [0, 5, 0, 0] },
+                                { text: data.customer.address, style: 'value' }
+                            ] : [])
                         ]
                     },
                     // Right: Shop or Device
                     {
                         width: '*',
                         stack: [
-                            { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader' },
+                            {
+                                stack: [
+                                    { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader', margin: [0, 15, 0, 2] },
+                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 240, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                                ]
+                            },
                             // Name (Shop or Device)
                             { text: data.type === 'reservation' ? (data.labels.shop || 'Magasin') : (data.labels.model || 'Modèle'), style: 'label', margin: [0, 5, 0, 0] },
-                            { text: data.shopOrDevice.name, style: 'value' },
+                            { text: data.shopOrDevice.name, style: 'valueBold' }, // Bold logic for device name
                             // Dynamic Details List
                             ...data.shopOrDevice.details.map(detail => ({
                                 stack: [
@@ -229,13 +269,17 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     }
                 ],
                 columnGap: 20,
-                margin: [0, 0, 0, 20]
+                margin: [0, 10, 0, 10]
             } as any,
 
             // 4. Specs (Buyback)
             ...(data.specs ? [
-                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 10, 0, 10] } as Content,
-                { text: data.labels.featuresSpecs, style: 'sectionHeader' } as Content,
+                {
+                    stack: [
+                        { text: data.labels.featuresSpecs.toUpperCase(), style: 'sectionHeader', margin: [0, 15, 0, 2] },
+                        { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                    ]
+                } as Content,
                 {
                     columns: [
                         {
@@ -251,128 +295,115 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                                 .map(([key, val]) => ({ text: [{ text: `${key}: `, style: 'label' }, { text: String(val), style: 'value' }] }))
                         }
                     ],
-                    margin: [0, 0, 0, 20]
+                    margin: [0, 5, 0, 10]
                 } as any
             ] : []),
 
-            // 5. Price Breakdown Table
+            // 5. Financials Table - Clean Borders
+            {
+                stack: [
+                    { text: data.labels.financials.toUpperCase(), style: 'sectionHeader', margin: [0, 15, 0, 2] },
+                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                ]
+            } as Content,
             {
                 table: {
                     headerRows: 1,
                     widths: ['*', 'auto'],
                     body: [
                         // Header
-                        // Header
                         [
-                            { text: data.labels.description, style: 'tableHeader', margin: [5, 5, 5, 5] },
-                            { text: data.labels.price, style: 'tableHeader', alignment: 'right', margin: [5, 5, 5, 5] }
+                            { text: data.labels.description, style: 'tableHeader', margin: [0, 5, 0, 5], border: [false, false, false, true] },
+                            { text: data.labels.price, style: 'tableHeader', alignment: 'right', margin: [0, 5, 0, 5], border: [false, false, false, true] }
                         ],
                         // Rows
                         ...data.priceBreakdown.map(item => [
-                            { text: item.label, style: 'tableCell', margin: [5, 5, 5, 5], border: [false, false, false, true], borderColor: ['#000', '#000', '#000', COLORS.Border] },
-                            { text: `€${item.price}`, style: 'tableCell', alignment: 'right', margin: [5, 5, 5, 5], border: [false, false, false, true], borderColor: ['#000', '#000', '#000', COLORS.Border] }
+                            { text: item.label, style: 'tableCell', margin: [0, 8, 0, 8], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] },
+                            { text: `€${item.price.toFixed(2)}`, style: 'tableCell', alignment: 'right', margin: [0, 8, 0, 8], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] }
                         ])
                     ]
                 },
                 layout: {
-                    hLineWidth: (i: number) => i === 0 || i === 1 ? 0 : 0.5,
-                    vLineWidth: () => 0,
-                    hLineColor: COLORS.Border,
-                    paddingLeft: () => 0,
-                    paddingRight: () => 0
+                    defaultBorder: false,
                 },
-                margin: [0, 20, 0, 20]
+                margin: [0, 0, 0, 10]
             } as any,
 
-            // 6. Total Box (The "Perfect" Solution)
+            // 6. Total Box (Right Aligned, minimal)
             {
-                table: {
-                    widths: ['*'],
-                    body: [[
-                        {
-                            margin: [10, 10, 10, 10],
-                            columns: [
-                                { text: data.totalLabel, style: 'totalLabel', alignment: 'left' },
-                                { text: `€${data.totalPrice}`, style: 'totalValue', alignment: 'right' }
-                            ],
-                            fillColor: '#ffffff'
+                columns: [
+                    { width: '*', text: '' }, // Spacer
+                    {
+                        width: 'auto',
+                        table: {
+                            widths: [100, 100],
+                            body: [[
+                                { text: data.totalLabel, style: 'totalLabel', alignment: 'left', margin: [0, 5, 0, 5] },
+                                { text: `€${data.totalPrice.toFixed(2)}`, style: 'totalValue', alignment: 'right', margin: [0, 5, 0, 5] }
+                            ]]
+                        },
+                        layout: {
+                            hLineWidth: (i: number) => i === 0 ? 1 : 1, // Top and bottom heavy border
+                            vLineWidth: () => 0,
+                            hLineColor: COLORS.TextDark,
+                            paddingLeft: () => 0,
+                            paddingRight: () => 0
                         }
-                    ]]
-                },
-                layout: {
-                    hLineWidth: () => 1,
-                    vLineWidth: () => 1,
-                    hLineColor: COLORS.Border,
-                    vLineColor: COLORS.Border
-                },
+                    }
+                ],
                 margin: [0, 0, 0, 20]
             } as any,
 
-            // 7. IBAN (Buyback)
+            // 7. IBAN
             ...(data.iban ? [
                 {
-                    table: {
-                        widths: ['*'],
-                        body: [[{
-                            text: [
-                                { text: data.labels.paymentIban + ': ', style: 'label' },
-                                { text: data.iban, style: 'valueBold' }
-                            ],
-                            margin: [10, 10, 10, 10]
-                        }]]
-                    },
-                    layout: {
-                        hLineWidth: () => 0.5,
-                        vLineWidth: () => 0.5,
-                        hLineColor: COLORS.Border,
-                        vLineColor: COLORS.Border,
-                        defaultBorder: true
-                    },
+                    text: [
+                        { text: data.labels.paymentIban + ': ', style: 'label' },
+                        { text: data.iban, style: 'valueBold', fontFeatures: ['tnum'] } // tabular nums
+                    ],
+                    padding: 10,
+                    decoration: 'underline',
+                    decorationStyle: 'dotted',
                     margin: [0, 0, 0, 20]
-                } as any
+                } as Content
             ] : []),
 
-            // 8. Tracking Info
-            ...(data.trackingInfo ? [
+            // 8. Next Steps (Timeline Style)
+            ...(data.nextSteps.length > 0 ? [
                 {
                     stack: [
-                        { text: data.labels.followOrder, style: 'sectionHeader' },
-                        { text: data.trackingInfo, style: 'value' }
-                    ],
-                    margin: [0, 0, 0, 20]
-                } as Content
-            ] : []),
-
-            // 9. Next Steps
-            ...(data.nextSteps.length > 0 ? [
-                { text: data.labels.nextSteps, style: 'sectionHeader' } as Content,
+                        { text: data.labels.nextSteps.toUpperCase(), style: 'sectionHeader', margin: [0, 15, 0, 2] },
+                        { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                    ]
+                } as Content,
                 {
-                    ol: data.nextSteps.map(step => ({ text: step, style: 'value', margin: [0, 0, 0, 5] })),
-                    margin: [0, 0, 0, 20]
+                    stack: data.nextSteps.map((step, index) => ({
+                        columns: [
+                            { width: 25, text: `${index + 1}.`, style: 'stepIndex' },
+                            { width: '*', text: step, style: 'stepText' }
+                        ],
+                        margin: [0, 0, 0, 8]
+                    })),
+                    margin: [0, 10, 0, 20]
                 } as Content
-            ] : [])
+            ] : []) // Closing array properly for nextSteps
         ],
 
-        // Footer
+        // Minimal Footer
         footer: (currentPage: number, pageCount: number) => {
             return {
                 columns: [
-                    {
-                        width: '*',
-                        stack: [
-                            { text: data.footerHelpText, style: 'label', alignment: 'center', margin: [0, 0, 0, 2] },
-                            { text: 'Belmobile.be - Rue Gallait 4, 1030 Schaerbeek - BE0502.737.241', style: 'label', alignment: 'center' },
-                            { text: `${currentPage} / ${pageCount}`, style: 'label', alignment: 'right', margin: [0, 5, 20, 0] }
-                        ]
-                    }
+                    { text: data.footerHelpText, style: 'label', alignment: 'left', margin: [40, 10, 0, 0], fontSize: 7 },
+                    { text: `${currentPage} / ${pageCount}`, style: 'label', alignment: 'right', margin: [0, 10, 40, 0], fontSize: 7 }
                 ],
-                margin: [0, 10, 0, 0]
+                // Top border for footer
+                canvas: [{ type: 'line', x1: 40, y1: 0, x2: 555, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }]
             } as any;
         },
 
         styles: STYLES,
         defaultStyle: {
-            font: 'Roboto' // PDFMake default
+            font: 'Roboto'
         }
     };
 };

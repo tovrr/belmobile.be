@@ -11,30 +11,32 @@ import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useWizardPricing } from '../../../hooks/useWizardPricing';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { slugToDisplayName } from '../../../utils/slugs';
+import { shimmer, toBase64 } from '../../../utils/shimmer';
 
 interface StepDeviceSelectionProps {
     type: 'buyback' | 'repair';
-    step: number; // passed for Sidebar compatibility or just use context? Sidebar takes step.
-    onNext: () => void;
-    onBack: () => void;
+    step?: number;
+    onNext?: () => void;
+    onBack?: () => void;
     modelSelectRef?: React.RefObject<HTMLDivElement | null>;
-    // Optional overrides for legacy compatibility or storybook
     selectedBrand?: string;
     selectedModel?: string;
 }
 
 export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
     type,
-    step,
-    onBack,
-    onNext,
     modelSelectRef
 }) => {
     const { state, dispatch } = useWizard();
     const { t } = useLanguage();
 
     // Actions
-    const { handleBrandSelect, handleModelSelect } = useWizardActions(type);
+    const { handleBrandSelect, handleModelSelect, handleBack, handleNext } = useWizardActions(type);
+
+    const step = state.step;
+    const onBack = handleBack;
+    const onNext = handleNext;
+
 
     // Pricing for Sidebar
     const { sidebarEstimate, repairEstimates, dynamicRepairPrices, getSingleIssuePrice } = useWizardPricing(type);
@@ -91,8 +93,11 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                                             src={getDeviceImage(createSlug(brand))!}
                                             alt={`${brand} ${t(type === 'buyback' ? 'Buyback' : 'Repair')} options`}
                                             fill
-                                            sizes="48px"
-                                            priority={index < 6}
+                                            sizes="(max-width: 640px) 48px, 48px"
+                                            priority={index < 4} // Elite: Above the fold priority
+                                            {...(index < 4 ? { fetchPriority: "high" } : {})}
+                                            placeholder="blur"
+                                            blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(48, 48))}`}
                                             className={`object-contain transition-all duration-300 ${selectedBrand === brand
                                                 ? 'brightness-0 invert'
                                                 : 'opacity-40 grayscale dark:invert dark:opacity-60 group-hover:opacity-100 group-hover:grayscale-0'

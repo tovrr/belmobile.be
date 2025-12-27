@@ -362,6 +362,7 @@ const ProductManagement: React.FC = () => {
                                     <tr>
                                         <th scope="col" className="px-6 py-4">Date</th>
                                         <th scope="col" className="px-6 py-4">Product</th>
+                                        <th scope="col" className="px-6 py-4">Shop</th>
                                         <th scope="col" className="px-6 py-4">Type</th>
                                         <th scope="col" className="px-6 py-4">Change Description</th>
                                     </tr>
@@ -375,6 +376,16 @@ const ProductManagement: React.FC = () => {
                                             <td className="px-6 py-4">
                                                 <div className="font-bold text-gray-900 dark:text-white uppercase tracking-tighter">{log.productName}</div>
                                                 <div className="text-[10px] text-gray-400">ID: {log.productId}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-bold text-gray-600 dark:text-gray-400">{shops.find(s => String(s.id) === String(log.targetShopId))?.city || 'Unknown'}</span>
+                                                    {user && log.targetShopId && (
+                                                        <span className="mt-1 inline-flex items-center px-1 py-0.5 rounded text-[8px] font-black bg-indigo-100 text-indigo-700 uppercase tracking-tighter w-fit text-nowrap">
+                                                            ID: {log.targetShopId}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${log.type === 'stock_update' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :

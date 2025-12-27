@@ -1,5 +1,7 @@
 
 
+import { SHOPS } from '@/constants';
+
 export const generateReviewEmailHtml = (
     language: string,
     customerName: string,
@@ -7,7 +9,9 @@ export const generateReviewEmailHtml = (
     orderId: string,
     shopName?: string
 ) => {
-    const baseUrl = 'https://belmobile.be'; // Can be env var
+    const baseUrl = 'https://belmobile.be';
+    const shop = SHOPS.find(s => s.id === shopId) || SHOPS[0];
+    const googleReviewUrl = shop.googleReviewUrl || 'https://g.page/belmobile/review';
     const lang = ['fr', 'nl', 'en'].includes(language) ? language : 'en';
 
     // Translations
@@ -37,9 +41,13 @@ export const generateReviewEmailHtml = (
             body: `Het zou veel voor ons betekenen als u uw feedback over uw bezoek aan Belmobile ${shopName || shopId} zou delen.`,
             question: 'Hoe beoordeelt u ons?',
             footer: 'Bedankt voor uw vertrouwen in Belmobile!',
-            unsubscribe: 'Uitschrijven'
+            unsubscribe: 'Uitschrijven',
+            googleBtn: 'Beoordeel ons op Google'
         }
     }[lang as 'en' | 'fr' | 'nl'];
+
+    // Fallback translations if missing
+    const googleBtn = (t as any).googleBtn || 'Review us on Google';
 
     // Generate 5 stars
     const starsHtml = [1, 2, 3, 4, 5].map(star => {
@@ -85,8 +93,16 @@ export const generateReviewEmailHtml = (
                                     
                                     <div style="background-color: #f1f5f9; border-radius: 16px; padding: 30px; margin-bottom: 30px;">
                                         <p style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #0f172a;">${t.question}</p>
-                                        <div>
+                                        <div style="margin-bottom: 25px;">
                                             ${starsHtml}
+                                        </div>
+                                        <div style="padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                                            <a href="${googleReviewUrl}" style="background-color: #ffffff; color: #4f46e5; border: 2px solid #4f46e5; padding: 12px 24px; text-decoration: none; border-radius: 12px; font-weight: 800; display: inline-block; font-size: 14px; transition: all 0.2s ease;">
+                                                <span style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                                    <img src="https://www.google.com/favicon.ico" width="16" height="16" style="vertical-align: middle; margin-right: 8px;">
+                                                    ${googleBtn}
+                                                </span>
+                                            </a>
                                         </div>
                                     </div>
                                     

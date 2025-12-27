@@ -3,12 +3,12 @@
 import { useMemo, useCallback } from 'react';
 import { useWizard } from '../context/WizardContext';
 import { useLanguage } from './useLanguage';
+import { calculateBuybackPriceShared, calculateRepairPriceShared } from '../utils/pricingLogic';
 
 export const useWizardPricing = (type: 'buyback' | 'repair') => {
     const { state } = useWizard();
     const { t } = useLanguage();
 
-    // Consuming pricingData from Context (Phase 1 Fix)
     const { repairPrices: dynamicRepairPrices, buybackPrices: dynamicBuybackPrices, isLoading: loading } = state.pricingData;
 
     const getSingleIssuePrice = useCallback((issueId: string) => {
@@ -39,123 +39,40 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
     const buybackEstimate = useMemo(() => {
         if (type !== 'buyback' || !state.selectedBrand || !state.selectedModel || !state.deviceType) return 0;
 
-        if (dynamicBuybackPrices && dynamicBuybackPrices.length > 0) {
-            const storageMatch = dynamicBuybackPrices.find(p => p.storage === state.storage);
-            let baseParamsPrice = storageMatch ? storageMatch.price : Math.max(...dynamicBuybackPrices.map(p => p.price));
-
-            const screenRepairPrice = getSingleIssuePrice('screen') || 100;
-            const backRepairPrice = getSingleIssuePrice('back_glass') || 80;
-            const batteryRepairPrice = getSingleIssuePrice('battery') || 60;
-
-            if (state.turnsOn === false) baseParamsPrice = 0;
-            else if (state.worksCorrectly === false) baseParamsPrice *= 0.50;
-            if (state.isUnlocked === false) baseParamsPrice = 0;
-
-            if (state.selectedBrand === 'Apple' && (state.deviceType === 'smartphone' || state.deviceType === 'tablet')) {
-                if (state.batteryHealth === 'service') baseParamsPrice -= batteryRepairPrice;
-                if (state.faceIdWorking === false) baseParamsPrice -= 150;
-            }
-
-            if (state.screenState === 'scratches') baseParamsPrice -= (screenRepairPrice * 0.3);
-            if (state.screenState === 'cracked') baseParamsPrice -= screenRepairPrice;
-
-            if (state.bodyState === 'scratches') baseParamsPrice -= 20;
-            if (state.bodyState === 'dents') baseParamsPrice -= backRepairPrice;
-            if (state.bodyState === 'bent') baseParamsPrice -= (backRepairPrice + 40);
-
-            return Math.max(0, Math.round(baseParamsPrice));
-        }
-        return 0;
-    }, [type, state, dynamicBuybackPrices, getSingleIssuePrice]);
+        return calculateBuybackPriceShared({
+            ...state,
+            type: 'buyback',
+            brand: state.selectedBrand,
+            model: state.selectedModel
+        }, state.pricingData);
+    }, [type, state]);
 
     const repairEstimates = useMemo(() => {
+        const hasScreen = state.repairIssues.includes('screen');
         if (type !== 'repair' || !state.selectedModel || state.repairIssues.length === 0)
-            return { standard: 0, original: 0, oled: 0, hasScreen: false };
+            return { standard: 0, original: 0, oled: 0, hasScreen };
 
-        let standardTotal = 0;
-        let originalTotal = 0;
-        let oledTotal = 0;
-        let isStandardValid = true;
-        let isOriginalValid = true;
-        let isOledValid = true;
-        let hasScreen = false;
+        const params = {
+            ...state,
+            type: 'repair' as const,
+            brand: state.selectedBrand,
+            model: state.selectedModel
+        };
 
-        state.repairIssues.forEach(issueId => {
-            const basePrice = getSingleIssuePrice(issueId);
-
-            if (issueId === 'screen') {
-                hasScreen = true;
-                const d = dynamicRepairPrices || {};
-
-                const pGeneric = d.screen_generic ?? -1;
-                const pOled = d.screen_oled ?? -1;
-                const pOriginal = d.screen_original ?? -1;
-
-                // Standard (Generic Preferred)
-                if (pGeneric > 0) standardTotal += pGeneric;
-                else if (pGeneric === 0) isStandardValid = false;
-                else if (pOled > 0) standardTotal += pOled;
-                else if (pOled === 0) isStandardValid = false;
-                else if (pOriginal > 0) standardTotal += pOriginal;
-                else if (pOriginal === 0) isStandardValid = false;
-                else isStandardValid = false;
-
-                // OLED
-                if (pOled > 0) oledTotal += pOled;
-                else if (pOled === 0) isOledValid = false;
-                else if (pOriginal > 0) oledTotal += pOriginal; // Fallback
-                else if (pGeneric > 0) oledTotal += pGeneric; // Fallback
-                else isOledValid = false;
-
-                // Original
-                if (pOriginal > 0) originalTotal += pOriginal;
-                else if (pOriginal === 0) isOriginalValid = false;
-                else if (pOled > 0) originalTotal += pOled;
-                else if (pGeneric > 0) originalTotal += pGeneric;
-                else isOriginalValid = false;
-
-            } else {
-                if (basePrice !== null && basePrice > 0) {
-                    standardTotal += basePrice;
-                    originalTotal += basePrice;
-                    oledTotal += basePrice;
-                } else if (basePrice === 0) {
-                    isStandardValid = false;
-                    isOriginalValid = false;
-                    isOledValid = false;
-                } else {
-                    // Item missing in DB
-                    isStandardValid = false;
-                    isOriginalValid = false;
-                    isOledValid = false;
-                }
-            }
-        });
-
-        if (state.hasHydrogel && state.step > 3) {
-            const hydroPrice = 15;
-            if (isStandardValid) standardTotal += hydroPrice;
-            if (isOledValid) oledTotal += hydroPrice;
-            if (isOriginalValid) originalTotal += hydroPrice;
-        }
-
-        if (state.deliveryMethod === 'courier' && state.courierTier === 'brussels') {
-            const courierFee = 15;
-            if (isStandardValid) standardTotal += courierFee;
-            if (isOledValid) oledTotal += courierFee;
-            if (isOriginalValid) originalTotal += courierFee;
-        }
+        const standard = calculateRepairPriceShared({ ...params, selectedScreenQuality: 'generic' }, state.pricingData);
+        const oled = calculateRepairPriceShared({ ...params, selectedScreenQuality: 'oled' }, state.pricingData);
+        const original = calculateRepairPriceShared({ ...params, selectedScreenQuality: 'original' }, state.pricingData);
 
         return {
-            standard: isStandardValid ? Math.round(standardTotal) : -1,
-            original: isOriginalValid ? Math.round(originalTotal) : -1,
-            oled: isOledValid ? Math.round(oledTotal) : -1,
+            standard: standard > 0 ? standard : -1,
+            oled: oled > 0 ? oled : -1,
+            original: original > 0 ? original : -1,
             hasScreen
         };
-    }, [type, state, dynamicRepairPrices, getSingleIssuePrice]);
+    }, [type, state]);
 
     const sidebarEstimate = useMemo(() => {
-        if (loading) return 0; // Show 0 or separate loading state in UI
+        if (loading) return 0;
 
         if (type === 'buyback') return buybackEstimate;
 

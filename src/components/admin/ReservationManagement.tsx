@@ -2,9 +2,11 @@
 
 import React from 'react';
 import { useData } from '../../hooks/useData';
+import { useAuth } from '../../context/AuthContext';
 import { CheckCircleIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const ReservationManagement: React.FC = () => {
+    const { profile } = useAuth();
     const { reservations, shops, updateReservationStatus, deleteReservation } = useData();
     const getShopName = (shopId: number | string) => shops.find(s => s.id === shopId)?.name || 'Unknown Shop';
 
@@ -73,11 +75,20 @@ const ReservationManagement: React.FC = () => {
                                     </td>
                                     <td className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">{res.productName}</td>
                                     <td className="px-6 py-4 text-xs font-bold uppercase text-gray-600 dark:text-gray-400">{res.deliveryMethod || 'pickup'}</td>
-                                    <td className="px-6 py-4 text-gray-600 dark:text-gray-400 text-xs">
-                                        {res.deliveryMethod === 'shipping'
-                                            ? `${res.shippingZip} ${res.shippingCity}`
-                                            : getShopName(res.shopId)
-                                        }
+                                    <td className="px-6 py-4 text-gray-600 dark:text-gray-400 text-xs text-wrap max-w-[150px]">
+                                        <div className="flex flex-col">
+                                            <span>
+                                                {res.deliveryMethod === 'shipping'
+                                                    ? `${res.shippingZip} ${res.shippingCity}`
+                                                    : getShopName(res.shopId)
+                                                }
+                                            </span>
+                                            {profile?.role === 'super_admin' && res.shopId && (
+                                                <span className="mt-1 inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-black bg-bel-blue/10 text-bel-blue uppercase tracking-tighter w-fit">
+                                                    📍 {res.shopId}
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`px-3 py-1 text-xs font-bold rounded-full capitalize ${res.status === 'approved' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :

@@ -1,8 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
-import { BuybackPriceRecord, RepairPriceRecord } from '../types';
-import { pricingService } from '../services/pricingService';
+import { BuybackPriceRecord } from '../types';
 import { createSlug } from '../utils/slugs';
 
 /**
@@ -123,7 +122,7 @@ type WizardAction =
     | { type: 'SET_USER_INFO'; payload: Partial<WizardState> }
     | { type: 'SET_UI_STATE'; payload: Partial<WizardState> }
     | { type: 'SET_WIZARD_DATA'; payload: Partial<WizardState> }
-    | { type: 'SET_PRICING_DATA'; payload: Partial<WizardState['pricingData']> } // Phase 1 Fix
+    | { type: 'SET_PRICING_DATA'; payload: Partial<WizardState['pricingData']> }
     | { type: 'RESET_WIZARD' }
     | { type: 'HYDRATE'; payload: Partial<WizardState> };
 
@@ -134,7 +133,6 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
     switch (action.type) {
         case 'SET_STEP':
             return { ...state, step: action.payload };
-        // Consolidate payload handling for flexibility
         case 'SET_DEVICE_INFO':
         case 'SET_CONDITION':
         case 'SET_REPAIR_INFO':
@@ -169,22 +167,18 @@ const WizardContext = createContext<WizardContextType | undefined>(undefined);
 export const WizardProvider: React.FC<{ children: ReactNode, initialProps?: Partial<WizardState> }> = ({ children, initialProps }) => {
     const [state, dispatch] = useReducer(wizardReducer, { ...initialState, ...initialProps });
 
-    // --- Global Pricing Fetcher (Phase 1 Fix) ---
+    // --- Global Pricing Fetcher (Deep-linking Protection) ---
     useEffect(() => {
         const { selectedBrand, selectedModel, pricingData } = state;
-
-        // 1. Check eligibility
         if (!selectedBrand || !selectedModel) return;
 
         const slug = createSlug(`${selectedBrand} ${selectedModel}`);
-
-        // 2. Check cache/loading status
         if (pricingData.loadedForModel === slug || pricingData.isLoading) return;
 
-        // 3. Fetch
         const fetchPricing = async () => {
             dispatch({ type: 'SET_PRICING_DATA', payload: { isLoading: true } });
             try {
+                const { pricingService } = await import('../services/pricingService');
                 const data = await pricingService.fetchDevicePricing(slug);
                 dispatch({
                     type: 'SET_PRICING_DATA',
@@ -197,7 +191,7 @@ export const WizardProvider: React.FC<{ children: ReactNode, initialProps?: Part
                     }
                 });
             } catch (err) {
-                console.error("Global pricing fetch failed", err);
+                console.warn("Pricing fetch failed", err);
                 dispatch({ type: 'SET_PRICING_DATA', payload: { isLoading: false } });
             }
         };

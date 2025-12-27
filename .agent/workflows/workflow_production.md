@@ -20,7 +20,7 @@ git push origin main
 ```
 
 ### 3. Verification
-- **URL**: `https://belmobile.be`
+- **URL**: [https://belmobile-next-st7t42wyo-tovrrs-projects.vercel.app](https://belmobile-next-st7t42wyo-tovrrs-projects.vercel.app)
 - **Dashboard**: Check deployment status in the Vercel Dashboard.
 - **Rollback**: If issues arise, use the "Instant Rollback" feature in Vercel to revert to the previous deployment ID.
 

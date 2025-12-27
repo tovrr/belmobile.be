@@ -194,19 +194,37 @@ export const generateRepairBuybackPDF = async (data: RepairBuybackData, t: any) 
     (data as any).method = t(methodKey);
 
     if (data.type === 'buyback') {
-        if (data.deliveryMethod === 'send') {
-            data.nextSteps = [t('step_1_buyback_send'), t('step_2_buyback_send'), t('step_3_buyback_send')]; // Need to ensure these keys exist or map to existing
-        } else {
-            // Drop-off / Walk-in
-            data.nextSteps = [t('step_1_buyback_dropoff'), t('step_2_buyback_dropoff'), t('step_3_buyback_dropoff')];
+        switch (data.deliveryMethod) {
+            case 'send':
+                data.nextSteps = [t('step_1_buyback_send'), t('step_2_buyback_send'), t('step_3_buyback_send')];
+                break;
+            case 'courier':
+                data.nextSteps = [t('step_1_courier'), t('step_2_courier'), t('step_3_courier_buyback')];
+                break;
+            case 'dropoff':
+            default:
+                data.nextSteps = [t('step_1_buyback_dropoff'), t('step_2_buyback_dropoff'), t('step_3_buyback_dropoff')];
+                break;
         }
     } else {
         // Repair
-        data.nextSteps = [t('step_1_repair'), t('step_2_repair'), t('step_3_repair')];
+        switch (data.deliveryMethod) {
+            case 'send':
+                data.nextSteps = [t('step_1_repair'), t('step_2_repair'), t('step_3_repair')];
+                break;
+            case 'courier':
+                data.nextSteps = [t('step_1_courier'), t('step_2_courier'), t('step_3_courier_repair')];
+                break;
+            case 'dropoff':
+            default:
+                data.nextSteps = [t('step_1_repair_dropoff'), t('step_2_repair_dropoff'), t('step_3_repair_dropoff')];
+                break;
+        }
     }
 
     // Logic removed (duplicate)
     data.footerHelpText = t('footer_help_text');
+    (data as any).documentTitle = data.type === 'buyback' ? t('Buyback Offer') : (data.type === 'repair' ? t('Repair Quote') : t('Reservation Confirmation'));
 
     // Use shared template generator
     const docDefinition = createPdfDefinition(data as any);
@@ -252,5 +270,7 @@ export const savePDFBlob = (blob: Blob, filename: string) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+        URL.revokeObjectURL(url);
+    }, 2000); // 2 second delay to ensure download starts on mobile/slow devices
 };

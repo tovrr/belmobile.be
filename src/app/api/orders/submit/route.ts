@@ -3,7 +3,9 @@ import { db } from '../../../../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { pricingService } from '../../../../services/pricingService';
 import { createSlug } from '../../../../utils/slugs';
+import { calculateBuybackPriceShared, calculateRepairPriceShared } from '../../../../utils/pricingLogic';
 import 'server-only';
+import * as Sentry from "@sentry/nextjs";
 
 export async function POST(req: NextRequest) {
     try {
@@ -24,66 +26,22 @@ export async function POST(req: NextRequest) {
         }
 
         // 2. Server-Side Price Verification
-        let calculatedPrice = 0;
         const slug = createSlug(`${brand} ${model}`);
-
-        // Fetch authoritative pricing data
-        // Note: ensuring we are fetching the same data the client sees
         const pricingData = await pricingService.fetchDevicePricing(slug);
 
-        if (type === 'buyback') {
-            const storageMatch = pricingData.buybackPrices.find((p: any) => p.storage === storage);
-            // Logic mirrors useWizardPricing.ts
-            let baseParamsPrice = storageMatch ? storageMatch.price : Math.max(...pricingData.buybackPrices.map((p: any) => p.price));
+        const pricingParams = {
+            ...body,
+            type,
+            brand,
+            model,
+            repairIssues: issues,
+            selectedScreenQuality: body.selectedScreenQuality || 'generic'
+        };
 
-            // Re-calculate deductions based on condition (simplified for now, ideally exact mirror)
-            // For strict validation, we need the exact inputs.
-            // Assumption: The client sends the final price. We Re-run the logic.
+        const calculatedPrice = type === 'buyback'
+            ? calculateBuybackPriceShared(pricingParams, pricingData)
+            : calculateRepairPriceShared(pricingParams, pricingData);
 
-            const { screen, body: bodyCond } = condition || {};
-
-            // Deductions (Hardcoded here must match useWizardPricing - Ideally we lift this to a shared pure function)
-            // Using values from useWizardPricing.ts
-            const screenRepairPrice = pricingData.repairPrices['screen_original'] || 100;
-            const backRepairPrice = pricingData.repairPrices['back_glass'] || 80;
-            const batteryRepairPrice = pricingData.repairPrices['battery'] || 60;
-
-            if (condition) {
-                // Zero-value triggers
-                if (condition.turnsOn === false) baseParamsPrice = 0;
-                if (condition.isUnlocked === false) baseParamsPrice = 0;
-
-                // Deductions
-                if (screen === 'scratches') baseParamsPrice -= (screenRepairPrice * 0.3);
-                if (screen === 'cracked') baseParamsPrice -= screenRepairPrice;
-                if (bodyCond === 'scratches') baseParamsPrice -= 20;
-                if (bodyCond === 'dents') baseParamsPrice -= backRepairPrice;
-                if (bodyCond === 'bent') baseParamsPrice -= (backRepairPrice + 40);
-            }
-
-            calculatedPrice = Math.max(0, Math.round(baseParamsPrice));
-
-        } else if (type === 'repair') {
-            // Repair Logic
-            let total = 0;
-            (issues || []).forEach((issueId: string) => {
-                if (issueId === 'screen') {
-                    // Need access to selectedScreenQuality from payload if we want exact match
-                    // Assuming 'screen' implies logic handling.
-                    // The payload should strictly tell us which price was chosen.
-                    // This simple check might be too loose or too strict.
-                    // For now, we will TRUST the client logic partially but verify the BASE prices exist.
-                } else {
-                    total += (pricingData.repairPrices[issueId] || 0);
-                }
-            });
-            // Repair validation is complex due to "Standard/OLED/Original" selection.
-            // We will implement a looser check for Repair or a strict one if payload has details.
-            // Strategy: Allow +/- 5% variance or strict check if we reconstruct the quality logic.
-            // For now, let's focus strictly on Buyback security as it's money OUT.
-            // For repair (money IN), we verify the base item costs > 0.
-            calculatedPrice = clientPrice; // Trusting client for Repair temporarily to avoid blocking users
-        }
 
         // 3. Strict Verification for Buyback
         if (type === 'buyback') {
@@ -124,6 +82,10 @@ export async function POST(req: NextRequest) {
                 orderId: preGeneratedId
             });
 
+            Sentry.setTag("order_id", preGeneratedId);
+            Sentry.setTag("brand", brand);
+            Sentry.setContext("order_details", { type, price: calculatedPrice, model });
+
             return NextResponse.json({ success: true, id: docRef.id, orderId: preGeneratedId, price: calculatedPrice });
 
         } catch (dbError: any) {
@@ -142,6 +104,7 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error('Order Submission Error:', error);
+        Sentry.captureException(error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

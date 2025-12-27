@@ -17,36 +17,40 @@ import { useWizard } from '../../../context/WizardContext';
 import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useWizardPricing } from '../../../hooks/useWizardPricing';
 import { useLanguage } from '../../../hooks/useLanguage';
-import { useShop } from '../../../hooks/useShop'; // Fixed Import Path
-import { useData } from '../../../hooks/useData'; // Fixed Import Path
+import { useShop } from '../../../hooks/useShop';
+import { useData } from '../../../hooks/useData';
+import { useRouter } from 'next/navigation';
+import { TrustBar } from '../TrustBar';
+import { WizardFAQ } from '../WizardFAQ';
+import { orderService } from '../../../services/orderService';
 
 interface StepUserInfoProps {
     type: 'buyback' | 'repair';
-    step: number;
-    onNext: () => void;
-    onBack: () => void;
-    handleSubmit: (e: React.FormEvent) => void;
+    step?: number;
+    onNext?: () => void;
+    onBack?: () => void;
+    handleSubmit?: (e: React.FormEvent) => void;
     formRef?: React.RefObject<HTMLFormElement | null>;
-    shops?: any[]; // Allow shops passed as props if needed
-    [key: string]: any; // Allow extra props
+    shops?: any[];
+    [key: string]: any;
 }
 
 export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     type,
-    step,
-    onBack,
-    onNext,
-    handleSubmit,
-    formRef,
-    shops: propsShops
+    formRef
 }) => {
     const { state, dispatch } = useWizard();
-    const { t } = useLanguage();
-    const { shops: dataShops } = useData();
+    const { t, language } = useLanguage();
+    const { shops } = useData();
+    const { handleBack, handleNext, handleSubmit } = useWizardActions(type);
+    const router = useRouter();
     const { selectedShop, setSelectedShop } = useShop();
 
-    // Use props shops if provided, otherwise data context
-    const shops = propsShops || dataShops;
+    const step = state.step;
+    const onBack = handleBack;
+    const onNext = (type === 'buyback' && step === 4) ? handleNext : () => formRef?.current?.requestSubmit();
+    const onHandleSubmit = handleSubmit;
+
 
     // Actions are not heavily used here except maybe navigation if we wanted, 
     // but we use passed onBack/onNext or handleSubmit
@@ -106,6 +110,25 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     const setIdFile = (val: File | null) => dispatch({ type: 'SET_WIZARD_DATA', payload: { idFile: val } });
     const setHasHydrogel = (val: boolean) => dispatch({ type: 'SET_WIZARD_DATA', payload: { hasHydrogel: val } });
     const setHoneypot = (val: string) => dispatch({ type: 'SET_WIZARD_DATA', payload: { honeypot: val } });
+
+    const handleEmailBlur = async () => {
+        if (!customerEmail || !customerEmail.includes('@')) return;
+
+        // Capture context for lead recovery
+        const leadContext = {
+            type,
+            brand: selectedBrand,
+            model: selectedModel,
+            name: customerName,
+            phone: customerPhone,
+            storage,
+            lang: language,
+            issues: repairIssues,
+            timestamp: Date.now()
+        };
+
+        await orderService.saveLead(customerEmail, leadContext);
+    };
     const setTermsAccepted = (val: boolean) => dispatch({ type: 'SET_WIZARD_DATA', payload: { termsAccepted: val } });
 
     // SendCloud / Service Point logic
@@ -113,7 +136,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
         const sendcloud = (window as any).sendcloud;
         if (typeof window !== 'undefined' && sendcloud && sendcloud.servicePointPicker) {
             sendcloud.servicePointPicker.open({
-                apiKey: 'AIzaSyDbBU2HDNb_CravJAIbYKqsWhhbAgVBelY', // TODO: Move to config
+                apiKey: process.env.NEXT_PUBLIC_SENDCLOUD_API_KEY || 'AIzaSyDbBU2HDNb_CravJAIbYKqsWhhbAgVBelY', // Fallback just in case
                 country: 'be',
                 language: 'en-us',
                 onSelect: (data: any) => {
@@ -370,7 +393,10 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
             <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-2xl sm:rounded-3xl p-3 sm:p-6 lg:p-8">
                 {renderMobileSummary()}
                 <div className="flex-1">
-                    <form ref={(formRef as any)} onSubmit={handleSubmit} className="space-y-8">
+                    <div className="mb-8">
+                        <TrustBar />
+                    </div>
+                    <form ref={(formRef as any)} onSubmit={onHandleSubmit} className="space-y-8">
                         <div>
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">{t('Contact & Delivery')}</h2>
                             <label className="block text-xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">{t('delivery_title')}</label>
@@ -614,6 +640,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                     value={customerEmail}
                                     placeholder={t('contact_placeholder_email')}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerEmail(e.target.value)}
+                                    onBlur={handleEmailBlur}
                                 />
                             </div>
 
@@ -825,6 +852,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             </div>
                         </div>
                     </form>
+                    <WizardFAQ currentStep={step} flow={type} />
                 </div>
                 <Sidebar
                     type={type}

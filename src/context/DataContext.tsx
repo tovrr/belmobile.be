@@ -48,6 +48,7 @@ interface DataContextType {
     addFranchiseApplication: (application: Omit<FranchiseApplication, 'id' | 'date' | 'status'>) => void;
     updateReservationStatus: (id: number | string, status: ReservationStatus, paymentLink?: string) => void;
     updateQuoteStatus: (id: number | string, status: QuoteStatus, notifyCustomer?: boolean) => void;
+    updateQuoteFields: (id: number | string, updates: Partial<Quote>) => void;
     updateQuoteIssues: (id: number | string, issues: string[]) => void;
     deleteReservation: (id: number | string) => void;
     deleteQuote: (id: number | string) => void;
@@ -71,6 +72,8 @@ interface DataContextType {
     updateRepairPrice: (pricing: RepairPricing) => void;
     logStockMovement: (log: Omit<StockLog, 'id' | 'date'>) => void;
     sendEmail: (to: string, subject: string, html: string, attachments?: { filename: string, content: string, encoding: string }[]) => Promise<void>;
+    adminShopFilter: string;
+    setAdminShopFilter: (shopId: string) => void;
     loading: boolean;
     loadingProducts: boolean;
     loadingServices: boolean;
@@ -80,7 +83,21 @@ interface DataContextType {
 export const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
+    const [adminShopFilter, setInternalShopFilter] = React.useState<string>('all');
+
+    // Sync filter with profile role
+    React.useEffect(() => {
+        if ((profile?.role === 'shop_manager' || profile?.role === 'technician') && profile.shopId) {
+            setInternalShopFilter(profile.shopId);
+        }
+    }, [profile]);
+
+    const setAdminShopFilter = (shopId: string) => {
+        // Prevent shop managers and technicians from changing their filter
+        if (profile?.role === 'shop_manager' || profile?.role === 'technician') return;
+        setInternalShopFilter(shopId);
+    };
 
     // --- FIRESTORE SUBSCRIPTIONS (Refactored to use hooks) ---
     const { products, loading: loadingProducts } = useProducts();
@@ -89,13 +106,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { posts: blogPosts, loading: blogLoading } = useBlogPosts();
     const { prices: repairPrices, loading: pricingLoading } = useRepairPrices();
 
-    // Admin-only data (requires user)
-    const { reservations } = useReservations(user);
-    const { quotes } = useQuotes(user);
+    // Admin-only data (requires user + optional filtered shopId)
+    const activeShopId = profile?.role === 'shop_manager' ? (profile.shopId || 'all') : adminShopFilter;
+
+    const { reservations } = useReservations(user, activeShopId);
+    const { quotes } = useQuotes(user, activeShopId);
     const { applications: franchiseApplications } = useFranchiseApplications(user);
     const { prices: buybackPrices, loading: buybackLoading } = useBuybackPrices(); // This might need user too if it's admin only, assuming public for now or logic inside
-    const { logs: stockLogs, loading: stockLoading } = useStockLogs(user);
-    const { messages: contactMessages, loading: messagesLoading } = useContactMessages(user);
+    const { logs: stockLogs, loading: stockLoading } = useStockLogs(user, activeShopId);
+    const { messages: contactMessages, loading: messagesLoading } = useContactMessages(user, activeShopId);
 
     const loading = loadingProducts || loadingServices || shopsLoading || blogLoading || pricingLoading || buybackLoading || stockLoading || messagesLoading;
 
@@ -216,6 +235,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
+    const updateQuoteFields = async (id: number | string, updates: Partial<Quote>) => {
+        try {
+            const docRef = doc(db, 'quotes', String(id));
+            await updateDoc(docRef, updates);
+        } catch (error) {
+            console.error("Error updating quote fields: ", error);
+        }
+    };
+
     const updateQuoteStatus = async (id: number | string, status: QuoteStatus, notifyCustomer: boolean = false) => {
         try {
             const docRef = doc(db, 'quotes', String(id));
@@ -226,7 +254,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 const snap = await getDoc(docRef);
                 if (snap.exists()) {
                     const data = snap.data() as Quote;
-                    const lang = data.language || 'en';
+                    const lang = (data.language || 'en') as 'en' | 'fr' | 'nl';
                     const trackingUrl = `https://belmobile.be/${lang}/track-order?id=${id}&email=${encodeURIComponent(data.customerEmail)}`;
 
                     const subjects: Record<string, string> = {
@@ -279,20 +307,20 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                         data.customerEmail,
                         subject,
                         `
-                        <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
-                            <div style="background-color: #4338ca; padding: 30px; text-align: center;">
-                                <div style="color: #ffffff; font-size: 24px; font-weight: bold;">BELMOBILE.BE</div>
-                            </div>
-                            <div style="padding: 30px;">
-                                <h2 style="color: #4338ca;">${lang === 'fr' ? 'Mise à jour de la commande' : lang === 'nl' ? 'Bestellingsupdate' : 'Order Update'}</h2>
-                                <p>${message}</p>
-                                <div style="text-align: center; margin: 30px 0;">
-                                    <a href="${trackingUrl}" style="background-color: #4338ca; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">${trackButton}</a>
+                            <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                                <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                                    <div style="color: #ffffff; font-size: 24px; font-weight: bold;">BELMOBILE.BE</div>
                                 </div>
-                                <hr style="border: 1px solid #eee; margin: 20px 0;">
-                                <p style="font-size: 12px; color: #666;">Order ID: ${id}</p>
+                                <div style="padding: 30px;">
+                                    <h2 style="color: #4338ca;">${lang === 'fr' ? 'Mise à jour de la commande' : lang === 'nl' ? 'Bestellingsupdate' : 'Order Update'}</h2>
+                                    <p>${message}</p>
+                                    <div style="text-align: center; margin: 30px 0;">
+                                        <a href="${trackingUrl}" style="background-color: #4338ca; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">${trackButton}</a>
+                                    </div>
+                                    <hr style="border: 1px solid #eee; margin: 20px 0;">
+                                    <p style="font-size: 12px; color: #666;">Order ID: ${id}</p>
+                                </div>
                             </div>
-                        </div>
                         `
                     );
                 }
@@ -555,14 +583,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         addFranchiseApplication,
         updateReservationStatus,
         updateQuoteStatus,
-        updateFranchiseApplicationStatus,
-        addContactMessage,
-        updateContactMessageStatus,
+        updateQuoteFields,
         updateQuoteIssues,
         deleteReservation,
         deleteQuote,
         deleteContactMessage,
         deleteFranchiseApplication,
+        updateFranchiseApplicationStatus,
+        addContactMessage,
+        updateContactMessageStatus,
         addProduct,
         updateProduct,
         deleteProduct,
@@ -582,8 +611,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         loading,
         loadingProducts,
         loadingServices,
-        loadingShops: shopsLoading
+        loadingShops: shopsLoading,
+        adminShopFilter,
+        setAdminShopFilter
     };
+
 
     return (
         <DataContext.Provider value={value}>

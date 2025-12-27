@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin');
+    }
+
+    function isShopManager(shopId) {
+      return isSignedIn() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'shop_manager' &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.shopId == shopId;
+    }
+
+    // Quotes & Orders
+    match /quotes/{quoteId} {
+      // Super admins see all. Managers see only their shop.
+      allow read: if isAdmin() || (isShopManager(resource.data.shopId));
+      
+      // Public can create quotes
+      allow create: if true; 
+      
+      // Only authorized admins can update
+      allow update: if isAdmin() || (isShopManager(resource.data.shopId));
+      allow delete: if isAdmin();
+    }
+
+    // Reservations
+    match /reservations/{resId} {
+      allow read, update: if isAdmin() || (isShopManager(resource.data.shopId));
+      allow create: if true;
+      allow delete: if isAdmin();
+    }
+
+    // Stock Logs
+    match /stock_logs/{logId} {
+      allow read: if isAdmin() || (isShopManager(resource.data.shopId));
+      allow create: if isAdmin() || (isShopManager(request.resource.data.shopId));
+    }
+
+    // Users (Profiles)
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if isAdmin(); // Only super admins can promote/assign shops
+    }
+    
+    // ... public collections (products, shops, services)
+    match /products/{p} { allow read: if true; allow write: if isAdmin(); }
+    match /shops/{s} { allow read: if true; allow write: if isAdmin(); }
+    match /services/{s} { allow read: if true; allow write: if isAdmin(); }
+  }
+}

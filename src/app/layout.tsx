@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({
@@ -39,7 +40,10 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {children}
-        <script async src="https://embed.sendcloud.sc/spp/1.0.0/api.min.js"></script>
+        <Script
+          src="https://embed.sendcloud.sc/spp/1.0.0/api.min.js"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );

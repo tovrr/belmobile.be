@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
-import { Quote } from '../../types';
+import { Quote, ActivityLogEntry } from '../../types';
 import { useData } from '../../hooks/useData';
-import { XMarkIcon, TrashIcon, PencilIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '../../context/AuthContext'; // Import useAuth
+import { useLanguage } from '../../hooks/useLanguage';
+import { type RepairBuybackData } from '../../utils/pdfGenerator';
+import { XMarkIcon, TrashIcon, PencilIcon, PlusIcon, CheckIcon, ArrowPathIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'; // Add new icons
 
 interface QuoteDetailsModalProps {
     quote: Quote;
@@ -11,14 +14,24 @@ interface QuoteDetailsModalProps {
 }
 
 const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose }) => {
-    const { updateQuoteStatus, updateQuoteIssues, deleteQuote, shops } = useData();
+    const { updateQuoteStatus, updateQuoteIssues, deleteQuote, updateQuoteFields, shops } = useData();
+    const { user } = useAuth();
+    const { t } = useLanguage();
     const shopName = shops.find(s => s.id === quote.shopId)?.name || 'Unknown Shop';
-
-
 
     const [currentStatus, setCurrentStatus] = React.useState(quote.status);
     const [isUpdating, setIsUpdating] = React.useState(false);
     const [notifyCustomer, setNotifyCustomer] = React.useState(true);
+
+    // -- ADMIN EDIT STATE --
+    const [isEditingPrice, setIsEditingPrice] = React.useState(false);
+    const [editedPrice, setEditedPrice] = React.useState(quote.price || 0);
+
+    const [internalNotes, setInternalNotes] = React.useState(quote.internalNotes || '');
+    const [isSavingNotes, setIsSavingNotes] = React.useState(false);
+
+    // PDF Generation State
+    const [isGeneratingPDF, setIsGeneratingPDF] = React.useState(false);
 
     // Issue Editing State
     const [isEditingIssues, setIsEditingIssues] = React.useState(false);
@@ -33,18 +46,36 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
         setCurrentStatus(quote.status);
     }, [quote.status]);
 
+    const logActivity = async (action: string, oldValue: any, newValue: any, note?: string) => {
+        try {
+            const newEntry: ActivityLogEntry = {
+                timestamp: new Date().toISOString(),
+                adminId: user?.uid || 'unknown',
+                adminName: user?.displayName || 'Admin',
+                action,
+                oldValue,
+                newValue,
+                note
+            };
+
+            const updatedLog = [...(quote.activityLog || []), newEntry];
+            await updateQuoteFields(quote.id, { activityLog: updatedLog });
+        } catch (error) {
+            console.error("Failed to log activity:", error);
+        }
+    };
+
     const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newStatus = e.target.value as Quote['status']; // Cast to allow new statuses
         setCurrentStatus(newStatus);
         setIsUpdating(true);
         try {
+            const oldStatus = quote.status;
             await updateQuoteStatus(quote.id, newStatus, notifyCustomer);
+            await logActivity('status_change', oldStatus, newStatus);
 
             // AUTOMATION: Schedule Review Email if Closed/Picked Up
-            if (newStatus === 'closed' || newStatus === 'repaired') { // Assuming 'repaired' for now, but logic strictly asks for end-of-cycle
-                // NOTE: We only want to trigger this when the customer actually HAS the device.
-                // So best practice is 'closed' (transaction done) or 'picked_up' (if you add that status).
-
+            if (newStatus === 'closed' || newStatus === 'repaired') {
                 if (newStatus === 'closed') {
                     await fetch('/api/mail/schedule-review', {
                         method: 'POST',
@@ -53,7 +84,7 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
                             name: quote.customerName,
                             orderId: quote.id,
                             shopId: quote.shopId,
-                            language: quote.language || 'fr' // Assuming language field exists or default
+                            language: quote.language || 'fr'
                         })
                     });
                     console.log('Review email scheduled via Automation');
@@ -93,11 +124,106 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
 
     const handleSaveIssues = async () => {
         try {
+            const oldIssues = quote.issues || [];
             await updateQuoteIssues(quote.id, issues);
+
+            // Log Activity
+            await logActivity('issues_update', oldIssues, issues);
+
             setIsEditingIssues(false);
         } catch (error) {
             console.error("Failed to update issues:", error);
             alert("Failed to update issues");
+        }
+    };
+
+    // -- NEW ADMIN ACTIONS --
+
+    const handleSavePrice = async () => {
+        if (editedPrice < 0) return alert("Price cannot be negative");
+
+        try {
+            const oldPrice = quote.price;
+            await updateQuoteFields(quote.id, { price: editedPrice });
+            await logActivity('price_change', oldPrice, editedPrice);
+            setIsEditingPrice(false);
+        } catch (error) {
+            console.error("Failed to update price:", error);
+            alert("Failed to update price");
+        }
+    };
+
+    const handleSaveNotes = async () => {
+        setIsSavingNotes(true);
+        try {
+            // Only save if changed
+            if (internalNotes !== quote.internalNotes) {
+                await updateQuoteFields(quote.id, { internalNotes });
+            }
+        } catch (error) {
+            console.error("Failed to save notes:", error);
+        } finally {
+            setIsSavingNotes(false);
+        }
+    };
+
+    const handleDownloadPDF = async () => {
+        setIsGeneratingPDF(true);
+        try {
+            const pdfData: RepairBuybackData = {
+                type: quote.type as 'buyback' | 'repair',
+                orderId: quote.id.toString(),
+                date: quote.date || new Date().toLocaleDateString(),
+                customer: {
+                    name: quote.customerName,
+                    email: quote.customerEmail,
+                    phone: quote.customerPhone,
+                    address: quote.customerAddress || '',
+                    city: quote.customerCity || '',
+                    zip: quote.customerZip || ''
+                },
+                device: {
+                    brand: quote.brand,
+                    model: quote.model,
+                    issue: quote.issue,
+                    condition: typeof quote.condition === 'string' ? undefined : (quote.condition as any)
+                },
+                issues: quote.issues, // Root level property
+                financials: {
+                    price: quote.price || 0,
+                    currency: 'EUR',
+                    vatIncluded: true
+                },
+                deliveryMethod: quote.deliveryMethod,
+                iban: quote.iban
+            };
+
+            // Handle condition if string vs object
+            if (typeof quote.condition === 'string') {
+                // pdfGenerator expects object for buyback detailed list? 
+                // type definition: condition?: { screen: string; body: string; };
+                // If it's a string, we might map it or leave it. 
+                // For now, if string, we don't pass 'condition' object as PDF expects {screen, body}.
+            } else if (quote.condition) {
+                pdfData.device.condition = quote.condition as any;
+            }
+
+            const { generateRepairBuybackPDF, savePDFBlob } = await import('../../utils/pdfGenerator');
+            const { blob } = await generateRepairBuybackPDF(pdfData, t);
+            savePDFBlob(blob, `Order_${quote.id}.pdf`);
+
+        } catch (error) {
+            console.error("PDF Generation failed:", error);
+            alert("Failed to generate PDF");
+        } finally {
+            setIsGeneratingPDF(false);
+        }
+    };
+
+    // Auto-save notes on blur
+    const handleNotesBlur = () => {
+        if (internalNotes !== quote.internalNotes) {
+            handleSaveNotes();
         }
     };
 
@@ -138,9 +264,45 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
                                             : quote.condition}
                                     </p>
                                 )}
-                                <p className="text-lg font-bold text-bel-blue mt-2">
-                                    Estimated Price: €{quote.price}
-                                </p>
+                                <div className="mt-4 flex items-center gap-2">
+                                    <strong className="text-gray-900 dark:text-white">Price:</strong>
+                                    {!isEditingPrice ? (
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xl font-black text-bel-blue">€{quote.price}</span>
+                                            <button
+                                                onClick={() => {
+                                                    setEditedPrice(quote.price || 0);
+                                                    setIsEditingPrice(true);
+                                                }}
+                                                className="p-1 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full text-gray-400 hover:text-bel-blue transition-colors"
+                                                title="Edit Price"
+                                            >
+                                                <PencilIcon className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="number"
+                                                value={editedPrice}
+                                                onChange={(e) => setEditedPrice(Number(e.target.value))}
+                                                className="w-24 px-2 py-1 border border-bel-blue rounded text-lg font-bold text-gray-900 dark:text-white dark:bg-slate-800 outline-none"
+                                            />
+                                            <button
+                                                onClick={handleSavePrice}
+                                                className="p-1 bg-green-100 text-green-600 rounded-full hover:bg-green-200"
+                                            >
+                                                <CheckIcon className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => setIsEditingPrice(false)}
+                                                className="p-1 bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200"
+                                            >
+                                                <XMarkIcon className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -284,6 +446,55 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
                             </label>
                         </div>
                     </div>
+                    {/* INTERNAL NOTES SECTION */}
+                    <div className="border-t border-gray-100 dark:border-slate-700 pt-6">
+                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                            Internal Admin Notes (Private)
+                            {isSavingNotes && <span className="ml-2 text-xs text-gray-400 animate-pulse">Saving...</span>}
+                        </label>
+                        <textarea
+                            value={internalNotes}
+                            onChange={(e) => setInternalNotes(e.target.value)}
+                            onBlur={handleNotesBlur}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-yellow-50/50 dark:bg-yellow-900/10 focus:ring-2 focus:ring-yellow-400 outline-none transition text-sm text-gray-700 dark:text-gray-200 min-h-[100px]"
+                            placeholder="Add internal notes about this order here..."
+                        />
+                    </div>
+
+                    {/* ACTIVITY TIMELINE */}
+                    {quote.activityLog && quote.activityLog.length > 0 && (
+                        <div className="border-t border-gray-100 dark:border-slate-700 pt-6">
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-4">Activity Log</h3>
+                            <div className="space-y-4 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                                {[...quote.activityLog].reverse().map((log, idx) => (
+                                    <div key={idx} className="flex gap-3 text-sm">
+                                        <div className="shrink-0 mt-1">
+                                            <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-slate-600"></div>
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-gray-900 dark:text-white">
+                                                <span className="font-semibold">{log.adminName || 'Admin'}</span>
+                                                {' '}
+                                                {log.action === 'price_change' && (
+                                                    <span>changed price from <del className="text-gray-500">€{log.oldValue}</del> to <span className="font-bold text-bel-blue">€{log.newValue}</span></span>
+                                                )}
+                                                {log.action === 'issues_update' && (
+                                                    <span>updated issues list</span>
+                                                )}
+                                                {log.action === 'status_change' && (
+                                                    <span>changed status to <span className="font-bold capitalize">{log.newValue}</span></span>
+                                                )}
+                                                {(!['price_change', 'issues_update', 'status_change'].includes(log.action)) && (
+                                                    <span>{log.action}</span>
+                                                )}
+                                            </p>
+                                            <p className="text-xs text-gray-400">{new Date(log.timestamp).toLocaleString()}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <div className="p-6 bg-gray-50 dark:bg-slate-900/50 border-t border-gray-100 dark:border-slate-700 flex justify-end rounded-b-3xl">
                     {!showDeleteConfirm ? (
@@ -310,12 +521,16 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
                             </button>
                         </div>
                     )}
+                    <button onClick={handleDownloadPDF} disabled={isGeneratingPDF} className="bg-gray-100 text-gray-700 font-bold py-3 px-6 rounded-xl hover:bg-gray-200 transition flex items-center gap-2 mr-3">
+                        <ArrowDownTrayIcon className="h-5 w-5" />
+                        {isGeneratingPDF ? '...' : 'PDF'}
+                    </button>
                     <button onClick={onClose} className="bg-bel-blue text-white font-bold py-3 px-8 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 dark:shadow-none">
                         Close
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

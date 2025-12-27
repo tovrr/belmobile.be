@@ -70,6 +70,7 @@ export interface Reservation {
     shippingCity?: string;
     shippingZip?: string;
     estimatedPrice?: number; // Added for Analytics (Potential Revenue)
+    createdAt?: { seconds: number; nanoseconds: number } | Date | string; // Normalized type for Analytics
 }
 
 export interface Quote {
@@ -105,6 +106,30 @@ export interface Quote {
     language?: string; // stored language for email notifications
     trackingNumber?: string;
     shippingLabelUrl?: string;
+    internalNotes?: string;
+    activityLog?: ActivityLogEntry[];
+}
+
+export type UserRole = 'super_admin' | 'shop_manager' | 'technician';
+
+export interface AdminProfile {
+    uid: string;
+    email: string;
+    displayName?: string;
+    role: UserRole;
+    shopId?: string; // Forced if shop_manager, optional/all for super_admin
+    createdAt: string;
+}
+
+export interface ActivityLogEntry {
+    timestamp: string; // ISO String
+    adminId: string;
+    adminName?: string; // Optional for display
+    action: string; // "status_change", "price_change", "note_added"
+    field?: string;
+    oldValue?: any;
+    newValue?: any;
+    note?: string;
 }
 
 export interface FranchiseApplication {

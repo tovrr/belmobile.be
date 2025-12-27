@@ -1,10 +1,39 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
-import { User } from 'firebase/auth'; // Import User type
+import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
+import { User } from 'firebase/auth';
 import { db } from '../firebase';
-import { Product, Shop, Service, BlogPost, RepairPricing, RepairPriceRecord, Reservation, Quote, FranchiseApplication, BuybackPriceRecord, StockLog, ContactMessage } from '../types';
+import {
+    Product, Shop, Service, BlogPost, RepairPricing,
+    RepairPriceRecord, Reservation, Quote, FranchiseApplication,
+    BuybackPriceRecord, StockLog, ContactMessage, AdminProfile
+} from '../types';
+import { SHOPS } from '../constants';
+
+export const useAdminUsers = (user: User | null) => {
+    const [users, setUsers] = useState<AdminProfile[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!user) {
+            setLoading(false);
+            return;
+        }
+
+        const unsub = onSnapshot(collection(db, 'users'), (snapshot) => {
+            const data = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as AdminProfile));
+            setUsers(data);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching admin users:", error);
+            setLoading(false);
+        });
+        return () => unsub();
+    }, [user]);
+
+    return { users, loading };
+};
 
 export const useProducts = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -24,8 +53,6 @@ export const useProducts = () => {
 
     return { products, loading };
 };
-
-import { SHOPS } from '../constants';
 
 export const useShops = () => {
     const [shops, setShops] = useState<Shop[]>([]);
@@ -191,7 +218,7 @@ export const useBuybackPrices = () => {
     return { prices, loading };
 };
 
-export const useReservations = (user: User | null) => {
+export const useReservations = (user: User | null, shopId: string = 'all') => {
     const [reservations, setReservations] = useState<Reservation[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -201,7 +228,12 @@ export const useReservations = (user: User | null) => {
             return () => clearTimeout(timeout);
         }
         const timeout = setTimeout(() => setLoading(true), 0);
-        const q = query(collection(db, 'reservations'), orderBy('date', 'desc'));
+
+        let q = query(collection(db, 'reservations'), orderBy('date', 'desc'));
+        if (shopId !== 'all') {
+            q = query(collection(db, 'reservations'), where('shopId', '==', shopId), orderBy('date', 'desc'));
+        }
+
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reservation));
             setReservations(data);
@@ -217,12 +249,12 @@ export const useReservations = (user: User | null) => {
             clearTimeout(timeout);
             unsub();
         };
-    }, [user]);
+    }, [user, shopId]);
 
     return { reservations, loading };
 };
 
-export const useQuotes = (user: User | null) => {
+export const useQuotes = (user: User | null, shopId: string = 'all') => {
     const [quotes, setQuotes] = useState<Quote[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -232,7 +264,12 @@ export const useQuotes = (user: User | null) => {
             return () => clearTimeout(timeout);
         }
         const timeout = setTimeout(() => setLoading(true), 0);
-        const q = query(collection(db, 'quotes'), orderBy('date', 'desc'));
+
+        let q = query(collection(db, 'quotes'), orderBy('date', 'desc'));
+        if (shopId !== 'all') {
+            q = query(collection(db, 'quotes'), where('shopId', '==', shopId), orderBy('date', 'desc'));
+        }
+
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Quote));
             setQuotes(data);
@@ -248,7 +285,7 @@ export const useQuotes = (user: User | null) => {
             clearTimeout(timeout);
             unsub();
         };
-    }, [user]);
+    }, [user, shopId]);
 
     return { quotes, loading };
 };
@@ -280,7 +317,7 @@ export const useFranchiseApplications = (user: User | null) => {
     return { applications, loading };
 };
 
-export const useStockLogs = (user: User | null) => {
+export const useStockLogs = (user: User | null, shopId: string = 'all') => {
     const [logs, setLogs] = useState<StockLog[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -290,7 +327,12 @@ export const useStockLogs = (user: User | null) => {
             return () => clearTimeout(timeout);
         }
         const timeout = setTimeout(() => setLoading(true), 0);
-        const q = query(collection(db, 'stock_logs'), orderBy('date', 'desc'));
+
+        let q = query(collection(db, 'stock_logs'), orderBy('date', 'desc'));
+        if (shopId !== 'all') {
+            q = query(collection(db, 'stock_logs'), where('shopId', '==', shopId), orderBy('date', 'desc'));
+        }
+
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StockLog));
             setLogs(data);
@@ -303,12 +345,12 @@ export const useStockLogs = (user: User | null) => {
             clearTimeout(timeout);
             unsub();
         };
-    }, [user]);
+    }, [user, shopId]);
 
     return { logs, loading };
 };
 
-export const useContactMessages = (user: User | null) => {
+export const useContactMessages = (user: User | null, shopId: string = 'all') => {
     const [messages, setMessages] = useState<ContactMessage[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -318,7 +360,12 @@ export const useContactMessages = (user: User | null) => {
             return () => clearTimeout(timeout);
         }
         const timeout = setTimeout(() => setLoading(true), 0);
-        const q = query(collection(db, 'contact_messages'), orderBy('date', 'desc'));
+
+        let q = query(collection(db, 'contact_messages'), orderBy('date', 'desc'));
+        if (shopId !== 'all') {
+            q = query(collection(db, 'contact_messages'), where('shopId', '==', shopId), orderBy('date', 'desc'));
+        }
+
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContactMessage));
             setMessages(data);
@@ -334,7 +381,7 @@ export const useContactMessages = (user: User | null) => {
             clearTimeout(timeout);
             unsub();
         };
-    }, [user]);
+    }, [user, shopId]);
 
     return { messages, loading };
 };

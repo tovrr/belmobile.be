@@ -63,3 +63,7 @@ ts_errors*
 next-env.d.ts
 
 .firebase/logs/
+
+# Sentry Config File
+.env.sentry-build-plugin
+tsc_output.txt

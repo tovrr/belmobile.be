@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import React, { useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { useShop } from '../hooks/useShop';
 import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
@@ -14,10 +15,19 @@ import { useWizardActions } from '../hooks/useWizardActions';
 import { useWizardPricing } from '../hooks/useWizardPricing';
 import { orderService } from '../services/orderService';
 
-import { StepCategorySelection } from './wizard/steps/StepCategorySelection';
-import { StepDeviceSelection } from './wizard/steps/StepDeviceSelection';
-import { StepCondition } from './wizard/steps/StepCondition';
-import { StepUserInfo } from './wizard/steps/StepUserInfo';
+const StepCategorySelection = dynamic(() => import('./wizard/steps/StepCategorySelection').then(mod => mod.StepCategorySelection));
+const StepDeviceSelection = dynamic(() => import('./wizard/steps/StepDeviceSelection').then(mod => mod.StepDeviceSelection), {
+    loading: () => <div className="h-96 w-full animate-pulse bg-gray-100 dark:bg-slate-800 rounded-3xl" />,
+    ssr: false
+});
+const StepCondition = dynamic(() => import('./wizard/steps/StepCondition').then(mod => mod.StepCondition), {
+    loading: () => <div className="h-96 w-full animate-pulse bg-gray-100 dark:bg-slate-800 rounded-3xl" />,
+    ssr: false
+});
+const StepUserInfo = dynamic(() => import('./wizard/steps/StepUserInfo').then(mod => mod.StepUserInfo), {
+    loading: () => <div className="h-96 w-full animate-pulse bg-gray-100 dark:bg-slate-800 rounded-3xl" />,
+    ssr: false
+});
 import StepWrapper from './wizard/StepWrapper';
 import StepIndicator from './wizard/StepIndicator';
 import MobileBottomBar from './wizard/MobileBottomBar';
@@ -31,16 +41,18 @@ interface BuybackRepairProps {
         model: string;
     };
     hideStep1Title?: boolean;
+    initialWizardProps?: any;
 }
 
 const BuybackRepair: React.FC<BuybackRepairProps> = (props) => {
     return (
         <WizardProvider initialProps={{
-            deviceType: props.initialCategory || '',
-            selectedBrand: props.initialDevice?.brand || '',
-            selectedModel: props.initialDevice?.model || '',
+            deviceType: props.initialWizardProps?.deviceType || props.initialCategory || '',
+            selectedBrand: props.initialWizardProps?.selectedBrand || props.initialDevice?.brand || '',
+            selectedModel: props.initialWizardProps?.selectedModel || props.initialDevice?.model || '',
+            customerEmail: props.initialWizardProps?.customerEmail || '',
             isInitialized: false,
-            step: (props.initialDevice?.model && !['iphone', 'ipad', 'galaxy', 'pixels', 'switch'].includes(props.initialDevice.model.toLowerCase())) ? 3 : (props.initialDevice?.brand || props.initialCategory ? 2 : 1)
+            step: props.initialWizardProps?.step || ((props.initialDevice?.model && !['iphone', 'ipad', 'galaxy', 'pixels', 'switch'].includes(props.initialDevice.model.toLowerCase())) ? 3 : (props.initialDevice?.brand || props.initialCategory ? 2 : 1))
         }}>
             <BuybackRepairInner {...props} />
         </WizardProvider>
@@ -65,7 +77,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     const { shops, sendEmail } = useData();
     const { setSelectedShop } = useShop();
 
-    const { handleNext, handleBack, handleModelSelect, loadBrandData } = useWizardActions(type);
+    const { handleNext, handleBack, handleModelSelect, loadBrandData, handleSubmit } = useWizardActions(type);
     const { sidebarEstimate, buybackEstimate, repairEstimates, loading: pricingLoading } = useWizardPricing(type);
 
     const formRef = useRef<HTMLFormElement>(null);
@@ -84,30 +96,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         if (selectedBrand) loadBrandData(createSlug(selectedBrand));
     }, [selectedBrand, loadBrandData]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: true } });
-            const { readableId, firestoreData } = await orderService.submitOrder({
-                ...state,
-                type,
-                price: type === 'buyback' ? buybackEstimate : repairEstimates.standard,
-                condition: type === 'buyback' ? { screen: screenState || null, body: bodyState || null } : null,
-                issues: type === 'repair' ? repairIssues : null,
-                language: language || 'fr',
-                brand: selectedBrand,
-                model: selectedModel
-            }, t);
 
-            await orderService.generateAndSendPDF(readableId, firestoreData, language || 'fr', t, sendEmail);
-            router.push(`/${language}/track-order?id=${readableId}&email=${encodeURIComponent(customerEmail)}&success=true`);
-        } catch (error) {
-            console.error('Submission error:', error);
-            alert(t('error_submitting_order'));
-        } finally {
-            dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: false } });
-        }
-    };
 
     // Calculate next disabled for mobile bottom bar
     const isAppleSmartphone = selectedBrand?.toLowerCase() === 'apple' && (deviceType === 'smartphone' || deviceType === 'tablet');
@@ -144,9 +133,6 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                     <StepWrapper key="step2" stepKey="step2">
                         <StepDeviceSelection
                             type={type}
-                            step={step}
-                            onNext={handleNext}
-                            onBack={handleBack}
                             modelSelectRef={modelSelectRef}
                         />
                     </StepWrapper>
@@ -156,9 +142,6 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                     <StepWrapper key="step3" stepKey="step3">
                         <StepCondition
                             type={type}
-                            step={step}
-                            onNext={handleNext}
-                            onBack={handleBack}
                         />
                     </StepWrapper>
                 )}
@@ -167,12 +150,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                     <StepWrapper key="step4" stepKey="step4">
                         <StepUserInfo
                             type={type}
-                            step={step}
-                            onNext={(type === 'buyback' && step === 4) ? handleNext : () => formRef.current?.requestSubmit()}
-                            onBack={handleBack}
-                            handleSubmit={handleSubmit}
                             formRef={formRef}
-                            shops={shops}
                         />
                     </StepWrapper>
                 )}

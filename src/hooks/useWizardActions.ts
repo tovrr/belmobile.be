@@ -5,14 +5,18 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useWizard } from '../context/WizardContext';
 import { createSlug } from '../utils/slugs';
 import { useLanguage } from './useLanguage';
+import { orderService } from '../services/orderService';
+import { useData } from './useData';
+import { calculateBuybackPriceShared, calculateRepairPriceShared } from '../utils/pricingLogic';
+import * as Sentry from "@sentry/nextjs";
 
 const BRAND_DATA_CACHE = new Set<string>();
 
 export const useWizardActions = (type: 'buyback' | 'repair') => {
     const { state, dispatch } = useWizard();
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const { language: lang } = useLanguage();
+    const { language: lang, t } = useLanguage();
+    const { sendEmail } = useData();
     const [isPending, startTransition] = useTransition();
 
     const getLocalizedTypeSlug = useCallback((currentType: 'buyback' | 'repair') => {
@@ -33,6 +37,12 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
         const isLastStep = (type === 'buyback' && state.step === 5) || (type === 'repair' && state.step === 4);
 
         if (!isLastStep) {
+            Sentry.addBreadcrumb({
+                category: "wizard",
+                message: `User advanced to step ${state.step + 1}`,
+                level: "info",
+                data: { fromStep: state.step, toStep: state.step + 1 }
+            });
             dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: true } });
             setTimeout(() => {
                 dispatch({ type: 'SET_STEP', payload: state.step + 1 });
@@ -49,6 +59,13 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
             setTimeout(() => {
                 const newStep = state.step - 1;
                 dispatch({ type: 'SET_STEP', payload: newStep });
+
+                Sentry.addBreadcrumb({
+                    category: "wizard",
+                    message: `User navigated back to step ${newStep}`,
+                    level: "info",
+                    data: { currentStep: state.step, newStep: newStep },
+                });
 
                 if (newStep === 1) {
                     dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: '', selectedBrand: '', selectedModel: '' } });
@@ -67,15 +84,48 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
     }, [dispatch, state.step, state.selectedBrand, state.deviceType, router, lang, typeSlug]);
 
     const handleBrandSelect = useCallback((brand: string) => {
+        Sentry.addBreadcrumb({
+            category: "wizard",
+            message: `User selected brand: ${brand}`,
+            level: "info",
+        });
         dispatch({ type: 'SET_DEVICE_INFO', payload: { selectedBrand: brand, selectedModel: '' } });
         startTransition(() => {
             router.push(`/${lang}/${typeSlug}/${createSlug(brand)}?category=${state.deviceType}`, { scroll: false });
         });
     }, [dispatch, lang, typeSlug, state.deviceType, router]);
 
-    const handleModelSelect = useCallback((model: string) => {
+    const handleModelSelect = useCallback(async (model: string) => {
+        Sentry.addBreadcrumb({
+            category: "wizard",
+            message: `User selected model: ${model}`,
+            level: "info",
+            data: { modelName: model },
+        });
         dispatch({ type: 'SET_DEVICE_INFO', payload: { selectedModel: model } });
         dispatch({ type: 'SET_UI_STATE', payload: { isInitialized: false } });
+
+        const slug = createSlug(`${state.selectedBrand} ${model}`);
+        if (state.pricingData.loadedForModel !== slug) {
+            dispatch({ type: 'SET_PRICING_DATA', payload: { isLoading: true } });
+            try {
+                const { pricingService } = await import('../services/pricingService');
+                const data = await pricingService.fetchDevicePricing(slug);
+                dispatch({
+                    type: 'SET_PRICING_DATA',
+                    payload: {
+                        repairPrices: data.repairPrices,
+                        buybackPrices: data.buybackPrices,
+                        deviceImage: data.deviceImage,
+                        isLoading: false,
+                        loadedForModel: slug
+                    }
+                });
+            } catch (err) {
+                console.error("Pricing fetch failed", err);
+                dispatch({ type: 'SET_PRICING_DATA', payload: { isLoading: false } });
+            }
+        }
 
         startTransition(() => {
             const key = `buyback_state_${createSlug(state.selectedBrand)}_${createSlug(model)}`;
@@ -83,15 +133,61 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
             router.push(`/${lang}/${typeSlug}/${createSlug(state.selectedBrand)}/${createSlug(model)}?category=${state.deviceType}`);
             if (state.step < 3) dispatch({ type: 'SET_STEP', payload: 3 });
         });
-    }, [dispatch, state.selectedBrand, state.deviceType, state.step, lang, typeSlug, router]);
+    }, [dispatch, state.selectedBrand, state.deviceType, state.step, state.pricingData.loadedForModel, lang, typeSlug, router]);
 
-    // Brand data loading logic
-    const loadedBrandRef = useRef<string | null>(null);
+    const handleSubmit = useCallback(async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        try {
+            Sentry.addBreadcrumb({
+                category: "wizard",
+                message: "User initiated order submission",
+                level: "info",
+                data: { brand: state.selectedBrand, model: state.selectedModel, type }
+            });
+
+            dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: true } });
+
+            const pricingParams = {
+                ...state,
+                type,
+                brand: state.selectedBrand,
+                model: state.selectedModel
+            };
+
+            const price = type === 'buyback'
+                ? calculateBuybackPriceShared(pricingParams, state.pricingData)
+                : calculateRepairPriceShared(pricingParams, state.pricingData);
+
+            const { readableId, firestoreData } = await orderService.submitOrder({
+                ...state,
+                type,
+                price,
+                condition: type === 'buyback' ? { screen: state.screenState || null, body: state.bodyState || null } : null,
+                issues: type === 'repair' ? state.repairIssues : null,
+                language: lang || 'fr',
+                brand: state.selectedBrand,
+                model: state.selectedModel
+            }, t);
+
+            // Send Confirmation Email (Includes PDF attachment) - No Download
+            await orderService.sendOrderConfirmationEmail(readableId, firestoreData, lang || 'fr', t, sendEmail);
+
+            // Navigate immediately
+
+
+            router.push(`/${lang}/track-order?id=${readableId}&email=${encodeURIComponent(state.customerEmail)}&success=true`);
+        } catch (error) {
+            console.error('Submission error:', error);
+            alert(t('error_submitting_order'));
+        } finally {
+            dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: false } });
+        }
+    }, [dispatch, state, type, lang, t, sendEmail, router]);
+
     const loadBrandData = useCallback(async (brandSlug: string) => {
         if (loadedBrandRef.current === brandSlug) return;
         loadedBrandRef.current = brandSlug;
 
-        // Skip loading indicator if already in global cache
         const shouldShowLoading = !BRAND_DATA_CACHE.has(brandSlug);
         if (shouldShowLoading) {
             dispatch({ type: 'SET_UI_STATE', payload: { isLoadingData: true } });
@@ -113,9 +209,12 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
         }
     }, [dispatch]);
 
+    const loadedBrandRef = useRef<string | null>(null);
+
     return {
         handleNext,
         handleBack,
+        handleSubmit,
         handleBrandSelect,
         handleModelSelect,
         loadBrandData,

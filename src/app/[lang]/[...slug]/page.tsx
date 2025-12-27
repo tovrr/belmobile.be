@@ -310,10 +310,25 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
     // Fix for Hub Pages: Do not pass the Hub ID (e.g., 'bruxelles') as initialShop.
     // This allows the wizard to remain "neutral" so the user can choose a specific store (Schaerbeek, etc.) later.
     const initialShop = location && !location.isHub ? location.id : undefined;
-    const initialDevice = device ? {
-        brand: device.value,
-        model: deviceModel || ''
+
+    // Magic Link Overrides
+    const urlBrand = typeof resolvedSearchParams?.brand === 'string' ? resolvedSearchParams.brand : undefined;
+    const urlModel = typeof resolvedSearchParams?.model === 'string' ? slugToDisplayName(resolvedSearchParams.model) : undefined;
+    const urlStep = typeof resolvedSearchParams?.step === 'string' ? parseInt(resolvedSearchParams.step) : undefined;
+    const urlEmail = typeof resolvedSearchParams?.email === 'string' ? resolvedSearchParams.email : undefined;
+
+    const initialDevice = (device || urlBrand) ? {
+        brand: urlBrand || device?.value || '',
+        model: urlModel || deviceModel || ''
     } : undefined;
+
+    const initialWizardProps = {
+        deviceType: deviceCategory || undefined,
+        selectedBrand: initialDevice?.brand,
+        selectedModel: initialDevice?.model,
+        customerEmail: urlEmail,
+        step: urlStep
+    };
 
     // 4. Construct Hreflang Slugs
     const getSlugForLang = (l: string) => {
@@ -441,6 +456,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                             initialShop={initialShop}
                             initialDevice={initialDevice}
                             initialCategory={deviceCategory || undefined}
+                            initialWizardProps={initialWizardProps}
                         />
                     </Suspense>
                 </div>

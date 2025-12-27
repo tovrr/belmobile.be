@@ -16,23 +16,36 @@ import {
     CalendarIcon,
     DevicePhoneMobileIcon,
     GlobeAltIcon,
-    NewspaperIcon
+    NewspaperIcon,
+    UsersIcon,
+    ArrowTrendingUpIcon
 } from '@heroicons/react/24/outline';
 
-export default function AdminShell({ children }: { children: React.ReactNode }) {
-    const { user, loading, logout } = useAuth();
-    const { quotes, reservations, contactMessages } = useData();
+const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { user, profile, loading, logout } = useAuth();
+    const { quotes, reservations, contactMessages, shops, adminShopFilter, setAdminShopFilter } = useData();
     const router = useRouter();
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-
     useEffect(() => {
         if (!loading && !user && pathname !== '/admin/login') {
             router.push('/admin/login');
+            return;
         }
-    }, [user, loading, router, pathname]);
+
+        // --- RBAC Protection ---
+        if (!loading && profile && pathname.startsWith('/admin/team') && profile.role !== 'super_admin') {
+            router.push('/admin/dashboard');
+        }
+        if (!loading && profile && pathname.startsWith('/admin/settings') && profile.role !== 'super_admin') {
+            router.push('/admin/dashboard');
+        }
+        if (!loading && profile && pathname.startsWith('/admin/reporting') && profile.role !== 'super_admin') {
+            router.push('/admin/dashboard');
+        }
+    }, [user, profile, loading, router, pathname]);
 
     const newQuotesCount = quotes.filter(q => q.status === 'new').length;
     const newReservationsCount = reservations.filter(r => r.status === 'pending').length;
@@ -55,15 +68,17 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
     const navigation = [
         { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon },
-        { name: 'Reservations', href: '/admin/reservations', icon: CalendarIcon, badge: newReservationsCount },
         { name: 'Orders & Quotes', href: '/admin/orders', icon: ShoppingBagIcon, badge: newQuotesCount },
-        { name: 'Messages', href: '/admin/messages', icon: NewspaperIcon, badge: contactMessages.filter(m => m.status === 'new').length },
+        { name: 'Reservations', href: '/admin/reservations', icon: CalendarIcon, badge: newReservationsCount },
         { name: 'Products', href: '/admin/products', icon: DevicePhoneMobileIcon },
-        { name: 'Services', href: '/admin/services', icon: WrenchScrewdriverIcon },
         { name: 'Pricing', href: '/admin/pricing', icon: CurrencyEuroIcon },
+        ...(profile?.role === 'super_admin' ? [{ name: 'Reporting', href: '/admin/reporting', icon: ArrowTrendingUpIcon }] : []),
+        { name: 'Services', href: '/admin/services', icon: WrenchScrewdriverIcon },
         { name: 'Shops', href: '/admin/shops', icon: BuildingStorefrontIcon },
-        { name: 'Franchise', href: '/admin/franchise', icon: GlobeAltIcon },
+        ...(profile?.role === 'super_admin' ? [{ name: 'Team', href: '/admin/team', icon: UsersIcon }] : []),
+        { name: 'Messages', href: '/admin/messages', icon: NewspaperIcon, badge: contactMessages.filter(m => m.status === 'new').length },
         { name: 'Blog Posts', href: '/admin/blog', icon: NewspaperIcon },
+        { name: 'Franchise', href: '/admin/franchise', icon: GlobeAltIcon },
         { name: 'Global SEO', href: '/admin/seo', icon: GlobeAltIcon },
         { name: 'Settings', href: '/admin/settings', icon: Cog6ToothIcon },
     ];
@@ -73,20 +88,32 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             {/* Mobile Header */}
             <div className="lg:hidden fixed top-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-gray-200/50 dark:border-slate-700/50 z-30 px-4 py-3 flex items-center justify-between">
                 <span className="text-xl font-black text-transparent bg-clip-text bg-linear-to-r from-bel-blue to-purple-600">BELMOBILE</span>
-                <button
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-slate-800/50"
-                >
-                    {isMobileMenuOpen ? (
-                        <ArrowLeftOnRectangleIcon className="h-6 w-6" />
-                    ) : (
-                        <div className="space-y-1.5">
-                            <div className="w-6 h-0.5 bg-current rounded-full"></div>
-                            <div className="w-6 h-0.5 bg-current rounded-full"></div>
-                            <div className="w-6 h-0.5 bg-current rounded-full"></div>
-                        </div>
+                <div className="flex items-center gap-2">
+                    {profile?.role === 'super_admin' && (
+                        <select
+                            value={adminShopFilter}
+                            onChange={(e) => setAdminShopFilter(e.target.value)}
+                            className="text-[10px] font-bold bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg px-2 py-1 outline-none"
+                        >
+                            <option value="all">All Shops</option>
+                            {shops.map(s => <option key={s.id} value={s.id}>{s.name || s.id}</option>)}
+                        </select>
                     )}
-                </button>
+                    <button
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-slate-800/50"
+                    >
+                        {isMobileMenuOpen ? (
+                            <ArrowLeftOnRectangleIcon className="h-6 w-6" />
+                        ) : (
+                            <div className="space-y-1.5">
+                                <div className="w-6 h-0.5 bg-current rounded-full"></div>
+                                <div className="w-6 h-0.5 bg-current rounded-full"></div>
+                                <div className="w-6 h-0.5 bg-current rounded-full"></div>
+                            </div>
+                        )}
+                    </button>
+                </div>
             </div>
 
             {/* Mobile Overlay */}
@@ -108,9 +135,17 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 w-64
                 flex flex-col
             `}>
-                <div className="p-6 flex items-center justify-between h-16 lg:h-auto">
+                <div className="p-6 flex items-center justify-between h-16 lg:h-auto border-b border-gray-100/50 dark:border-slate-800/50 lg:border-none">
                     {isSidebarOpen ? (
-                        <span className="text-2xl font-black text-transparent bg-clip-text bg-linear-to-r from-bel-blue to-purple-600 hidden lg:block">BELMOBILE</span>
+                        <div className="flex flex-col">
+                            <span className="text-2xl font-black text-transparent bg-clip-text bg-linear-to-r from-bel-blue to-purple-600 hidden lg:block">BELMOBILE</span>
+                            {profile?.role === 'super_admin' && (
+                                <span className="text-[10px] font-bold text-bel-blue opacity-50 uppercase tracking-widest hidden lg:block">Super Admin</span>
+                            )}
+                            {(profile?.role === 'shop_manager' || profile?.role === 'technician') && (
+                                <span className="text-[10px] font-bold text-purple-600 opacity-50 uppercase tracking-widest hidden lg:block">{profile.role === 'technician' ? 'Technician' : 'Manager'}: {profile.shopId}</span>
+                            )}
+                        </div>
                     ) : (
                         <span className="text-2xl font-black text-bel-blue hidden lg:block">B</span>
                     )}
@@ -126,6 +161,22 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                             <ArrowLeftOnRectangleIcon className="h-5 w-5" />
                         )}
                     </button>
+                </div>
+
+                <div className="px-6 mb-4 hidden lg:block mt-4">
+                    {profile?.role === 'super_admin' && isSidebarOpen && (
+                        <div className="space-y-1">
+                            <label className="text-[10px] uppercase tracking-tighter font-black text-gray-400 dark:text-slate-500">Global View</label>
+                            <select
+                                value={adminShopFilter}
+                                onChange={(e) => setAdminShopFilter(e.target.value)}
+                                className="w-full text-xs font-bold bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-bel-blue/20 transition-all appearance-none cursor-pointer"
+                            >
+                                <option value="all">🌍 All Shops</option>
+                                {shops.map(s => <option key={s.id} value={s.id}>📍 {s.name || s.id}</option>)}
+                            </select>
+                        </div>
+                    )}
                 </div>
 
                 <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto scrollbar-hide">
@@ -182,3 +233,5 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </div>
     );
 }
+
+export default AdminShell;

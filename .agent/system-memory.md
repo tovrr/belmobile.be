@@ -57,5 +57,16 @@ graph TD
 - **Search Index**: Built via `scripts/build-search-index.mjs`, consumed by Gemini and Wizard search.
 
 ## ⚠️ Known Constraints
-- **Vercel Limits**: Max 10MB response for edge functions (keep PDF generation optimized).
 - **ESLint 9**: Local `npm run lint` is inconsistent on Windows. Trust `npm run build` instead.
+
+## 🛡️ Admin Dashboard v1.0 (Operational)
+Deployed: Dec 2025
+- **Atomic Updates**: `DataContext` supports generic `updateQuoteFields`.
+- **Audit Logging**: All price/status changes are logged with timestamp and admin ID.
+- **PDF Generation**: Admins can regenerate/download official PDF orders on demand.
+- **Internal Notes**: Private text area for staff collaboration per order.
+
+## 🌍 Environment
+- **Production URL**: https://belmobile-next-st7t42wyo-tovrrs-projects.vercel.app
+- **Staging / Preview**: Vercel Preview Deployments via PRs
+
