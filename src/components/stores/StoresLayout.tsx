@@ -15,12 +15,18 @@ const StoreMap = dynamic(() => import('./StoreMap'), {
     )
 });
 
+import { Shop } from '../../types';
+
 interface StoresLayoutProps {
     lang: string;
+    initialShops?: Shop[];
 }
 
-const StoresLayout: React.FC<StoresLayoutProps> = ({ lang }) => {
-    const { shops, loading } = useData();
+const StoresLayout: React.FC<StoresLayoutProps> = ({ lang, initialShops = [] }) => {
+    const { shops: liveShops, loading } = useData();
+
+    // Prefer liveShops if available, else initialShops
+    const shops = liveShops.length > 0 ? liveShops : initialShops;
 
     if (loading && !shops.length) {
         return (

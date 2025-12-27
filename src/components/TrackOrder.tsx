@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useLanguage } from '../hooks/useLanguage';
-import { MagnifyingGlassIcon, CheckCircleIcon, ClockIcon, WrenchScrewdriverIcon, TruckIcon, CurrencyEuroIcon, ClipboardDocumentCheckIcon, ArchiveBoxIcon, InformationCircleIcon, ArrowDownTrayIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, CheckCircleIcon, ClockIcon, WrenchScrewdriverIcon, TruckIcon, CurrencyEuroIcon, ClipboardDocumentCheckIcon, ArchiveBoxIcon, InformationCircleIcon, ArrowDownTrayIcon, ShoppingBagIcon, CreditCardIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { db } from '../firebase';
 import { doc, getDoc, query, collection, where, getDocs } from 'firebase/firestore';
 import Input from './ui/Input';
@@ -12,6 +12,7 @@ import VerticalTimeline from './VerticalTimeline';
 import Celebration from './Celebration';
 
 import { Quote, Reservation } from '../types';
+import { useData } from '../hooks/useData';
 
 // Helper to format simplified slugs like "apple-iphone-15" -> "Apple iPhone 15"
 const formatDeviceName = (slug: string) => {
@@ -26,6 +27,7 @@ type TrackableItem = (Quote | Reservation) & { id: string, type: 'repair' | 'buy
 
 const TrackOrder: React.FC = () => {
     const { t } = useLanguage();
+    const { updateQuoteFields, shops } = useData();
     const [orderId, setOrderId] = useState('');
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<TrackableItem | null>(null);
@@ -200,17 +202,17 @@ const TrackOrder: React.FC = () => {
             {showCelebration && <Celebration />}
 
             <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-10 animate-fade-in-down">
+                <div className={`text-center mb-10 animate-fade-in-down ${!status ? 'max-w-2xl mx-auto' : ''}`}>
                     <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-4">
                         {t('Track Your Order')}
                     </h1>
                     <p className="text-gray-600 dark:text-gray-400">
-                        {t('Enter your order details below to check the status of your repair or buyback.')}
+                        {t('track_order_description_extended') || t('Enter your order details below to check the status of your repair, buyback, or product reservation.')}
                     </p>
                 </div>
 
-                <div className="grid lg:grid-cols-12 gap-8 items-start">
-                    <div className="lg:col-span-8 space-y-8">
+                <div className={`${!status ? 'max-w-2xl mx-auto' : 'grid lg:grid-cols-12'} gap-8 items-start`}>
+                    <div className={`${!status ? 'w-full' : 'lg:col-span-8'} space-y-8`}>
                         {isSuccess && status && (
                             <div className="animate-fade-in-up bg-white dark:bg-slate-900 rounded-3xl p-8 border-2 border-green-100 dark:border-green-900/30 text-center relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-green-400 to-emerald-600" />
@@ -340,6 +342,33 @@ const TrackOrder: React.FC = () => {
                                                     </div>
                                                 </>
                                             )}
+
+                                            {(status as Quote).issues && (status as Quote).issues.length > 0 && (
+                                                <div className="py-2 border-b border-gray-100 dark:border-slate-800">
+                                                    <span className="text-gray-500 block mb-1">{t('Issues')}</span>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {(status as Quote).issues.map((issue: string, idx: number) => (
+                                                            <span key={idx} className="bg-bel-blue/10 text-bel-blue text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                                {issue}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-800">
+                                                <span className="text-gray-500">{t('Method')}</span>
+                                                <span className="font-medium text-gray-900 dark:text-white capitalize">{status.deliveryMethod || 'pickup'}</span>
+                                            </div>
+
+                                            {status.deliveryMethod !== 'shipping' && status.shopId && (
+                                                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-800">
+                                                    <span className="text-gray-500">{t('Shop')}</span>
+                                                    <span className="font-medium text-gray-900 dark:text-white">
+                                                        {shops.find(s => s.id === status.shopId)?.name || status.shopId}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
@@ -354,6 +383,19 @@ const TrackOrder: React.FC = () => {
                                                 <span className="font-bold text-lg text-bel-blue">€{(status as any).price || (status as any).estimatedPrice || 0}</span>
                                             </div>
                                             <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-800">
+                                                <span className="text-gray-500">{t('Status')}</span>
+                                                <span className={`font-medium ${(status as Quote).isPaid ? 'text-green-600' : 'text-gray-900 dark:text-white'}`}>
+                                                    {(status as Quote).isPaid ? (
+                                                        <span className="flex items-center gap-1">
+                                                            <CheckCircleIcon className="w-4 h-4" />
+                                                            {t('Paid')}
+                                                        </span>
+                                                    ) : (
+                                                        t('Unpaid')
+                                                    )}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-800">
                                                 <span className="text-gray-500">{t('Method')}</span>
                                                 <span className="font-medium text-gray-900 dark:text-white capitalize">
                                                     {(status as any).iban ? t('Bank Transfer') : t('Cash (In Store)')}
@@ -365,25 +407,71 @@ const TrackOrder: React.FC = () => {
                                                     <span className="font-medium text-gray-900 dark:text-white font-mono">{(status as any).iban}</span>
                                                 </div>
                                             )}
+
+                                            {(status as Quote).paymentReceiptUrl && (
+                                                <div className="pt-4 mt-4 border-t border-gray-100 dark:border-slate-800">
+                                                    <a
+                                                        href={(status as Quote).paymentReceiptUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-bold rounded-xl hover:bg-green-100 transition"
+                                                    >
+                                                        <ArrowDownTrayIcon className="w-5 h-5" />
+                                                        {t('Download Payment Receipt')}
+                                                    </a>
+                                                </div>
+                                            )}
+
+                                            {status.type !== 'buyback' && !(status as Quote).isPaid && (status as Quote).paymentLink && (
+                                                <div className="pt-4 mt-4 border-t border-gray-100 dark:border-slate-800">
+                                                    <a
+                                                        href={(status as Quote).paymentLink}
+                                                        className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-bel-blue text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 dark:shadow-none"
+                                                    >
+                                                        <CreditCardIcon className="w-5 h-5" />
+                                                        {t('Pay Now Securely')}
+                                                    </a>
+                                                    <p className="text-[10px] text-center text-gray-400 mt-2 uppercase tracking-widest">{t('Secure payment via Mollie')}</p>
+                                                </div>
+                                            )}
+
+                                            {status.type === 'buyback' && (status as Quote).price !== (status as Quote).initialPrice && !(status as Quote).isOfferAccepted && (
+                                                <div className="pt-4 mt-4 border-t border-gray-100 dark:border-slate-800 space-y-4">
+                                                    <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-100 dark:border-yellow-800">
+                                                        <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                                                            {t('The offer price has been adjusted after inspection. Please review and accept the new offer to proceed with the payout.')}
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        onClick={async () => {
+                                                            setLoading(true);
+                                                            try {
+                                                                await updateQuoteFields(status.id, { isOfferAccepted: true });
+                                                                setStatus(prev => prev ? { ...prev, isOfferAccepted: true } as any : null);
+                                                                setShowCelebration(true);
+                                                            } catch (err) {
+                                                                console.error('Failed to accept offer', err);
+                                                            } finally {
+                                                                setLoading(false);
+                                                            }
+                                                        }}
+                                                        disabled={loading}
+                                                        className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition shadow-lg shadow-green-200 dark:shadow-none"
+                                                    >
+                                                        <CheckIcon className="w-5 h-5" />
+                                                        {t('Accept Updated Offer')}
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         )}
-
-                        {error && (
-                            <div className="animate-shake p-6 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex flex-col items-center text-center">
-                                <div className="w-12 h-12 bg-red-100 dark:bg-red-800 text-red-500 rounded-full flex items-center justify-center mb-4">
-                                    <span className="text-2xl font-bold">!</span>
-                                </div>
-                                <h3 className="text-lg font-bold text-red-900 dark:text-red-100 mb-1">{t('Order Not Found')}</h3>
-                                <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
-                            </div>
-                        )}
                     </div>
 
-                    <div className={`lg:col-span-4 space-y-6 ${!status ? 'hidden lg:block lg:opacity-50 lg:pointer-events-none' : ''}`}>
-                        {status && (
+                    {status && (
+                        <div className="lg:col-span-4 space-y-6">
                             <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl dark:shadow-none dark:border dark:border-slate-800 p-8 sticky top-32">
                                 <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-8 border-b border-gray-100 dark:border-slate-800 pb-4">
                                     {t('Order Timeline')}
@@ -416,9 +504,19 @@ const TrackOrder: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
+
+                {error && (
+                    <div className="mt-8 animate-shake p-6 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex flex-col items-center text-center max-w-2xl mx-auto">
+                        <div className="w-12 h-12 bg-red-100 dark:bg-red-800 text-red-500 rounded-full flex items-center justify-center mb-4">
+                            <span className="text-2xl font-bold">!</span>
+                        </div>
+                        <h3 className="text-lg font-bold text-red-900 dark:text-red-100 mb-1">{t('Order Not Found')}</h3>
+                        <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+                    </div>
+                )}
             </div>
         </div>
     );

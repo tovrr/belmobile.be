@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { InventoryProvider } from '../context/InventoryContext';
+import { OrderProvider } from '../context/OrderContext';
 import { ShopProvider } from '../context/ShopContext';
 import { DataProvider } from '../context/DataContext';
 import { LanguageProvider } from '../hooks/useLanguage';
@@ -14,9 +16,13 @@ export function Providers({ children, lang, translations }: { children: React.Re
             <AuthProvider>
                 <LanguageProvider initialLanguage={lang as 'en' | 'fr' | 'nl' | undefined} initialTranslations={translations}>
                     <DataProvider>
-                        <ShopProvider>
-                            {children}
-                        </ShopProvider>
+                        <InventoryProvider>
+                            <OrderProvider>
+                                <ShopProvider>
+                                    {children}
+                                </ShopProvider>
+                            </OrderProvider>
+                        </InventoryProvider>
                     </DataProvider>
                 </LanguageProvider>
             </AuthProvider>

@@ -13,7 +13,12 @@ const QuoteDetailsModal = dynamic(() => import('./QuoteDetailsModal'), {
 
 const QuoteManagement: React.FC = () => {
     const { profile } = useAuth();
-    const { quotes, shops } = useData();
+    const {
+        quotes,
+        shops,
+        hasMoreQuotes,
+        loadMoreQuotes
+    } = useData();
     const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -145,6 +150,17 @@ const QuoteManagement: React.FC = () => {
                     </table>
                 </div>
             </div>
+
+            {hasMoreQuotes && (
+                <div className="flex justify-center pt-4">
+                    <button
+                        onClick={loadMoreQuotes}
+                        className="px-6 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                    >
+                        Load More Quotes
+                    </button>
+                </div>
+            )}
 
             {selectedQuote && (
                 <QuoteDetailsModal

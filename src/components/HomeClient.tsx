@@ -16,11 +16,17 @@ const BentoServices = dynamic(() => import('./BentoServices'), {
 
 
 
+import { FormattedReview } from '../services/reviewService';
+
 const ReviewsSection = dynamic(() => import('./ReviewsSection'), {
     loading: () => <div className="h-60" />
 });
 
-const HomeClient: React.FC = () => {
+interface HomeClientProps {
+    initialReviews?: FormattedReview[];
+}
+
+const HomeClient: React.FC<HomeClientProps> = ({ initialReviews = [] }) => {
     const { t } = useLanguage();
 
     return (
@@ -30,7 +36,7 @@ const HomeClient: React.FC = () => {
             <h2 className="sr-only">{t('home_trust_section_title')}</h2>
             <TrustSignals />
             <BentoServices />
-            <ReviewsSection />
+            <ReviewsSection initialReviews={initialReviews} />
         </div>
     );
 };

@@ -6,26 +6,23 @@ import { StarIcon } from '@heroicons/react/24/solid';
 import { useLanguage } from '../hooks/useLanguage';
 import FadeIn from './ui/FadeIn';
 
-interface Review {
-    id: string;
-    author: string;
-    rating: number;
-    text: string;
-    date: string;
-    shopName?: string;
-    photoUrl?: string;
+import { FormattedReview as Review } from '../services/reviewService';
+
+interface ReviewsSectionProps {
+    initialReviews?: Review[];
 }
 
 const MOCK_REVIEWS: Review[] = [
-    { id: '1', author: 'Jean Dupont', rating: 5, text: 'Service rapide et impeccable ! Mon iPhone est comme neuf.', date: '2 days ago' },
-    { id: '2', author: 'Marie Peeters', rating: 5, text: 'Très bon accueil à Schaerbeek. Je recommande.', date: '1 week ago' },
-    { id: '3', author: 'Ahmed Benali', rating: 4, text: 'Bon prix pour le rachat de mon Samsung.', date: '2 weeks ago' },
+    { id: '1', author: 'Jean Dupont', rating: 5, text: 'Service rapide et impeccable ! Mon iPhone est comme neuf.', date: '2 days ago', publishTime: Date.now() - 172800000, shopName: 'Schaerbeek' },
+    { id: '2', author: 'Marie Peeters', rating: 5, text: 'Très bon accueil à Schaerbeek. Je recommande.', date: '1 week ago', publishTime: Date.now() - 604800000, shopName: 'Schaerbeek' },
+    { id: '3', author: 'Ahmed Benali', rating: 4, text: 'Bon prix pour le rachat de mon Samsung.', date: '2 weeks ago', publishTime: Date.now() - 1209600000, shopName: 'Molenbeek' },
 ];
 
-const ReviewsSection: React.FC = () => {
+const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) => {
     const { t, language } = useLanguage();
-    const [reviews, setReviews] = useState<Review[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    // Use initialReviews if provided, otherwise empty array but we'll show skeleton/mocks if still loading
+    const [reviews, setReviews] = useState<Review[]>(initialReviews.length > 0 ? initialReviews : []);
+    const [isLoading, setIsLoading] = useState(initialReviews.length === 0);
     const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {

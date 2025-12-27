@@ -1,4 +1,5 @@
 import React, { cache } from 'react';
+export const revalidate = 3600; // Revalidate every hour
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { TranslationDict } from '../../../../utils/translations';

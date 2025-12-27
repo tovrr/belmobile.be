@@ -1,10 +1,12 @@
 import Products from '../../../components/Products';
 import { Metadata } from 'next';
+import { getProducts } from '../../../services/productService';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // Revalidate every hour
 
 type Props = {
-    params: Promise<{ lang: string }>
+    params: Promise<{ lang: string }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -30,6 +32,10 @@ export function generateStaticParams() {
     return [];
 }
 
-export default function ProductsPage() {
-    return <Products />;
+export default async function ProductsPage({ params, searchParams }: Props) {
+    const { lang } = await params;
+    const initialProducts = await getProducts();
+    const resolvedSearchParams = await searchParams;
+
+    return <Products lang={lang} initialProducts={initialProducts} searchParams={resolvedSearchParams} />;
 }

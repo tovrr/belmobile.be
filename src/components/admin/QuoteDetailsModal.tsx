@@ -1,27 +1,51 @@
 'use client';
 
 import React from 'react';
-import { Quote, ActivityLogEntry } from '../../types';
+import { Quote, ActivityLogEntry, Shop, RepairPricing, BuybackPriceRecord } from '../../types';
 import { useData } from '../../hooks/useData';
-import { useAuth } from '../../context/AuthContext'; // Import useAuth
+import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../hooks/useLanguage';
 import { type RepairBuybackData } from '../../utils/pdfGenerator';
-import { XMarkIcon, TrashIcon, PencilIcon, PlusIcon, CheckIcon, ArrowPathIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'; // Add new icons
+import {
+    XMarkIcon, TrashIcon, PencilIcon, PlusIcon, CheckIcon,
+    ArrowPathIcon, ArrowDownTrayIcon, CloudArrowUpIcon,
+    CreditCardIcon, DocumentIcon
+} from '@heroicons/react/24/outline';
+import { calculateBuybackPrice } from '../../utils/pricingCalculator';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../firebase';
 
-interface QuoteDetailsModalProps {
-    quote: Quote;
-    onClose: () => void;
-}
-
-const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose }) => {
-    const { updateQuoteStatus, updateQuoteIssues, deleteQuote, updateQuoteFields, shops } = useData();
+const QuoteDetailsModal: React.FC<{ quote: Quote; onClose: () => void }> = ({ quote, onClose }) => {
+    const { updateQuoteStatus, updateQuoteIssues, deleteQuote, updateQuoteFields, shops, buybackPrices, repairPrices } = useData();
     const { user } = useAuth();
     const { t } = useLanguage();
-    const shopName = shops.find(s => s.id === quote.shopId)?.name || 'Unknown Shop';
+    const shopName = shops.find((s: Shop) => s.id === quote.shopId)?.name || 'Unknown Shop';
 
     const [currentStatus, setCurrentStatus] = React.useState(quote.status);
     const [isUpdating, setIsUpdating] = React.useState(false);
     const [notifyCustomer, setNotifyCustomer] = React.useState(true);
+
+    // -- PAYMENT STATE --
+    const [isPaid, setIsPaid] = React.useState(quote.isPaid || false);
+    const [paymentLink, setPaymentLink] = React.useState(quote.paymentLink || '');
+    const [isUploadingReceipt, setIsUploadingReceipt] = React.useState(false);
+
+    // -- BUYBACK EDIT STATE --
+    const [isEditingSpecs, setIsEditingSpecs] = React.useState(false);
+    const [editedStorage, setEditedStorage] = React.useState(quote.storage || '');
+    const [editedScreenCondition, setEditedScreenCondition] = React.useState(
+        typeof quote.condition === 'object' ? quote.condition.screen : (quote.condition || 'perfect')
+    );
+    const [editedBodyCondition, setEditedBodyCondition] = React.useState(
+        typeof quote.condition === 'object' ? quote.condition.body : (quote.condition || 'perfect')
+    );
+    const [editedSpecs, setEditedSpecs] = React.useState({
+        turnsOn: quote.turnsOn !== undefined ? quote.turnsOn : true,
+        worksCorrectly: quote.worksCorrectly !== undefined ? quote.worksCorrectly : true,
+        isUnlocked: quote.isUnlocked !== undefined ? quote.isUnlocked : true,
+        faceIdWorking: quote.faceIdWorking !== undefined ? quote.faceIdWorking : true,
+        batteryHealth: quote.batteryHealth || 'normal'
+    });
 
     // -- ADMIN EDIT STATE --
     const [isEditingPrice, setIsEditingPrice] = React.useState(false);
@@ -46,7 +70,7 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
         setCurrentStatus(quote.status);
     }, [quote.status]);
 
-    const logActivity = async (action: string, oldValue: any, newValue: any, note?: string) => {
+    const logActivity = async (action: string, oldValue: unknown, newValue: unknown, note?: string) => {
         try {
             const newEntry: ActivityLogEntry = {
                 timestamp: new Date().toISOString(),
@@ -167,6 +191,112 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
         }
     };
 
+    const handleTogglePayment = async () => {
+        try {
+            const nextPaid = !isPaid;
+            await updateQuoteFields(quote.id, { isPaid: nextPaid });
+            setIsPaid(nextPaid);
+            await logActivity('payment_status_change', isPaid, nextPaid);
+        } catch (error) {
+            console.error("Failed to toggle payment:", error);
+        }
+    };
+
+    const handleSavePaymentLink = async () => {
+        try {
+            await updateQuoteFields(quote.id, { paymentLink });
+            await logActivity('payment_link_update', quote.paymentLink, paymentLink);
+            alert("Payment link saved");
+        } catch (error) {
+            console.error("Failed to save payment link:", error);
+        }
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploadingReceipt(true);
+        try {
+            const storageRef = ref(storage, `receipts/${quote.id}/${file.name}`);
+            await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(storageRef);
+            await updateQuoteFields(quote.id, { paymentReceiptUrl: downloadURL });
+            await logActivity('receipt_upload', null, downloadURL);
+            alert("Receipt uploaded successfully!");
+        } catch (error) {
+            console.error("Upload failed:", error);
+            alert("Upload failed");
+        } finally {
+            setIsUploadingReceipt(false);
+        }
+    };
+
+    const handleRecalculatePrice = () => {
+        const pricingState = {
+            type: 'buyback' as const,
+            deviceType: quote.deviceType || 'smartphone',
+            selectedBrand: quote.brand,
+            selectedModel: quote.model,
+            storage: editedStorage,
+            turnsOn: editedSpecs.turnsOn,
+            worksCorrectly: editedSpecs.worksCorrectly,
+            isUnlocked: editedSpecs.isUnlocked,
+            faceIdWorking: editedSpecs.faceIdWorking,
+            batteryHealth: editedSpecs.batteryHealth,
+            screenState: editedScreenCondition.toLowerCase(),
+            bodyState: editedBodyCondition.toLowerCase(),
+            repairIssues: []
+        };
+
+        // Filtering logic: Assume deviceId is brand-model (slugified)
+        const deviceIdSlug = `${quote.brand}-${quote.model}`.toLowerCase().replace(/\s+/g, '-');
+        const relevantBuybackPrices = buybackPrices.filter((p: any) =>
+            (p.brand === quote.brand && p.model === quote.model) ||
+            (p.deviceId === deviceIdSlug)
+        ) as BuybackPriceRecord[];
+        const mappedRepairPrices: Record<string, number> = {};
+        repairPrices.forEach((rp: RepairPricing) => {
+            // pricingCalculator expects flattened keys
+            mappedRepairPrices['screen_generic'] = (rp.screen_generic as number) || 0;
+            mappedRepairPrices['screen_oled'] = (rp.screen_oled as number) || 0;
+            mappedRepairPrices['screen_original'] = (rp.screen_original as number) || 0;
+            mappedRepairPrices['battery'] = (rp.battery as number) || 0;
+            mappedRepairPrices['back_glass'] = (rp.back_glass as number) || 0;
+        });
+
+        const newPrice = calculateBuybackPrice(pricingState, {
+            buybackPrices: relevantBuybackPrices,
+            repairPrices: mappedRepairPrices
+        });
+
+        setEditedPrice(newPrice);
+    };
+
+    const handleSaveSpecs = async () => {
+        try {
+            const updates: Partial<Quote> = {
+                storage: editedStorage,
+                condition: {
+                    screen: editedScreenCondition,
+                    body: editedBodyCondition
+                },
+                turnsOn: editedSpecs.turnsOn,
+                worksCorrectly: editedSpecs.worksCorrectly,
+                isUnlocked: editedSpecs.isUnlocked,
+                faceIdWorking: editedSpecs.faceIdWorking,
+                batteryHealth: editedSpecs.batteryHealth,
+                price: editedPrice // Take the current edited price (from recalculate or manual)
+            };
+            await updateQuoteFields(quote.id, updates);
+            await logActivity('specs_update', 'Multiple fields', updates as unknown);
+            setIsEditingSpecs(false);
+        } catch (error) {
+            console.error("Failed to save specs:", error);
+            alert("Failed to save specs");
+        }
+    };
+
     const handleDownloadPDF = async () => {
         setIsGeneratingPDF(true);
         try {
@@ -185,8 +315,8 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
                 device: {
                     brand: quote.brand,
                     model: quote.model,
-                    issue: quote.issue,
-                    condition: typeof quote.condition === 'string' ? undefined : (quote.condition as any)
+                    storage: quote.storage,
+                    condition: typeof quote.condition === 'string' ? quote.condition : (quote.condition as { screen: string; body: string })
                 },
                 issues: quote.issues, // Root level property
                 financials: {
@@ -205,7 +335,7 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
                 // If it's a string, we might map it or leave it. 
                 // For now, if string, we don't pass 'condition' object as PDF expects {screen, body}.
             } else if (quote.condition) {
-                pdfData.device.condition = quote.condition as any;
+                pdfData.device.condition = quote.condition as { screen: string; body: string };
             }
 
             const { generateRepairBuybackPDF, savePDFBlob } = await import('../../utils/pdfGenerator');
@@ -250,95 +380,283 @@ const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onClose })
                                 <p><strong className="text-gray-900 dark:text-white">Shop:</strong> {shopName}</p>
                             </div>
                         </div>
-                        <div className="bg-gray-50 dark:bg-slate-900/50 p-4 rounded-2xl">
-                            <h3 className="font-bold text-gray-900 dark:text-white mb-3">Device Details</h3>
-                            <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                                <p><strong className="text-gray-900 dark:text-white">Type:</strong> {quote.deviceType}</p>
-                                <p><strong className="text-gray-900 dark:text-white">Brand:</strong> {quote.brand}</p>
-                                <p><strong className="text-gray-900 dark:text-white">Model:</strong> {quote.model}</p>
-                                {quote.type === 'buyback' && (
-                                    <p>
-                                        <strong className="text-gray-900 dark:text-white">Condition:</strong>{' '}
-                                        {typeof quote.condition === 'object' && quote.condition !== null
-                                            ? `${quote.condition.screen} / ${quote.condition.body}`
-                                            : quote.condition}
-                                    </p>
+                        <div className="bg-gray-50 dark:bg-slate-900/50 p-4 rounded-2xl relative">
+                            <div className="flex justify-between items-start mb-3">
+                                <h3 className="font-bold text-gray-900 dark:text-white">Device Details</h3>
+                                {quote.type === 'buyback' && !isEditingSpecs && (
+                                    <button
+                                        onClick={() => setIsEditingSpecs(true)}
+                                        className="text-xs font-bold text-bel-blue hover:underline flex items-center gap-1"
+                                    >
+                                        <PencilIcon className="w-3 h-3" /> Edit Specs
+                                    </button>
                                 )}
-                                <div className="mt-4 flex items-center gap-2">
-                                    <strong className="text-gray-900 dark:text-white">Price:</strong>
-                                    {!isEditingPrice ? (
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xl font-black text-bel-blue">€{quote.price}</span>
-                                            <button
-                                                onClick={() => {
-                                                    setEditedPrice(quote.price || 0);
-                                                    setIsEditingPrice(true);
-                                                }}
-                                                className="p-1 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full text-gray-400 hover:text-bel-blue transition-colors"
-                                                title="Edit Price"
-                                            >
-                                                <PencilIcon className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-2">
-                                            <input
-                                                type="number"
-                                                value={editedPrice}
-                                                onChange={(e) => setEditedPrice(Number(e.target.value))}
-                                                className="w-24 px-2 py-1 border border-bel-blue rounded text-lg font-bold text-gray-900 dark:text-white dark:bg-slate-800 outline-none"
-                                            />
-                                            <button
-                                                onClick={handleSavePrice}
-                                                className="p-1 bg-green-100 text-green-600 rounded-full hover:bg-green-200"
-                                            >
-                                                <CheckIcon className="w-5 h-5" />
-                                            </button>
-                                            <button
-                                                onClick={() => setIsEditingPrice(false)}
-                                                className="p-1 bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200"
-                                            >
-                                                <XMarkIcon className="w-5 h-5" />
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
                             </div>
+                            {!isEditingSpecs ? (
+                                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                                    <p><strong className="text-gray-900 dark:text-white">Type:</strong> {quote.deviceType}</p>
+                                    <p><strong className="text-gray-900 dark:text-white">Brand:</strong> {quote.brand}</p>
+                                    <p><strong className="text-gray-900 dark:text-white">Model:</strong> {quote.model}</p>
+                                    {quote.storage && (
+                                        <p><strong className="text-gray-900 dark:text-white">Storage:</strong> {quote.storage}</p>
+                                    )}
+                                    {quote.type === 'buyback' && (
+                                        <>
+                                            <p>
+                                                <strong className="text-gray-900 dark:text-white">Condition:</strong>{' '}
+                                                {typeof quote.condition === 'object' && quote.condition !== null
+                                                    ? `${quote.condition.screen} / ${quote.condition.body}`
+                                                    : quote.condition}
+                                            </p>
+                                            <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-xs">
+                                                <p><span className={quote.turnsOn ? 'text-green-600' : 'text-red-600'}>●</span> Turns On: {quote.turnsOn ? 'Yes' : 'No'}</p>
+                                                <p><span className={quote.worksCorrectly ? 'text-green-600' : 'text-red-600'}>●</span> Works: {quote.worksCorrectly ? 'Yes' : 'No'}</p>
+                                                <p><span className={quote.isUnlocked ? 'text-green-600' : 'text-red-600'}>●</span> Unlocked: {quote.isUnlocked ? 'Yes' : 'No'}</p>
+                                                <p><span className={quote.faceIdWorking ? 'text-green-600' : 'text-red-600'}>●</span> FaceID: {quote.faceIdWorking ? 'Yes' : 'No'}</p>
+                                                <p>● Battery: <span className="capitalize">{quote.batteryHealth || 'Unknown'}</span></p>
+                                            </div>
+                                        </>
+                                    )}
+                                    <div className="mt-4 flex items-center gap-2">
+                                        <strong className="text-gray-900 dark:text-white">Price:</strong>
+                                        {!isEditingPrice ? (
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xl font-black text-bel-blue">€{quote.price}</span>
+                                                <button
+                                                    onClick={() => {
+                                                        setEditedPrice(quote.price || 0);
+                                                        setIsEditingPrice(true);
+                                                    }}
+                                                    className="p-1 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full text-gray-400 hover:text-bel-blue transition-colors"
+                                                    title="Edit Price"
+                                                >
+                                                    <PencilIcon className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="number"
+                                                    value={editedPrice}
+                                                    onChange={(e) => setEditedPrice(Number(e.target.value))}
+                                                    className="w-24 px-2 py-1 border border-bel-blue rounded text-lg font-bold text-gray-900 dark:text-white dark:bg-slate-800 outline-none"
+                                                />
+                                                <button
+                                                    onClick={handleSavePrice}
+                                                    className="p-1 bg-green-100 text-green-600 rounded-full hover:bg-green-200"
+                                                >
+                                                    <CheckIcon className="w-5 h-5" />
+                                                </button>
+                                                <button
+                                                    onClick={() => setIsEditingPrice(false)}
+                                                    className="p-1 bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200"
+                                                >
+                                                    <XMarkIcon className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-4 text-xs">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-gray-500 mb-1">Storage</label>
+                                            <select
+                                                value={editedStorage}
+                                                onChange={(e) => setEditedStorage(e.target.value)}
+                                                className="w-full p-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700"
+                                            >
+                                                <option value="64GB">64GB</option>
+                                                <option value="128GB">128GB</option>
+                                                <option value="256GB">256GB</option>
+                                                <option value="512GB">512GB</option>
+                                                <option value="1TB">1TB</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-500 mb-1">Battery</label>
+                                            <select
+                                                value={editedSpecs.batteryHealth}
+                                                onChange={(e) => setEditedSpecs({ ...editedSpecs, batteryHealth: e.target.value })}
+                                                className="w-full p-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700"
+                                            >
+                                                <option value="normal">Normal (&gt;80%)</option>
+                                                <option value="service">Service (&lt;80%)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-gray-500 mb-1">Screen Cond.</label>
+                                            <select
+                                                value={editedScreenCondition}
+                                                onChange={(e) => setEditedScreenCondition(e.target.value)}
+                                                className="w-full p-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700"
+                                            >
+                                                <option value="Perfect">Perfect</option>
+                                                <option value="Scratched">Scratched</option>
+                                                <option value="Broken">Broken</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-500 mb-1">Body Cond.</label>
+                                            <select
+                                                value={editedBodyCondition}
+                                                onChange={(e) => setEditedBodyCondition(e.target.value)}
+                                                className="w-full p-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700"
+                                            >
+                                                <option value="Perfect">Perfect</option>
+                                                <option value="Scratched">Scratched</option>
+                                                <option value="Dents">Dents</option>
+                                                <option value="Bent">Bent</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2 py-2 border-y dark:border-slate-700">
+                                        <label className="flex items-center gap-2">
+                                            <input type="checkbox" checked={editedSpecs.turnsOn} onChange={(e) => setEditedSpecs({ ...editedSpecs, turnsOn: e.target.checked })} />
+                                            Turns On?
+                                        </label>
+                                        <label className="flex items-center gap-2">
+                                            <input type="checkbox" checked={editedSpecs.worksCorrectly} onChange={(e) => setEditedSpecs({ ...editedSpecs, worksCorrectly: e.target.checked })} />
+                                            Works Correctly?
+                                        </label>
+                                        <label className="flex items-center gap-2">
+                                            <input type="checkbox" checked={editedSpecs.isUnlocked} onChange={(e) => setEditedSpecs({ ...editedSpecs, isUnlocked: e.target.checked })} />
+                                            Is Unlocked?
+                                        </label>
+                                        <label className="flex items-center gap-2">
+                                            <input type="checkbox" checked={editedSpecs.faceIdWorking} onChange={(e) => setEditedSpecs({ ...editedSpecs, faceIdWorking: e.target.checked })} />
+                                            FaceID Working?
+                                        </label>
+                                    </div>
+                                    <div className="flex justify-between items-center bg-bel-blue/5 p-3 rounded-xl">
+                                        <div>
+                                            <p className="text-[10px] text-bel-blue uppercase font-bold">New Price Result</p>
+                                            <p className="text-lg font-black text-bel-blue">€{editedPrice}</p>
+                                        </div>
+                                        <button
+                                            onClick={handleRecalculatePrice}
+                                            className="flex items-center gap-1 bg-white dark:bg-slate-800 text-bel-blue border border-bel-blue px-3 py-1.5 rounded-lg font-bold hover:bg-bel-blue hover:text-white transition-all text-[11px]"
+                                        >
+                                            <ArrowPathIcon className="w-3 h-3" /> Recalculate
+                                        </button>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={handleSaveSpecs}
+                                            className="flex-1 bg-green-600 text-white font-bold py-2 rounded-lg hover:bg-green-700"
+                                        >
+                                            Apply & Save
+                                        </button>
+                                        <button
+                                            onClick={() => setIsEditingSpecs(false)}
+                                            className="flex-1 bg-gray-200 text-gray-700 font-bold py-2 rounded-lg hover:bg-gray-300"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
                     <div className="border-t border-gray-100 dark:border-slate-700 pt-6">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-4">Delivery & Payment</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                                    <strong className="text-gray-900 dark:text-white">Method:</strong> <span className="capitalize">{quote.deliveryMethod === 'send' ? 'Send by Post' : 'Visit Store'}</span>
-                                </p>
-                                {quote.deliveryMethod === 'send' && (
-                                    <div className="bg-gray-50 dark:bg-slate-900/50 p-3 rounded-xl text-sm">
-                                        <p className="font-bold text-gray-900 dark:text-white mb-1">Shipping Address:</p>
-                                        <p className="text-gray-600 dark:text-gray-300">
-                                            {quote.customerAddress}<br />
-                                            {quote.customerZip} {quote.customerCity}
-                                        </p>
+                            <div className="space-y-4">
+                                <div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                                        <strong className="text-gray-900 dark:text-white">Method:</strong> <span className="capitalize">{quote.deliveryMethod === 'send' ? 'Send by Post' : 'Visit Store'}</span>
+                                    </p>
+                                    {quote.deliveryMethod === 'send' && (
+                                        <div className="bg-gray-50 dark:bg-slate-900/50 p-3 rounded-xl text-sm">
+                                            <p className="font-bold text-gray-900 dark:text-white mb-1">Shipping Address:</p>
+                                            <p className="text-gray-600 dark:text-gray-300">
+                                                {quote.customerAddress}<br />
+                                                {quote.customerZip} {quote.customerCity}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/30">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h4 className="text-xs font-black text-blue-800 dark:text-blue-300 uppercase tracking-wider">Payment Controls</h4>
+                                        <label className="relative inline-flex items-center cursor-pointer scale-90">
+                                            <input
+                                                type="checkbox"
+                                                checked={isPaid}
+                                                onChange={() => handleTogglePayment()}
+                                                className="sr-only peer"
+                                            />
+                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                                            <span className="ml-2 text-xs font-bold text-gray-700 dark:text-gray-300">{isPaid ? 'Paid' : 'Unpaid'}</span>
+                                        </label>
                                     </div>
-                                )}
+                                    <div className="space-y-3">
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={paymentLink}
+                                                onChange={(e) => setPaymentLink(e.target.value)}
+                                                placeholder="Mollie Payment Link..."
+                                                className="w-full pl-9 pr-12 py-2 text-xs rounded-lg border border-blue-200 dark:border-blue-900/30 dark:bg-slate-800 outline-none focus:ring-1 focus:ring-bel-blue"
+                                            />
+                                            <CreditCardIcon className="w-4 h-4 absolute left-3 top-2.5 text-blue-400" />
+                                            <button
+                                                onClick={handleSavePaymentLink}
+                                                className="absolute right-2 top-1.5 p-1 text-bel-blue hover:text-blue-700"
+                                                title="Save Link"
+                                            >
+                                                <CheckIcon className="w-4 h-4" />
+                                            </button>
+                                        </div>
+
+                                        <div className="relative">
+                                            <div className="flex items-center gap-2">
+                                                <label className={`flex-1 flex items-center justify-center gap-2 cursor-pointer py-2 px-3 rounded-lg border border-dashed text-xs font-bold transition-all ${quote.paymentReceiptUrl ? 'bg-green-50 border-green-200 text-green-700' : 'bg-white dark:bg-slate-800 border-blue-200 dark:border-blue-900/30 text-blue-600 hover:bg-blue-50'}`}>
+                                                    <input type="file" className="hidden" onChange={handleFileChange} disabled={isUploadingReceipt} />
+                                                    {isUploadingReceipt ? (
+                                                        <ArrowPathIcon className="w-4 h-4 animate-spin" />
+                                                    ) : (
+                                                        <CloudArrowUpIcon className="w-4 h-4" />
+                                                    )}
+                                                    {quote.paymentReceiptUrl ? 'Receipt Uploaded' : 'Upload Receipt'}
+                                                </label>
+                                                {quote.paymentReceiptUrl && (
+                                                    <a
+                                                        href={quote.paymentReceiptUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="p-2 bg-white dark:bg-slate-800 border border-green-100 rounded-lg text-green-600 hover:bg-green-50"
+                                                        title="View Receipt"
+                                                    >
+                                                        <DocumentIcon className="w-4 h-4" />
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 {quote.iban && (
-                                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                                        <strong className="text-gray-900 dark:text-white">IBAN:</strong> {quote.iban}
-                                    </p>
+                                    <div className="bg-gray-50 dark:bg-slate-900/50 p-4 rounded-2xl mb-4">
+                                        <h4 className="text-xs font-black text-gray-500 uppercase tracking-wider mb-2">Payout Method (IBAN)</h4>
+                                        <p className="text-sm font-mono text-gray-700 dark:text-gray-300 break-all">{quote.iban}</p>
+                                    </div>
                                 )}
                                 {quote.idUrl && (
-                                    <div className="mt-2">
+                                    <div className="mt-2 text-center">
                                         <a
                                             href={quote.idUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center text-sm font-bold text-bel-blue hover:text-blue-700 transition-colors bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-xl"
+                                            className="w-full inline-flex items-center justify-center gap-2 text-sm font-bold text-bel-blue hover:text-blue-700 transition-colors bg-blue-50 dark:bg-blue-900/20 px-4 py-3 rounded-xl border border-blue-100 dark:border-blue-900/20"
                                         >
-                                            View ID Document
+                                            <DocumentIcon className="w-5 h-5" /> View ID Document
                                         </a>
                                     </div>
                                 )}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, where, getDocs } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 import { db } from '../firebase';
 import {
@@ -218,76 +218,152 @@ export const useBuybackPrices = () => {
     return { prices, loading };
 };
 
-export const useReservations = (user: User | null, shopId: string = 'all') => {
+import { QueryDocumentSnapshot, limit as firestoreLimit, startAfter } from 'firebase/firestore';
+
+export const useReservations = (user: User | null, shopId: string = 'all', pageSize: number = 20) => {
     const [reservations, setReservations] = useState<Reservation[]>([]);
     const [loading, setLoading] = useState(true);
+    const [hasMore, setHasMore] = useState(true);
+    const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot | null>(null);
 
     useEffect(() => {
         if (!user) {
-            const timeout = setTimeout(() => setLoading(false), 0);
-            return () => clearTimeout(timeout);
+            setLoading(false);
+            return;
         }
-        const timeout = setTimeout(() => setLoading(true), 0);
 
-        let q = query(collection(db, 'reservations'), orderBy('date', 'desc'));
+        setLoading(true);
+        let q = query(
+            collection(db, 'reservations'),
+            orderBy('date', 'desc'),
+            firestoreLimit(pageSize)
+        );
+
         if (shopId !== 'all') {
-            q = query(collection(db, 'reservations'), where('shopId', '==', shopId), orderBy('date', 'desc'));
+            q = query(
+                collection(db, 'reservations'),
+                where('shopId', '==', shopId),
+                orderBy('date', 'desc'),
+                firestoreLimit(pageSize)
+            );
         }
 
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reservation));
             setReservations(data);
+            setLastVisible(snapshot.docs[snapshot.docs.length - 1] || null);
+            setHasMore(snapshot.docs.length === pageSize);
             setLoading(false);
         }, (error) => {
             console.error("Error fetching reservations:", error);
-            if (error.code === 'permission-denied') {
-                console.error("DEBUG: Permission Denied for 'reservations'. Check rules and auth state.");
-            }
             setLoading(false);
         });
-        return () => {
-            clearTimeout(timeout);
-            unsub();
-        };
-    }, [user, shopId]);
 
-    return { reservations, loading };
+        return () => unsub();
+    }, [user, shopId, pageSize]);
+
+    const loadMore = async () => {
+        if (!lastVisible || !hasMore) return;
+
+        let q = query(
+            collection(db, 'reservations'),
+            orderBy('date', 'desc'),
+            startAfter(lastVisible),
+            firestoreLimit(pageSize)
+        );
+
+        if (shopId !== 'all') {
+            q = query(
+                collection(db, 'reservations'),
+                where('shopId', '==', shopId),
+                orderBy('date', 'desc'),
+                startAfter(lastVisible),
+                firestoreLimit(pageSize)
+            );
+        }
+
+        const snapshot = await getDocs(q);
+        const newData = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Reservation));
+
+        setReservations(prev => [...prev, ...newData]);
+        setLastVisible(snapshot.docs[snapshot.docs.length - 1] || null);
+        setHasMore(snapshot.docs.length === pageSize);
+    };
+
+    return { reservations, loading, hasMore, loadMore };
 };
 
-export const useQuotes = (user: User | null, shopId: string = 'all') => {
+export const useQuotes = (user: User | null, shopId: string = 'all', pageSize: number = 20) => {
     const [quotes, setQuotes] = useState<Quote[]>([]);
     const [loading, setLoading] = useState(true);
+    const [hasMore, setHasMore] = useState(true);
+    const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot | null>(null);
 
     useEffect(() => {
         if (!user) {
-            const timeout = setTimeout(() => setLoading(false), 0);
-            return () => clearTimeout(timeout);
+            setLoading(false);
+            return;
         }
-        const timeout = setTimeout(() => setLoading(true), 0);
 
-        let q = query(collection(db, 'quotes'), orderBy('date', 'desc'));
+        setLoading(true);
+        let q = query(
+            collection(db, 'quotes'),
+            orderBy('date', 'desc'),
+            firestoreLimit(pageSize)
+        );
+
         if (shopId !== 'all') {
-            q = query(collection(db, 'quotes'), where('shopId', '==', shopId), orderBy('date', 'desc'));
+            q = query(
+                collection(db, 'quotes'),
+                where('shopId', '==', shopId),
+                orderBy('date', 'desc'),
+                firestoreLimit(pageSize)
+            );
         }
 
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Quote));
             setQuotes(data);
+            setLastVisible(snapshot.docs[snapshot.docs.length - 1] || null);
+            setHasMore(snapshot.docs.length === pageSize);
             setLoading(false);
         }, (error) => {
             console.error("Error fetching quotes:", error);
-            if (error.code === 'permission-denied') {
-                console.error("DEBUG: Permission Denied for 'quotes'.");
-            }
             setLoading(false);
         });
-        return () => {
-            clearTimeout(timeout);
-            unsub();
-        };
-    }, [user, shopId]);
 
-    return { quotes, loading };
+        return () => unsub();
+    }, [user, shopId, pageSize]);
+
+    const loadMore = async () => {
+        if (!lastVisible || !hasMore) return;
+
+        let q = query(
+            collection(db, 'quotes'),
+            orderBy('date', 'desc'),
+            startAfter(lastVisible),
+            firestoreLimit(pageSize)
+        );
+
+        if (shopId !== 'all') {
+            q = query(
+                collection(db, 'quotes'),
+                where('shopId', '==', shopId),
+                orderBy('date', 'desc'),
+                startAfter(lastVisible),
+                firestoreLimit(pageSize)
+            );
+        }
+
+        const snapshot = await getDocs(q);
+        const newData = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Quote));
+
+        setQuotes(prev => [...prev, ...newData]);
+        setLastVisible(snapshot.docs[snapshot.docs.length - 1] || null);
+        setHasMore(snapshot.docs.length === pageSize);
+    };
+
+    return { quotes, loading, hasMore, loadMore };
 };
 
 export const useFranchiseApplications = (user: User | null) => {

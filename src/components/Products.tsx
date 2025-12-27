@@ -7,36 +7,67 @@ import { useData } from '../hooks/useData';
 import { useShop } from '../hooks/useShop';
 import { useLanguage } from '../hooks/useLanguage';
 import { MagnifyingGlassIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline';
-import { useParams } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { Product, Shop } from '../types';
 
+interface ProductsProps {
+    lang: string;
+    initialProducts?: Product[];
+    searchParams?: { [key: string]: string | string[] | undefined };
+}
 
+const Products: React.FC<ProductsProps> = ({ lang, initialProducts = [], searchParams = {} }) => {
+    const router = useRouter();
+    const pathname = usePathname();
 
-const Products: React.FC = () => {
-    const { products, shops, loadingProducts } = useData();
+    // Initialize from URL or defaults
+    const { products: liveProducts, shops, loadingProducts } = useData();
+    const products = liveProducts.length > 0 ? liveProducts : initialProducts;
+
     const { t } = useLanguage();
     const { selectedShop, setSelectedShop } = useShop();
-    const [searchTerm, setSearchTerm] = useState('');
+
+    // Get values from searchParams
+    const searchFromUrl = typeof searchParams.search === 'string' ? searchParams.search : '';
+    const catFromUrl = typeof searchParams.cat === 'string' ? searchParams.cat : 'cat_all';
+    const sortFromUrl = (typeof searchParams.sort === 'string' ? searchParams.sort : 'default') as 'default' | 'priceAsc' | 'priceDesc';
+
+    const [searchTerm, setSearchTerm] = useState(searchFromUrl);
     const categories = ['cat_all', 'cat_smartphone', 'cat_tablet', 'cat_computer', 'cat_console', 'cat_smartwatch', 'cat_accessories'];
-    const [selectedCategory, setSelectedCategory] = useState('cat_all');
-    const [sortOption, setSortOption] = useState<'default' | 'priceAsc' | 'priceDesc'>('default');
+    const [selectedCategory, setSelectedCategory] = useState(catFromUrl);
+    const [sortOption, setSortOption] = useState<'default' | 'priceAsc' | 'priceDesc'>(sortFromUrl);
 
-    const params = useParams();
-    const slug = params.slug as string[] | undefined;
+    // Sync state with URL
+    const updateUrl = (updates: Record<string, string>) => {
+        const params = new URLSearchParams();
 
-    const deviceName = slug && slug.length > 0
-        ? `${slug[0].charAt(0).toUpperCase() + slug[0].slice(1)} ${slug.slice(1).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}`
-        : 'Smartphone';
-    console.log("Device Name for meta:", deviceName);
+        // Use current state as base
+        if (searchTerm) params.set('search', searchTerm);
+        if (selectedCategory && selectedCategory !== 'cat_all') params.set('cat', selectedCategory);
+        if (sortOption && sortOption !== 'default') params.set('sort', sortOption);
+        if (selectedShop) params.set('shop', String(selectedShop.id));
+
+        // Apply specific updates
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value && value !== 'cat_all' && value !== 'default') {
+                params.set(key, value);
+            } else {
+                params.delete(key);
+            }
+        });
+
+        const query = params.toString();
+        router.push(`${pathname}${query ? `?${query}` : ''}`, { scroll: false });
+    };
 
     // Active shops (open only)
-    const activeShops = shops.filter(s => s.status === 'open');
+    const activeShops = (shops || []).filter((s) => s.status === 'open');
 
     const filteredProducts = useMemo(() => {
         const result = products.filter(product => {
             const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 product.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-            // Map translation keys back to internal category identifiers
             const categoryKeywords: { [key: string]: string } = {
                 'cat_all': '',
                 'cat_smartphone': 'smartphone',
@@ -47,12 +78,9 @@ const Products: React.FC = () => {
                 'cat_accessories': 'accessories'
             };
 
-            const targetCategory = categoryKeywords[selectedCategory];
+            const targetCategory = categoryKeywords[selectedCategory] || '';
+            const matchesCategory = selectedCategory === 'cat_all' || (product.category && product.category === targetCategory);
 
-            const matchesCategory = selectedCategory === 'cat_all' ||
-                (product.category && product.category === targetCategory);
-
-            // Shop Availability Filter
             let matchesShop = true;
             if (selectedShop) {
                 const stock = product.availability?.[selectedShop.id.toString()] || 0;
@@ -78,17 +106,18 @@ const Products: React.FC = () => {
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex flex-col gap-6">
                         <div className="flex justify-between items-center">
-                            <h1 className="text-2xl sm:text-3xl font-extrabold text-bel-dark dark:text-white tracking-tight">{t('Our Products')}</h1>
-                            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-transparent dark:border-slate-700">{t('items_count', filteredProducts.length)}</span>
+                            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{t('Our Products')}</h1>
+                            <span className="text-sm text-gray-400 font-medium bg-slate-800 px-3 py-1 rounded-full border border-slate-700">{t('items_count', filteredProducts.length)}</span>
                         </div>
 
-                        {/* Mobile: Search & Categories Stack */}
                         <div className="flex flex-col gap-4">
-
                             {/* Shop Selector Tabs */}
                             <div className="flex overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar space-x-2">
                                 <button
-                                    onClick={() => setSelectedShop(null)}
+                                    onClick={() => {
+                                        setSelectedShop(null);
+                                        updateUrl({ shop: '' });
+                                    }}
                                     className={`whitespace-nowrap px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 shrink-0 border ${!selectedShop
                                         ? 'bg-bel-blue text-white border-bel-blue shadow-md'
                                         : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-700 hover:border-bel-blue'
@@ -96,10 +125,13 @@ const Products: React.FC = () => {
                                 >
                                     {t('All Shops')}
                                 </button>
-                                {activeShops.map(shop => (
+                                {activeShops.map((shop: Shop) => (
                                     <button
                                         key={shop.id}
-                                        onClick={() => setSelectedShop(shop)}
+                                        onClick={() => {
+                                            setSelectedShop(shop);
+                                            updateUrl({ shop: String(shop.id) });
+                                        }}
                                         className={`whitespace-nowrap px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 shrink-0 border ${selectedShop?.id === shop.id
                                             ? 'bg-bel-blue text-white border-bel-blue shadow-md'
                                             : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-700 hover:border-bel-blue'
@@ -121,13 +153,21 @@ const Products: React.FC = () => {
                                         className="block w-full pl-10 pr-3 py-3 border border-white/10 bg-slate-900/50 text-white rounded-xl text-sm focus:ring-2 focus:ring-bel-blue focus:bg-slate-800 transition-all placeholder-gray-400"
                                         placeholder={t('Search...')}
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            setSearchTerm(val);
+                                            updateUrl({ search: val });
+                                        }}
                                     />
                                 </div>
                                 <div className="relative shrink-0">
                                     <select
                                         value={sortOption}
-                                        onChange={(e) => setSortOption(e.target.value as 'default' | 'priceAsc' | 'priceDesc')}
+                                        onChange={(e) => {
+                                            const val = e.target.value as 'default' | 'priceAsc' | 'priceDesc';
+                                            setSortOption(val);
+                                            updateUrl({ sort: val });
+                                        }}
                                         className="appearance-none block w-full pl-3 pr-8 py-3 border border-white/10 bg-slate-900/50 text-white rounded-xl text-sm focus:ring-2 focus:ring-bel-blue focus:bg-slate-800 cursor-pointer font-medium"
                                     >
                                         <option value="default">{t('sort_featured')}</option>
@@ -145,9 +185,12 @@ const Products: React.FC = () => {
                                 {categories.map(categoryKey => (
                                     <button
                                         key={categoryKey}
-                                        onClick={() => setSelectedCategory(categoryKey)}
+                                        onClick={() => {
+                                            setSelectedCategory(categoryKey);
+                                            updateUrl({ cat: categoryKey });
+                                        }}
                                         className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 shrink-0 border ${selectedCategory === categoryKey
-                                            ? 'bg-bel-dark dark:bg-white text-white dark:text-slate-900 border-bel-dark dark:border-white shadow-lg'
+                                            ? 'bg-white text-slate-900 border-white shadow-lg'
                                             : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'
                                             }`}
                                     >
@@ -182,7 +225,12 @@ const Products: React.FC = () => {
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('No products found')}</h3>
                         <p className="text-gray-500 dark:text-gray-400 mb-6">{t('Try adjusting your search filters or shop selection.')}</p>
                         <button
-                            onClick={() => { setSearchTerm(''); setSelectedCategory('cat_all'); setSelectedShop(null); }}
+                            onClick={() => {
+                                setSearchTerm('');
+                                setSelectedCategory('cat_all');
+                                setSelectedShop(null);
+                                updateUrl({ search: '', cat: 'cat_all', shop: '' });
+                            }}
                             className="text-bel-blue dark:text-blue-400 font-bold hover:underline"
                         >
                             {t('Clear all filters')}
@@ -190,8 +238,6 @@ const Products: React.FC = () => {
                     </div>
                 )}
             </div>
-
-
         </div>
     );
 };

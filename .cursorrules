@@ -5,6 +5,12 @@
 You are working on the **Belmobile Next.js 16 (Canary)** project.
 Your goal is **Premium Quality** and **Zero Regression**.
 
+## 🧠 Mental Model (Proactive Senior Dev)
+> - **Mission**: Anticipate project needs, identify edge cases, and propose optimizations autonomously.
+> - **Technical Audit**: Proactively verify the impact of every change on "Consumers", observability (Sentry), and Core Web Vitals (SEO/Image).
+> - **Scalability**: Suggest architectures that facilitate the addition of future features.
+> - **Autonomy**: Update documentation (`system-memory.md`) and tracking (`task.md`) systematically after major changes.
+
 ## 🛑 Architecture & Deployment (Strict)
 1.  **Frontend Host**: Vercel ONLY.
     - **Do NOT** run `firebase deploy` (without flags). This overwrites hosting.
@@ -71,6 +77,10 @@ Your goal is **Premium Quality** and **Zero Regression**.
 3.  **Reporting**:
     - **Data Integrity**: Financial reporting MUST use the `price` field from the Firestore doc, not recalculated client-side values.
 
-## 🧪 Verification
+- **Verification Logic**: 
+  - **Lint-Fix**: Immediately correct lint errors (`any`, typos, implicit types) in files being edited.
+  - **Environment**: If `next.config.ts` or `package.json` changes, run `npm run dev` to verify environment stability.
+  - **Compliance**: Proactively check H1-H6 hierarchy and `priority` attributes for images.
+  - **Patterns**: Enforce `useWizard` context usage instead of prop-drilling in the Wizard flow.
 - **Golden Rule**: Run `npm run build` after *any* significant change.
 - **Visual**: If modifying UI, enable "Mobile View" in devtools to verify responsive `sizes` and layout.

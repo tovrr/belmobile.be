@@ -59,18 +59,22 @@ export interface Reservation {
     id: number | string;
     productId: number | string;
     productName: string;
+    productPrice: number;
     customerName: string;
     customerEmail: string;
     customerPhone: string;
     shopId: number | string;
-    status: 'pending' | 'approved' | 'cancelled';
+    status: 'pending' | 'approved' | 'ready' | 'completed' | 'cancelled';
     date: string;
     deliveryMethod?: 'pickup' | 'shipping';
     shippingAddress?: string;
     shippingCity?: string;
     shippingZip?: string;
-    estimatedPrice?: number; // Added for Analytics (Potential Revenue)
-    createdAt?: { seconds: number; nanoseconds: number } | Date | string; // Normalized type for Analytics
+    estimatedPrice?: number;
+    createdAt?: { seconds: number; nanoseconds: number } | Date | string;
+    isPaid?: boolean;
+    paymentLink?: string;
+    paymentReceiptUrl?: string;
 }
 
 export interface Quote {
@@ -80,6 +84,7 @@ export interface Quote {
     brand: string;
     model: string;
     condition: string | { screen: string; body: string };
+    storage?: string; // Explicit storage for buyback
     issue?: string; // Legacy
     issues?: string[]; // New array format
     customerName: string;
@@ -97,12 +102,17 @@ export interface Quote {
     iban?: string;
     idUrl?: string;
     shopId: number | string;
-    status: 'new' | 'processing' | 'waiting_parts' | 'in_repair' | 'repaired' | 'ready' | 'shipped' | 'responded' | 'closed' | 'completed' | 'cancelled';
+    status: 'new' | 'processing' | 'waiting_parts' | 'in_repair' | 'repaired' | 'ready' | 'shipped' | 'responded' | 'payment_sent' | 'closed' | 'completed' | 'cancelled';
     date: string;
     createdAt?: { seconds: number; nanoseconds: number }; // Firestore Timestamp
     orderId?: string; // Readable ID (ORD-...)
     photoUrl?: string;
     price?: number;
+    initialPrice?: number; // Stored price at creation to detect changes
+    isOfferAccepted?: boolean; // For buybacks when price is adjusted
+    isPaid?: boolean;
+    paymentLink?: string;
+    paymentReceiptUrl?: string;
     language?: string; // stored language for email notifications
     trackingNumber?: string;
     shippingLabelUrl?: string;
@@ -110,6 +120,12 @@ export interface Quote {
     activityLog?: ActivityLogEntry[];
     hasHydrogel?: boolean;
     courierTier?: 'bridge' | 'brussels';
+    // Specs for buyback refinement
+    turnsOn?: boolean | null;
+    worksCorrectly?: boolean | null;
+    isUnlocked?: boolean | null;
+    batteryHealth?: 'normal' | 'service' | null;
+    faceIdWorking?: boolean | null;
 }
 
 export type UserRole = 'super_admin' | 'shop_manager' | 'technician';

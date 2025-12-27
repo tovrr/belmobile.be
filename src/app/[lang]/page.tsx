@@ -1,6 +1,9 @@
 import React from 'react';
 import { Metadata } from 'next';
 import HomeClient from '../../components/HomeClient';
+import { getReviews } from '../../../src/services/reviewService';
+
+export const revalidate = 3600; // Revalidate every hour
 
 interface PageProps {
     params: Promise<{
@@ -46,6 +49,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
 }
 
-export default function Home() {
-    return <HomeClient />;
+export default async function Home({ params }: PageProps) {
+    const { lang } = await params;
+    const initialReviews = await getReviews(lang);
+
+    return <HomeClient initialReviews={initialReviews} />;
 }

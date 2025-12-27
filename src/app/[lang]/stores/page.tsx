@@ -45,8 +45,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
 }
 
+import { getShops } from '../../../services/shopService';
+
+export const revalidate = 3600; // Revalidate every hour
+
 export default async function StoresPage({ params }: PageProps) {
     const { lang } = await params;
+    const shops = await getShops();
     const pageTitle = lang === 'fr' ? 'Nos Magasins à Bruxelles' : lang === 'nl' ? 'Onze Winkels in Brussel' : 'Our Stores in Brussels';
 
     return (
@@ -58,7 +63,7 @@ export default async function StoresPage({ params }: PageProps) {
             <h1 className="sr-only">{pageTitle}</h1>
 
             {/* Full width layout for Map + Sidebar */}
-            <StoresLayout lang={lang} />
+            <StoresLayout lang={lang} initialShops={shops} />
         </div>
     );
 }

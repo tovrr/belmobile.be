@@ -3,11 +3,22 @@
 import React from 'react';
 import { useData } from '../../hooks/useData';
 import { useAuth } from '../../context/AuthContext';
-import { CheckCircleIcon, XCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, XCircleIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { Reservation } from '../../types';
+import ReservationDetailsModal from './ReservationDetailsModal';
 
 const ReservationManagement: React.FC = () => {
     const { profile } = useAuth();
-    const { reservations, shops, updateReservationStatus, deleteReservation } = useData();
+    const {
+        reservations,
+        shops,
+        updateReservationStatus,
+        deleteReservation,
+        hasMoreReservations,
+        loadMoreReservations
+    } = useData();
+    const [selectedReservation, setSelectedReservation] = React.useState<Reservation | null>(null);
+
     const getShopName = (shopId: number | string) => shops.find(s => s.id === shopId)?.name || 'Unknown Shop';
 
     const handleUpdateStatus = async (reservation: { id: string | number, deliveryMethod?: string }, status: 'approved' | 'cancelled') => {
@@ -100,6 +111,9 @@ const ReservationManagement: React.FC = () => {
                                     </td>
                                     <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{res.date}</td>
                                     <td className="px-6 py-4 flex space-x-2">
+                                        <button onClick={() => setSelectedReservation(res)} className="p-2 text-bel-blue hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors" title="View Details">
+                                            <EyeIcon className="h-5 w-5" />
+                                        </button>
                                         {res.status === 'pending' && (
                                             <>
                                                 <button onClick={() => handleUpdateStatus(res, 'approved')} className="p-2 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/20 rounded-xl transition-colors" title="Approve">
@@ -121,6 +135,24 @@ const ReservationManagement: React.FC = () => {
                     </table>
                 </div>
             </div>
+
+            {hasMoreReservations && (
+                <div className="flex justify-center pt-4">
+                    <button
+                        onClick={loadMoreReservations}
+                        className="px-6 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                    >
+                        Load More Reservations
+                    </button>
+                </div>
+            )}
+
+            {selectedReservation && (
+                <ReservationDetailsModal
+                    reservation={selectedReservation}
+                    onClose={() => setSelectedReservation(null)}
+                />
+            )}
         </div>
     );
 };

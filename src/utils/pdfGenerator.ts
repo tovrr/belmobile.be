@@ -31,14 +31,11 @@ export interface RepairBuybackData {
         city: string;
         zip: string;
     };
-    device: {
+    device: { // Added device object
         brand: string;
         model: string;
         storage?: string;
-        imei?: string;
-        // Fields for detailed list
-        issue?: string;
-        condition?: string;
+        condition?: string | { screen: string; body: string }; // Updated condition type
     };
     financials: {
         price: number;
