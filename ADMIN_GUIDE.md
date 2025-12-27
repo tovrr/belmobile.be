@@ -30,6 +30,18 @@ Click on any row in the "Orders & Quotes" table to open the **Details View**:
 - **PDF Download**: Click the **PDF** button next to "Close" to download the official quote/receipt. This is useful if you change the price and need a new document.
 - **Edit Price**: Click the ✏️ icon next to the price to override the estimated value. This updates the "Financials" in the PDF.
 
+## 📈 Lead Recovery & Management
+The platform captures "Abandoned Leads" (customers who entered their email but didn't finish the wizard).
+1.  **Lead Management View**: Access this from the sidebar to see potential lost revenue.
+2.  **Magic Links**: You can manually click "Recover" to send a re-engagement email with a magic link that restores the customer's exact wizard state.
+3.  **GDPR**: Leads are automatically deleted after 30 days.
+
+## 📊 Business Intelligence & Reporting
+The **Reporting** tab provides high-level insights:
+- **Revenue by Category**: Track whether you make more from Smartphones, Tablets, or Consoles.
+- **Conversion Rate**: Measure how many "Recoverable Leads" actually turn into paid orders.
+- **Shop Performance**: Compare volume across different Brussels locations.
+
 ## 🌟 Automated Review & Feedback
 The platform now includes an intelligent system to boost your Google Reviews:
 

@@ -1,56 +1,38 @@
-# Agent Behavior Rules: Legacy Restoration & Maintenance
+# Agent Behavior Rules: Operational Excellence & Growth
 
-To ensure stability, continuity, and high performance while maintaining the original Belmobile platform, Antigravity follows these rules:
+To ensure scalability, conversion, and business growth on the Belmobile platform, Antigravity follows these high-performance operational rules:
 
-## 1. Legacy-First Maintenance
-- **Stability Over Innovation**: Prioritize the stability of the original architecture. Avoid refactoring large sections of legacy code unless strictly necessary for fixing bugs or implementing requested features.
-- **Preserve Aesthetic**: Maintain the original blue/indigo theme and branding unless a design overhaul is explicitly requested for the legacy site.
-- **Safe Modifications**: When editing components, ensure that existing dependencies and logic are preserved to prevent regression.
+## 1. Growth-First Mentality
+- **Conversion Optimization**: Prioritize features that reduce friction (e.g., Lead Restoration, Magic Links).
+- **Leak-Proof Leads**: Every potential customer interaction (email blur) must be captured as a lead with a 30-day GDPR-compliant retention.
+- **Urgency & Retaining**: Implement time-sensitive guarantees in communication to recover abandoned quotes.
 
-## 2. Platform Integrity
-- **Restoration Context**: Acknowledge that the project underwent a Next.js 15 migration attempt which was later reversed to the legacy Next.js 13/14 setup.
-- **Backup Awareness**: Maintain awareness of the `modern-platform-backup/` directory, which contains the unsuccessful Next.js 15 migration work for future reference if needed.
-- **Environment Consistency**: Avoid introducing modern dependencies (like Tailwind 4 or React 19 specific features) unless the environment is compatible.
+## 2. Operational Intelligence (Admin Dash)
+- **Data over Logic**: Always trust stored Firestore data (`price`, `status`) for reporting, never re-calculate complex logic on the fly in the dashboard.
+- **Audit Logging**: Every sensitive change (price override, status flip) MUST be accompanied by an audit entry with the Admin's ID and timestamp.
+- **Actionable Reporting**: BI tools must provide "Actionable insights" (e.g., which category has the lowest conversion rate) rather than just raw numbers.
 
-## 3. Data Safety
-- **Merchant Database**: Be extremely cautious when interacting with Firebase/Firestore. Always verify query logic against the existing schema in `src/config/` or `src/firebase.ts`.
-- **Currency Handling**: Continue to use integer-based cents for all financial calculations within the legacy logic to maintain consistency.
+## 3. Automated Communication
+- **The 3-Day Rule**: Automated review requests must be scheduled exactly 3 days after an order is marked as "Completed".
+- **Satisfaction Gating**: Preserve the legacy logic where low ratings (<4) are kept private (alerting admins) and high ratings (4+) are directed to Google Business Profile.
+- **Shared Templates**: Use `src/utils/emailTemplates.ts` for ALL transactional HTML generation to ensure branding consistency.
 
-## 4. Documentation Continuity
-- **Task Tracking**: All future tasks must be logged in `task.md` under the "Legacy Maintenance" phase.
-- **Plan Verification**: Always create an `implementation_plan.md` before making changes to critical legacy components (e.g., Shop Locator, Device Wizard).
+## 4. Platform Architectural Sovereignty
+- **Nex.js 16 + React 19**: This is a cutting-edge canary build. Do NOT use deprecated React hooks or Next.js 13/14 patterns unless they are required for legacy compatibility.
+- **Proxy-Only Middleware**: Usage of `middleware.ts` is strictly forbidden. Use `src/proxy.ts` (exporting a `proxy` function) for all interceptors.
+- **Zero-Regression Builds**: ALWAYS perform `npm run build` before considering a task "done". Local linting is secondary to build success.
 
-## 5. Build & Performance
-- **Legacy Build Chain**: Use original build commands (`npm run dev`, `npm run build`) and avoid disrupting the existing PostCSS/Tailwind 3 configuration.
-- **Snapshotting**: Take manual snapshots before large-scale experiments on legacy files.
+## 5. Modern Design Philosophy
+- **Belmobile Premium**: Stick to the HSL-tailored blue/indigo gradients and glassmorphism (`backdrop-blur-md`).
+- **Responsive Maximization**: In the Wizard, prioritize mobile screen real estate. Use `p-3` vs `p-8` logic to ensure the "Next" button is always reachable.
+- **Interactive Micro-feedback**: Use Framer Motion and confetti-triggering (only on success) to delight users.
 
-## 6. AI-Native Collaboration
-- **Artifact-First Workflow**: Always maintain `task.md`, `implementation_plan.md`, and `walkthrough.md`. Use them as the primary source of truth for scope and progress.
-- **Proactive Verification**: Automatically run `npm run build` and `tsc` checks after any significant code modification.
-- **Agentic Autonomy**: Proactively research the codebase using `grep` and `search` before asking clarifying questions.
-- **Transparent Backtracking**: If a technical direction is found to be flawed, document the pivot in the task summary and walkthrough.
+## 6. AI-Native Collaboration & Memory
+- **Artifact Hygiene**: Maintain `task.md` with "URGENT" tagging. reference `.agent/system-memory.md` to avoid context drift.
+- **Autonomous Research**: Research the exact Firestore path or API route via `grep` before implementation.
+- **Recursive Improvement**: If you encounter a recurring issue (e.g., image loading), fix the root cause (e.g., `next.config.ts`) rather than the symptom.
 
-## 7. Premium Design Standards
-- **Premium Aesthetic**: All new UI elements must follow the "Belmobile Premium" guidelines:
-  - **Color**: Use vibrant gradients and the Belmobile blue/indigo palette. Avoid generic CSS colors.
-  - **Glassmorphism**: Use subtle backdrop blurs and semi-transparent layers for a modern feeling.
-  - **Micro-animations**: Integrate subtle Framer Motion transitions for hovers and state changes.
-  - **Mobile-First**: Ensure all new features are touch-optimized and perfectly responsive.
-  - **No Placeholders**: Use AI-generated high-fidelity images and icons instead of generic boxes.
-
-
-## 8. Performance-First Architecture
-- **Lazy Translation Loading**: Always use the lazy-loading pattern for translations. Centralized `translations.ts` is deprecated in favor of per-language JSON assets in `public/locales/`.
-- **Heavy Library Deferral**: Never import heavy libraries (e.g., `jspdf`, `framer-motion`) at the top level of critical components. Use dynamic `import()` within utilities or user-triggered handlers.
-- **Client-Side Optimization**: Keep the initial JavaScript payload minimal by using dynamic imports for components that are "below the fold" or hidden behind modals.
-
-## 9. Automated Communication & Feedback
-- **Centralized Templates**: All email HTML generation must reside in `src/utils/emailTemplates.ts` to ensure consistent branding and easy localization.
-- **Status Automation**: Triggers for review emails or status updates should be hooked directly into the Admin status change logic (e.g., `QuoteDetailsModal.tsx`).
-- **Satisfaction Gating**: Always preserve the logic where low ratings (<4) are kept private (alerting admins) and high ratings (4+) are directed to public platforms (Google Maps).
-
-## 10. Next.js 16 & Deployment Rules (Critical)
-- **Proxy Convention**: usage of `src/middleware.ts` is DEPRECATED in Next.js 16 Canary. You MUST use `src/proxy.ts` (exporting a `proxy` function) for middleware logic.
-- **Vercel Auth Conflict**: Vercel "Deployment Protection" (Authentication) conflicts with application-level middleware (PIN gates). It MUST be disabled for Staging/Preview environments to allow `proxy.ts` to handle protection.
-- **Linting vs Build**: Local `npm run lint` crashes with ESLint 9 + Next.js Canary are known and non-blocking if `npm run build` succeeds. Always prioritize a successful build over fixing local lint toolchain crashes.
-- **Layout Strategy**: Use "Client Wrappers" (e.g., `LayoutWrapper.tsx`) to conditionally hide layouts based on path, rather than complex Route Group refactors which break existing linking structures.
+## 7. GDPR & Privacy Standards
+- **Lead Expiry**: Every lead record MUST have an `expiresAt` field.
+- **State Protection**: Magic links should be salted or use signed tokens to prevent state enumeration.
+- **Private Internal Notes**: Admin notes are strictly internal and must never be exposed to clients via the Tracking API.

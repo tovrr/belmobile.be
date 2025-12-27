@@ -62,6 +62,15 @@ Your goal is **Premium Quality** and **Zero Regression**.
 - "Fixing" lines that rely on `any` casting *unless* you verify the type definition exists (Project has some tight casting for legacy data).
 - Removing `console.error` in `catch` blocks (We need observability).
 
+## 📈 Growth & Operations (Phase Z)
+1.  **Lead Recovery**:
+    - **Magic Links**: State restoration MUST be handled centrally in `BuybackRepair.tsx`.
+    - **GDPR**: Every lead record MUST have an `expiresAt` ISO string.
+2.  **Automated Reviews**:
+    - **Trigger**: Only trigger `api/mail/schedule-review` on `status === 'completed'`.
+3.  **Reporting**:
+    - **Data Integrity**: Financial reporting MUST use the `price` field from the Firestore doc, not recalculated client-side values.
+
 ## 🧪 Verification
 - **Golden Rule**: Run `npm run build` after *any* significant change.
 - **Visual**: If modifying UI, enable "Mobile View" in devtools to verify responsive `sizes` and layout.

@@ -76,9 +76,13 @@ const TeamManagement: React.FC = () => {
         }
     };
 
-    const handleDelete = async (uid: string) => {
+    const handleDelete = async (uid: string, email?: string) => {
         if (uid === currentUser?.uid) {
             alert("You cannot delete yourself.");
+            return;
+        }
+        if (email === 'omerozkan@live.be') {
+            alert("The primary super admin cannot be deleted.");
             return;
         }
         if (!confirm("Are you sure you want to remove this team member?")) return;
@@ -171,8 +175,9 @@ const TeamManagement: React.FC = () => {
                                                 <PencilIcon className="h-4 w-4" />
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(u.uid)}
-                                                className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 rounded-xl transition-all"
+                                                onClick={() => handleDelete(u.uid, u.email)}
+                                                className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                                disabled={u.email === 'omerozkan@live.be'}
                                             >
                                                 <TrashIcon className="h-4 w-4" />
                                             </button>
@@ -260,7 +265,7 @@ const TeamManagement: React.FC = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={isSaving}
+                                    disabled={isSaving || (editingUser?.email === 'omerozkan@live.be' && formData.role !== 'super_admin')}
                                     className="flex-1 px-6 py-4 bg-bel-blue text-white rounded-2xl font-bold shadow-lg shadow-blue-500/25 hover:scale-[1.02] transition-all disabled:opacity-50"
                                 >
                                     {isSaving ? 'Saving...' : 'Save Member'}

@@ -49,7 +49,14 @@ graph TD
 
 ## 🚀 Critical Refactors (Context)
 - **Dec 2025**: refactored `BuybackRepair.tsx` from 1300+ lines to ~200 lines. Transitioned from prop-drilling to `WizardContext`.
-- **Dec 2025**: Implemented dynamic JSON translation loading (`src/data/i18n/`) to replace static `translations.ts` objects.
+- **Dec 2025**: Optimized PDF generator for 1-page A4 fit (Inksaver mode).
+- **Dec 2025**: Completed Phase Y (Full localization for NL/FR, Google image handling fix).
+
+## 🚀 Future Roadmap: Phase Z (Growth & Operational Excellence)
+- **Lead Recovery**: Automated "Magic Link" flows via Firestore + Brevo for abandoned quotes.
+- **Service Reviews**: Automated review requests scheduling 3 days post-completion.
+- **Reporting v2**: Category-level analytics (Smartphone/Tablet/Console) and Conversion Rate tracking.
+- **Lead Management**: Admin interface for manual lead inspection and re-engagement.
 
 ## 📂 Search & Data Pathing
 - **Brands/Models**: `src/data/brands.ts` & `src/data/deviceImages.ts`.
@@ -57,10 +64,10 @@ graph TD
 - **Search Index**: Built via `scripts/build-search-index.mjs`, consumed by Gemini and Wizard search.
 
 ## ⚠️ Known Constraints
+- **GDPR Compliance**: Leads must have an `expiresAt` field (currently set to 30 days).
 - **ESLint 9**: Local `npm run lint` is inconsistent on Windows. Trust `npm run build` instead.
 
-## 🛡️ Admin Dashboard v1.0 (Operational)
-Deployed: Dec 2025
+## 🛡️ Admin Dashboard v1.1 (In Development)
 - **Atomic Updates**: `DataContext` supports generic `updateQuoteFields`.
 - **Audit Logging**: All price/status changes are logged with timestamp and admin ID.
 - **PDF Generation**: Admins can regenerate/download official PDF orders on demand.

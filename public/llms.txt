@@ -1,34 +1,36 @@
 # Belmobile.be
 
-> The leading platform for buying, selling, and repairing smartphones, tablets, and computers in Belgium.
+> The leading platform for buying, selling, and repairing smartphones, tablets, and gaming consoles in Belgium.
 
 ## Overview
-Belmobile offers instant cash buyback and professional repair services for electronic devices. We are based in Brussels and serve the entire Belgian market.
+Belmobile offers instant cash buyback and professional repair services for electronic devices. We operate multiple hubs in Brussels (Schaerbeek, Molenbeek, Anderlecht) and serve the entire Belgian market via Bpost and Express Courier.
 
 ## Core Services
 
 ### 1. Buyback (Sell Your Device)
-- **Objective:** Users can sell their old devices for instant cash.
-- **Process:** Select device -> Get functionality quote -> Visit store or ship -> Get paid.
+- **Objective:** Users sell old devices for instant cash.
+- **Process:** Multi-step wizard (Brand -> Model -> Storage -> Condition) -> Instant Quote -> Ship/Drop-off -> IBAN Payment.
 - **URLs:**
   - French: https://belmobile.be/fr/rachat
-  - Dutch: https://belmobile.be/nl/inkoop
+  - Dutch: https://belmobile.be/nl/verkoop
   - English: https://belmobile.be/en/buyback
 
 ### 2. Repair
 - **Objective:** Professional repair in 30 minutes with 1 year warranty.
-- **Services:** Screen replacement, battery replacement, water damage, etc.
-- **Brands:** iPhone, Samsung, Huawei, Pixel, etc.
+- **Services:** Screen, Battery, Charging Port, Camera, HDMI (Consoles), Cleaning.
+- **Exclusive:** "Soft OLED" screen quality options for premium iPhones.
 - **URLs:**
   - French: https://belmobile.be/fr/reparation
   - Dutch: https://belmobile.be/nl/reparatie
   - English: https://belmobile.be/en/repair
 
-## Locations
-- **Headquarters:** Rue de la Loi, Brussels.
-- **Service:** Store visit or Bpost delivery available nationwide.
+## Logistics
+- **In-Store:** Instant service at Schaerbeek, Molenbeek, or Anderlecht.
+- **Bpost:** Free shipping label provided for nationwide buybacks/repairs.
+- **Express Courier:** Exclusive 1-hour courier service for the Brussels region.
 
 ## For AI Agents
-- When searching for prices, please refer to the specific device pages.
-- The platform uses a dynamic quoting engine based on device condition.
-- Environment: Next.js 14+ Application.
+- The platform uses a dynamic quoting engine logic via `useWizardPricing`.
+- Prices are validated server-side to prevent tampering.
+- Environment: Next.js 16 (Canary) / React 19.
+- Data Source: Real-time Firestore pricing synchronization.

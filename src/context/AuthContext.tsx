@@ -62,7 +62,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     let profileDoc = await getDoc(doc(db, 'users', currentUser.uid));
 
                     if (profileDoc.exists()) {
-                        setProfile(profileDoc.data() as AdminProfile);
+                        let profileData = profileDoc.data() as AdminProfile;
+
+                        // --- Safe Bootstrap for System Owner ---
+                        if (currentUser.email === 'omerozkan@live.be' && profileData.role !== 'super_admin') {
+                            console.log('Bootstrapping super_admin for system owner...');
+                            profileData = { ...profileData, role: 'super_admin' };
+                            await setDoc(doc(db, 'users', currentUser.uid), { role: 'super_admin' }, { merge: true });
+                        }
+
+                        setProfile(profileData);
                     } else {
                         // 2. Fallback: Search by Email (for pre-created team profiles)
                         console.log('Searching for profile by email:', currentUser.email);
@@ -71,7 +80,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
                         if (!emailSnapshot.empty) {
                             const foundDoc = emailSnapshot.docs[0];
-                            const profileData = foundDoc.data() as AdminProfile;
+                            let profileData = foundDoc.data() as AdminProfile;
+
+                            // --- Safe Bootstrap for System Owner ---
+                            if (currentUser.email === 'omerozkan@live.be') {
+                                profileData = { ...profileData, role: 'super_admin' };
+                            }
 
                             // 3. Claim the profile: Copy document to the new UID ID
                             console.log('Claiming profile found by email...');
@@ -88,8 +102,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
                             setProfile({ ...profileData, uid: currentUser.uid });
                         } else {
-                            console.warn('No admin profile found for user UID or Email:', currentUser.uid);
-                            setProfile(null);
+                            // --- Case: System Owner login with NO existing profile at all ---
+                            if (currentUser.email === 'omerozkan@live.be') {
+                                console.log('Creating fresh super_admin profile for system owner...');
+                                const freshProfile: AdminProfile = {
+                                    uid: currentUser.uid,
+                                    email: currentUser.email,
+                                    displayName: currentUser.displayName || 'Omer Ozkan',
+                                    role: 'super_admin',
+                                    shopId: 'all',
+                                    createdAt: new Date().toISOString()
+                                };
+                                await setDoc(doc(db, 'users', currentUser.uid), freshProfile);
+                                setProfile(freshProfile);
+                            } else {
+                                console.warn('No admin profile found for user UID or Email:', currentUser.uid);
+                                setProfile(null);
+                            }
                         }
                     }
                 } catch (error) {
