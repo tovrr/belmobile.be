@@ -546,11 +546,18 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const addContactMessage = async (msg: Omit<ContactMessage, 'id' | 'date' | 'status' | 'createdAt'>) => {
         try {
+            const now = new Date();
             await addDoc(collection(db, 'contact_messages'), {
                 ...msg,
-                date: new Date().toISOString().split('T')[0],
+                date: now.toLocaleString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).replace(',', ''),
                 status: 'new',
-                createdAt: new Date().toISOString()
+                createdAt: now.toISOString()
             });
         } catch (error) {
             console.error("Error adding contact message:", error);

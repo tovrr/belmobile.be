@@ -85,6 +85,7 @@ const Contact: React.FC = () => {
             }
 
             // 1. Save to Firestore for Admin Dashboard (Primary)
+            console.log("Submitting contact message:", { name, email, phone, subject, attachmentUrl });
             await addContactMessage({
                 name,
                 email,

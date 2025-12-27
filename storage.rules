@@ -1,0 +1,15 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow guest uploads to contact-attachments
+    match /contact-attachments/{allPaths=**} {
+      allow write: if true;
+      allow read: if request.auth != null;
+    }
+    
+    // Default rules: require auth
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
