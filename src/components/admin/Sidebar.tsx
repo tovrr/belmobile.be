@@ -9,13 +9,13 @@ import {
 } from '@heroicons/react/24/outline';
 
 const adminNavLinks = [
+    { name: 'Reservations', path: '/admin/reservations', icon: PhoneIcon },
+    { name: 'Messages', path: '/admin/messages', icon: EnvelopeIcon },
     { name: 'Dashboard', path: '/admin/dashboard', icon: ChartPieIcon },
     { name: 'Products', path: '/admin/products', icon: CubeIcon },
     { name: 'Services', path: '/admin/services', icon: WrenchScrewdriverIcon },
     { name: 'Shops', path: '/admin/shops', icon: BuildingStorefrontIcon },
-    { name: 'Reservations', path: '/admin/reservations', icon: PhoneIcon },
     { name: 'Quotes', path: '/admin/quotes', icon: DocumentTextIcon },
-    { name: 'Messages', path: '/admin/messages', icon: EnvelopeIcon },
     { name: 'Franchise', path: '/admin/franchise', icon: UserGroupIcon },
     { name: 'Content & SEO', path: '/admin/content', icon: NewspaperIcon },
     { name: 'Repair Pricing', path: '/admin/repair-pricing', icon: WrenchScrewdriverIcon },
