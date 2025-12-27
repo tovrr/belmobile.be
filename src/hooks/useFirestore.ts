@@ -361,10 +361,7 @@ export const useContactMessages = (user: User | null, shopId: string = 'all') =>
         }
         const timeout = setTimeout(() => setLoading(true), 0);
 
-        let q = query(collection(db, 'contact_messages'), orderBy('date', 'desc'));
-        if (shopId !== 'all') {
-            q = query(collection(db, 'contact_messages'), where('shopId', '==', shopId), orderBy('date', 'desc'));
-        }
+        const q = query(collection(db, 'contact_messages'), orderBy('date', 'desc'));
 
         const unsub = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContactMessage));

@@ -18,7 +18,6 @@ const adminNavLinks = [
     { name: 'Messages', path: '/admin/messages', icon: EnvelopeIcon },
     { name: 'Franchise', path: '/admin/franchise', icon: UserGroupIcon },
     { name: 'Content & SEO', path: '/admin/content', icon: NewspaperIcon },
-    { name: 'Content & SEO', path: '/admin/content', icon: NewspaperIcon },
     { name: 'Repair Pricing', path: '/admin/repair-pricing', icon: WrenchScrewdriverIcon },
     { name: 'Integrations', path: '/admin/integrations', icon: CubeIcon },
     { name: 'Settings', path: '/admin/settings', icon: Cog6ToothIcon },

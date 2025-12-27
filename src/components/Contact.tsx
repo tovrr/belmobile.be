@@ -84,7 +84,7 @@ const Contact: React.FC = () => {
                 attachmentUrl = await handleFileUpload(attachment);
             }
 
-            // 1. Save to Firestore for Admin Dashboard
+            // 1. Save to Firestore for Admin Dashboard (Primary)
             await addContactMessage({
                 name,
                 email,
@@ -94,76 +94,85 @@ const Contact: React.FC = () => {
                 attachmentUrl
             });
 
-            // 2. Send notification to admin (info@belmobile.be)
-            await sendEmail(
-                'info@belmobile.be',
-                `[${t(`contact_subject_${subject}`)}] ${t('email_contact_subject', name)}`,
-                `
-                <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
-                    <div style="background-color: #4338ca; padding: 20px; text-align: center;">
-                        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">${t('contact_form_title')}</h1>
-                    </div>
-                    <div style="padding: 30px; line-height: 1.6;">
-                        <p style="font-size: 16px;">${t('email_contact_body_intro')}</p>
-                        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                            <p style="margin: 5px 0;"><strong>${t('contact_full_name')}:</strong> ${name}</p>
-                            <p style="margin: 5px 0;"><strong>${t('contact_email_address')}:</strong> ${email}</p>
-                            ${phone ? `<p style="margin: 5px 0;"><strong>${t('contact_phone')}:</strong> ${phone}</p>` : ''}
-                            <p style="margin: 5px 0;"><strong>${t('contact_subject')}:</strong> ${t(`contact_subject_${subject}`)}</p>
-                            <p style="margin: 20px 0 5px 0;"><strong>${t('contact_your_message')}:</strong></p>
-                            <div style="font-style: italic; color: #4b5563; border-left: 4px solid #4338ca; padding-left: 15px;">
-                                ${message.replace(/\n/g, '<br/>')}
-                            </div>
-                            ${attachmentUrl ? `
-                            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-                                <p style="margin: 0;"><strong>${t('contact_attachment')}:</strong></p>
-                                <a href="${attachmentUrl}" target="_blank" style="color: #4338ca; font-weight: bold; text-decoration: none;">${t('View Attachment')} &rarr;</a>
-                            </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-                `
-            );
+            // If we reached here, the message is SAFELY in the database.
+            // We set submitted to true immediately OR after attempting emails.
+            // Let's attempt emails but catch errors so they don't block the "Success" state.
 
-            // 3. Send confirmation to user
-            await sendEmail(
-                email,
-                t('Message Received - Belmobile'),
-                `
-                <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
-                    <div style="background-color: #4338ca; padding: 30px; text-align: center;">
-                        <div style="display: inline-block; text-align: left;">
-                            <div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">
-                                BELMOBILE<span style="color: #eab308;">.BE</span>
-                            </div>
-                            <div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">
-                                BUYBACK & REPAIR
+            try {
+                // 2. Send notification to admin (info@belmobile.be)
+                await sendEmail(
+                    'info@belmobile.be',
+                    `[${t(`contact_subject_${subject}`)}] ${t('email_contact_subject', name)}`,
+                    `
+                    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                        <div style="background-color: #4338ca; padding: 20px; text-align: center;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px;">${t('contact_form_title')}</h1>
+                        </div>
+                        <div style="padding: 30px; line-height: 1.6;">
+                            <p style="font-size: 16px;">${t('email_contact_body_intro')}</p>
+                            <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                <p style="margin: 5px 0;"><strong>${t('contact_full_name')}:</strong> ${name}</p>
+                                <p style="margin: 5px 0;"><strong>${t('contact_email_address')}:</strong> ${email}</p>
+                                ${phone ? `<p style="margin: 5px 0;"><strong>${t('contact_phone')}:</strong> ${phone}</p>` : ''}
+                                <p style="margin: 5px 0;"><strong>${t('contact_subject')}:</strong> ${t(`contact_subject_${subject}`)}</p>
+                                <p style="margin: 20px 0 5px 0;"><strong>${t('contact_your_message')}:</strong></p>
+                                <div style="font-style: italic; color: #4b5563; border-left: 4px solid #4338ca; padding-left: 15px;">
+                                    ${message.replace(/\n/g, '<br/>')}
+                                </div>
+                                ${attachmentUrl ? `
+                                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                                    <p style="margin: 0;"><strong>${t('contact_attachment')}:</strong></p>
+                                    <a href="${attachmentUrl}" target="_blank" style="color: #4338ca; font-weight: bold; text-decoration: none;">${t('View Attachment')} &rarr;</a>
+                                </div>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
-                    <div style="padding: 30px; line-height: 1.6;">
-                        <h2 style="color: #4338ca; margin-top: 0;">${t('Hello')} ${name},</h2>
-                        <p style="font-size: 16px;">${t("Thank you for contacting us. We have successfully received your message and our team will get back to you as soon as possible.")}</p>
-                        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                            <p style="margin: 0; color: #6b7280; font-size: 14px;">${t('Your message summary:')}</p>
-                            <p style="font-weight: bold; margin-top: 5px;">${t('contact_subject')}: ${t(`contact_subject_${subject}`)}</p>
-                            <p style="font-style: italic; color: #4b5563; margin-top: 10px;">"${message.substring(0, 100)}${message.length > 100 ? '...' : ''}"</p>
+                    `
+                );
+
+                // 3. Send confirmation to user
+                await sendEmail(
+                    email,
+                    t('Message Received - Belmobile'),
+                    `
+                    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                        <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                            <div style="display: inline-block; text-align: left;">
+                                <div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">
+                                    BELMOBILE<span style="color: #eab308;">.BE</span>
+                                </div>
+                                <div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">
+                                    BUYBACK & REPAIR
+                                </div>
+                            </div>
                         </div>
-                        <p style="font-size: 14px; color: #6b7280; margin-top: 30px; border-top: 1px solid #e5e7eb; pt: 20px;">
-                            ${t('email_automatic_message')}
-                        </p>
+                        <div style="padding: 30px; line-height: 1.6;">
+                            <h2 style="color: #4338ca; margin-top: 0;">${t('Hello')} ${name},</h2>
+                            <p style="font-size: 16px;">${t("Thank you for contacting us. We have successfully received your message and our team will get back to you as soon as possible.")}</p>
+                            <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                <p style="margin: 0; color: #6b7280; font-size: 14px;">${t('Your message summary:')}</p>
+                                <p style="font-weight: bold; margin-top: 5px;">${t('contact_subject')}: ${t(`contact_subject_${subject}`)}</p>
+                                <p style="font-style: italic; color: #4b5563; margin-top: 10px;">"${message.substring(0, 100)}${message.length > 100 ? '...' : ''}"</p>
+                            </div>
+                            <p style="font-size: 14px; color: #6b7280; margin-top: 30px; border-top: 1px solid #e5e7eb; pt: 20px;">
+                                ${t('email_automatic_message')}
+                            </p>
+                        </div>
+                        <div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;">
+                            <p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p>
+                            <p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p>
+                            <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
+                                &copy; ${new Date().getFullYear()} Belmobile. All rights reserved.
+                            </p>
+                        </div>
                     </div>
-                    <div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;">
-                        <p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p>
-                        <p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p>
-                        <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
-                            &copy; ${new Date().getFullYear()} Belmobile. All rights reserved.
-                        </p>
-                    </div>
-                </div>
-                `
-            );
+                    `
+                );
+            } catch (emailError) {
+                // We log the error but DON'T alert the user, because the database has the message!
+                console.error("Email notification failed but message was saved to database:", emailError);
+            }
 
             setSubmitted(true);
         } catch (error) {

@@ -58,6 +58,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
             if (currentUser) {
                 try {
+                    const userEmail = currentUser.email?.toLowerCase();
+                    const OWNER_EMAIL = 'omerozkan@live.be';
+                    const isOwner = userEmail === OWNER_EMAIL;
+
                     // 1. Try fetching by UID first
                     let profileDoc = await getDoc(doc(db, 'users', currentUser.uid));
 
@@ -65,17 +69,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                         let profileData = profileDoc.data() as AdminProfile;
 
                         // --- Safe Bootstrap for System Owner ---
-                        if (currentUser.email === 'omerozkan@live.be' && profileData.role !== 'super_admin') {
-                            console.log('Bootstrapping super_admin for system owner...');
+                        if (isOwner && profileData.role !== 'super_admin') {
+                            console.log('Bootstrapping super_admin for system owner:', userEmail);
                             profileData = { ...profileData, role: 'super_admin' };
                             await setDoc(doc(db, 'users', currentUser.uid), { role: 'super_admin' }, { merge: true });
                         }
 
+                        console.log(`Profile loaded for ${userEmail}:`, profileData.role);
                         setProfile(profileData);
                     } else {
                         // 2. Fallback: Search by Email (for pre-created team profiles)
-                        console.log('Searching for profile by email:', currentUser.email);
-                        const q = query(collection(db, 'users'), where('email', '==', currentUser.email));
+                        console.log('Searching for profile by email:', userEmail);
+                        const q = query(collection(db, 'users'), where('email', '==', userEmail));
                         const emailSnapshot = await getDocs(q);
 
                         if (!emailSnapshot.empty) {
@@ -83,7 +88,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                             let profileData = foundDoc.data() as AdminProfile;
 
                             // --- Safe Bootstrap for System Owner ---
-                            if (currentUser.email === 'omerozkan@live.be') {
+                            if (isOwner) {
                                 profileData = { ...profileData, role: 'super_admin' };
                             }
 
@@ -103,11 +108,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                             setProfile({ ...profileData, uid: currentUser.uid });
                         } else {
                             // --- Case: System Owner login with NO existing profile at all ---
-                            if (currentUser.email === 'omerozkan@live.be') {
+                            if (isOwner) {
                                 console.log('Creating fresh super_admin profile for system owner...');
                                 const freshProfile: AdminProfile = {
                                     uid: currentUser.uid,
-                                    email: currentUser.email,
+                                    email: userEmail!,
                                     displayName: currentUser.displayName || 'Omer Ozkan',
                                     role: 'super_admin',
                                     shopId: 'all',

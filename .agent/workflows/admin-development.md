@@ -32,6 +32,18 @@ This workflow describes how to add features or modify the Admin Dashboard locate
 2.  Wrap content in `<AdminShell>`.
 3.  Add link to `Sidebar` in `src/components/admin/AdminShell.tsx`.
 
+## 🔐 Security & Access Control (RBAC)
+
+### 1. Role-Based Access
+- **Super Admin**: Full access to all tabs (Users, Settings, Reporting).
+- **Shop Manager/Technician**: Limited to specific shops.
+- Access is enforced in `src/components/admin/AdminShell.tsx` and Firestore `firestore.rules`.
+
+### 2. The Super Admin Bootstrap
+For the system owner (`omerozkan@live.be`), there is a "Safe Bootstrap" logic in `src/context/AuthContext.tsx`. 
+- It automatically promotes this email to `super_admin` upon login.
+- **Never delete** or downgrade this email in the code, as it ensures perpetual access even if database rules or roles are accidentally cleared.
+
 ## 🧪 Verification
 - **Local**: `npm run dev` -> http://localhost:3000/admin/login
 - **Build**: Always run `npm run build` before pushing, as Admin components share types with the Wizard.

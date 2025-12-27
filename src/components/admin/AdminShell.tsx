@@ -211,6 +211,17 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </nav>
 
                 <div className="p-4 border-t border-gray-100 dark:border-slate-800/50">
+                    <div className={`mb-4 px-4 py-3 rounded-2xl bg-gray-50/50 dark:bg-slate-800/30 border border-gray-100 dark:border-slate-700/50 ${!isSidebarOpen ? 'lg:hidden' : ''}`}>
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-linear-to-tr from-bel-blue to-purple-600 flex items-center justify-center text-white text-[10px] font-black">
+                                {profile?.displayName?.substring(0, 2).toUpperCase() || user?.email?.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-xs font-bold text-gray-900 dark:text-white truncate">{profile?.displayName || 'Admin'}</span>
+                                <span className="text-[10px] text-gray-500 dark:text-gray-400 truncate opacity-70 italic">{profile?.role || 'user'}</span>
+                            </div>
+                        </div>
+                    </div>
                     <button
                         onClick={() => logout()}
                         className="flex items-center w-full px-4 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all hover:scale-[1.02]"
