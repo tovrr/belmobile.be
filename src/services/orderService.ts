@@ -23,6 +23,8 @@ export interface OrderSubmissionData {
     servicePoint?: any | null;
     language: string;
     storage?: string;
+    hasHydrogel?: boolean;
+    courierTier?: 'bridge' | 'brussels';
 }
 
 export const orderService = {
@@ -168,6 +170,8 @@ export const orderService = {
             cost: data.type === 'repair' ? data.price : undefined,
             deliveryMethod: data.deliveryMethod,
             iban: data.iban,
+            hasHydrogel: data.hasHydrogel,
+            courierTier: data.courierTier,
             trackingUrl: `https://belmobile.be/${lang}/track-order?id=${readableId}&email=${encodeURIComponent(data.customerEmail)}`
         };
 

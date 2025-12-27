@@ -170,18 +170,22 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
             }, t);
 
             // Send Confirmation Email (Includes PDF attachment) - No Download
-            await orderService.sendOrderConfirmationEmail(readableId, firestoreData, lang || 'fr', t, sendEmail);
+            // 4. Send Confirmation Email (Backgrounded)
+            orderService.sendOrderConfirmationEmail(readableId, firestoreData, lang || 'fr', t, sendEmail)
+                .catch(err => console.error("Email sending failed:", err));
 
-            // Navigate immediately
+            // 5. Redirect Immediately to Success Page
+            // We don't await the email sending to ensure the user gets immediate feedback
+            const emailParam = encodeURIComponent(state.customerEmail);
+            router.push(`/${lang}/track-order?id=${readableId}&email=${emailParam}&success=true`);
 
-
-            router.push(`/${lang}/track-order?id=${readableId}&email=${encodeURIComponent(state.customerEmail)}&success=true`);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Submission error:', error);
             alert(t('error_submitting_order'));
-        } finally {
             dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: false } });
         }
+        // Note: isTransitioning is NOT set to false in finally because we want the spinner 
+        // to persist until the next page (TrackOrder) loads and takes over.
     }, [dispatch, state, type, lang, t, sendEmail, router]);
 
     const loadBrandData = useCallback(async (brandSlug: string) => {

@@ -108,6 +108,8 @@ export interface Quote {
     shippingLabelUrl?: string;
     internalNotes?: string;
     activityLog?: ActivityLogEntry[];
+    hasHydrogel?: boolean;
+    courierTier?: 'bridge' | 'brussels';
 }
 
 export type UserRole = 'super_admin' | 'shop_manager' | 'technician';

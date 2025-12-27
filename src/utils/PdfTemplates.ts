@@ -29,10 +29,10 @@ const STYLES: StyleDictionary = {
         alignment: 'right'
     },
     sectionHeader: {
-        fontSize: 11,
+        fontSize: 10,
         bold: true,
         color: COLORS.Primary, // Pop of color just on text
-        margin: [0, 15, 0, 8]
+        margin: [0, 8, 0, 4]
     },
     label: {
         fontSize: 9,
@@ -137,7 +137,7 @@ export interface PdfData {
 export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
     return {
         pageSize: 'A4',
-        pageMargins: [40, 30, 40, 40], // Reduced top margin
+        pageMargins: [30, 20, 30, 30], // More compact margins
 
         content: [
             // 1. Header (Clean, Text Only)
@@ -166,8 +166,8 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
 
             // Single Minimal Divider
             {
-                canvas: [{ type: 'line', x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 1.5, lineColor: COLORS.Primary }],
-                margin: [0, 5, 0, 15]
+                canvas: [{ type: 'line', x1: 0, y1: 5, x2: 535, y2: 5, lineWidth: 1.5, lineColor: COLORS.Primary }],
+                margin: [0, 5, 0, 10]
             } as any,
 
             // 2. Info Box (Bordered Card, No Fill)
@@ -214,8 +214,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     paddingRight: (i: number) => 10,
                     paddingTop: () => 5,
                     paddingBottom: () => 5
-                },
-                unbreakable: true // Prevent splitting
+                }
             } as any,
 
             // 3. Main Grid (Customer | Shop/Device) - Divider Lines
@@ -228,7 +227,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                             {
                                 stack: [
                                     { text: data.labels.clientDetails.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
-                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 240, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
                                 ]
                             },
                             { text: data.labels.name, style: 'label', margin: [0, 5, 0, 0] },
@@ -253,7 +252,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                             {
                                 stack: [
                                     { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
-                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 240, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
                                 ]
                             },
                             // Name (Shop or Device)
@@ -270,8 +269,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     }
                 ],
                 columnGap: 20,
-                margin: [0, 10, 0, 10],
-                unbreakable: true // Keep columns together
+                margin: [0, 5, 0, 5]
             } as any,
 
             // 4. Specs (Buyback) - Kept together
@@ -281,7 +279,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         {
                             stack: [
                                 { text: data.labels.featuresSpecs.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
-                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 535, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
                             ]
                         },
                         {
@@ -302,7 +300,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                             margin: [0, 5, 0, 10]
                         }
                     ],
-                    unbreakable: true
+                    // Removed unbreakable to allow flow
                 }
             ] : []),
 
@@ -312,7 +310,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     {
                         stack: [
                             { text: data.labels.financials.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
-                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 535, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
                         ]
                     },
                     {
@@ -359,10 +357,10 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                                 }
                             }
                         ],
-                        margin: [0, 0, 0, 20]
+                        margin: [0, 0, 0, 10]
                     }
                 ],
-                unbreakable: true
+                // Removed unbreakable to allow flow
             } as any,
 
             // 7. IBAN & Next Steps (Combined/Unbreakable if needed, but Steps can flow)
@@ -378,7 +376,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                             padding: 10,
                             decoration: 'underline',
                             decorationStyle: 'dotted',
-                            margin: [0, 0, 0, 20]
+                            margin: [0, 0, 0, 10]
                         }
                     ] : []),
 
@@ -387,7 +385,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         {
                             stack: [
                                 { text: data.labels.nextSteps.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
-                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 535, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
                             ]
                         },
                         {
@@ -402,7 +400,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         }
                     ] : [])
                 ],
-                unbreakable: true // Try to keep next steps together with payment info
+                // Removed unbreakable to allow flow
             } as any
         ],
 
@@ -414,7 +412,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     { text: `${currentPage} / ${pageCount}`, style: 'label', alignment: 'right', margin: [0, 10, 40, 0], fontSize: 7 }
                 ],
                 // Top border for footer
-                canvas: [{ type: 'line', x1: 40, y1: 0, x2: 555, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }]
+                canvas: [{ type: 'line', x1: 30, y1: 0, x2: 565, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }]
             } as any;
         },
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useLanguage } from '../hooks/useLanguage';
 import { MagnifyingGlassIcon, CheckCircleIcon, ClockIcon, WrenchScrewdriverIcon, TruckIcon, CurrencyEuroIcon, ClipboardDocumentCheckIcon, ArchiveBoxIcon, InformationCircleIcon, ArrowDownTrayIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
@@ -29,12 +29,107 @@ const TrackOrder: React.FC = () => {
     const [orderId, setOrderId] = useState('');
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<TrackableItem | null>(null);
-    const [error, setError] = useState('');
+    const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [showCelebration, setShowCelebration] = useState(false);
+    const celebratedRef = useRef(false);
 
     const searchParams = useSearchParams();
     const isSuccess = searchParams.get('success') === 'true';
 
+    // handleCheckStatus defined with useCallback for stability
+    const handleCheckStatus = useCallback(async (e?: React.FormEvent, idToCheck?: string, emailToCheck?: string) => {
+        if (e) e.preventDefault();
+
+        const targetId = idToCheck || orderId;
+        const targetEmail = emailToCheck || email;
+
+        if (!targetId || !targetEmail) return;
+
+        setLoading(true);
+        setError(null);
+        setStatus(null);
+
+        try {
+            // Normalize inputs
+            const normalizedId = targetId.trim();
+            const normalizedEmail = targetEmail.trim().toLowerCase();
+
+            let foundDoc: any = null;
+            let docType: 'repair' | 'buyback' | 'reservation' = 'repair';
+
+            // 1. Try 'quotes' collection (by orderId field)
+            const qQuotes = query(
+                collection(db, 'quotes'),
+                where('orderId', '==', normalizedId)
+            );
+            const querySnapshotQuotes = await getDocs(qQuotes);
+
+            foundDoc = querySnapshotQuotes.docs.find(doc => {
+                const data = doc.data();
+                const dataEmail = (data.customerEmail || data.email || '').toLowerCase().trim();
+                return dataEmail === normalizedEmail;
+            });
+
+            if (foundDoc) {
+                docType = foundDoc.data().type || 'repair';
+            } else {
+                // 2. Try 'reservations' collection (by orderId field)
+                const qReservations = query(
+                    collection(db, 'reservations'),
+                    where('orderId', '==', normalizedId)
+                );
+                const querySnapshotReservations = await getDocs(qReservations);
+
+                foundDoc = querySnapshotReservations.docs.find(doc => {
+                    const data = doc.data();
+                    const dataEmail = (data.customerEmail || data.email || '').toLowerCase().trim();
+                    return dataEmail === normalizedEmail;
+                });
+
+                if (foundDoc) {
+                    docType = 'reservation';
+                } else {
+                    // 3. Last resort: Try by Document ID directly
+                    const directDoc = await getDoc(doc(db, 'quotes', normalizedId));
+                    if (directDoc.exists()) {
+                        const d = directDoc.data();
+                        const dEmail = (d.customerEmail || d.email || '').toLowerCase().trim();
+                        if (dEmail === normalizedEmail) {
+                            foundDoc = directDoc;
+                            docType = d.type || 'repair';
+                        }
+                    }
+                }
+            }
+
+            if (foundDoc) {
+                const data = foundDoc.data();
+                setStatus({
+                    ...data,
+                    id: foundDoc.id,
+                    type: docType
+                } as TrackableItem);
+
+                // Success celebration
+                if (isSuccess && !celebratedRef.current) {
+                    celebratedRef.current = true;
+                    setTimeout(() => setShowCelebration(true), 500);
+                }
+            } else {
+                setError(t('order_not_found'));
+                setShowCelebration(false);
+            }
+        } catch (err) {
+            console.error("Error fetching order:", err);
+            setError(t('error_fetching_order'));
+            setShowCelebration(false);
+        } finally {
+            setLoading(false);
+        }
+    }, [orderId, email, isSuccess, t]);
+
+    // Initial useEffect to populate fields from URL and trigger search
     useEffect(() => {
         const id = searchParams.get('id');
         const mail = searchParams.get('email');
@@ -43,85 +138,7 @@ const TrackOrder: React.FC = () => {
             setEmail(mail);
             handleCheckStatus(undefined, id, mail);
         }
-    }, [searchParams]);
-
-    const handleCheckStatus = async (e?: React.FormEvent, idOverride?: string, emailOverride?: string) => {
-        if (e) e.preventDefault();
-
-        const idToCheck = idOverride || orderId;
-        const emailToCheck = emailOverride || email;
-
-        if (!idToCheck || !emailToCheck) return;
-
-        setLoading(true);
-        setError('');
-        setStatus(null);
-
-        try {
-            // 1. Try fetching from QUOTES by Document ID
-            let docSnap = await getDoc(doc(db, 'quotes', idToCheck.trim()));
-            let data: any = null;
-            let docId = idToCheck.trim();
-            let type: 'repair' | 'buyback' | 'reservation' = 'repair'; // Default, will update
-
-            if (docSnap.exists()) {
-                data = docSnap.data();
-                type = data.type || 'repair';
-            } else {
-                // 2. Try fetching from RESERVATIONS by Document ID
-                docSnap = await getDoc(doc(db, 'reservations', idToCheck.trim()));
-                if (docSnap.exists()) {
-                    data = docSnap.data();
-                    type = 'reservation';
-                    docId = docSnap.id;
-                } else {
-                    // 3. Try Querying using 'orderId' field (common in quotes)
-                    const qQuotes = query(
-                        collection(db, 'quotes'),
-                        where('orderId', '==', idToCheck.trim())
-                    );
-                    const querySnapshotQuotes = await getDocs(qQuotes);
-
-                    if (!querySnapshotQuotes.empty) {
-                        docSnap = querySnapshotQuotes.docs[0];
-                        data = docSnap.data();
-                        docId = docSnap.id;
-                        type = data.type || 'repair';
-                    } else {
-                        // 4. Try Querying using 'id' field in RESERVATIONS (if stored as string field)
-                        // OR we might want to assume reservations use auto-ids. 
-                        // Check if we have an orderId field in reservations? Not in interfaces, but let's be safe.
-                        // For now assume reservation ID is the doc ID.
-                        console.log(`[TrackOrder] No document found for orderId: ${idToCheck.trim()}`);
-                    }
-                }
-            }
-
-            if (data) {
-                console.log(`[TrackOrder] Checking email: ${emailToCheck} vs ${data.customerEmail || data.email}`);
-                // Email Verification
-                const dataEmail = (data.customerEmail || data.email || '').toLowerCase().trim();
-                const inputEmail = emailToCheck.toLowerCase().trim();
-
-                if (dataEmail === inputEmail) {
-                    setStatus({
-                        ...data,
-                        id: docId,
-                        type: type
-                    } as TrackableItem);
-                } else {
-                    setError(t('Order not found. Please check your details.'));
-                }
-            } else {
-                setError(t('Order not found. Please check your details.'));
-            }
-        } catch (err) {
-            console.error("Error fetching order:", err);
-            setError(t('Order not found. Please check your details.'));
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [searchParams, handleCheckStatus]);
 
     const getRepairSteps = () => {
         return [
@@ -156,18 +173,13 @@ const TrackOrder: React.FC = () => {
     };
 
     const getStepIndex = (steps: { id: string; label: string; icon: React.ElementType }[], currentStatus: string) => {
-        // Map status to index
         if (currentStatus === 'new') return 0;
         if (currentStatus === 'processing') return 1;
-
-        // Repair/Buyback specific
         if (currentStatus === 'waiting_parts') return 1;
         if (currentStatus === 'in_repair') return 2;
         if (currentStatus === 'repaired') return 3;
         if (currentStatus === 'ready') return 4;
         if (currentStatus === 'shipped') return 5;
-
-        // Final states
         if (currentStatus === 'completed' || currentStatus === 'closed') return steps.length - 1;
 
         const index = steps.findIndex(s => s.id === currentStatus);
@@ -185,7 +197,7 @@ const TrackOrder: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pt-24 pb-20 px-4">
-            {isSuccess && <Celebration />}
+            {showCelebration && <Celebration />}
 
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-10 animate-fade-in-down">
@@ -198,11 +210,7 @@ const TrackOrder: React.FC = () => {
                 </div>
 
                 <div className="grid lg:grid-cols-12 gap-8 items-start">
-
-                    {/* LEFT COLUMN: Main Content & Forms (8 cols) */}
                     <div className="lg:col-span-8 space-y-8">
-
-                        {/* 1. Success Message (Conditional) */}
                         {isSuccess && status && (
                             <div className="animate-fade-in-up bg-white dark:bg-slate-900 rounded-3xl p-8 border-2 border-green-100 dark:border-green-900/30 text-center relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-green-400 to-emerald-600" />
@@ -217,7 +225,6 @@ const TrackOrder: React.FC = () => {
                                     {t('We have received your order and sent a confirmation email to')} <span className="font-semibold text-gray-900 dark:text-white">{email}</span>
                                 </p>
 
-                                {/* Improved Info Box */}
                                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-6 text-left max-w-2xl mx-auto">
                                     <div className="flex gap-4">
                                         <InformationCircleIcon className="w-6 h-6 text-blue-600 shrink-0 mt-1" />
@@ -233,7 +240,6 @@ const TrackOrder: React.FC = () => {
                             </div>
                         )}
 
-                        {/* 2. Order Lookup Form */}
                         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl dark:shadow-none dark:border dark:border-slate-800 p-8">
                             <form onSubmit={(e) => handleCheckStatus(e)} className="flex flex-col md:flex-row gap-4 items-end">
                                 <div className="flex-1 w-full">
@@ -266,7 +272,6 @@ const TrackOrder: React.FC = () => {
                             </form>
                         </div>
 
-                        {/* 3. Detailed Order View */}
                         {status && (
                             <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl dark:shadow-none dark:border dark:border-slate-800 overflow-hidden animate-fade-in">
                                 <div className="p-8 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center flex-wrap gap-4">
@@ -274,7 +279,6 @@ const TrackOrder: React.FC = () => {
                                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                                             {t('Order Details')}
                                         </h2>
-                                        {/* Handle createdAt which could be timestamp or string */}
                                         <p className="text-sm text-gray-500">
                                             {t('Placed on')} {
                                                 (status as any).createdAt?.seconds
@@ -304,15 +308,12 @@ const TrackOrder: React.FC = () => {
                                             {status.type === 'reservation' ? t('Product Info') : t('Device Info')}
                                         </h3>
                                         <div className="space-y-4 text-sm">
-                                            {/* RESERVATION SPECIFIC FIELDS */}
                                             {status.type === 'reservation' && (
                                                 <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-800">
                                                     <span className="text-gray-500">{t('Product')}</span>
                                                     <span className="font-medium text-gray-900 dark:text-white">{(status as Reservation).productName}</span>
                                                 </div>
                                             )}
-
-                                            {/* REPAIR/BUYBACK SPECIFIC FIELDS */}
                                             {status.type !== 'reservation' && (
                                                 <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-800">
                                                     <span className="text-gray-500">{t('Device')}</span>
@@ -321,7 +322,6 @@ const TrackOrder: React.FC = () => {
                                                     </span>
                                                 </div>
                                             )}
-
                                             {(status as any).storage && (
                                                 <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-800">
                                                     <span className="text-gray-500">{t('Storage')}</span>
@@ -371,20 +371,17 @@ const TrackOrder: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Error State */}
                         {error && (
                             <div className="animate-shake p-6 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex flex-col items-center text-center">
                                 <div className="w-12 h-12 bg-red-100 dark:bg-red-800 text-red-500 rounded-full flex items-center justify-center mb-4">
                                     <span className="text-2xl font-bold">!</span>
                                 </div>
                                 <h3 className="text-lg font-bold text-red-900 dark:text-red-100 mb-1">{t('Order Not Found')}</h3>
-                                <p className="text-red-700 dark:text-red-300 text-sm">{t('order_not_found_desc')}</p>
+                                <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
                             </div>
                         )}
-
                     </div>
 
-                    {/* RIGHT COLUMN: Timeline & Summary (4 cols) - Hidden on mobile if no status, visible if status */}
                     <div className={`lg:col-span-4 space-y-6 ${!status ? 'hidden lg:block lg:opacity-50 lg:pointer-events-none' : ''}`}>
                         {status && (
                             <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl dark:shadow-none dark:border dark:border-slate-800 p-8 sticky top-32">
@@ -393,7 +390,6 @@ const TrackOrder: React.FC = () => {
                                 </h3>
                                 <VerticalTimeline steps={steps} currentStepIndex={currentStepIndex} t={t} />
 
-                                {/* DESKTOP ONLY: Actions used to be here, now simple download button for desktop, no sticky mobile */}
                                 <div className="mt-12 pt-6 border-t border-gray-100 dark:border-slate-800">
                                     <div
                                         onClick={async () => {

@@ -87,16 +87,33 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
     const priceBreakdown: { label: string; price: number }[] = [];
 
     // Base Item
-    // We try to use the raw price logic if available, otherwise fallback to total
+    const isRepair = quote.type === 'repair';
     const baseLabel = isBuyback ? t('Offre de Reprise') : t('Service de Réparation');
 
-    // Logic to attempt to separate courier cost if obvious, primarily for display clarity
-    // But ultimately trusting quote.price as total to matches persistence.
-    // If delivery is courier and price seems to include it (e.g. calculated in wizard), we ideally show it.
-    // Since we don't store the breakdown in Quote, we present the Total as the primary line item 
-    // unless we have specific logic to reverse-engineer it. 
-    // For safety/strictness, we list the full service value.
-    priceBreakdown.push({ label: baseLabel, price: quote.price || 0 });
+    // Logic to separate extras for display clarity
+    let basePrice = quote.price || 0;
+
+    // Reverse-engineer extras if price includes them
+    // Based on pricingLogic.ts: hydrogel is +25, courier is +15
+    if (isRepair) {
+        if (quote.hasHydrogel) {
+            basePrice -= 25;
+        }
+        if (quote.deliveryMethod === 'courier' && quote.courierTier === 'brussels') {
+            basePrice -= 15;
+        }
+    }
+
+    priceBreakdown.push({ label: baseLabel, price: Math.max(0, basePrice) });
+
+    if (isRepair) {
+        if (quote.hasHydrogel) {
+            priceBreakdown.push({ label: t('Protection Hydrogel'), price: 25 });
+        }
+        if (quote.deliveryMethod === 'courier' && quote.courierTier === 'brussels') {
+            priceBreakdown.push({ label: t('Frais de Coursier'), price: 15 });
+        }
+    }
 
 
     // 6. Next Steps
@@ -134,6 +151,7 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
         totalPrice: quote.price || 0,
         nextSteps,
         iban: quote.iban,
+        documentTitle: quote.type === 'buyback' ? t('Buyback Offer') : (quote.type === 'repair' ? t('Repair Quote') : t('Reservation Confirmation')),
         footerHelpText: helpText,
         trackingInfo: t('pdf_tracking_info'),
         trackingUrl: quote.orderId && quote.customerEmail
@@ -151,6 +169,7 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
             featuresSpecs: t('Device Details'),
             shop: t('Shop'),
             model: t('Model'),
+            financials: t('Financials'),
             // repairDetails: t('Description'), // Not in interface
             // buybackDetails: t('Description'), // Not in interface
             // financials: t('Financials'), // Not in interface
