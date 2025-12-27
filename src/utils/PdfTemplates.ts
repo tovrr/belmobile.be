@@ -137,7 +137,7 @@ export interface PdfData {
 export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
     return {
         pageSize: 'A4',
-        pageMargins: [40, 40, 40, 40], // [left, top, right, bottom]
+        pageMargins: [40, 30, 40, 40], // Reduced top margin
 
         content: [
             // 1. Header (Clean, Text Only)
@@ -167,7 +167,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
             // Single Minimal Divider
             {
                 canvas: [{ type: 'line', x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 1.5, lineColor: COLORS.Primary }],
-                margin: [0, 5, 0, 20]
+                margin: [0, 5, 0, 15]
             } as any,
 
             // 2. Info Box (Bordered Card, No Fill)
@@ -215,6 +215,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     paddingTop: () => 5,
                     paddingBottom: () => 5
                 },
+                unbreakable: true // Prevent splitting
             } as any,
 
             // 3. Main Grid (Customer | Shop/Device) - Divider Lines
@@ -226,7 +227,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         stack: [
                             {
                                 stack: [
-                                    { text: data.labels.clientDetails.toUpperCase(), style: 'sectionHeader', margin: [0, 15, 0, 2] },
+                                    { text: data.labels.clientDetails.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
                                     { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 240, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
                                 ]
                             },
@@ -251,7 +252,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         stack: [
                             {
                                 stack: [
-                                    { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader', margin: [0, 15, 0, 2] },
+                                    { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
                                     { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 240, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
                                 ]
                             },
@@ -269,124 +270,140 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     }
                 ],
                 columnGap: 20,
-                margin: [0, 10, 0, 10]
+                margin: [0, 10, 0, 10],
+                unbreakable: true // Keep columns together
             } as any,
 
-            // 4. Specs (Buyback)
+            // 4. Specs (Buyback) - Kept together
             ...(data.specs ? [
                 {
                     stack: [
-                        { text: data.labels.featuresSpecs.toUpperCase(), style: 'sectionHeader', margin: [0, 15, 0, 2] },
-                        { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
-                    ]
-                } as Content,
-                {
-                    columns: [
                         {
-                            width: '*',
-                            ul: Object.entries(data.specs)
-                                .filter((_, i) => i % 2 === 0)
-                                .map(([key, val]) => ({ text: [{ text: `${key}: `, style: 'label' }, { text: String(val), style: 'value' }] }))
+                            stack: [
+                                { text: data.labels.featuresSpecs.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
+                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                            ]
                         },
                         {
-                            width: '*',
-                            ul: Object.entries(data.specs)
-                                .filter((_, i) => i % 2 !== 0)
-                                .map(([key, val]) => ({ text: [{ text: `${key}: `, style: 'label' }, { text: String(val), style: 'value' }] }))
+                            columns: [
+                                {
+                                    width: '*',
+                                    ul: Object.entries(data.specs)
+                                        .filter((_, i) => i % 2 === 0)
+                                        .map(([key, val]) => ({ text: [{ text: `${key}: `, style: 'label' }, { text: String(val), style: 'value' }] }))
+                                },
+                                {
+                                    width: '*',
+                                    ul: Object.entries(data.specs)
+                                        .filter((_, i) => i % 2 !== 0)
+                                        .map(([key, val]) => ({ text: [{ text: `${key}: `, style: 'label' }, { text: String(val), style: 'value' }] }))
+                                }
+                            ],
+                            margin: [0, 5, 0, 10]
                         }
                     ],
-                    margin: [0, 5, 0, 10]
-                } as any
+                    unbreakable: true
+                }
             ] : []),
 
-            // 5. Financials Table - Clean Borders
+            // 5. Financials Table - Clean Borders - Keep Header with Table
             {
                 stack: [
-                    { text: data.labels.financials.toUpperCase(), style: 'sectionHeader', margin: [0, 15, 0, 2] },
-                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
-                ]
-            } as Content,
-            {
-                table: {
-                    headerRows: 1,
-                    widths: ['*', 'auto'],
-                    body: [
-                        // Header
-                        [
-                            { text: data.labels.description, style: 'tableHeader', margin: [0, 5, 0, 5], border: [false, false, false, true] },
-                            { text: data.labels.price, style: 'tableHeader', alignment: 'right', margin: [0, 5, 0, 5], border: [false, false, false, true] }
-                        ],
-                        // Rows
-                        ...data.priceBreakdown.map(item => [
-                            { text: item.label, style: 'tableCell', margin: [0, 8, 0, 8], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] },
-                            { text: `€${item.price.toFixed(2)}`, style: 'tableCell', alignment: 'right', margin: [0, 8, 0, 8], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] }
-                        ])
-                    ]
-                },
-                layout: {
-                    defaultBorder: false,
-                },
-                margin: [0, 0, 0, 10]
-            } as any,
-
-            // 6. Total Box (Right Aligned, minimal)
-            {
-                columns: [
-                    { width: '*', text: '' }, // Spacer
                     {
-                        width: 'auto',
+                        stack: [
+                            { text: data.labels.financials.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
+                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                        ]
+                    },
+                    {
                         table: {
-                            widths: [100, 100],
-                            body: [[
-                                { text: data.totalLabel, style: 'totalLabel', alignment: 'left', margin: [0, 5, 0, 5] },
-                                { text: `€${data.totalPrice.toFixed(2)}`, style: 'totalValue', alignment: 'right', margin: [0, 5, 0, 5] }
-                            ]]
+                            headerRows: 1,
+                            widths: ['*', 'auto'],
+                            body: [
+                                // Header
+                                [
+                                    { text: data.labels.description, style: 'tableHeader', margin: [0, 5, 0, 5], border: [false, false, false, true] },
+                                    { text: data.labels.price, style: 'tableHeader', alignment: 'right', margin: [0, 5, 0, 5], border: [false, false, false, true] }
+                                ],
+                                // Rows
+                                ...data.priceBreakdown.map(item => [
+                                    { text: item.label, style: 'tableCell', margin: [0, 8, 0, 8], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] },
+                                    { text: `€${item.price.toFixed(2)}`, style: 'tableCell', alignment: 'right', margin: [0, 8, 0, 8], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] }
+                                ])
+                            ]
                         },
                         layout: {
-                            hLineWidth: (i: number) => i === 0 ? 1 : 1, // Top and bottom heavy border
-                            vLineWidth: () => 0,
-                            hLineColor: COLORS.TextDark,
-                            paddingLeft: () => 0,
-                            paddingRight: () => 0
-                        }
+                            defaultBorder: false,
+                        },
+                        margin: [0, 0, 0, 10]
+                    },
+                    // 6. Total Box (Inside same stack to keep with table)
+                    {
+                        columns: [
+                            { width: '*', text: '' }, // Spacer
+                            {
+                                width: 'auto',
+                                table: {
+                                    widths: [100, 100],
+                                    body: [[
+                                        { text: data.totalLabel, style: 'totalLabel', alignment: 'left', margin: [0, 5, 0, 5] },
+                                        { text: `€${data.totalPrice.toFixed(2)}`, style: 'totalValue', alignment: 'right', margin: [0, 5, 0, 5] }
+                                    ]]
+                                },
+                                layout: {
+                                    hLineWidth: (i: number) => i === 0 ? 1 : 1, // Top and bottom heavy border
+                                    vLineWidth: () => 0,
+                                    hLineColor: COLORS.TextDark,
+                                    paddingLeft: () => 0,
+                                    paddingRight: () => 0
+                                }
+                            }
+                        ],
+                        margin: [0, 0, 0, 20]
                     }
                 ],
-                margin: [0, 0, 0, 20]
+                unbreakable: true
             } as any,
 
-            // 7. IBAN
-            ...(data.iban ? [
-                {
-                    text: [
-                        { text: data.labels.paymentIban + ': ', style: 'label' },
-                        { text: data.iban, style: 'valueBold', fontFeatures: ['tnum'] } // tabular nums
-                    ],
-                    padding: 10,
-                    decoration: 'underline',
-                    decorationStyle: 'dotted',
-                    margin: [0, 0, 0, 20]
-                } as Content
-            ] : []),
+            // 7. IBAN & Next Steps (Combined/Unbreakable if needed, but Steps can flow)
+            {
+                stack: [
+                    // IBAN
+                    ...(data.iban ? [
+                        {
+                            text: [
+                                { text: data.labels.paymentIban + ': ', style: 'label' },
+                                { text: data.iban, style: 'valueBold', fontFeatures: ['tnum'] }
+                            ],
+                            padding: 10,
+                            decoration: 'underline',
+                            decorationStyle: 'dotted',
+                            margin: [0, 0, 0, 20]
+                        }
+                    ] : []),
 
-            // 8. Next Steps (Timeline Style)
-            ...(data.nextSteps.length > 0 ? [
-                {
-                    stack: [
-                        { text: data.labels.nextSteps.toUpperCase(), style: 'sectionHeader', margin: [0, 15, 0, 2] },
-                        { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
-                    ]
-                } as Content,
-                {
-                    stack: data.nextSteps.map((step, index) => ({
-                        columns: [
-                            { width: 25, text: `${index + 1}.`, style: 'stepIndex' },
-                            { width: '*', text: step, style: 'stepText' }
-                        ],
-                        margin: [0, 0, 0, 8]
-                    })),
-                    margin: [0, 10, 0, 20]
-                } as Content
-            ] : []) // Closing array properly for nextSteps
+                    // Next Steps
+                    ...(data.nextSteps.length > 0 ? [
+                        {
+                            stack: [
+                                { text: data.labels.nextSteps.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
+                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                            ]
+                        },
+                        {
+                            stack: data.nextSteps.map((step, index) => ({
+                                columns: [
+                                    { width: 25, text: `${index + 1}.`, style: 'stepIndex' },
+                                    { width: '*', text: step, style: 'stepText' }
+                                ],
+                                margin: [0, 0, 0, 8]
+                            })),
+                            margin: [0, 10, 0, 20]
+                        }
+                    ] : [])
+                ],
+                unbreakable: true // Try to keep next steps together with payment info
+            } as any
         ],
 
         // Minimal Footer
