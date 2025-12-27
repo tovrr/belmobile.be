@@ -42,7 +42,7 @@ interface SidebarProps {
     loading?: boolean;
     deliveryMethod?: string | null;
     courierTier?: string;
-    hasHydrogel?: boolean;
+    isSubmitting?: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -65,7 +65,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     loading,
     deliveryMethod,
     courierTier,
-    hasHydrogel
+    hasHydrogel,
+    isSubmitting = false
 }) => {
     const { t } = useLanguage();
     const isBuyback = type === 'buyback';
@@ -299,11 +300,20 @@ const Sidebar: React.FC<SidebarProps> = ({
                         {((isBuyback && step === 5) || (!isBuyback && step === 4)) && (
                             <button
                                 onClick={onNext} // Reusing onNext for submission as it triggers the handler in StepUserInfo
-                                disabled={nextDisabled}
+                                disabled={nextDisabled || isSubmitting}
                                 className="w-full bg-bel-blue text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-100 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
-                                <CheckBadgeIcon className="w-5 h-5" />
-                                {t('Complete Request')}
+                                {isSubmitting ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <span>{t('Processing...')}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckBadgeIcon className="w-5 h-5" />
+                                        {t('Complete Request')}
+                                    </>
+                                )}
                             </button>
                         )}
 

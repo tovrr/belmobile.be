@@ -380,6 +380,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                     repairEstimates={repairEstimates}
                     dynamicRepairPrices={dynamicRepairPrices}
                     getSingleIssuePrice={getSingleIssuePrice}
+                    isSubmitting={state.isTransitioning}
                 />
             </div>
         );
@@ -788,11 +789,18 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             </div>
                             <Button
                                 type="submit"
-                                disabled={!termsAccepted}
+                                disabled={!termsAccepted || state.isTransitioning}
                                 variant="primary"
                                 className="w-full mt-6 lg:hidden"
                             >
-                                {t('Confirm Request')}
+                                {state.isTransitioning ? (
+                                    <div className="flex items-center justify-center gap-2">
+                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <span>{t('Processing...')}</span>
+                                    </div>
+                                ) : (
+                                    t('Confirm Request')
+                                )}
                             </Button>
 
                             {/* Trust Signals */}
