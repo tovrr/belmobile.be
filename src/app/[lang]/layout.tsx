@@ -26,7 +26,7 @@ async function getTranslations(lang: string): Promise<TranslationDict> {
         if (lang === 'favicon.ico' || lang === 'robots.txt' || lang === 'sitemap.xml' || lang.startsWith('.well-known')) {
             return {};
         }
-        console.error(`Missing translation file for ${lang}`, error);
+        console.warn(`Missing translation file for ${lang}`);
         return {};
     }
 }
