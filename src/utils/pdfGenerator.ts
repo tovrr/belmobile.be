@@ -71,9 +71,15 @@ export const generateReservationPDF = async (data: ReservationData, t: any) => {
     const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
     const pdfMake = pdfMakeModule.default;
 
-    // Initialize fonts if not already set
-    if ((pdfMake as any).vfs === undefined) {
-        (pdfMake as any).vfs = (pdfFontsModule.default as any).pdfMake?.vfs;
+    // Initialize fonts with robust fallbacks for Next.js/Node/Client
+    const vfs = (pdfFontsModule.default as any)?.pdfMake?.vfs
+        || (pdfFontsModule as any)?.pdfMake?.vfs
+        || (pdfFontsModule as any)?.vfs
+        || pdfFontsModule.default
+        || pdfFontsModule;
+
+    if ((pdfMake as any).vfs === undefined && vfs) {
+        (pdfMake as any).vfs = vfs;
     }
 
     const docDefinition = {
@@ -124,9 +130,15 @@ export const generateRepairBuybackPDF = async (data: RepairBuybackData, t: any) 
     const { slugToDisplayName } = await import('./slugs'); // Dynamic import for utility
     const pdfMake = pdfMakeModule.default;
 
-    // Initialize fonts
-    if ((pdfMake as any).vfs === undefined) {
-        (pdfMake as any).vfs = (pdfFontsModule.default as any).pdfMake?.vfs;
+    // Initialize fonts with robust fallbacks
+    const vfs = (pdfFontsModule.default as any)?.pdfMake?.vfs
+        || (pdfFontsModule as any)?.pdfMake?.vfs
+        || (pdfFontsModule as any)?.vfs
+        || pdfFontsModule.default
+        || pdfFontsModule;
+
+    if ((pdfMake as any).vfs === undefined && vfs) {
+        (pdfMake as any).vfs = vfs;
     }
 
     // Populate labels using t()
@@ -243,9 +255,15 @@ export const generatePDFFromPdfData = async (pdfData: any, filenamePrefix: strin
     const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
     const pdfMake = pdfMakeModule.default;
 
-    // Initialize fonts
-    if ((pdfMake as any).vfs === undefined) {
-        (pdfMake as any).vfs = (pdfFontsModule.default as any).pdfMake?.vfs;
+    // Initialize fonts with robust fallbacks
+    const vfs = (pdfFontsModule.default as any)?.pdfMake?.vfs
+        || (pdfFontsModule as any)?.pdfMake?.vfs
+        || (pdfFontsModule as any)?.vfs
+        || pdfFontsModule.default
+        || pdfFontsModule;
+
+    if ((pdfMake as any).vfs === undefined && vfs) {
+        (pdfMake as any).vfs = vfs;
     }
 
     const docDefinition = createPdfDefinition(pdfData);

@@ -23,7 +23,7 @@ const BlogManagement: React.FC = () => {
     const handleDelete = async (id: number | string) => {
         if (window.confirm("Are you sure you want to delete this post?")) {
             try {
-                await deleteBlogPost(id);
+                await deleteBlogPost(String(id));
             } catch (error) {
                 console.error("Failed to delete post:", error);
                 alert("Failed to delete post");
@@ -47,11 +47,12 @@ const BlogManagement: React.FC = () => {
             author: formData.get('author') as string,
             imageUrl: formData.get('imageUrl') as string,
             category: formData.get('category') as string,
+            date: new Date().toISOString().split('T')[0],
         };
 
         try {
             if (editingPost) {
-                await updateBlogPost({ ...editingPost, ...postData });
+                await updateBlogPost(String(editingPost.id), postData);
             } else {
                 await addBlogPost(postData);
             }

@@ -42,6 +42,7 @@ interface SidebarProps {
     loading?: boolean;
     deliveryMethod?: string | null;
     courierTier?: string;
+    hasHydrogel?: boolean;
     isSubmitting?: boolean;
 }
 

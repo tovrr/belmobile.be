@@ -173,7 +173,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
             // 2. Info Box (Bordered Card, No Fill)
             {
                 table: {
-                    widths: ['*', '*', '*', 'auto'],
+                    widths: ['30%', '25%', '25%', '20%'], // Fixed widths to prevent overflow/multi-page reflow server-side
                     body: [[
                         {
                             stack: [
@@ -222,7 +222,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                 columns: [
                     // Left: Customer
                     {
-                        width: '*',
+                        width: '48%', // Fixed width slightly less than 50% to account for gap
                         stack: [
                             {
                                 stack: [
@@ -247,7 +247,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     },
                     // Right: Shop or Device
                     {
-                        width: '*',
+                        width: '48%', // Fixed width
                         stack: [
                             {
                                 stack: [
@@ -268,7 +268,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         ]
                     }
                 ],
-                columnGap: 20,
+                columnGap: 10, // Reduced gap
                 margin: [0, 5, 0, 5]
             } as any,
 

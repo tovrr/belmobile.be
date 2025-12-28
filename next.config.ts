@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   experimental: {
     // Other experimental features can go here
   },
+  swcMinify: false,
   async redirects() {
     return [
       // --- COLLECTIONS ---

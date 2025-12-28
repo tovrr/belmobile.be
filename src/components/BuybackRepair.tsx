@@ -157,15 +157,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
             </AnimatePresence>
 
             {/* Mobile Bottom Bar */}
-            <MobileBottomBar
-                type={type}
-                onNext={((type === 'buyback' && step === 5) || (type === 'repair' && step === 4)) ? () => formRef.current?.requestSubmit() : handleNext}
-                nextDisabled={!!(nextDisabled || isLoadingData || isTransitioning || pricingLoading)}
-                showEstimate={step > 1}
-                estimateDisplay={pricingLoading ? <span className="animate-pulse opacity-50">...</span> : sidebarEstimate}
-                hideNextButton={step < 3}
-                t={t}
-            />
+            {/* Mobile Bottom Bar Removed per user request */}
         </div>
     );
 };

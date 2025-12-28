@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useLanguage } from '../hooks/useLanguage';
-import { MagnifyingGlassIcon, CheckCircleIcon, ClockIcon, WrenchScrewdriverIcon, TruckIcon, CurrencyEuroIcon, ClipboardDocumentCheckIcon, ArchiveBoxIcon, InformationCircleIcon, ArrowDownTrayIcon, ShoppingBagIcon, CreditCardIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, CheckCircleIcon, ClockIcon, WrenchScrewdriverIcon, TruckIcon, CurrencyEuroIcon, ClipboardDocumentCheckIcon, ArchiveBoxIcon, InformationCircleIcon, ArrowDownTrayIcon, ShoppingBagIcon, CreditCardIcon, CheckIcon, MapPinIcon, BuildingStorefrontIcon, CubeIcon } from '@heroicons/react/24/outline';
 import { db } from '../firebase';
 import { doc, getDoc, query, collection, where, getDocs } from 'firebase/firestore';
 import Input from './ui/Input';
@@ -343,30 +343,45 @@ const TrackOrder: React.FC = () => {
                                                 </>
                                             )}
 
-                                            {(status as Quote).issues && (status as Quote).issues.length > 0 && (
+                                            {(status as Quote).issues && ((status as Quote).issues?.length ?? 0) > 0 && (
                                                 <div className="py-2 border-b border-gray-100 dark:border-slate-800">
-                                                    <span className="text-gray-500 block mb-1">{t('Issues')}</span>
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {(status as Quote).issues.map((issue: string, idx: number) => (
-                                                            <span key={idx} className="bg-bel-blue/10 text-bel-blue text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                                                {issue}
-                                                            </span>
+                                                    <span className="text-gray-500 block mb-2">{t('Issues Identified')}</span>
+                                                    <div className="flex flex-col gap-2">
+                                                        {(status as Quote).issues?.map((issue: string, idx: number) => (
+                                                            <div key={idx} className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 px-3 py-2 rounded-lg text-sm font-medium">
+                                                                <WrenchScrewdriverIcon className="w-4 h-4" />
+                                                                {t(issue)}
+                                                            </div>
                                                         ))}
                                                     </div>
                                                 </div>
                                             )}
 
-                                            <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-800">
-                                                <span className="text-gray-500">{t('Method')}</span>
-                                                <span className="font-medium text-gray-900 dark:text-white capitalize">{status.deliveryMethod || 'pickup'}</span>
+                                            <div className="py-2 border-b border-gray-100 dark:border-slate-800">
+                                                <span className="text-gray-500 block mb-1">{t('Delivery Method')}</span>
+                                                <div className="flex items-center gap-2 font-medium text-gray-900 dark:text-white capitalize">
+                                                    {status.deliveryMethod === 'courier' && <TruckIcon className="w-5 h-5 text-bel-blue" />}
+                                                    {status.deliveryMethod === 'shipping' && <CubeIcon className="w-5 h-5 text-bel-blue" />}
+                                                    {(status.deliveryMethod === 'dropoff' || !status.deliveryMethod) && <BuildingStorefrontIcon className="w-5 h-5 text-bel-blue" />}
+                                                    {t(status.deliveryMethod || 'pickup')}
+                                                </div>
                                             </div>
 
                                             {status.deliveryMethod !== 'shipping' && status.shopId && (
-                                                <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-800">
-                                                    <span className="text-gray-500">{t('Shop')}</span>
-                                                    <span className="font-medium text-gray-900 dark:text-white">
-                                                        {shops.find(s => s.id === status.shopId)?.name || status.shopId}
-                                                    </span>
+                                                <div className="py-2 border-b border-gray-100 dark:border-slate-800">
+                                                    <span className="text-gray-500 block mb-1">{t('Selected Shop')}</span>
+                                                    <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-xl border border-gray-100 dark:border-slate-700">
+                                                        <div className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                                            <BuildingStorefrontIcon className="w-4 h-4 text-gray-500" />
+                                                            {shops.find(s => s.id === status.shopId)?.name || status.shopId}
+                                                        </div>
+                                                        {shops.find(s => s.id === status.shopId)?.address && (
+                                                            <div className="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-start gap-2 ml-6">
+                                                                <MapPinIcon className="w-4 h-4 mt-0.5 shrink-0" />
+                                                                {shops.find(s => s.id === status.shopId)?.address}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -485,9 +500,13 @@ const TrackOrder: React.FC = () => {
                                             try {
                                                 const { generatePDFFromPdfData, savePDFBlob } = await import('../utils/pdfGenerator');
                                                 const { mapQuoteToPdfData } = await import('../utils/orderMappers');
+                                                const { getFixedT } = await import('../utils/i18nFixed');
 
                                                 if (!status) return;
-                                                const pdfData = mapQuoteToPdfData(status as any, t);
+
+                                                // FIXED: Use customer's original language for PDF
+                                                const fixedT = getFixedT((status as Quote).language || 'fr');
+                                                const pdfData = mapQuoteToPdfData(status as any, fixedT);
 
                                                 const { blob, safeFileName } = await generatePDFFromPdfData(pdfData, status.type === 'buyback' ? 'Buyback' : 'Repair');
                                                 if (blob) savePDFBlob(blob, safeFileName);

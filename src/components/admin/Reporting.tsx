@@ -63,7 +63,7 @@ const Reporting: React.FC = () => {
 
         // -- Charts: Revenue by Shop --
         const shopPerf: Record<string, { name: string; revenue: number; volume: number }> = {};
-        shops.forEach(s => shopPerf[s.id] = { name: s.name || s.id, revenue: 0, volume: 0 });
+        shops.forEach(s => shopPerf[s.id] = { name: String(s.name || s.id), revenue: 0, volume: 0 });
 
         fQuotes.forEach(q => {
             if (shopPerf[q.shopId]) {
@@ -314,7 +314,9 @@ const Reporting: React.FC = () => {
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
-                                <Tooltip formatter={(val: number) => `€${val.toLocaleString()}`} />
+                                <Tooltip
+                                    formatter={(value: any) => [`€${Number(value).toLocaleString()}`, 'Revenue']}
+                                />
                                 <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 12, fontWeight: 'bold' }} />
                             </PieChart>
                         </ResponsiveContainer>

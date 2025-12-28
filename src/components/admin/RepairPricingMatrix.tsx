@@ -35,7 +35,7 @@ const PriceInput = ({
     return (
         <div className="space-y-2">
             <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">&euro;</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">€</span>
                 <input
                     type="number"
                     value={value}
@@ -168,8 +168,6 @@ export const RepairPricingMatrix: React.FC<RepairPricingMatrixProps> = ({ device
             }
             // Note: We used to hide 'screen' on foldables, but some models use 'screen' for the cover display.
             // We now rely on the device definition or the presence of prices.
-
-
 
             return true;
         });
@@ -347,8 +345,6 @@ export const RepairPricingMatrix: React.FC<RepairPricingMatrixProps> = ({ device
             if (!issueDef.devices.includes(category)) return false;
         }
 
-
-
         return true;
     }).sort((a, b) => getIssuePriority(a) - getIssuePriority(b));
 
@@ -371,8 +367,6 @@ export const RepairPricingMatrix: React.FC<RepairPricingMatrixProps> = ({ device
             if (!issueDef.devices.includes(category)) return false;
         }
 
-
-
         return true;
     }).sort();
 
@@ -391,7 +385,7 @@ export const RepairPricingMatrix: React.FC<RepairPricingMatrixProps> = ({ device
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                         className="px-4 py-2 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-sm text-sm font-bold hover:bg-gray-50 dark:hover:bg-slate-600 text-bel-blue flex items-center gap-2"
                     >
-                        <span>➕ Add Issue</span>
+                        <span>+ Add Issue</span>
                     </button>
 
                     {isMenuOpen && (
@@ -456,7 +450,7 @@ export const RepairPricingMatrix: React.FC<RepairPricingMatrixProps> = ({ device
 
                                 {/* CREATE NEW SECTION */}
                                 <div>
-                                    <span className="text-xs font-bold text-gray-500 mb-2 block">✨ CREATE NEW TYPE</span>
+                                    <span className="text-xs font-bold text-gray-500 mb-2 block">Ô£¿ CREATE NEW TYPE</span>
                                     <div className="flex gap-2">
                                         <input
                                             type="text"
@@ -791,46 +785,28 @@ export const RepairPricingMatrix: React.FC<RepairPricingMatrixProps> = ({ device
                                                     || prices.find(p => p.issueId === issueId && p.variants?.quality === 'oled')
                                                     || prices.find(p => p.issueId === issueId); // absolute last resort fallback
 
-                                                const activeVariants = remoteRecord?.variants || {};
 
                                                 const displayValue = (state && state.value !== undefined) ? state.value : (remoteRecord ? String(remoteRecord.price) : '');
                                                 return (
                                                     <PriceInput
                                                         value={displayValue}
                                                         onChange={(val) => handleValueChange(key, val)}
-                                                        onBlur={() => handleSave(issueId, activeVariants, displayValue, key)}
-                                                        isSaving={state?.status === 'saving'}
-                                                        isSaved={state?.status === 'saved'}
+                                                        onBlur={() => handleSave(issueId, {}, displayValue, key)}
+                                                        isSaving={localState[key]?.status === 'saving'}
+                                                        isSaved={localState[key]?.status === 'saved'}
                                                     />
                                                 );
                                             })()}
-                                        </div>
-                                        <div className="pt-2 border-t border-gray-50 dark:border-slate-700/50">
-                                            {/* Hide variant conversion for screens on foldables (they should stay simple) */}
-                                            {!(isFoldable && (issueId === 'screen' || issueId === 'screen_foldable_inner' || issueId === 'screen_foldable_outer')) && (
-                                                <button
-                                                    onClick={() => {
-                                                        const name = prompt("Enter variant name (e.g. OLED, Original):");
-                                                        if (name) {
-                                                            const dimKey = 'quality';
-                                                            const slug = optionToSlug(name);
-                                                            updatePrice(issueId, { [dimKey]: slug }, 0, true, 0).catch(alert);
-                                                        }
-                                                    }}
-                                                    className="text-xs font-bold text-bel-blue hover:underline flex items-center gap-1"
-                                                >
-                                                    <span>? Convert to Variants</span>
-                                                </button>
-                                            )}
                                         </div>
                                     </div>
                                 );
                             })()}
                         </div>
                     );
+
                 })}
             </div>
-        </div >
+        </div>
     );
-};
+}
 

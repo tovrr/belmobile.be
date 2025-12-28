@@ -42,6 +42,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ product, initialSho
         const reservationData = {
             productId: product.id,
             productName: product.name,
+            productPrice: product.price,
             customerName: name,
             customerEmail: email,
             customerPhone: phone,

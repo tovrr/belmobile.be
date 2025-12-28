@@ -377,6 +377,30 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             );
                         })}
                     </div>
+
+                    {/* Mobile Summary & Action Block (Replaces Sticky Footer) */}
+                    <div className="lg:hidden mt-8 mb-8 p-6 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                        <div className="flex flex-col gap-4">
+                            <div className="flex justify-between items-end">
+                                <div>
+                                    <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">{t('Total Estimated Cost')}</p>
+                                    <div className="text-3xl font-extrabold text-bel-dark dark:text-white mt-1">
+                                        {loading ? <span className="animate-pulse">...</span> : `€${sidebarEstimate}`}
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-1">{t('includes_vat_labor')}</p>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={onNext}
+                                disabled={nextDisabled}
+                                className="w-full bg-bel-blue text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-lg flex items-center justify-center gap-2 transition-all hover:bg-bel-blue/90"
+                            >
+                                <span>{nextLabel}</span>
+                                <ChevronLeftIcon className="h-5 w-5 rotate-180" />
+                            </button>
+                        </div>
+                    </div>
                     <WizardFAQ currentStep={step} flow={type} />
                 </div>
 

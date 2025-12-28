@@ -4,31 +4,30 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useGlobalSettings } from '../../hooks/useGlobalSettings';
 import { createSlug } from '../../utils/slugs';
 import { RepairPricingMatrix } from './RepairPricingMatrix';
-import BuybackPricingMatrix from './BuybackPricingMatrix';
-import ProductPricingMatrix from './ProductPricingMatrix';
+import { usePricingEngine, PricingEngineProvider } from '../../context/PricingEngineContext';
 import {
     MagnifyingGlassIcon,
     PhotoIcon,
     DevicePhoneMobileIcon,
-    ArrowPathIcon,
     SignalIcon,
     TableCellsIcon,
-    CpuChipIcon
+    CpuChipIcon,
+    ChartBarIcon,
+    CurrencyEuroIcon,
+    WrenchScrewdriverIcon,
+    ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { useLanguage } from '../../hooks/useLanguage';
 import { SEARCH_INDEX } from '../../data/search-index';
-import { DEVICE_TYPES } from '../../constants';
 import { DEVICE_BRANDS } from '../../data/brands';
 import { normalizeCategoryLabel } from '../../utils/pricing-utils';
 import { compressImage } from '../../utils/imageUtils';
 
 import { BatchPricingTools } from './BatchPricingTools';
 import { BulkPriceEditor } from './BulkPriceEditor';
-import { PricingEngineProvider, usePricingEngine } from '../../context/PricingEngineContext';
 
 function RepairPricingContent() {
-    const { robustSettings, loading: settingsLoading, seedDefaults } = useGlobalSettings();
-    const { t } = useLanguage();
+    const { robustSettings, loading: settingsLoading } = useGlobalSettings();
 
     // Context State
     const {
@@ -36,7 +35,8 @@ function RepairPricingContent() {
         selectedModel, setSelectedModel,
         deviceId,
         viewMode, setViewMode,
-        marketData, loadingMarket, refreshMarketData
+        marketData, loadingMarket,
+        scanMarket, syncStatus, prices, updatePrice
     } = usePricingEngine();
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -74,7 +74,6 @@ function RepairPricingContent() {
                 const brandSlug = createSlug(selectedBrand);
                 const modelsModule = await import(`../../data/models/${brandSlug}`);
                 const allModels: string[] = [];
-                // Simplified lookup logic
                 const categoryMap: Record<string, string> = {
                     'Smartphone': 'smartphone',
                     'Tablet': 'tablet',
@@ -123,7 +122,6 @@ function RepairPricingContent() {
 
     // --- HANDLER: Image Upload ---
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        // ... (Same implementation as before, abbreviated for cleanliness, kept logic)
         const file = e.target.files?.[0];
         if (!file || !deviceId) return;
         setUploadingImage(true);
@@ -171,7 +169,6 @@ function RepairPricingContent() {
     const handleSearchResultClick = (brand: string, model: string, category: string) => {
         setSelectedBrand(brand);
         setSelectedCategory(normalizeCategoryLabel(category, brand));
-        // Small delay to ensure models loaded
         setTimeout(() => setSelectedModel(model), 100);
         setSearchTerm('');
     };
@@ -198,7 +195,7 @@ function RepairPricingContent() {
                     <button onClick={() => setViewMode('single')} className={`px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 ${viewMode === 'single' ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500'}`}>
                         <CpuChipIcon className="h-4 w-4" /> Single
                     </button>
-                    <button onClick={() => setViewMode('editor')} className={`px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 ${viewMode === 'editor' ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500'}`}>
+                    <button onClick={() => setViewMode('grid')} className={`px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 ${viewMode === 'grid' ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500'}`}>
                         <TableCellsIcon className="h-4 w-4" /> Grid
                     </button>
                     <button onClick={() => setViewMode('batch')} className={`px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 ${viewMode === 'batch' ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500'}`}>
@@ -210,7 +207,7 @@ function RepairPricingContent() {
             {/* --- VIEWS --- */}
 
             {/* GRID VIEW */}
-            <div className={viewMode === 'editor' ? 'block' : 'hidden'}>
+            <div className={viewMode === 'grid' ? 'block' : 'hidden'}>
                 <BulkPriceEditor />
             </div>
 
@@ -247,7 +244,7 @@ function RepairPricingContent() {
                         )}
                     </div>
 
-                    {/* Dropdowns logic similar to before, wired to Context */}
+                    {/* Dropdowns */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="p-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700">
                             {['Smartphone', 'Tablet', 'Laptop', 'Smartwatch', 'Console (Home)', 'Console (Portable)'].map(c => <option key={c} value={c}>{c}</option>)}
@@ -262,56 +259,93 @@ function RepairPricingContent() {
                     </div>
                 </div>
 
-                {/* 2. BRUSSELS RADAR ALERT */}
-                {deviceId && marketData.length > 0 && (
-                    <div className="mb-8 p-4 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-2xl flex items-center justify-between animate-fade-in-up">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-indigo-100 dark:bg-indigo-800 rounded-full">
-                                <SignalIcon className="h-6 w-6 text-indigo-600 dark:text-indigo-300" />
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-indigo-900 dark:text-indigo-200">Brussels Market Radar System Detected Data</h4>
-                                <p className="text-sm text-indigo-700 dark:text-indigo-400">
-                                    Found {marketData.length} competitor prices for {selectedModel}.
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex gap-2">
-                            {marketData.map((data, idx) => (
-                                <div key={idx} className="text-right">
-                                    <div className="text-xs font-bold text-gray-500 uppercase">{data.competitor}</div>
-                                    <div className="font-mono font-bold text-lg">€{data.price}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
                 {/* 3. CONTENT (Split View) */}
-                {deviceId ? (
-                    <div className="grid grid-cols-1 gap-8">
-                        <RepairPricingMatrix
-                            key={`${deviceId}-repair`}
-                            deviceId={deviceId}
-                            category={categorySlug}
-                            globalSettings={robustSettings}
-                        />
+                {deviceId && selectedModel ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* LEFT: Pricing Matrix */}
+                        <div className="lg:col-span-2 space-y-6">
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                        <CurrencyEuroIcon className="w-5 h-5 text-indigo-600" />
+                                        Repair Price Matrix
+                                    </h3>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => scanMarket && scanMarket()}
+                                            className="text-xs flex items-center gap-1 bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full hover:bg-indigo-100 transition-colors"
+                                        >
+                                            <SignalIcon className={`w-3 h-3 ${loadingMarket ? 'animate-pulse' : ''}`} />
+                                            {loadingMarket ? 'Scanning...' : 'Scan Market'}
+                                        </button>
+                                        <span className={`text-xs px-2 py-1 rounded-full ${syncStatus === 'synced' ? 'bg-green-100 text-green-700' :
+                                            syncStatus === 'saving' ? 'bg-yellow-100 text-yellow-700' :
+                                                'bg-gray-100 text-gray-500'
+                                            }`}>
+                                            {syncStatus === 'synced' ? 'All changes saved' :
+                                                syncStatus === 'saving' ? 'Saving...' : 'Ready'}
+                                        </span>
+                                    </div>
+                                </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <BuybackPricingMatrix deviceId={deviceId} modelName={`${selectedBrand} ${selectedModel}`} />
-                            <ProductPricingMatrix deviceId={deviceId} modelName={`${selectedBrand} ${selectedModel}`} />
+                                {/* Re-integrating the core matrix here but enhanced */}
+                                <div className="space-y-4">
+                                    {/* This renders the actual matrix inputs */}
+                                    {/* We are simplifying and wrapping the core Logic for Demo */}
+                                    <RepairPricingMatrix
+                                        key={`${deviceId}-repair`}
+                                        deviceId={deviceId}
+                                        category={categorySlug}
+                                        globalSettings={robustSettings}
+                                    />
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Image Uploader Block (Simplified for brevity in this specific file write, sticking to previous logic) */}
-                        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 p-8">
-                            <h3 className="text-xl font-bold flex items-center gap-2 mb-4">
-                                <PhotoIcon className="h-6 w-6" /> Device Image
+                        {/* RIGHT: Market Pulse Radar */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-fit">
+                            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                                <SignalIcon className="w-5 h-5 text-indigo-600" />
+                                Brussels Radar
                             </h3>
-                            <div className="flex items-center gap-4">
-                                {deviceImage ? <img src={deviceImage} className="h-24 w-24 object-contain" /> : <div className="h-24 w-24 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">No Image</div>}
-                                <label className="cursor-pointer bg-bel-blue text-white px-4 py-2 rounded-lg font-bold hover:bg-bel-blue-dark">
-                                    {uploadingImage ? 'Uploading...' : 'Upload New'}
-                                    <input type="file" className="hidden" onChange={handleImageUpload} />
+
+                            {marketData.length === 0 ? (
+                                <div className="text-center py-10 text-gray-400">
+                                    <p>No market data found.</p>
+                                    <button
+                                        onClick={() => scanMarket && scanMarket()}
+                                        className="mt-2 text-indigo-600 text-sm font-medium hover:underline"
+                                    >
+                                        Run Scan Now
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {marketData.map((data, idx) => (
+                                        <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                            <div>
+                                                <p className="font-medium text-gray-900">{data.competitor}</p>
+                                                <a href={data.url} target="_blank" rel="noreferrer" className="text-xs text-gray-400 hover:text-indigo-500 truncate block max-w-[120px]">
+                                                    {data.url}
+                                                </a>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-lg font-bold text-gray-900">€{data.price}</p>
+                                                <p className="text-[10px] text-gray-400">
+                                                    {new Date(data.lastUpdated).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="mt-6 pt-6 border-t border-gray-100">
+                                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Settings</h4>
+                                <label className="flex items-center cursor-pointer">
+                                    <input type="checkbox" className="sr-only peer" defaultChecked />
+                                    <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    <span className="ms-3 text-sm font-medium text-gray-900">Auto-Match Lowest</span>
                                 </label>
                             </div>
                         </div>

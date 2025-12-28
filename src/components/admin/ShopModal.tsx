@@ -39,7 +39,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ onClose, shop }) => {
 
         try {
             if (isEditing && shop) {
-                await updateShop({ ...shopData, id: shop.id } as Shop);
+                await updateShop(String(shop.id), shopData);
             } else {
                 await addShop(shopData);
             }

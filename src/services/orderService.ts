@@ -142,42 +142,28 @@ export const orderService = {
     },
 
     async sendOrderConfirmationEmail(readableId: string, data: any, lang: string, t: (key: string, ...args: (string | number)[]) => string, sendEmail: any) {
-        const { generateRepairBuybackPDF } = await import('../utils/pdfGenerator');
+        // dynamic imports to avoid edge runtime issues if any, though likely not needed for node
+        const { generatePDFFromPdfData } = await import('../utils/pdfGenerator');
+        const { mapQuoteToPdfData } = await import('../utils/orderMappers');
 
-        const pdfInput: any = {
-            type: data.type,
+        // Normalize data to match Quote interface expected by mapper
+        // internal data usually has 'id' but mapper might expect 'orderId' in top level
+        const quoteLikeData = {
+            ...data,
             orderId: readableId,
-            date: new Date().toLocaleDateString(lang === 'fr' ? 'fr-BE' : lang === 'nl' ? 'nl-BE' : 'en-US'),
-            customer: {
-                name: data.customerName,
-                email: data.customerEmail,
-                phone: data.customerPhone,
-                address: (data.deliveryMethod === 'send' || data.deliveryMethod === 'courier') ? `${data.customerAddress}, ${data.customerZip} ${data.customerCity}` : 'N/A'
-            },
-            device: {
-                brand: data.brand,
-                model: data.model,
-                storage: data.storage || undefined,
-                issue: data.type === 'repair' ? (data.issues || []).map((i: string) => t(REPAIR_ISSUES.find(iss => iss.id === i)?.label || i)).join(', ') : undefined,
-                condition: data.type === 'buyback' ? `${t('Screen')}: ${t(data.condition?.screen)}, ${t('Body')}: ${t(data.condition?.body)}` : undefined
-            },
-            financials: {
-                price: data.price,
-                currency: 'EUR',
-                vatIncluded: true
-            },
-            value: data.type === 'buyback' ? data.price : undefined,
-            cost: data.type === 'repair' ? data.price : undefined,
-            deliveryMethod: data.deliveryMethod,
-            iban: data.iban,
-            hasHydrogel: data.hasHydrogel,
-            courierTier: data.courierTier,
-            trackingUrl: `https://belmobile.be/${lang}/track-order?id=${readableId}&email=${encodeURIComponent(data.customerEmail)}`
+            id: readableId, // mapping fallback
+            createdAt: { seconds: Date.now() / 1000 } // approximate for date formatting
         };
 
-        const { base64 } = await generateRepairBuybackPDF(pdfInput, t);
+        // Use the CENTRALIZED mapper - this ensures 1:1 match with TrackOrder page
+        const pdfData = mapQuoteToPdfData(quoteLikeData, t);
 
-        const safeFileName = `Order_${readableId}.pdf`;
+        // Generate using the generic generator which takes pre-mapped data
+        const { blob, safeFileName } = await generatePDFFromPdfData(pdfData, data.type === 'buyback' ? 'Buyback' : 'Repair');
+
+        // Convert Blob to Base64 for Email Attachment
+        const buffer = await blob.arrayBuffer();
+        const base64 = Buffer.from(buffer).toString('base64');
 
         const emailStyles = `font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;`;
         const emailHeader = `<div style="background-color: #4338ca; padding: 30px; text-align: center;"><div style="display: inline-block; text-align: left;"><div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">BELMOBILE<span style="color: #eab308;">.BE</span></div><div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">BUYBACK & REPAIR</div></div></div>`;

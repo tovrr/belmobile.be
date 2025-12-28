@@ -8,7 +8,7 @@ import { useLanguage } from '../../hooks/useLanguage';
 import {
     XMarkIcon, TrashIcon, CheckIcon,
     ArrowDownTrayIcon, CloudArrowUpIcon,
-    CreditCardIcon, DocumentIcon
+    CreditCardIcon, DocumentIcon, BanknotesIcon, LinkIcon, EyeIcon, DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebase';
@@ -58,8 +58,26 @@ const ReservationDetailsModal = ({ reservation, onClose }: { reservation: Reserv
             const nextPaid = !isPaid;
             await updateReservationFields(reservation.id, { isPaid: nextPaid });
             setIsPaid(nextPaid);
+
+            // Trigger "Payment Received" email if marking as Paid
+            if (nextPaid) {
+                if (window.confirm("Payment marked as PAID. Send confirmation email to customer?")) {
+                    const { getPaymentReceivedEmail } = await import('../../utils/emailTemplates');
+                    const lang = (reservation as any).language || 'fr';
+                    const { subject, html } = getPaymentReceivedEmail(reservation, lang);
+                    await user?.email && updateReservationFields(reservation.id, { isPaid: true }); // Redundant but safe
+
+                    // We need raw send email ability here. 
+                    // Since useData exposes sendEmail, we can use it.
+                    const { sendEmail } = await import('../../services/emailService');
+                    await sendEmail(reservation.customerEmail, subject, html);
+                    alert("Email sent to customer!");
+                }
+            }
+
         } catch (error) {
             console.error("Failed to toggle payment:", error);
+            alert("Failed to update status");
         }
     };
 
@@ -167,10 +185,13 @@ const ReservationDetailsModal = ({ reservation, onClose }: { reservation: Reserv
                                         <option value="cancelled">Cancelled</option>
                                     </select>
                                 </div>
-                                <div className="bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/30">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <h4 className="text-xs font-black text-blue-800 dark:text-blue-300 uppercase tracking-wider">Payment Controls</h4>
-                                        <label className="relative inline-flex items-center cursor-pointer scale-90">
+                                <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700 rounded-2xl p-4 shadow-sm">
+                                    <div className="flex items-center justify-between mb-4 border-b border-gray-100 dark:border-slate-800 pb-3">
+                                        <h4 className="text-xs font-black text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                                            <BanknotesIcon className="w-4 h-4" />
+                                            Payment & Receipt
+                                        </h4>
+                                        <label className="relative inline-flex items-center cursor-pointer">
                                             <input
                                                 type="checkbox"
                                                 checked={isPaid}
@@ -178,43 +199,63 @@ const ReservationDetailsModal = ({ reservation, onClose }: { reservation: Reserv
                                                 className="sr-only peer"
                                             />
                                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                                            <span className="ml-2 text-xs font-bold text-gray-700 dark:text-gray-300">{isPaid ? 'Paid' : 'Unpaid'}</span>
+                                            <span className={`ml-2 text-xs font-bold ${isPaid ? 'text-green-600 dark:text-green-400' : 'text-gray-500'}`}>
+                                                {isPaid ? 'PAID' : 'UNPAID'}
+                                            </span>
                                         </label>
                                     </div>
-                                    <div className="space-y-3">
+
+                                    <div className="space-y-4">
+                                        {/* Payment Link Input */}
                                         <div className="relative">
-                                            <input
-                                                type="text"
-                                                value={paymentLink}
-                                                onChange={(e) => setPaymentLink(e.target.value)}
-                                                placeholder="Mollie Payment Link"
-                                                className="w-full bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800/50 rounded-lg py-2 pl-3 pr-10 text-xs text-gray-600 dark:text-gray-300 placeholder:text-gray-400"
-                                            />
-                                            <button
-                                                onClick={handleSavePaymentLink}
-                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-700 p-1"
-                                                title="Save Link"
-                                            >
-                                                <CheckIcon className="w-4 h-4" />
-                                            </button>
+                                            <label className="block text-[10px] font-bold text-gray-400 mb-1 uppercase">Payment Link</label>
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    value={paymentLink}
+                                                    onChange={(e) => setPaymentLink(e.target.value)}
+                                                    placeholder="Paste Mollie/Stripe link..."
+                                                    className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg py-2 pl-8 pr-10 text-xs text-gray-700 dark:text-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-bel-blue"
+                                                />
+                                                <LinkIcon className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-gray-400" />
+                                                <button
+                                                    onClick={handleSavePaymentLink}
+                                                    className="absolute right-1 top-1 text-bel-blue hover:bg-blue-50 dark:hover:bg-blue-900/20 p-1.5 rounded-md transition-colors"
+                                                    title="Save Link"
+                                                >
+                                                    <CheckIcon className="w-4 h-4" />
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <label className="flex-1">
-                                                <div className="flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800/50 rounded-lg py-2 text-xs font-bold text-blue-600 cursor-pointer hover:bg-blue-50 transition-colors">
-                                                    {isUploadingReceipt ? <ArrowDownTrayIcon className="w-4 h-4 animate-bounce" /> : <CloudArrowUpIcon className="w-4 h-4" />}
-                                                    {reservation.paymentReceiptUrl ? 'Update Receipt' : 'Upload Receipt'}
+
+                                        {/* Receipt Upload */}
+                                        <div className="flex items-center gap-2 pt-2 border-t border-gray-50 dark:border-slate-800">
+                                            <label className="flex-1 group cursor-pointer">
+                                                <div className={`flex items-center justify-center gap-2 border border-dashed rounded-xl py-3 px-4 text-xs font-bold transition-all ${reservation.paymentReceiptUrl
+                                                    ? 'bg-purple-50 border-purple-200 text-purple-700 dark:bg-purple-900/20 dark:border-purple-800 dark:text-purple-300'
+                                                    : 'bg-gray-50 border-gray-300 text-gray-500 hover:bg-gray-100 dark:bg-slate-800 dark:border-slate-600 dark:text-gray-400'
+                                                    }`}>
+                                                    {isUploadingReceipt ? (
+                                                        <ArrowDownTrayIcon className="w-4 h-4 animate-bounce" />
+                                                    ) : reservation.paymentReceiptUrl ? (
+                                                        <DocumentTextIcon className="w-4 h-4" />
+                                                    ) : (
+                                                        <CloudArrowUpIcon className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
+                                                    )}
+                                                    <span>{reservation.paymentReceiptUrl ? 'Update Receipt' : 'Upload Receipt'}</span>
                                                 </div>
                                                 <input type="file" className="hidden" onChange={handleFileChange} accept=".pdf,image/*" disabled={isUploadingReceipt} />
                                             </label>
+
                                             {reservation.paymentReceiptUrl && (
                                                 <a
                                                     href={reservation.paymentReceiptUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                                    className="p-3 bg-white border border-purple-200 text-purple-600 rounded-xl hover:bg-purple-50 transition-colors shadow-sm"
                                                     title="View Receipt"
                                                 >
-                                                    <DocumentIcon className="w-4 h-4" />
+                                                    <EyeIcon className="w-5 h-5" />
                                                 </a>
                                             )}
                                         </div>

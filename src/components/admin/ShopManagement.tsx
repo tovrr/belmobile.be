@@ -25,7 +25,7 @@ const ShopManagement: React.FC = () => {
     const handleDelete = async (id: number | string) => {
         if (window.confirm('Are you sure you want to delete this shop?')) {
             try {
-                await deleteShop(id);
+                await deleteShop(String(id));
             } catch (error) {
                 console.error("Error deleting shop:", error);
                 alert("Failed to delete shop.");

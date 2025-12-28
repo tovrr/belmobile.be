@@ -3,7 +3,7 @@
 import React from 'react';
 import { useData } from '../../hooks/useData';
 import { useAuth } from '../../context/AuthContext';
-import { CheckCircleIcon, XCircleIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, XCircleIcon, TrashIcon, EyeIcon, BanknotesIcon, DocumentTextIcon, LinkIcon } from '@heroicons/react/24/outline';
 import { Reservation } from '../../types';
 import ReservationDetailsModal from './ReservationDetailsModal';
 
@@ -73,6 +73,7 @@ const ReservationManagement: React.FC = () => {
                                 <th scope="col" className="px-6 py-4">Type</th>
                                 <th scope="col" className="px-6 py-4">Shop/Addr</th>
                                 <th scope="col" className="px-6 py-4">Status</th>
+                                <th scope="col" className="px-6 py-4">Payment</th>
                                 <th scope="col" className="px-6 py-4">Date</th>
                                 <th scope="col" className="px-6 py-4">Actions</th>
                             </tr>
@@ -108,6 +109,25 @@ const ReservationManagement: React.FC = () => {
                                             }`}>
                                             {res.status}
                                         </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-2">
+                                            {res.isPaid ? (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-900/50" title="Paid">
+                                                    <BanknotesIcon className="w-3 h-3" /> Paid
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700" title="Unpaid">
+                                                    Unpaid
+                                                </span>
+                                            )}
+                                            {res.paymentLink && (
+                                                <LinkIcon className="w-4 h-4 text-blue-500" title="Has Payment Link" />
+                                            )}
+                                            {res.paymentReceiptUrl && (
+                                                <DocumentTextIcon className="w-4 h-4 text-purple-500" title="Receipt Uploaded" />
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{res.date}</td>
                                     <td className="px-6 py-4 flex space-x-2">

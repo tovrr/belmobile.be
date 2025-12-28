@@ -4,7 +4,8 @@ export const sendEmail = async (to: string, subject: string, html: string, attac
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ to, subject, html, attachments })
+        body: JSON.stringify({ to, subject, html, attachments }),
+        keepalive: true
     });
 
     if (!response.ok) {

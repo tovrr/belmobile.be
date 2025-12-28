@@ -1,5 +1,6 @@
 import { Quote, RepairIssue } from '../types';
 import { PdfData } from './PdfTemplates';
+import { slugToDisplayName } from './slugs';
 
 // Helper type for the TFunction (i18n)
 export type TFunction = (key: string, ...args: (string | number)[]) => string;
@@ -54,9 +55,11 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
     }
 
     // 3. Customer Details
+    // FIX: Fallback to 'email' if 'customerEmail' is missing (Legacy/Client Data structure)
+    const email = quote.customerEmail || (quote as any).email;
     const customer = {
         name: quote.customerName || `${quote.customerFirstName || ''} ${quote.customerLastName || ''}`.trim(),
-        email: quote.customerEmail,
+        email: email,
         phone: quote.customerPhone,
         address: quote.customerAddress ? `${quote.customerAddress}, ${quote.customerZip || ''} ${quote.customerCity || ''}` : undefined
     };
@@ -64,10 +67,19 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
     // 4. Shop or Device Details
     const isBuyback = quote.type === 'buyback';
     const title = isBuyback ? t('DÉTAILS APPAREIL') : t('DÉTAILS RÉPARATION');
-    const name = isBuyback ? `${quote.brand} ${quote.model}` : t('Réparation');
+
+    // FIX: Use Device Name as the main header for BOTH Repair and Buyback to avoid "Réparation" appearing as the model name.
+    const brandDisplay = slugToDisplayName(quote.brand || '');
+    const modelDisplay = slugToDisplayName(quote.model || '');
+    const name = `${brandDisplay} ${modelDisplay}`.trim(); // Previously: isBuyback ? ... : t('Réparation');
 
     const details: { label: string; value: string }[] = [];
-    details.push({ label: t('Modèle'), value: `${quote.brand} ${quote.model}` });
+    // FIX: Do NOT push 'Modèle' into details if it is already the main 'name'.
+    // details.push({ label: t('Modèle'), value: `${quote.brand} ${quote.model}` }); 
+    // Instead, we might want to add 'Storage' if available?
+    if (quote.storage) {
+        details.push({ label: t('Stockage'), value: quote.storage });
+    }
 
     // Handle Condition (String or Object)
     if (quote.condition) {
@@ -154,8 +166,8 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
         documentTitle: quote.type === 'buyback' ? t('Buyback Offer') : (quote.type === 'repair' ? t('Repair Quote') : t('Reservation Confirmation')),
         footerHelpText: helpText,
         trackingInfo: t('pdf_tracking_info'),
-        trackingUrl: quote.orderId && quote.customerEmail
-            ? `https://belmobile.be/track-order?id=${quote.orderId}&email=${encodeURIComponent(quote.customerEmail)}`
+        trackingUrl: quote.orderId && email
+            ? `https://belmobile.be/track-order?id=${quote.orderId}&email=${encodeURIComponent(email)}`
             : undefined,
         labels: {
             orderId: t('Order ID'),

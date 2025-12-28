@@ -102,7 +102,7 @@ export interface Quote {
     iban?: string;
     idUrl?: string;
     shopId: number | string;
-    status: 'new' | 'processing' | 'waiting_parts' | 'in_repair' | 'repaired' | 'ready' | 'shipped' | 'responded' | 'payment_sent' | 'closed' | 'completed' | 'cancelled';
+    status: 'new' | 'processing' | 'waiting_parts' | 'holding' | 'in_repair' | 'repaired' | 'ready' | 'shipped' | 'responded' | 'received' | 'inspected' | 'payment_sent' | 'closed' | 'completed' | 'cancelled';
     date: string;
     createdAt?: { seconds: number; nanoseconds: number }; // Firestore Timestamp
     orderId?: string; // Readable ID (ORD-...)
