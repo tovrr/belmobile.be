@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { ProductPriceRecord, ProductCondition } from '../../types';
 import { useProductPricing } from '../../hooks/useProductPricing';

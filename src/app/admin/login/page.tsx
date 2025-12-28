@@ -1,11 +1,13 @@
 import AdminLogin from '../../../components/admin/AdminLogin';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
-    title: 'Admin Login | Belmobile',
-    description: 'Secure access to Belmobile Admin Portal',
+    title: 'Login | Belmobile Admin',
+    description: 'Access the admin dashboard',
 };
 
-export default function LoginPage() {
+export default function AdminLoginPage() {
     return <AdminLogin />;
 }

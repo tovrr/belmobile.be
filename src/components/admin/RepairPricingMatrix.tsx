@@ -1,4 +1,6 @@
-﻿import React, { useState, useEffect } from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { GlobalRepairSettings } from '../../types';
 import { useRobustPricing } from '../../hooks/useRobustPricing';
 import { useGlobalSettings } from '../../hooks/useGlobalSettings';
@@ -389,7 +391,7 @@ export const RepairPricingMatrix: React.FC<RepairPricingMatrixProps> = ({ device
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                         className="px-4 py-2 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-sm text-sm font-bold hover:bg-gray-50 dark:hover:bg-slate-600 text-bel-blue flex items-center gap-2"
                     >
-                        <span>âž• Add Issue</span>
+                        <span>➕ Add Issue</span>
                     </button>
 
                     {isMenuOpen && (
@@ -454,7 +456,7 @@ export const RepairPricingMatrix: React.FC<RepairPricingMatrixProps> = ({ device
 
                                 {/* CREATE NEW SECTION */}
                                 <div>
-                                    <span className="text-xs font-bold text-gray-500 mb-2 block">âœ¨ CREATE NEW TYPE</span>
+                                    <span className="text-xs font-bold text-gray-500 mb-2 block">✨ CREATE NEW TYPE</span>
                                     <div className="flex gap-2">
                                         <input
                                             type="text"
@@ -817,7 +819,7 @@ export const RepairPricingMatrix: React.FC<RepairPricingMatrixProps> = ({ device
                                                     }}
                                                     className="text-xs font-bold text-bel-blue hover:underline flex items-center gap-1"
                                                 >
-                                                    <span>➕ Convert to Variants</span>
+                                                    <span>? Convert to Variants</span>
                                                 </button>
                                             )}
                                         </div>

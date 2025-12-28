@@ -28,7 +28,7 @@ interface SidebarProps {
     onClose: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     const pathname = usePathname();
 
     return (

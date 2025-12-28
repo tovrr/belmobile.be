@@ -125,3 +125,35 @@ export const getReservationStatusEmail = (reservation: Reservation, id: string, 
 
     return { subject, html };
 };
+
+export const generateReviewEmailHtml = (lang: string, name: string, shopId: string, orderId: string, shopName: string) => {
+    const reviewUrl = `https://belmobile.be/${lang}/review?id=${orderId}&shop=${shopId}`;
+
+    const subjects: Record<string, string> = {
+        en: `How was your experience at ${shopName}?`,
+        fr: `Comment s'est passée votre visite chez ${shopName} ?`,
+        nl: `Hoe was uw ervaring bij ${shopName}?`
+    };
+
+    const subject = subjects[lang] || subjects['en'];
+
+    const html = `
+        <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+            <div style="background-color: #4338ca; padding: 30px; text-align: center;">
+                <div style="color: #ffffff; font-size: 24px; font-weight: bold;">BELMOBILE.BE</div>
+            </div>
+            <div style="padding: 30px;">
+                <h2 style="color: #4338ca;">${lang === 'fr' ? 'Votre avis nous intéresse' : lang === 'nl' ? 'Uw mening telt' : 'We value your feedback'}</h2>
+                <p>${lang === 'fr' ? `Bonjour ${name},` : lang === 'nl' ? `Beste ${name},` : `Hi ${name},`}</p>
+                <p>${lang === 'fr' ? `Merci d'avoir choisi Belmobile ${shopName}. Nous aimerions savoir ce que vous avez pensé de nos services.` : lang === 'nl' ? `Bedankt voor uw bezoek aan Belmobile ${shopName}. We horen graag wat u van onze diensten vond.` : `Thank you for choosing Belmobile ${shopName}. We would love to hear what you thought of our services.`}</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${reviewUrl}" style="background-color: #4338ca; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">${lang === 'fr' ? 'Laisser un avis' : lang === 'nl' ? 'Beoordeling achterlaten' : 'Leave a Review'}</a>
+                </div>
+                <hr style="border: 1px solid #eee; margin: 20px 0;">
+                <p style="font-size: 12px; color: #666;">Order ID: ${orderId}</p>
+            </div>
+        </div>
+    `;
+
+    return { subject, htmlContent: html };
+};

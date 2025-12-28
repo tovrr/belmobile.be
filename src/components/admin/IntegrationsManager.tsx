@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { ArrowDownTrayIcon, ClipboardDocumentIcon, ShoppingBagIcon, WrenchScrewdriverIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { collection, query, where, getDocs } from 'firebase/firestore';

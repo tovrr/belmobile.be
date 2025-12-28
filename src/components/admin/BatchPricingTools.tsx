@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { SEARCH_INDEX } from '../../data/search-index';
 import { createSlug } from '../../utils/slugs';

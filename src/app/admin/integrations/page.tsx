@@ -1,12 +1,13 @@
-'use client';
-
-import React from 'react';
 import { IntegrationsManager } from '../../../components/admin/IntegrationsManager';
+import { Metadata } from 'next';
 
-export default function IntegrationsPage() {
-    return (
-        <div className="p-6 md:p-10 space-y-8">
-            <IntegrationsManager />
-        </div>
-    );
+export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+    title: 'Integrations | Belmobile Admin',
+    description: 'Manage external data feeds and CSV exports',
+};
+
+export default function AdminIntegrationsPage() {
+    return <IntegrationsManager />;
 }

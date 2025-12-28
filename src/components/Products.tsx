@@ -21,7 +21,12 @@ const Products: React.FC<ProductsProps> = ({ lang, initialProducts = [], searchP
     const pathname = usePathname();
 
     // Initialize from URL or defaults
-    const { products: liveProducts, shops, loadingProducts } = useData();
+    // Initialize from URL or defaults
+    const { products: liveProducts, shops, loadingProducts } = useData() as {
+        products: Product[],
+        shops: Shop[],
+        loadingProducts: boolean
+    };
     const products = liveProducts.length > 0 ? liveProducts : initialProducts;
 
     const { t } = useLanguage();
@@ -61,7 +66,7 @@ const Products: React.FC<ProductsProps> = ({ lang, initialProducts = [], searchP
     };
 
     // Active shops (open only)
-    const activeShops = (shops || []).filter((s) => s.status === 'open');
+    const activeShops = (shops || []).filter(s => s.status === 'open');
 
     const filteredProducts = useMemo(() => {
         const result = products.filter(product => {

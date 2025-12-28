@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { BuybackCondition } from '../../types';
 import { useBuybackPricing } from '../../hooks/useBuybackPricing';

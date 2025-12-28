@@ -1,11 +1,13 @@
 import BlogManagement from '../../../components/admin/BlogManagement';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
-    title: 'Blog & SEO | Belmobile Admin',
-    description: 'Manage blog posts and SEO content',
+    title: 'Blog Management | Belmobile Admin',
+    description: 'Create and edit blog posts',
 };
 
-export default function BlogPage() {
+export default function AdminBlogPage() {
     return <BlogManagement />;
 }

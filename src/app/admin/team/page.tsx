@@ -1,11 +1,13 @@
 import TeamManagement from '../../../components/admin/TeamManagement';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
-    title: 'Team Management | Belmobile Admin',
-    description: 'Manage administrator and staff roles',
+    title: 'Team | Belmobile Admin',
+    description: 'Manage administrator accounts',
 };
 
-export default function TeamPage() {
+export default function AdminTeamPage() {
     return <TeamManagement />;
 }

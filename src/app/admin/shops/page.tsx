@@ -1,11 +1,13 @@
 import ShopManagement from '../../../components/admin/ShopManagement';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
-    title: 'Shop Management | Belmobile Admin',
-    description: 'Manage Belmobile shop locations',
+    title: 'Shops | Belmobile Admin',
+    description: 'Manage shop locations and details',
 };
 
-export default function ShopsPage() {
+export default function AdminShopsPage() {
     return <ShopManagement />;
 }
