@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const lang = searchParams.get('lang') || 'fr';
 
-    console.log(`[Reviews API] GET request received for lang: ${lang}`);
+    // console.log(`[Reviews API] GET request received for lang: ${lang}`);
     const now = Date.now();
 
     if (!GOOGLE_API_KEY) {
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
     }
 
     if (cachedReviews[lang] && (now - (lastFetchTime[lang] || 0) < CACHE_DURATION)) {
-        console.log(`[Reviews API] Returning cached reviews for ${lang}`);
+        // console.log(`[Reviews API] Returning cached reviews for ${lang}`);
         return NextResponse.json(cachedReviews[lang]);
     }
 
@@ -60,7 +60,7 @@ export async function GET(request: Request) {
         const allReviews: FormattedReview[] = [];
         const activeShops = SHOPS.filter(shop => shop.googlePlaceId && shop.status !== 'coming_soon');
 
-        console.log(`[Reviews API] Fetching for ${activeShops.length} shops in ${lang}`);
+        // console.log(`[Reviews API] Fetching for ${activeShops.length} shops in ${lang}`);
 
         for (const shop of activeShops) {
             try {
@@ -70,7 +70,7 @@ export async function GET(request: Request) {
                 const response = await fetch(url);
                 const data = await response.json() as GooglePlaceResponse;
 
-                console.log(`[Reviews API] Shop: ${shop.name} | Status: ${data.status}`);
+                // console.log(`[Reviews API] Shop: ${shop.name} | Status: ${data.status}`);
 
                 if (data.status === 'OK' && data.result?.reviews) {
                     const filteredReviews = data.result.reviews.filter((r: GoogleReview) => r.rating >= 4);
@@ -95,7 +95,7 @@ export async function GET(request: Request) {
 
         // Sort by date (newest first)
         const sortedReviews = allReviews.sort((a, b) => b.publishTime - a.publishTime);
-        console.log(`[Reviews API] Total reviews found for ${lang}: ${sortedReviews.length}`);
+        // console.log(`[Reviews API] Total reviews found for ${lang}: ${sortedReviews.length}`);
 
         // Limit to top 9 for the UI
         const finalReviews = sortedReviews.slice(0, 9);

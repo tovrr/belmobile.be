@@ -6,14 +6,14 @@ import { useShop } from '../hooks/useShop';
 import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
 import { useRouter } from 'next/navigation';
-
 import { AnimatePresence } from 'framer-motion';
-
 import { createSlug } from '../utils/slugs';
 import { WizardProvider, useWizard } from '../context/WizardContext';
 import { useWizardActions } from '../hooks/useWizardActions';
 import { useWizardPricing } from '../hooks/useWizardPricing';
 import { orderService } from '../services/orderService';
+import { auth } from '../firebase';
+import { signInAnonymously } from 'firebase/auth';
 
 const StepCategorySelection = dynamic(() => import('./wizard/steps/StepCategorySelection').then(mod => mod.StepCategorySelection));
 const StepDeviceSelection = dynamic(() => import('./wizard/steps/StepDeviceSelection').then(mod => mod.StepDeviceSelection), {
@@ -43,24 +43,6 @@ interface BuybackRepairProps {
     hideStep1Title?: boolean;
     initialWizardProps?: any;
 }
-
-const BuybackRepair: React.FC<BuybackRepairProps> = (props) => {
-    return (
-        <WizardProvider initialProps={{
-            deviceType: props.initialWizardProps?.deviceType || props.initialCategory || '',
-            selectedBrand: props.initialWizardProps?.selectedBrand || props.initialDevice?.brand || '',
-            selectedModel: props.initialWizardProps?.selectedModel || props.initialDevice?.model || '',
-            customerEmail: props.initialWizardProps?.customerEmail || '',
-            isInitialized: false,
-            step: props.initialWizardProps?.step || ((props.initialDevice?.model && !['iphone', 'ipad', 'galaxy', 'pixels', 'switch'].includes(props.initialDevice.model.toLowerCase())) ? 3 : (props.initialDevice?.brand || props.initialCategory ? 2 : 1))
-        }}>
-            <BuybackRepairInner {...props} />
-        </WizardProvider>
-    );
-};
-
-import { auth } from '../firebase';
-import { signInAnonymously } from 'firebase/auth';
 
 const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, hideStep1Title }) => {
     const { state, dispatch } = useWizard();
@@ -93,10 +75,54 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
 
     // Data Loading
     useEffect(() => {
-        if (selectedBrand) loadBrandData(createSlug(selectedBrand));
+        if (selectedBrand) {
+            loadBrandData(createSlug(selectedBrand));
+        }
     }, [selectedBrand, loadBrandData]);
 
+    // Initial Pricing Load (Deep Link Fix)
+    useEffect(() => {
+        // --- CLIENT-SIDE REDIRECT FIX (PlayStation 5) ---
+        // Force redirect from generic PS5 to "Disc" edition to bypass browser cache issues
+        if (selectedBrand === 'Sony' && selectedModel === 'Playstation 5') {
+            const newPath = `/${language}/reparation/sony/playstation-5-disc`;
+            router.replace(newPath);
+            return;
+        }
 
+        // --- CLIENT-SIDE REDIRECT FIX (Nintendo 3DS) ---
+        // Legacy URL /pages/reparation-3ds-2ds-xl-bruxelles often mis-redirects to generic
+        // or the user lands on a page where the model isn't selected.
+        // We detect if we are on the generic /nintendo page but with a 3ds intent?
+        // Actually, if the user lands on /reparation/nintendo/new-3ds-xl, the model should be selected.
+        // If they land on /reparation (Step 1), selectedBrand is null.
+        // But we can check the window.location.pathname if needed, or rely on URL props.
+        // The issue is likely the '3ds-2ds-xl' part of the legacy URL is confusing things if not redirected properly.
+        // If the server redirect works, they hit /fr/reparation/nintendo/new-3ds-xl.
+        // If they hit that, selectedModel should be 'New 3DS XL'.
+
+        // If the user says "sending to first step", it means the redirect FAILED and they went to /fr/reparation.
+        // In that case, window.location.href might still show the old legacy URL if next.config.ts didn't catch it?
+        // No, Next.js handles redirects server-side.
+        // If they end up on "First Step" (Category Selection), it means `initialDevice` was null.
+        // Which means they landed on `/fr/reparation`.
+        // So the redirect rule `/pages/reparation-3ds...` -> `/fr/reparation` (Generic Fallback) might have triggered instead of the specific one.
+        // But I put the specific one ABOVE the generic one.
+        // Browser cache again?
+        // I will add a window check here to be 100% nuclear.
+
+        if (typeof window !== 'undefined' && window.location.pathname.includes('reparation-3ds-2ds-xl-bruxelles')) {
+            const newPath = `/${language}/reparation/nintendo/new-3ds-xl`;
+            router.replace(newPath);
+            return;
+        }
+
+        // If we have a brand and model selected on mount, but no pricing data loaded for it, trigger the selection logic.
+        if (selectedBrand && selectedModel && state.pricingData.loadedForModel !== createSlug(`${selectedBrand} ${selectedModel}`)) {
+            handleModelSelect(selectedModel);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Run ONCE on mount
 
     // Calculate next disabled for mobile bottom bar
     const isAppleSmartphone = selectedBrand?.toLowerCase() === 'apple' && (deviceType === 'smartphone' || deviceType === 'tablet');
@@ -155,10 +181,22 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                     </StepWrapper>
                 )}
             </AnimatePresence>
-
-            {/* Mobile Bottom Bar */}
-            {/* Mobile Bottom Bar Removed per user request */}
         </div>
+    );
+};
+
+const BuybackRepair: React.FC<BuybackRepairProps> = (props) => {
+    return (
+        <WizardProvider initialProps={{
+            deviceType: props.initialWizardProps?.deviceType || props.initialCategory || '',
+            selectedBrand: props.initialWizardProps?.selectedBrand || props.initialDevice?.brand || '',
+            selectedModel: props.initialWizardProps?.selectedModel || props.initialDevice?.model || '',
+            customerEmail: props.initialWizardProps?.customerEmail || '',
+            isInitialized: false,
+            step: props.initialWizardProps?.step || ((props.initialDevice?.model && !['iphone', 'ipad', 'galaxy', 'pixels', 'switch'].includes(props.initialDevice.model.toLowerCase())) ? 3 : (props.initialDevice?.brand || props.initialCategory ? 2 : 1))
+        }}>
+            <BuybackRepairInner {...props} />
+        </WizardProvider>
     );
 };
 

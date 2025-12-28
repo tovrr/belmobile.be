@@ -82,9 +82,9 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
 
     // Translations & Content Helpers
     const getTitle = () => {
-        if (isStore) return lang === 'fr' ? `Services de réparation et rachat à ${locationName}` : lang === 'nl' ? `Reparatie en inkoop diensten in ${locationName}` : `Repair and Buyback Services in ${locationName}`;
-        if (isRepair) return lang === 'fr' ? `Options de réparation pour votre ${deviceName} à ${locationName}` : lang === 'nl' ? `Reparatie opties voor uw ${deviceName} in ${locationName}` : `Repair Options for your ${deviceName} in ${locationName}`;
-        return lang === 'fr' ? `Estimation de rachat pour votre ${deviceName} à ${locationName}` : lang === 'nl' ? `Inkoop schatting voor uw ${deviceName} in ${locationName}` : `Buyback Estimate for your ${deviceName} in ${locationName}`;
+        if (isStore) return lang === 'fr' ? `Services de réparation et rachat à ${locationName}` : lang === 'nl' ? `Reparatie- en inkoopdiensten in ${locationName}` : `Repair and Buyback Services in ${locationName}`;
+        if (isRepair) return lang === 'fr' ? `Options de réparation pour votre ${deviceName} à ${locationName}` : lang === 'nl' ? `Reparatieopties voor uw ${deviceName} in ${locationName}` : `Repair Options for your ${deviceName} in ${locationName}`;
+        return lang === 'fr' ? `Estimation de rachat pour votre ${deviceName} à ${locationName}` : lang === 'nl' ? `Waardebepaling voor uw ${deviceName} in ${locationName}` : `Buyback Estimate for your ${deviceName} in ${locationName}`;
     };
 
     const getDescription = () => {
@@ -104,20 +104,29 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                 if (locationName.includes('Anderlecht')) {
                     return `Expert réparation GSM à Anderlecht (1070), Chaussée de Mons. Belmobile répare votre téléphone ou tablette en un temps record. Pièces d'origine et devis gratuit.`;
                 }
-                return `Bienvenue chez ${shop?.name || 'Belmobile'}, votre expert local à ${locationName}. Situé au ${shop?.address}, nous offrons des services rapides pour smartphones, tablettes et consoles.`;
+                // Avoid "Belmobile Schaerbeek ... à Schaerbeek"
+                const shopName = shop?.name || 'Belmobile';
+                const displayShopName = shopName.includes(locationName) ? 'Belmobile' : shopName;
+                return `Bienvenue chez ${displayShopName}, votre expert local à ${locationName}. Situé au ${shop?.address}, nous offrons des services rapides pour smartphones, tablettes et consoles.`;
             }
 
             if (lang === 'nl') {
                 if (isHub) {
                     return `Smartphone reparatie in Brussel nodig? Belmobile is uw vertrouwde partner voor snelle reparaties (scherm, batterij) en inkoop in heel Brussel. Bezoek onze experts in Schaerbeek, Molenbeek en Anderlecht voor 30 min service zonder afspraak.`;
                 }
-                return `Welkom bij ${shop?.name || 'Belmobile'}, uw lokale expert in ${locationName}. Gevestigd aan ${shop?.address}, bieden wij snelle diensten voor smartphones, tablets en consoles.`;
+                // Avoid "Belmobile Schaerbeek ... in Schaerbeek"
+                const shopName = shop?.name || 'Belmobile';
+                const displayShopName = shopName.includes(locationName) ? 'Belmobile' : shopName;
+                return `Welkom bij ${displayShopName}, uw lokale expert in ${locationName}. Gevestigd aan ${shop?.address}, bieden wij snelle diensten voor smartphones, tablets en consoles.`;
             }
 
             if (isHub) {
                 return `Need a smartphone repair in Brussels? Belmobile is your trusted partner for express repair (screen, battery) and buyback across Brussels. Visit our experts in Schaerbeek, Molenbeek, and Anderlecht for 30 min service without appointment.`;
             }
-            return `Welcome to ${shop?.name || 'Belmobile'}, your local expert in ${locationName}. Located at ${shop?.address}, we offer fast services for smartphones, tablettes and consoles.`;
+            // Avoid "Belmobile Schaerbeek ... in Schaerbeek"
+            const shopName = shop?.name || 'Belmobile';
+            const displayShopName = shopName.includes(locationName) ? 'Belmobile' : shopName;
+            return `Welcome to ${displayShopName}, your local expert in ${locationName}. Located at ${shop?.address}, we offer fast services for smartphones, tablettes and consoles.`;
         }
         if (isRepair) {
             if (lang === 'fr') {
@@ -130,10 +139,10 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                 if (locationName.includes('Anderlecht')) {
                     return `Centre de réparation ${deviceName} à Anderlecht. Retrouvez Belmobile chaussée de Mons pour un service rapide et fiable. Microsoudure et récupération de données disponibles.`;
                 }
-                return `Vous cherchez une réparation rapide pour votre ${deviceName} à ${locationName} ? Chez Belmobile, nos techniciens certifiés sont experts en appareils ${brand || 'toutes marques'}. Nous réparons votre ${issuesText} en ${durationText} avec des pièces de qualité.`;
+                return `Vous cherchez une réparation rapide pour votre ${deviceName} à ${locationName} ? Chez Belmobile, nos techniciens certifiés sont experts ${brand ? `en appareils ${brand}` : 'toutes marques'}. Nous réparons votre ${issuesText} en ${durationText} avec des pièces de qualité.`;
             }
             return lang === 'nl'
-                ? `Zoekt u een snelle reparatie voor uw ${deviceName} in ${locationName}? Bij Belmobile zijn onze gecertificeerde technici experts in ${brand || 'alle merken'} apparaten. Wij repareren uw ${issuesText} in ${durationText} met kwaliteitsonderdelen.`
+                ? `Zoekt u een snelle reparatie voor uw ${deviceName} in ${locationName}? Bij Belmobile zijn onze gecertificeerde technici experts in ${brand || 'alle merken'}. Wij repareren uw ${issuesText} in ${durationText} met kwaliteitsonderdelen.`
                 : `Looking for a fast repair for your ${deviceName} in ${locationName}? At Belmobile, our certified technicians are experts in ${brand || 'all brands'} devices. We fix your ${issuesText} in ${durationText} using quality parts.`;
         }
         return lang === 'fr'

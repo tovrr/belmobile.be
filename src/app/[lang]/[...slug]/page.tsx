@@ -165,9 +165,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     // Full name for description (can be longer)
-    const fullDeviceName = device ? `${formattedBrand} ${formattedModel}`.trim() : displayDeviceName;
+    let fullDeviceName = displayDeviceName;
+    if (device && formattedModel) {
+        // Prevent "Sony Sony PlayStation" or "Xiaomi Xiaomi Redmi"
+        if (formattedModel.toLowerCase().startsWith(device.value.toLowerCase())) {
+            fullDeviceName = formattedModel;
+        } else {
+            fullDeviceName = `${formattedBrand} ${formattedModel}`;
+        }
+    } else if (device) {
+        fullDeviceName = formattedBrand;
+    }
 
-    const locationName = location ? location.name.replace('Belmobile ', '') : '';
+    // Ensure we don't end up with just "Apple" if we can help it, but formattedBrand is fallback
+    fullDeviceName = fullDeviceName.trim();
+
+    // Use 'city' if available (e.g. "Schaerbeek") instead of "Liedts" (from "Belmobile Liedts")
+    // If city is missing, fallback to parsing the name
+    const locationName = location ? (location.city || location.name.replace('Belmobile ', '')) : '';
 
     // Construct Title & Description using "Golden Formula" & CSV Insights
     // Formula: [Service] [Device] [Location] - [Value Prop]

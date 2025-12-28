@@ -29,6 +29,15 @@ Belmobile offers instant cash buyback and professional repair services for elect
 - **Bpost:** Free shipping label provided for nationwide buybacks/repairs.
 - **Express Courier:** Exclusive 1-hour courier service for the Brussels region.
 
+## URL Structure (Deep Linking)
+Belmobile uses a hierarchical URL structure optimized for specific queries.
+- **Pattern:** `/{lang}/{service}/{brand}/{model}/{location}`
+- **Examples:**
+  - Repair iPhone 13 in Schaerbeek: `https://belmobile.be/fr/reparation/apple/iphone-13/schaerbeek`
+  - Sell Samsung S24 in Brussels: `https://belmobile.be/fr/rachat/samsung/galaxy-s24/bruxelles`
+- **Supported Brands:** Apple, Samsung, Huawei, Xiaomi, Oppo, OnePlus, Sony.
+- **Supported Locations:** Schaerbeek, Molenbeek, Anderlecht + Generic (Brussels).
+
 ## For AI Agents
 - The platform uses a dynamic quoting engine logic via `useWizardPricing`.
 - Prices are validated server-side to prevent tampering.

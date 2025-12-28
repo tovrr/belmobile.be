@@ -51,7 +51,9 @@ export default function LocalPainPoints({ lang, locationName, deviceType, type =
                     {
                         icon: MapPinIcon,
                         title: "Accès Facile",
-                        text: "Déposez votre appareil rapidement dans nos magasins à Schaerbeek, Molenbeek ou Anderlecht."
+                        text: isBrussels
+                            ? "Déposez votre appareil rapidement dans nos magasins à Schaerbeek, Molenbeek ou Anderlecht."
+                            : `Déposez votre appareil rapidement dans notre magasin à ${locationName}.`
                     },
                     {
                         icon: ShieldCheckIcon,
@@ -61,7 +63,7 @@ export default function LocalPainPoints({ lang, locationName, deviceType, type =
                     {
                         icon: CurrencyEuroIcon,
                         title: "Meilleur Prix",
-                        text: "Nous garantissons la meilleure offre de reprise du marché à Bruxelles pour votre appareil."
+                        text: `Nous garantissons la meilleure offre de reprise du marché à ${locationName} pour votre ${deviceType || 'appareil'}.`
                     }
                 ]
             }
@@ -105,7 +107,9 @@ export default function LocalPainPoints({ lang, locationName, deviceType, type =
                     {
                         icon: MapPinIcon,
                         title: "Gemakkelijke Toegang",
-                        text: "Lever uw toestel snel in bij onze winkels in Schaarbeek, Molenbeek of Anderlecht."
+                        text: isBrussels
+                            ? "Lever uw toestel snel in bij onze winkels in Schaarbeek, Molenbeek of Anderlecht."
+                            : `Lever uw toestel snel in bij onze winkel in ${locationName}.`
                     },
                     {
                         icon: ShieldCheckIcon,
@@ -115,7 +119,7 @@ export default function LocalPainPoints({ lang, locationName, deviceType, type =
                     {
                         icon: CurrencyEuroIcon,
                         title: "Beste Prijs",
-                        text: "Wij garanderen het beste overnamebod op de markt in Brussel voor uw toestel."
+                        text: `Wij garanderen het beste overnamebod op de markt in ${locationName} voor uw ${deviceType || 'toestel'}.`
                     }
                 ]
             }

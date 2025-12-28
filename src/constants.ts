@@ -376,4 +376,41 @@ If none of these work, your TrueDepth camera might be damaged. Contact a profess
     }
 ];
 
-export const MOCK_REPAIR_PRICES: RepairPricing[] = [];
+export const MOCK_REPAIR_PRICES: RepairPricing[] = [
+    {
+        id: 'sony-playstation-5-disc',
+        currency: 'EUR',
+        screen_generic: 0,
+        screen_oled: 0,
+        screen_original: 0,
+        battery: 0,
+        charging_port: 120, // HDMI
+        camera_main: 0,
+        camera_front: 0,
+        back_glass: 0,
+    },
+    {
+        id: 'sony-playstation-5', // Fallback for generic slug
+        currency: 'EUR',
+        screen_generic: 0,
+        screen_oled: 0,
+        screen_original: 0,
+        battery: 0,
+        charging_port: 120, // HDMI
+        camera_main: 0,
+        camera_front: 0,
+        back_glass: 0,
+    },
+    {
+        id: 'nintendo-new-3ds-xl',
+        currency: 'EUR',
+        screen_generic: 90, // From nintendo.ts
+        screen_oled: 0,
+        screen_original: 0,
+        battery: 50,
+        charging_port: 60,
+        camera_main: 0,
+        camera_front: 0,
+        back_glass: 0,
+    }
+];

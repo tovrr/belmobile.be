@@ -22,6 +22,18 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be'),
+  openGraph: {
+    type: 'website',
+    locale: 'fr_BE',
+    url: 'https://belmobile.be',
+    siteName: 'Belmobile',
+    title: 'Belmobile.be - Rachat & Réparation',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@belmobile',
+    creator: '@belmobile',
+  },
 };
 
 export const viewport = {

@@ -135,7 +135,7 @@ export function proxy(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico|images|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|images|monitoring|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ],
 };
 

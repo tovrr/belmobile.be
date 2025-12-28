@@ -22,8 +22,10 @@ Your goal is **Premium Quality** and **Zero Regression**.
 3.  **Deployment Workflow**:
     - **Staging**: Push to `staging` branch first. Verify on Vercel Preview.
     - **Production**: Merge to `main`. Deploys to Vercel Production.
-4.  **Middleware Convention**: ALWAYS use `src/proxy.ts`. usage of `middleware.ts` is DEPRECATED and will break the build.
-    - Export `proxy` function, NOT `middleware`.
+4.  **Proxy Convention (Next.js 16+)**: ALWAYS use `src/proxy.ts`. usage of `middleware.ts` is explicitly DEPRECATED.
+    - **Reason**: Next.js 16+ "Proxy Convention" replaces Middleware to decouple routing from heavy logic.
+    - **Rule**: Export `proxy` function in `src/proxy.ts`, NOT `middleware`.
+    - **Sentry**: Ensure `matcher` in `proxy.ts` excludes `/monitoring`.
 5.  **Linting**: Ignore local `npm run lint` crashes (Windows/ESLint 9 incompatibility).
     - **Trust only `npm run build`**. If build passes, code is valid.
 

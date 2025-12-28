@@ -29,7 +29,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const uatRole = params.get('uat_role');
 
         if (uatRole) {
-            console.log('UAT Mode active:', uatRole);
+            // console.log('UAT Mode active:', uatRole);
             const isSuper = uatRole === 'super_admin';
             const mockUser = {
                 uid: 'mock-uid-' + uatRole,
@@ -70,16 +70,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
                         // --- Safe Bootstrap for System Owner ---
                         if (isOwner && profileData.role !== 'super_admin') {
-                            console.log('Bootstrapping super_admin for system owner:', userEmail);
+                            // console.log('Bootstrapping super_admin for system owner:', userEmail);
                             profileData = { ...profileData, role: 'super_admin' };
                             await setDoc(doc(db, 'users', currentUser.uid), { role: 'super_admin' }, { merge: true });
                         }
 
-                        console.log(`Profile loaded for ${userEmail}:`, profileData.role);
+                        // console.log(`Profile loaded for ${userEmail}:`, profileData.role);
                         setProfile(profileData);
                     } else {
                         // 2. Fallback: Search by Email (for pre-created team profiles)
-                        console.log('Searching for profile by email:', userEmail);
+                        // console.log('Searching for profile by email:', userEmail);
                         const q = query(collection(db, 'users'), where('email', '==', userEmail));
                         const emailSnapshot = await getDocs(q);
 
@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                             }
 
                             // 3. Claim the profile: Copy document to the new UID ID
-                            console.log('Claiming profile found by email...');
+                            // console.log('Claiming profile found by email...');
                             await setDoc(doc(db, 'users', currentUser.uid), {
                                 ...profileData,
                                 uid: currentUser.uid,
@@ -109,7 +109,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                         } else {
                             // --- Case: System Owner login with NO existing profile at all ---
                             if (isOwner) {
-                                console.log('Creating fresh super_admin profile for system owner...');
+                                // console.log('Creating fresh super_admin profile for system owner...');
                                 const freshProfile: AdminProfile = {
                                     uid: currentUser.uid,
                                     email: userEmail!,

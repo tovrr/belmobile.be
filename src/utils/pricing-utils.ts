@@ -16,7 +16,9 @@ export const standardizeDeviceId = (id: string): string => {
     if (clean.startsWith('ipad')) clean = 'apple-' + clean;
     if (clean.startsWith('galaxy-s') || clean.startsWith('galaxy-a')) clean = 'samsung-' + clean;
     if (clean.startsWith('nintendo') && !clean.includes('switch')) clean = 'nintendo-switch';
+    if (clean.startsWith('nintendo') && !clean.includes('switch')) clean = 'nintendo-switch';
     if (clean === 'switch' || clean === 'switch-lite' || clean === 'switch-oled') clean = 'nintendo-' + clean;
+    if (clean.startsWith('playstation') || clean.startsWith('ps4') || clean.startsWith('ps5')) clean = 'sony-' + clean;
 
     // De-duplicate brands
     const brands = ['apple', 'samsung', 'google', 'huawei', 'nintendo', 'sony', 'microsoft', 'xiaomi', 'oppo', 'realme', 'motorola'];

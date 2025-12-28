@@ -42,13 +42,35 @@ export const getKeywordsForPage = (
     }
 
     if (model) {
+        // Smart Model Name: Remove Brand if already in Model (e.g. "Sony Xperia" -> keep as is, "Xperia" -> check)
+        // Actually, simple check: does model start with brand?
+        let smartModel = model;
+        // Logic handled better by just using the model as provided if it already contains the brand,
+        // but often 'model' passed here is just the slug-converted name.
+        // Let's rely on the passed 'model' usually being precise enough, EXCEPT if we prepend Brand to it manually.
+
+        // Push the raw model
         keywords.push(model);
 
         // General iPhone Logic (High Volume)
         if (model.toLowerCase().includes('iphone')) {
             keywords.push('iphone', 'apple iphone');
+            // 'model' here is likely 'iPhone 13', so 'réparation iPhone 13' is fine.
             if (lang === 'fr') keywords.push(`réparation ${model} bruxelles`, 'écran iphone', 'batterie iphone', 'face id');
             if (lang === 'nl') keywords.push(`reparatie ${model} brussel`, 'iphone scherm', 'iphone batterij');
+        }
+
+        // Smart Combination Logic for other brands
+        // If brand=Samsung, model=Galaxy S23. "réparation Samsung Galaxy S23" is good.
+        // If brand=Sony, model=Sony Xperia. "réparation Sony Sony Xperia" is BAD.
+        else {
+            let combinedName = `${brand} ${model}`;
+            if (brand && model.toLowerCase().startsWith(brand.toLowerCase())) {
+                combinedName = model;
+            }
+
+            if (lang === 'fr') keywords.push(`réparation ${combinedName} bruxelles`);
+            if (lang === 'nl') keywords.push(`reparatie ${combinedName} brussel`);
         }
 
         // Console variations
