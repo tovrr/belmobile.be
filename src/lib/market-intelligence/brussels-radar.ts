@@ -72,7 +72,7 @@ export async function getCompetitorPrices(modelName: string) {
                 { competitor: 'Fixnow', product: 'iPhone 13 Glass', price: 159, url: 'https://fixnow.be', lastUpdated: new Date().toISOString(), type: 'screen_generic' },
                 { competitor: 'Fixnow', product: 'iPhone 13 Original', price: 189, url: 'https://fixnow.be', lastUpdated: new Date().toISOString(), type: 'screen_original' },
                 { competitor: 'Mister Genius', product: 'iPhone 13 Screen', price: 219, url: 'https://mistergenius.be', lastUpdated: new Date().toISOString(), type: 'screen_generic' }
-            ];
+            ] as CompetitorPrice[];
             // DEMO MODE: End
         }
         return results;
