@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useLanguage } from '../hooks/useLanguage';
-import { MagnifyingGlassIcon, CheckCircleIcon, ClockIcon, WrenchScrewdriverIcon, TruckIcon, CurrencyEuroIcon, ClipboardDocumentCheckIcon, ArchiveBoxIcon, InformationCircleIcon, ArrowDownTrayIcon, ShoppingBagIcon, CreditCardIcon, CheckIcon, MapPinIcon, BuildingStorefrontIcon, CubeIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, CheckCircleIcon, ClockIcon, WrenchScrewdriverIcon, TruckIcon, CurrencyEuroIcon, ClipboardDocumentCheckIcon, ArchiveBoxIcon, InformationCircleIcon, ArrowDownTrayIcon, ShoppingBagIcon, CreditCardIcon, CheckIcon, MapPinIcon, BuildingStorefrontIcon, CubeIcon, StarIcon } from '@heroicons/react/24/outline';
 import { db } from '../firebase';
 import { doc, getDoc, query, collection, where, getDocs } from 'firebase/firestore';
 import Input from './ui/Input';
@@ -24,6 +24,37 @@ const formatDeviceName = (slug: string) => {
 };
 
 type TrackableItem = (Quote | Reservation) & { id: string, type: 'repair' | 'buyback' | 'reservation' };
+
+const ReviewPrompt = ({ shopId, t, shops }: { shopId?: string; t: any; shops: any[] }) => {
+    // Determine the review URL based on the shopId or fallback to the primary/first shop
+    const shop = shops.find(s => s.id === shopId) || shops.find(s => s.isPrimary);
+    const reviewUrl = shop?.googleReviewUrl;
+
+    if (!reviewUrl) return null;
+
+    return (
+        <div className="bg-linear-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/10 dark:to-amber-900/20 border border-yellow-200 dark:border-yellow-800 rounded-3xl p-8 text-center mt-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 dark:bg-yellow-900/40 rounded-full mb-4 text-yellow-600 dark:text-yellow-400">
+                <StarIcon className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                {t('rate_us_title')}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-lg mx-auto">
+                {t('rate_us_desc')}
+            </p>
+            <a
+                href={reviewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 font-bold rounded-xl transition-transform hover:scale-105"
+            >
+                {t('write_review')}
+                <StarIcon className="w-5 h-5 fill-current" />
+            </a>
+        </div>
+    );
+};
 
 const TrackOrder: React.FC = () => {
     const { t } = useLanguage();
@@ -481,6 +512,11 @@ const TrackOrder: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Google Review Prompt - Only show if completed/repaired/paid/ready */}
+                                {['completed', 'repaired', 'shipped', 'payment_sent', 'ready'].includes(status.status) && (
+                                    <ReviewPrompt shopId={status.shopId?.toString()} t={t} shops={shops} />
+                                )}
                             </div>
                         )}
                     </div>
