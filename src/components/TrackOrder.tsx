@@ -254,9 +254,29 @@ const TrackOrder: React.FC = () => {
                                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                                     {t('Order Confirmed')}
                                 </h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+
+                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
                                     {t('We have received your order and sent a confirmation email to')} <span className="font-semibold text-gray-900 dark:text-white">{email}</span>
                                 </p>
+
+                                {(() => {
+                                    const shopId = status.shopId || (shops.find(s => s.isPrimary)?.id);
+                                    const shop = shops.find(s => s.id === shopId);
+                                    if (shop?.googleReviewUrl) {
+                                        return (
+                                            <a
+                                                href={shop.googleReviewUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-2 text-yellow-600 dark:text-yellow-400 font-bold hover:underline mb-8 bg-yellow-50 dark:bg-yellow-900/10 px-4 py-2 rounded-full transition-colors"
+                                            >
+                                                <StarIcon className="w-5 h-5 fill-current" />
+                                                {t('booking_success_review_prompt')}
+                                            </a>
+                                        );
+                                    }
+                                    return <div className="mb-8" />;
+                                })()}
 
                                 <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-6 text-left max-w-2xl mx-auto">
                                     <div className="flex gap-4">
