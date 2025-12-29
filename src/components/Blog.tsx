@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
-import { CalendarDaysIcon, UserIcon } from '@heroicons/react/24/outline';
+import { CalendarIcon as CalendarDaysIcon, UsersIcon as UserIcon } from './ui/BrandIcons';
 import { MOCK_BLOG_POSTS } from '../constants';
 
 const Blog: React.FC = () => {

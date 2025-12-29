@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { StarIcon } from '@heroicons/react/24/solid';
+import { StarIcon, ExternalLinkIcon } from './ui/BrandIcons';
 import { useLanguage } from '../hooks/useLanguage';
 import FadeIn from './ui/FadeIn';
 
@@ -154,9 +154,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) 
                             className="inline-flex items-center gap-2 text-sm font-bold text-electric-indigo hover:text-indigo-600 transition-colors"
                         >
                             <span>{t('View all reviews on Google')}</span>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
+                            <ExternalLinkIcon className="w-4 h-4" />
                         </a>
                     </div>
                 )}

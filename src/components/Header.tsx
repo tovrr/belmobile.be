@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { NAV_LINKS, MOCK_BLOG_POSTS } from '../constants';
-import { Bars3Icon, XMarkIcon, PhoneIcon } from '@heroicons/react/24/outline';
+import { MenuIcon as Bars3Icon, CloseIcon as XMarkIcon, PhoneIcon } from './ui/BrandIcons';
 import { useLanguage } from '../hooks/useLanguage';
 
 import Logo from './Logo';
@@ -125,9 +125,18 @@ const Header: React.FC = () => {
                 >
                     <div className="flex items-center justify-between">
                         {/* Logo */}
-                        <Link href={`/${language}`} className="flex items-center gap-3 group">
-                            <div className="w-10 h-10 group-hover:scale-110 transition-transform duration-300">
+                        <Link
+                            href={`/${language}`}
+                            className="flex items-center gap-3 group"
+                            aria-label="Belmobile Home"
+                            itemScope
+                            itemType="https://schema.org/Organization"
+                        >
+                            <meta itemProp="name" content="Belmobile" />
+                            <meta itemProp="url" content="https://belmobile.be" />
+                            <div className="w-10 h-10 group-hover:scale-110 transition-transform duration-300 text-gray-900 dark:text-cyber-citron" itemProp="logo" itemScope itemType="https://schema.org/ImageObject">
                                 <Logo className="w-full h-full" />
+                                <meta itemProp="url" content="https://belmobile.be/logo.png" />
                             </div>
                             <div className="flex flex-col">
                                 <span className="font-black text-2xl tracking-tighter text-gray-900 dark:text-white leading-none">
@@ -182,16 +191,17 @@ const Header: React.FC = () => {
 
                         {/* Actions */}
                         <div className="flex items-center space-x-3">
-                            {/* Call Support CTA - Desktop */}
-                            <div className="hidden lg:flex items-center gap-3">
+                            {/* Call Support CTA - Desktop & Tablet */}
+                            <div className="hidden md:flex items-center gap-3">
                                 <span className="hidden xl:block text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('need_help')}</span>
                                 <a
                                     href="tel:+3222759867"
-                                    aria-label={t('call_support')}
-                                    className="flex items-center gap-2 bg-electric-indigo/90 hover:bg-electric-indigo text-white rounded-full px-4 py-2 transition-all shadow-lg hover:shadow-indigo-500/30 font-bold text-sm tracking-wide group whitespace-nowrap"
+                                    aria-label={t('call_expert')}
+                                    className="flex items-center gap-2 bg-cyber-citron hover:bg-cyber-citron/90 text-midnight rounded-full px-3 py-2 lg:px-5 lg:py-2.5 transition-all shadow-lg hover:shadow-cyber-citron/30 font-black text-sm tracking-wide group whitespace-nowrap"
                                 >
-                                    <PhoneIcon className="h-4 w-4 group-hover:animate-pulse" aria-hidden="true" />
-                                    <span>{t('call_support')}</span>
+                                    <PhoneIcon className="h-4 w-4 group-hover:animate-medical-pulse" aria-hidden="true" />
+                                    <span className="hidden lg:inline">{t('call_expert')}</span>
+                                    <span className="lg:hidden">{t('call_action_short')}</span>
                                 </a>
                             </div>
 
@@ -270,9 +280,9 @@ const Header: React.FC = () => {
 
                             <div className="mt-2 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl text-center">
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">{t('need_help')}</p>
-                                <a href="tel:+3222759867" className="flex items-center justify-center gap-2 w-full py-3 bg-electric-indigo text-white rounded-xl font-bold shadow-lg shadow-indigo-500/30 group">
-                                    <PhoneIcon className="h-5 w-5 group-hover:animate-pulse" aria-hidden="true" />
-                                    <span>{t('call_support')}</span>
+                                <a href="tel:+3222759867" className="flex items-center justify-center gap-2 w-full py-4 bg-cyber-citron text-midnight rounded-ui font-black shadow-lg shadow-cyber-citron/20 group">
+                                    <PhoneIcon className="h-5 w-5 group-hover:animate-medical-pulse" aria-hidden="true" />
+                                    <span>{t('call_expert')}</span>
                                 </a>
                             </div>
                         </div>

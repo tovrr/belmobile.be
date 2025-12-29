@@ -102,7 +102,7 @@ export const MOCK_PRODUCTS: Product[] = [
         name: "iPhone 13",
         price: 599,
         description: "A15 Bionic chip, advanced dual-camera system.",
-        imageUrl: "/images/hero_phone_bg.png",
+        imageUrl: "/images/hero_phone_bg.webp",
         category: "smartphone",
         brand: "Apple",
         condition: 'perfect',
@@ -118,28 +118,28 @@ export const POPULAR_BUYBACKS = [
         id: 'iphone-15-pro-max',
         name: 'iPhone 15 Pro Max',
         maxPrice: 950,
-        image: '/images/hero_phone_bg.png',
+        image: '/images/hero_phone_bg.webp',
         brand: 'Apple'
     },
     {
         id: 'iphone-14-pro',
         name: 'iPhone 14 Pro',
         maxPrice: 680,
-        image: '/images/hero_phone_bg.png',
+        image: '/images/hero_phone_bg.webp',
         brand: 'Apple'
     },
     {
         id: 'samsung-s24-ultra',
         name: 'Galaxy S24 Ultra',
         maxPrice: 820,
-        image: '/images/bento/repair_bg.png',
+        image: '/images/bento/repair_bg.webp',
         brand: 'Samsung'
     },
     {
         id: 'macbook-air-m2',
         name: 'MacBook Air M2',
         maxPrice: 750,
-        image: '/images/bento/business_bg.png',
+        image: '/images/bento/business_bg.webp',
         brand: 'Apple'
     }
 ];
@@ -285,7 +285,7 @@ Chez Belmobile (Anderlecht & Schaerbeek), nous proposons des écrans originaux a
         date: '2024-11-20',
         author: 'Belmobile Expert',
         category: 'Technical Guide',
-        imageUrl: '/images/blog/iphone-screen-repair.png'
+        imageUrl: '/images/blog/iphone-screen-repair.webp'
     },
     {
         id: 2,
@@ -308,7 +308,7 @@ Passez dans l'un de nos magasins à Bruxelles pour une estimation immédiate et 
         date: '2025-02-18',
         author: 'Team Rachat',
         category: 'Price Optimization',
-        imageUrl: '/images/blog/sell-smartphone-money.png'
+        imageUrl: '/images/blog/sell-smartphone-money.webp'
     },
     {
         id: 3,
@@ -330,7 +330,7 @@ Chez Belmobile, nous remplaçons votre batterie en 30 minutes. Pas besoin de lai
         date: '2025-04-10',
         author: 'Labo Belmobile',
         category: 'Expert Maintenance',
-        imageUrl: '/images/blog/iphone-battery-replacement.png'
+        imageUrl: '/images/blog/iphone-battery-replacement.webp'
     },
     {
         id: 4,
@@ -354,7 +354,7 @@ Trust is the foundation of our business. Your data stays yours.`,
         date: '2025-06-15',
         author: 'Belmobile Security',
         category: 'Data Security',
-        imageUrl: '/images/blog/data-privacy-security.png'
+        imageUrl: '/images/blog/data-privacy-security.webp'
     },
     {
         id: 5,
@@ -379,7 +379,7 @@ If none of these work, your TrueDepth camera might be damaged. Contact a profess
         date: '2025-08-20',
         author: 'Belmobile Expert',
         category: 'Advanced Repair',
-        imageUrl: '/images/blog/face-id-repair.png'
+        imageUrl: '/images/blog/face-id-repair.webp'
     },
     {
         id: 6,
@@ -406,7 +406,7 @@ If you are under AppleCare+, the Genius Bar is great. But for out-of-warranty re
         date: '2025-10-05',
         author: 'Belmobile Team',
         category: 'Industry Insights',
-        imageUrl: '/images/bento/business_bg.png' // Utilizing existing asset
+        imageUrl: '/images/bento/business_bg.webp' // Utilizing existing asset
     },
     {
         id: 7,
@@ -433,7 +433,7 @@ If the image is distorted, the OLED panel is broken. You need a full assembly re
         date: '2025-11-12',
         author: 'Belmobile Lab',
         category: 'Tech Education',
-        imageUrl: '/images/bento/repair_bg.png' // Utilizing existing asset
+        imageUrl: '/images/bento/repair_bg.webp' // Utilizing existing asset
     },
     {
         id: 8,
@@ -461,7 +461,7 @@ We don't just "dry" the phone. We:
         date: '2025-12-25',
         author: 'Microsoldering Specialist',
         category: 'Microsurgery',
-        imageUrl: '/images/hero_phone_bg.png' // Utilizing existing asset
+        imageUrl: '/images/hero_phone_bg.webp' // Utilizing existing asset
     }
 ];
 

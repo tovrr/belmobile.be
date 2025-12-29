@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image'; // Updated to use next/image for optimization
-import { ArrowRightIcon, CurrencyEuroIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon, CurrencyEuroIcon } from './ui/BrandIcons';
 import { useLanguage } from '../hooks/useLanguage';
 import FadeIn from './ui/FadeIn';
 import { POPULAR_BUYBACKS } from '../constants';

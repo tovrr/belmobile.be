@@ -3,7 +3,7 @@
 import React from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { motion } from 'framer-motion';
-import { BuildingOffice2Icon, WrenchScrewdriverIcon, DevicePhoneMobileIcon, CurrencyEuroIcon, CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { BuildingOfficeIcon as BuildingOffice2Icon, RepairIcon as WrenchScrewdriverIcon, DevicePhoneIcon as DevicePhoneMobileIcon, CurrencyEuroIcon, CheckCircleIcon, ArrowRightIcon } from './ui/BrandIcons';
 import Link from 'next/link';
 import SchemaMarkup from './SchemaMarkup';
 
@@ -54,12 +54,12 @@ const BusinessSolutions: React.FC = () => {
                     </p>
 
                     <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-                        <a
-                            href="mailto:b2b@belmobile.be"
+                        <Link
+                            href={`/${language}/contact?subject=other`}
                             className="px-8 py-4 bg-electric-indigo text-white font-bold rounded-xl shadow-lg hover:bg-indigo-600 hover:scale-105 transition-all"
                         >
                             {t('biz_cta_contact')}
-                        </a>
+                        </Link>
                         <a
                             href="tel:+32484837560"
                             className="px-8 py-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-all"

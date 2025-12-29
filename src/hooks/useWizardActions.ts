@@ -223,10 +223,15 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                 model: state.selectedModel
             }, t);
 
-            // Send Confirmation Email (Includes PDF attachment) - No Download
-            // 4. Send Confirmation Email (Backgrounded)
-            orderService.sendOrderConfirmationEmail(readableId, firestoreData, lang || 'fr', t, sendEmail)
-                .catch(err => console.error("Email sending failed:", err));
+            // 4. Send Confirmation Email (Awaited to ensure PDF transmission completes)
+            // Note: We await this because the PDF payload is too large for fetch 'keepalive' (max 64KB),
+            // so navigating away would cancel the request.
+            try {
+                await orderService.sendOrderConfirmationEmail(readableId, firestoreData, lang || 'fr', t, sendEmail);
+            } catch (err) {
+                console.error("Email sending failed:", err);
+                // Proceed to success page regardless, as order is saved
+            }
 
             // 5. Redirect Immediately to Success Page
             // We don't await the email sending to ensure the user gets immediate feedback

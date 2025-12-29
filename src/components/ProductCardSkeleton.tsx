@@ -5,7 +5,7 @@ import Skeleton from './ui/Skeleton';
 
 const ProductCardSkeleton: React.FC = () => {
     return (
-        <div className="bg-white dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-lg border border-gray-100 dark:border-white/10 overflow-hidden flex flex-col h-full">
+        <div className="bg-white dark:bg-slate-900/60 backdrop-blur-xl rounded-ui-lg shadow-lg border border-gray-100 dark:border-white/10 overflow-hidden flex flex-col h-full">
             {/* Image Skeleton */}
             <div className="relative pt-[100%] bg-gray-50 dark:bg-slate-800/30">
                 <Skeleton className="absolute inset-0" />
@@ -30,7 +30,7 @@ const ProductCardSkeleton: React.FC = () => {
                         <Skeleton variant="text" className="h-3 w-8" />
                         <Skeleton variant="text" className="h-6 w-12" />
                     </div>
-                    <Skeleton variant="rect" className="h-10 w-24 rounded-xl" />
+                    <Skeleton variant="rect" className="h-10 w-24 rounded-ui" />
                 </div>
             </div>
         </div>

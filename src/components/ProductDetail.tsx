@@ -6,7 +6,8 @@ import { useData } from '../hooks/useData';
 import { useShop } from '../hooks/useShop';
 import { useLanguage } from '../hooks/useLanguage';
 import dynamic from 'next/dynamic';
-import { ArrowLeftIcon, CheckCircleIcon, ShieldCheckIcon, TruckIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, CheckCircleIcon, ShieldCheckIcon, TruckIcon, StarIcon } from './ui/BrandIcons';
+import BrandLoader from './ui/BrandLoader';
 import Image from 'next/image';
 const ReservationModal = dynamic(() => import('../components/ReservationModal'), { ssr: false });
 import SchemaMarkup from '../components/SchemaMarkup';
@@ -61,8 +62,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ initialProduct }) => {
 
     if (loading) {
         return (
-            <div className="min-h-screen pt-24 pb-12 px-4 flex items-center justify-center">
-                <div className="w-16 h-16 border-4 border-bel-blue border-t-transparent rounded-full animate-spin"></div>
+            <div className="min-h-screen bg-slate-50 dark:bg-deep-space flex flex-col items-center justify-center p-4">
+                <BrandLoader size={80} text={t('loading_product')} />
             </div>
         );
     }

@@ -12,6 +12,7 @@ import { REPAIR_ISSUES, DEVICE_TYPES } from '../../constants';
 import { getDeviceImage } from '../../data/deviceImages';
 import { createSlug, slugToDisplayName } from '../../utils/slugs';
 import { TRUST_SIGNALS, SignalContext } from '../../data/trustSignals';
+import Button from '../ui/Button';
 
 // Map string icon names to components
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -96,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
     return (
         <div className="hidden lg:block w-80 xl:w-96 shrink-0 ml-8">
-            <div className="sticky top-24 bg-white dark:bg-slate-900 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-800 overflow-hidden">
+            <div className="sticky top-24 bg-white dark:bg-slate-900 rounded-ui-lg shadow-lg border border-gray-100 dark:border-slate-800 overflow-hidden">
                 <div className="bg-bel-blue p-6 text-white text-center relative overflow-hidden">
 
 
@@ -296,43 +297,38 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <div className="space-y-3">
                         {/* Display Next button for non-final steps */}
                         {((isBuyback && step < 5) || (!isBuyback && step < 4)) && (
-                            <button
+                            <Button
                                 onClick={onNext}
                                 disabled={nextDisabled}
-                                className="w-full bg-bel-blue text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-100 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                variant="cyber"
+                                className="w-full"
                             >
                                 {nextLabel || t('Next')}
-                            </button>
+                            </Button>
                         )}
 
                         {/* Display Complete Request button for final steps */}
                         {((isBuyback && step === 5) || (!isBuyback && step === 4)) && (
-                            <button
-                                onClick={onNext} // Reusing onNext for submission as it triggers the handler in StepUserInfo
+                            <Button
+                                onClick={onNext}
                                 disabled={nextDisabled || isLoadingState}
-                                className={`w-full font-bold py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${isLoadingState ? 'bg-linear-to-r from-bel-blue to-blue-600 cursor-wait' : 'bg-bel-blue hover:bg-blue-700'} text-white shadow-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed`}
+                                variant="cyber"
+                                className="w-full"
+                                isLoading={isLoadingState}
+                                icon={<CheckBadgeIcon className="w-5 h-5" />}
                             >
-                                {isLoadingState ? (
-                                    <>
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        <span className="animate-pulse">{loadingText}</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <CheckBadgeIcon className="w-5 h-5" />
-                                        {t('confirm_request')}
-                                    </>
-                                )}
-                            </button>
+                                {t('confirm_request')}
+                            </Button>
                         )}
 
                         {step > 1 && (
-                            <button
+                            <Button
                                 onClick={handleBack}
-                                className="w-full py-3 px-4 rounded-xl font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
+                                variant="ghost"
+                                className="w-full"
                             >
                                 {t('Back')}
-                            </button>
+                            </Button>
                         )}
                     </div>
                 </div>

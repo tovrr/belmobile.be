@@ -19,6 +19,18 @@
   --color-deep-space: #020617;
   --color-glass-white: rgba(255, 255, 255, 0.7);
   --color-glass-dark: rgba(15, 23, 42, 0.7);
+  --color-midnight: #0f172a;
+  --color-cloud: #f8fafc;
+
+  --ui-radius: 12px;
+  --ui-radius-lg: 24px;
+  --ui-stroke: 2px;
+  --ui-stroke-lg: 4px;
+
+  --radius-ui: var(--ui-radius);
+  --radius-ui-lg: var(--ui-radius-lg);
+  --border-width-ui: var(--ui-stroke);
+  --border-width-ui-lg: var(--ui-stroke-lg);
 
   --font-sans: var(--font-inter), "Inter", sans-serif;
   --font-heading: var(--font-manrope), "Manrope", sans-serif;
@@ -40,6 +52,22 @@
   /* rounded-xl */
   --radius-lg: 1.5rem;
   /* rounded-3xl */
+
+  --animate-medical-pulse: pulse-breath 3s ease-in-out infinite;
+
+  @keyframes pulse-breath {
+
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.6;
+      transform: scale(1.05);
+    }
+  }
 
   --animate-fade-in-up: fadeInUp 0.5s ease-out;
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;

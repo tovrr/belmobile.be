@@ -5,7 +5,6 @@ import { Metadata } from 'next';
 import { TranslationDict } from '../../../../utils/translations';
 import { SERVICES } from '../../../../data/services';
 import SchemaOrg from '../../../../components/seo/SchemaOrg';
-import Hreflang from '../../../../components/seo/Hreflang';
 import { LOCATIONS } from '../../../../data/locations';
 import { Shop } from '../../../../types';
 
@@ -98,18 +97,21 @@ export async function generateMetadata({ params }: StorePageProps): Promise<Meta
 
     const isHub = !!shop.isHub;
 
-    if (isHub) {
-        return {
-            title: lang === 'fr' ? `Réparation et Rachat de Smartphone à ${shop.city} | Belmobile Expert` : lang === 'nl' ? `Smartphone Reparatie en Inkoop in ${shop.city} | Belmobile Expert` : `Smartphone Repair and Buyback in ${shop.city} | Belmobile Expert`,
-            description: lang === 'fr' ? `Belmobile est votre expert local à ${shop.city}. Service de réparation express (iPhone, Samsung) et rachat immédiat au meilleur prix à Schaerbeek, Molenbeek et Anderlecht.` : lang === 'nl' ? `Belmobile is uw lokale expert in ${shop.city}. Snelle reparatie (iPhone, Samsung) en inkoop direct tegen de beste prijs in Schaerbeek, Molenbeek en Anderlecht.` : `Belmobile is your local expert in ${shop.city}. Express repair service (iPhone, Samsung) and immediate buyback at the best price in Schaerbeek, Molenbeek and Anderlecht.`,
-        };
-    }
+    const baseUrl = 'https://belmobile.be';
+    const alternates: { [key: string]: string } = {};
+    ['en', 'fr', 'nl'].forEach(l => {
+        alternates[l] = `${baseUrl}/${l}/stores/${shop.slugs?.[l as keyof typeof shop.slugs] || String(shop.id)}`;
+    });
 
-    const cityPrefix = shop.city === 'Schaerbeek' ? '(1030)' : shop.city === 'Molenbeek-Saint-Jean' ? '(1080)' : shop.city === 'Anderlecht' ? '(1070)' : '';
+    const cityPrefix = lang === 'fr' ? `à ${shop.city}` : `in ${shop.city}`;
 
     return {
-        title: `${shop.name} ${cityPrefix} - Belmobile Repair & Buyback`,
-        description: `Visit ${shop.name} at ${shop.address}. Expert smartphone repair (screen, battery) and immediate cash buyback in ${shop.city}. No appointment needed.`,
+        title: isHub ? (lang === 'fr' ? `Réparation et Rachat de Smartphone à ${shop.city} | Belmobile Expert` : lang === 'nl' ? `Smartphone Reparatie en Inkoop in ${shop.city} | Belmobile Expert` : `Smartphone Repair and Buyback in ${shop.city} | Belmobile Expert`) : `${shop.name} ${cityPrefix} - Belmobile Repair & Buyback`,
+        description: isHub ? (lang === 'fr' ? `Belmobile est votre expert local à ${shop.city}. Service de réparation express (iPhone, Samsung) et rachat immédiat au meilleur prix à Schaerbeek, Molenbeek et Anderlecht.` : lang === 'nl' ? `Belmobile is uw lokale expert in ${shop.city}. Snelle reparatie (iPhone, Samsung) en inkoop direct tegen de beste prijs in Schaerbeek, Molenbeek en Anderlecht.` : `Belmobile is your local expert in ${shop.city}. Express repair service (iPhone, Samsung) and immediate buyback at the best price in Schaerbeek, Molenbeek and Anderlecht.`) : `Visit ${shop.name} at ${shop.address}. Expert smartphone repair (screen, battery) and immediate cash buyback in ${shop.city}. No appointment needed.`,
+        alternates: {
+            canonical: `${baseUrl}/${lang}/stores/${slug}`,
+            languages: alternates
+        }
     };
 }
 
@@ -141,11 +143,6 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
     const translationsDict: TranslationDict = (await import(`../../../../data/i18n/${lang}.json`)).default;
     const t = (key: string) => translationsDict[key] || key;
 
-    const hreflangSlugs = {
-        fr: shop.slugs?.fr || String(shop.id),
-        nl: shop.slugs?.nl || String(shop.id),
-        en: shop.slugs?.en || String(shop.id)
-    };
 
     // Dynamic Links
     const repairService = SERVICES.find(s => s.id === 'repair');
@@ -197,10 +194,6 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
 
     return (
         <div className="min-h-screen bg-transparent pb-12">
-            <Hreflang
-                slugs={hreflangSlugs}
-                baseUrl={process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be'}
-            />
             <SchemaOrg
                 shop={shop}
                 language={lang}

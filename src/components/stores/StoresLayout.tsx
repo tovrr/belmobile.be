@@ -4,13 +4,14 @@ import React from 'react';
 import { useData } from '../../hooks/useData';
 import StoresList from './StoresList';
 import dynamic from 'next/dynamic';
+import BrandLoader from '../ui/BrandLoader';
 
 // Dynamically import StoreMap with no SSR because Leaflet requires window
 const StoreMap = dynamic(() => import('./StoreMap'), {
     ssr: false,
     loading: () => (
         <div className="w-full h-full min-h-[400px] bg-transparent flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bel-blue"></div>
+            <BrandLoader />
         </div>
     )
 });
@@ -32,9 +33,9 @@ const StoresLayout: React.FC<StoresLayoutProps> = ({ lang, initialShops = [] }) 
         return (
             <div className="flex flex-col-reverse lg:flex-row h-[calc(100vh-80px)] bg-transparent">
                 <div className="w-full lg:w-1/3 xl:w-1/4 p-4">
-                    <div className="h-20 bg-gray-100 dark:bg-slate-800 rounded-xl animate-pulse mb-4" />
-                    <div className="h-20 bg-gray-100 dark:bg-slate-800 rounded-xl animate-pulse mb-4" />
-                    <div className="h-20 bg-gray-100 dark:bg-slate-800 rounded-xl animate-pulse" />
+                    <div className="h-20 bg-gray-100 dark:bg-slate-800 rounded-ui animate-pulse mb-4" />
+                    <div className="h-20 bg-gray-100 dark:bg-slate-800 rounded-ui animate-pulse mb-4" />
+                    <div className="h-20 bg-gray-100 dark:bg-slate-800 rounded-ui animate-pulse" />
                 </div>
                 <div className="w-full lg:w-2/3 xl:w-3/4 bg-slate-900/50 animate-pulse" />
             </div>

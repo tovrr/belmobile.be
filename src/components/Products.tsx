@@ -6,7 +6,7 @@ import ProductCardSkeleton from '../components/ProductCardSkeleton';
 import { useData } from '../hooks/useData';
 import { useShop } from '../hooks/useShop';
 import { useLanguage } from '../hooks/useLanguage';
-import { MagnifyingGlassIcon, ArrowsUpDownIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { SearchIcon as MagnifyingGlassIcon, SortIcon as ArrowsUpDownIcon, ArrowRightIcon } from './ui/BrandIcons';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Product, Shop } from '../types';
@@ -124,7 +124,7 @@ const Products: React.FC<ProductsProps> = ({ lang, initialProducts = [], searchP
                                         setSelectedShop(null);
                                         updateUrl({ shop: '' });
                                     }}
-                                    className={`whitespace-nowrap px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 shrink-0 border ${!selectedShop
+                                    className={`whitespace-nowrap px-4 py-2 rounded-ui text-xs font-bold uppercase tracking-wider transition-all duration-200 shrink-0 border ${!selectedShop
                                         ? 'bg-bel-blue text-white border-bel-blue shadow-md'
                                         : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-700 hover:border-bel-blue'
                                         }`}
@@ -138,7 +138,7 @@ const Products: React.FC<ProductsProps> = ({ lang, initialProducts = [], searchP
                                             setSelectedShop(shop);
                                             updateUrl({ shop: String(shop.id) });
                                         }}
-                                        className={`whitespace-nowrap px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 shrink-0 border ${selectedShop?.id === shop.id
+                                        className={`whitespace-nowrap px-4 py-2 rounded-ui text-xs font-bold uppercase tracking-wider transition-all duration-200 shrink-0 border ${selectedShop?.id === shop.id
                                             ? 'bg-bel-blue text-white border-bel-blue shadow-md'
                                             : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-700 hover:border-bel-blue'
                                             }`}
@@ -156,7 +156,7 @@ const Products: React.FC<ProductsProps> = ({ lang, initialProducts = [], searchP
                                     </div>
                                     <input
                                         type="text"
-                                        className="block w-full pl-10 pr-3 py-3 border border-white/10 bg-slate-900/50 text-white rounded-xl text-sm focus:ring-2 focus:ring-bel-blue focus:bg-slate-800 transition-all placeholder-gray-400"
+                                        className="block w-full pl-10 pr-3 py-3 border border-white/10 bg-slate-900/50 text-white rounded-ui text-sm focus:ring-2 focus:ring-bel-blue focus:bg-slate-800 transition-all placeholder-gray-400"
                                         placeholder={t('Search...')}
                                         value={searchTerm}
                                         onChange={(e) => {
@@ -174,7 +174,7 @@ const Products: React.FC<ProductsProps> = ({ lang, initialProducts = [], searchP
                                             setSortOption(val);
                                             updateUrl({ sort: val });
                                         }}
-                                        className="appearance-none block w-full pl-3 pr-8 py-3 border border-white/10 bg-slate-900/50 text-white rounded-xl text-sm focus:ring-2 focus:ring-bel-blue focus:bg-slate-800 cursor-pointer font-medium"
+                                        className="appearance-none block w-full pl-3 pr-8 py-3 border border-white/10 bg-slate-900/50 text-white rounded-ui text-sm focus:ring-2 focus:ring-bel-blue focus:bg-slate-800 cursor-pointer font-medium"
                                     >
                                         <option value="default">{t('sort_featured')}</option>
                                         <option value="priceAsc">{t('sort_low_high')}</option>
@@ -250,7 +250,7 @@ const Products: React.FC<ProductsProps> = ({ lang, initialProducts = [], searchP
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Link
                         href={`/${lang}/buyback`}
-                        className="group relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-800 p-8 flex flex-col justify-center min-h-[200px]"
+                        className="group relative overflow-hidden rounded-ui-lg bg-slate-900 dark:bg-slate-800 p-8 flex flex-col justify-center min-h-[200px]"
                     >
                         <div className="absolute top-0 right-0 w-64 h-64 bg-electric-indigo/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-electric-indigo/30 transition-all"></div>
                         <div className="relative z-10">
@@ -265,7 +265,7 @@ const Products: React.FC<ProductsProps> = ({ lang, initialProducts = [], searchP
 
                     <Link
                         href={`/${lang}/repair`}
-                        className="group relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 flex flex-col justify-center min-h-[200px] hover:border-bel-blue/50 transition-all shadow-sm hover:shadow-lg"
+                        className="group relative overflow-hidden rounded-ui-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 flex flex-col justify-center min-h-[200px] hover:border-bel-blue/50 transition-all shadow-sm hover:shadow-lg"
                     >
                         <div className="absolute top-0 right-0 w-64 h-64 bg-bel-blue/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-bel-blue/20 transition-all"></div>
                         <div className="relative z-10">

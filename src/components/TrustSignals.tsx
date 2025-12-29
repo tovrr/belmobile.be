@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheckIcon, ClockIcon, GlobeEuropeAfricaIcon } from '@heroicons/react/24/outline';
+import { ShieldCheckIcon, ClockIcon, LeafIcon as GlobeEuropeAfricaIcon } from './ui/BrandIcons';
 import { useLanguage } from '../hooks/useLanguage';
 import FadeIn from './ui/FadeIn';
 
