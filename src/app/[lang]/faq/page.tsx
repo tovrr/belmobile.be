@@ -1,5 +1,6 @@
 import FAQPage from '../../../components/FAQPage';
 import { Metadata } from 'next';
+import { getFixedT } from '../../../utils/i18nFixed';
 
 type Props = {
     params: Promise<{ lang: string }>
@@ -7,20 +8,12 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang } = await params;
-    const titles: Record<string, string> = {
-        en: 'FAQ | Belmobile',
-        fr: 'FAQ | Belmobile',
-        nl: 'FAQ | Belmobile'
-    };
-    const descriptions: Record<string, string> = {
-        en: 'Frequently Asked Questions about Belmobile services.',
-        fr: 'Foire aux questions sur les services Belmobile.',
-        nl: 'Veelgestelde vragen over Belmobile diensten.'
-    };
+    const t = getFixedT(lang);
 
     return {
-        title: titles[lang] || titles['en'],
-        description: descriptions[lang] || descriptions['en'],
+        title: t('meta_faq_title'),
+        description: t('meta_faq_description'),
+        keywords: t('meta_faq_keywords'),
     };
 }
 

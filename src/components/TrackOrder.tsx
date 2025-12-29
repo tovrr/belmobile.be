@@ -144,23 +144,23 @@ const TrackOrder: React.FC = () => {
 
     const getRepairSteps = () => {
         return [
-            { id: 'pending', label: t('Processing'), icon: ClockIcon },
-            { id: 'waiting_parts', label: t('Waiting for Parts'), icon: WrenchScrewdriverIcon },
-            { id: 'in_repair', label: t('In Repair'), icon: WrenchScrewdriverIcon },
-            { id: 'repaired', label: t('Repaired'), icon: CheckCircleIcon },
-            { id: 'ready', label: t('Ready for Pickup'), icon: CheckCircleIcon },
-            { id: 'shipped', label: t('Shipped'), icon: TruckIcon },
-            { id: 'completed', label: t('Completed'), icon: TruckIcon }
+            { id: 'pending', label: t('order_status_pending'), icon: ClockIcon },
+            { id: 'waiting_parts', label: t('order_status_waiting_parts'), icon: WrenchScrewdriverIcon },
+            { id: 'in_repair', label: t('order_status_in_repair'), icon: WrenchScrewdriverIcon },
+            { id: 'repaired', label: t('order_status_repaired'), icon: CheckCircleIcon },
+            { id: 'ready', label: t('order_status_ready'), icon: CheckCircleIcon },
+            { id: 'shipped', label: t('order_status_shipped'), icon: TruckIcon },
+            { id: 'completed', label: t('order_status_completed'), icon: TruckIcon }
         ];
     };
 
     const getBuybackSteps = () => {
         return [
-            { id: 'pending', label: t('Processing'), icon: ClockIcon },
-            { id: 'received', label: t('Received'), icon: ArchiveBoxIcon },
-            { id: 'inspected', label: t('Inspected'), icon: ClipboardDocumentCheckIcon },
-            { id: 'payment_sent', label: t('Payment Sent'), icon: CurrencyEuroIcon },
-            { id: 'completed', label: t('Completed'), icon: CheckCircleIcon }
+            { id: 'pending', label: t('order_status_pending'), icon: ClockIcon },
+            { id: 'received', label: t('order_status_received'), icon: ArchiveBoxIcon },
+            { id: 'inspected', label: t('order_status_inspected'), icon: ClipboardDocumentCheckIcon },
+            { id: 'payment_sent', label: t('order_status_paid'), icon: CurrencyEuroIcon },
+            { id: 'completed', label: t('order_status_completed'), icon: CheckCircleIcon }
         ];
     };
 

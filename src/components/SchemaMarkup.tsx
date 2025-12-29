@@ -8,14 +8,23 @@ import { Product, Shop } from '../types';
 interface SchemaProps {
     type?: 'organization' | 'product' | 'breadcrumb' | 'faq' | 'article' | 'contact';
     product?: Product;
+    article?: {
+        headline: string;
+        image: string;
+        author: string;
+        datePublished: string;
+        dateModified?: string;
+        description: string;
+        slug: string;
+    };
     breadcrumbs?: { name: string; item: string }[];
     faqItems?: { question: string; answer: string }[];
     shops?: Shop[];
     isAvailable?: boolean;
 }
 
-const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, breadcrumbs, faqItems, shops = SHOPS, isAvailable = true }) => {
-    const { language } = useLanguage();
+const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, breadcrumbs, faqItems, shops = SHOPS, isAvailable = true, ...props }) => {
+    const { language, t } = useLanguage();
 
     // 1. Organization Schema (Brand Authority) - Always present on Home
     const organizationSchema = {
@@ -124,14 +133,14 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
     } : null;
 
     // 6. Article Schema (Blog Posts)
-    const articleSchema = type === 'article' && product ? { // Reusing 'product' prop as generic data container or we can add a specific prop
+    const articleSchema = type === 'article' && (props.article || product) ? {
         "@context": "https://schema.org",
         "@type": "Article",
-        "headline": product.name, // Using product.name as title
-        "image": product.imageUrl,
+        "headline": props.article?.headline || product?.name,
+        "image": props.article?.image || product?.imageUrl,
         "author": {
             "@type": "Person",
-            "name": (product as Product & { author?: string }).author || "Belmobile Team"
+            "name": props.article?.author || (product as any)?.author || "Belmobile Team"
         },
         "publisher": {
             "@type": "Organization",
@@ -141,30 +150,27 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
                 "url": "https://belmobile.be/logo.png"
             }
         },
-        "datePublished": (product as Product & { date?: string }).date || new Date().toISOString(),
-        "description": product.description
+        "datePublished": props.article?.datePublished || (product as any)?.date || new Date().toISOString(),
+        "dateModified": props.article?.dateModified || props.article?.datePublished || (product as any)?.date || new Date().toISOString(),
+        "description": props.article?.description || product?.description,
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": `https://belmobile.be/${language}/blog/${props.article?.slug || (product as any)?.slug}`
+        }
     } : null;
 
     // 7. ContactPage Schema
     const contactPageSchema = type === 'contact' ? {
         "@context": "https://schema.org",
         "@type": "ContactPage",
-        "name": "Belmobile Contact",
-        "description": "Contact channels for Belmobile.be",
+        "name": t('meta_contact_title'),
+        "description": t('meta_contact_description'),
         "url": `https://belmobile.be/${language}/contact`,
         "mainEntity": organizationSchema
     } : null;
 
     return (
         <>
-            {type === 'organization' && (
-                <>
-                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
-                    {localBusinessSchema.map((schema, index) => (
-                        <script key={index} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-                    ))}
-                </>
-            )}
 
             {type === 'product' && productSchema && (
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
@@ -180,6 +186,15 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
 
             {type === 'article' && articleSchema && (
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
+            )}
+
+            {(type === 'contact' || type === 'organization') && (
+                <>
+                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+                    {localBusinessSchema.map((schema, index) => (
+                        <script key={index} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+                    ))}
+                </>
             )}
 
             {type === 'contact' && contactPageSchema && (

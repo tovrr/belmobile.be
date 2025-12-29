@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import Contact from '../../../components/Contact';
 import { Metadata } from 'next';
+import { getFixedT } from '../../../utils/i18nFixed';
 
 type Props = {
     params: Promise<{ lang: string }>
@@ -7,21 +9,18 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang } = await params;
-
-    // Load translations manually for metadata as this is a server component
-    const translations = await import(`../../../../src/data/i18n/${lang}.json`).then(m => m.default);
-
-    const baseUrl = 'https://belmobile.be';
+    const t = getFixedT(lang);
 
     return {
-        title: translations.meta_contact_title,
-        description: translations.meta_contact_description,
+        title: t('meta_contact_title'),
+        description: t('meta_contact_description'),
+        keywords: t('meta_contact_keywords'),
         alternates: {
-            canonical: `${baseUrl}/${lang}/contact`,
+            canonical: `https://belmobile.be/${lang}/contact`,
             languages: {
-                'en': `${baseUrl}/en/contact`,
-                'fr': `${baseUrl}/fr/contact`,
-                'nl': `${baseUrl}/nl/contact`,
+                'en': `https://belmobile.be/en/contact`,
+                'fr': `https://belmobile.be/fr/contact`,
+                'nl': `https://belmobile.be/nl/contact`,
             }
         },
     };
@@ -32,5 +31,9 @@ export function generateStaticParams() {
 }
 
 export default function ContactPage() {
-    return <Contact />;
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-deep-space animate-pulse" />}>
+            <Contact />
+        </Suspense>
+    );
 }

@@ -174,25 +174,32 @@ export const MOCK_FAQ_CATEGORIES: FAQCategory[] = [
         id: 'general',
         title: 'General Questions',
         items: [
-            { q: 'faq_q1', a: 'faq_a1' }, // Using translation keys
-
+            { q: 'faq_ge_q1', a: 'faq_ge_a1' },
+            { q: 'faq_ge_q2', a: 'faq_ge_a2' },
+            { q: 'faq_ge_q3', a: 'faq_ge_a3' },
+            { q: 'faq_ge_q4', a: 'faq_ge_a4' },
         ]
     },
     {
         id: 'repair',
         title: 'Repairs',
         items: [
-            { q: 'faq_q2', a: 'faq_a2' },
-            { q: 'faq_q3', a: 'faq_a3' },
-            { q: 'faq_q5', a: 'faq_a5' }
+            { q: 'faq_re_q1', a: 'faq_re_a1' },
+            { q: 'faq_re_q2', a: 'faq_re_a2' },
+            { q: 'faq_re_q3', a: 'faq_re_a3' },
+            { q: 'faq_re_q4', a: 'faq_re_a4' },
+            { q: 'faq_re_q5', a: 'faq_re_a5' }
         ]
     },
     {
         id: 'buyback',
         title: 'Buyback & Sales',
         items: [
-            { q: 'faq_q6', a: 'faq_a6' },
-            { q: 'faq_q7', a: 'faq_a7' }
+            { q: 'faq_bb_q1', a: 'faq_bb_a1' },
+            { q: 'faq_bb_q2', a: 'faq_bb_a2' },
+            { q: 'faq_bb_q3', a: 'faq_bb_a3' },
+            { q: 'faq_bb_q4', a: 'faq_bb_a4' },
+            { q: 'faq_bb_q5', a: 'faq_bb_a5' }
         ]
     }
 ];
@@ -275,9 +282,9 @@ export const MOCK_BLOG_POSTS: BlogPost[] = [
 4. **Valeur de Revente** : Un iPhone avec un écran non original perd 30% de sa valeur sur le marché de l'occasion.
 
 Chez Belmobile (Anderlecht & Schaerbeek), nous proposons des écrans originaux avec une garantie de 12 mois.`,
-        date: '2024-11-15',
+        date: '2024-11-20',
         author: 'Belmobile Expert',
-        category: 'Repair Guide',
+        category: 'Technical Guide',
         imageUrl: '/images/blog/iphone-screen-repair.png'
     },
     {
@@ -298,9 +305,9 @@ Chez Belmobile (Anderlecht & Schaerbeek), nous proposons des écrans originaux a
 4. **Transparence sur l'état** : Un petit éclat ? Signalez-le ! Chez Belmobile, nous rachetons même les appareils avec des défauts mineurs.
 
 Passez dans l'un de nos magasins à Bruxelles pour une estimation immédiate et un paiement en cash ou par virement instantané.`,
-        date: '2024-12-01',
+        date: '2025-02-18',
         author: 'Team Rachat',
-        category: 'Buyback',
+        category: 'Price Optimization',
         imageUrl: '/images/blog/sell-smartphone-money.png'
     },
     {
@@ -320,9 +327,9 @@ Passez dans l'un de nos magasins à Bruxelles pour une estimation immédiate et 
 - **Surchauffe** : Une batterie en fin de vie chauffe anormalement lors de la charge.
 
 Chez Belmobile, nous remplaçons votre batterie en 30 minutes. Pas besoin de laisser votre téléphone pendant des jours !`,
-        date: '2024-12-10',
+        date: '2025-04-10',
         author: 'Labo Belmobile',
-        category: 'Maintenance',
+        category: 'Expert Maintenance',
         imageUrl: '/images/blog/iphone-battery-replacement.png'
     },
     {
@@ -344,9 +351,9 @@ Chez Belmobile, nous remplaçons votre batterie en 30 minutes. Pas besoin de lai
 4. **Transparency**: We perform repairs in open labs or while you wait, so you can see exactly what's happening.
 
 Trust is the foundation of our business. Your data stays yours.`,
-        date: '2024-03-20',
+        date: '2025-06-15',
         author: 'Belmobile Security',
-        category: 'Security',
+        category: 'Data Security',
         imageUrl: '/images/blog/data-privacy-security.png'
     },
     {
@@ -369,10 +376,92 @@ Face ID might not work properly due to bad configuration, software glitches, or 
 - Reset Face ID and set it up again.
 
 If none of these work, your TrueDepth camera might be damaged. Contact a professional repair service like Belmobile.be.`,
-        date: '2024-12-18',
+        date: '2025-08-20',
         author: 'Belmobile Expert',
-        category: 'Repair Tips',
+        category: 'Advanced Repair',
         imageUrl: '/images/blog/face-id-repair.png'
+    },
+    {
+        id: 6,
+        slug: 'apple-genius-bar-vs-belmobile',
+        slugs: {
+            en: 'apple-genius-bar-vs-belmobile-comparison',
+            fr: 'apple-genius-bar-vs-belmobile-comparaison',
+            nl: 'apple-genius-bar-vs-belmobile-vergelijking'
+        },
+        title: 'Apple Genius Bar vs Belmobile: The Honest Comparison',
+        excerpt: 'Should you go to the Apple Store or a trusted independent shop? We compare Price, Speed, and Data Privacy so you can decide.',
+        content: `When your iPhone breaks, the default thought is often "I need to go to the Apple Store". But is that always the best choice? Let's look at the data.
+
+| Feature | Apple Genius Bar | Belmobile (Independent) |
+| :--- | :--- | :--- |
+| **Appointment** | Often required days in advance | Walk-ins Welcome (Immediate) |
+| **Repair Time** | 2-4 hours or days | 30-45 Minutes |
+| **Data Policy** | Often factory resets device | **We preserve your data** |
+| **Price** | Premium Pricing | **Competitive & Transaparent** |
+| **Warranty** | 90 days | **1 Year Warranty** |
+
+## The Verdict
+If you are under AppleCare+, the Genius Bar is great. But for out-of-warranty repairs where you need speed and want to keep your photos, **Belmobile is the smarter choice**.`,
+        date: '2025-10-05',
+        author: 'Belmobile Team',
+        category: 'Industry Insights',
+        imageUrl: '/images/bento/business_bg.png' // Utilizing existing asset
+    },
+    {
+        id: 7,
+        slug: 'screen-repair-vs-replacement',
+        slugs: {
+            en: 'screen-repair-vs-replacement-guide',
+            fr: 'reparation-ecran-vs-remplacement-guide',
+            nl: 'scherm-reparatie-vs-vervanging-gids'
+        },
+        title: 'Screen Repair vs Replacement: What You Need to Know',
+        excerpt: 'Cracked glass or dead pixels? Understanding the difference between glass-only repair and full assembly replacement.',
+        content: `Not all screen damage is the same. Understanding the anatomy of your screen can save you money.
+
+## The 3 Layers of a Screen
+1. **Glass**: The top layer you touch.
+2. **Digitizer**: Detects your touch inputs.
+3. **LCD/OLED Panel**: Displays the image.
+
+**Scenario A: Just Cracked Glass**
+If your image is perfect and touch works, you might only need a glass replacement (refurbishment). This keeps your original Apple panel!
+
+**Scenario B: Black Lines or Bleeding**
+If the image is distorted, the OLED panel is broken. You need a full assembly replacement. At Belmobile, we offer both "Original Pull" (genuine) and High-Quality aftermarket options to fit your budget.`,
+        date: '2025-11-12',
+        author: 'Belmobile Lab',
+        category: 'Tech Education',
+        imageUrl: '/images/bento/repair_bg.png' // Utilizing existing asset
+    },
+    {
+        id: 8,
+        slug: 'can-water-damaged-phone-be-saved',
+        slugs: {
+            en: 'can-water-damaged-phone-be-saved-data-recovery',
+            fr: 'peut-on-sauver-telephone-tombe-eau-donnees',
+            nl: 'kan-waterschade-telefoon-gered-worden-data'
+        },
+        title: 'Dropped in Water? Can my phone be saved?',
+        excerpt: 'Rice is a myth. Here is what actually happens inside a water-damaged phone and how our microsoldering experts recover your data.',
+        content: `**STOP! Put the rice away.**
+Putting a wet phone in rice does almost nothing to dry the internal components and the starch dust can actually harm the charging port.
+
+## What actually happens?
+Water + Electricity = Corrosion. This corrosion eats away at the microscopic connectors on your motherboard, causing short circuits.
+
+## How we fix it (Microsoldering)
+We don't just "dry" the phone. We:
+1. Disassemble the entire device.
+2. Clean the motherboard in an ultrasonic bath with isopropyl alcohol.
+3. Use a microscope to identify and replace corroded chips (capacitors, filters, ICs).
+
+**Success Rate**: We recover data from 90% of water-damaged devices that come to us within 48 hours. Don't wait!`,
+        date: '2025-12-25',
+        author: 'Microsoldering Specialist',
+        category: 'Microsurgery',
+        imageUrl: '/images/hero_phone_bg.png' // Utilizing existing asset
     }
 ];
 

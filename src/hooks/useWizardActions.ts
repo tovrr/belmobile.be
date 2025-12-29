@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useWizard } from '../context/WizardContext';
 import { createSlug } from '../utils/slugs';
+import { findDefaultBrandCategory } from '../utils/deviceLogic';
 import { useLanguage } from './useLanguage';
 import { orderService } from '../services/orderService';
 import { useData } from './useData';
@@ -72,7 +73,17 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                     router.push(`/${lang}/${typeSlug}`);
                 } else if (newStep === 2) {
                     dispatch({ type: 'SET_DEVICE_INFO', payload: { selectedModel: '' } });
-                    router.push(`/${lang}/${typeSlug}/${createSlug(state.selectedBrand)}?category=${state.deviceType}`);
+
+                    const brandSlug = createSlug(state.selectedBrand);
+                    const defaultMatch = findDefaultBrandCategory(brandSlug);
+                    const defaultCategory = defaultMatch?.deviceType;
+                    const isImplicit = state.deviceType === defaultCategory;
+
+                    if (!isImplicit && state.deviceType) {
+                        router.push(`/${lang}/${typeSlug}/${state.deviceType}/${brandSlug}`);
+                    } else {
+                        router.push(`/${lang}/${typeSlug}/${brandSlug}`);
+                    }
                 }
 
                 setTimeout(() => {
@@ -83,15 +94,43 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
         }
     }, [dispatch, state.step, state.selectedBrand, state.deviceType, router, lang, typeSlug]);
 
-    const handleBrandSelect = useCallback((brand: string) => {
+    const handleCategorySelect = useCallback((category: string) => {
+        Sentry.addBreadcrumb({
+            category: "wizard",
+            message: `User selected category: ${category}`,
+            level: "info",
+        });
+        dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: category } });
+        dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: true } });
+
+        startTransition(() => {
+            // Push to /reparation/smartphone etc.
+            router.push(`/${lang}/${typeSlug}/${category}`);
+        });
+    }, [dispatch, lang, typeSlug, router]);
+
+    const handleBrandSelect = useCallback((brand: string, categoryOverride?: string) => {
         Sentry.addBreadcrumb({
             category: "wizard",
             message: `User selected brand: ${brand}`,
             level: "info",
         });
+        const category = categoryOverride || state.deviceType;
         dispatch({ type: 'SET_DEVICE_INFO', payload: { selectedBrand: brand, selectedModel: '' } });
+
         startTransition(() => {
-            router.push(`/${lang}/${typeSlug}/${createSlug(brand)}?category=${state.deviceType}`, { scroll: false });
+            const brandSlug = createSlug(brand);
+            // Enhanced Routing: Use /category/brand for multi-category brands to avoid ambiguity
+            const isMultiCategory = ['apple', 'samsung'].includes(brandSlug);
+            const isDefaultCategory = category === 'smartphone';
+
+            if (isMultiCategory && !isDefaultCategory && category) {
+                // e.g. /reparation/tablet/apple
+                router.push(`/${lang}/${typeSlug}/${category}/${brandSlug}`, { scroll: false });
+            } else {
+                // Standard: /reparation/apple
+                router.push(`/${lang}/${typeSlug}/${brandSlug}`, { scroll: false });
+            }
         });
     }, [dispatch, lang, typeSlug, state.deviceType, router]);
 
@@ -130,7 +169,22 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
         startTransition(() => {
             const key = `buyback_state_${createSlug(state.selectedBrand)}_${createSlug(model)}`;
             localStorage.removeItem(key);
-            router.push(`/${lang}/${typeSlug}/${createSlug(state.selectedBrand)}/${createSlug(model)}?category=${state.deviceType}`);
+
+            const brandSlug = createSlug(state.selectedBrand);
+            const modelSlug = createSlug(model);
+
+            const defaultMatch = findDefaultBrandCategory(brandSlug);
+            const defaultCategory = defaultMatch?.deviceType;
+            const isImplicit = state.deviceType === defaultCategory;
+
+            if (!isImplicit && state.deviceType) {
+                // Explicit: /reparation/laptop/samsung/galaxy-book3-pro
+                router.push(`/${lang}/${typeSlug}/${state.deviceType}/${brandSlug}/${modelSlug}`, { scroll: false });
+            } else {
+                // Implicit: /reparation/samsung/galaxy-s23
+                router.push(`/${lang}/${typeSlug}/${brandSlug}/${modelSlug}`, { scroll: false });
+            }
+
             if (state.step < 3) dispatch({ type: 'SET_STEP', payload: 3 });
         });
     }, [dispatch, state.selectedBrand, state.deviceType, state.step, state.pricingData.loadedForModel, lang, typeSlug, router]);
@@ -221,6 +275,7 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
         handleSubmit,
         handleBrandSelect,
         handleModelSelect,
+        handleCategorySelect,
         loadBrandData,
         typeSlug,
         isPending

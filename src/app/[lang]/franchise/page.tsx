@@ -1,5 +1,6 @@
 import Franchise from '../../../components/Franchise';
 import { Metadata } from 'next';
+import { getFixedT } from '../../../utils/i18nFixed';
 
 type Props = {
     params: Promise<{ lang: string }>
@@ -7,20 +8,11 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang } = await params;
-    const titles: Record<string, string> = {
-        en: 'Franchise Opportunities | Belmobile',
-        fr: 'Opportunités de Franchise | Belmobile',
-        nl: 'Franchisemogelijkheden | Belmobile'
-    };
-    const descriptions: Record<string, string> = {
-        en: 'Join the Belmobile network. Open your own mobile repair shop.',
-        fr: 'Rejoignez le réseau Belmobile. Ouvrez votre propre magasin de réparation mobile.',
-        nl: 'Word lid van het Belmobile-netwerk. Open uw eigen mobiele reparatiewinkel.'
-    };
+    const t = getFixedT(lang);
 
     return {
-        title: titles[lang] || titles['en'],
-        description: descriptions[lang] || descriptions['en'],
+        title: t('meta_franchise_title'),
+        description: t('meta_franchise_description'),
     };
 }
 

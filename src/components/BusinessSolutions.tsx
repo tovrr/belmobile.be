@@ -14,22 +14,26 @@ const BusinessSolutions: React.FC = () => {
         {
             icon: WrenchScrewdriverIcon,
             title: t('biz_benefit_priority_title'),
-            desc: t('biz_benefit_priority_desc')
+            desc: t('biz_benefit_priority_desc'),
+            path: '/repair'
         },
         {
             icon: CurrencyEuroIcon,
             title: t('biz_benefit_pricing_title'),
-            desc: t('biz_benefit_pricing_desc')
+            desc: t('biz_benefit_pricing_desc'),
+            path: '/contact'
         },
         {
             icon: DevicePhoneMobileIcon,
             title: t('biz_benefit_fleet_title'),
-            desc: t('biz_benefit_fleet_desc')
+            desc: t('biz_benefit_fleet_desc'),
+            path: '/buyback'
         },
         {
             icon: BuildingOffice2Icon,
             title: t('biz_benefit_onsite_title'),
-            desc: t('biz_benefit_onsite_desc')
+            desc: t('biz_benefit_onsite_desc'),
+            path: '/express-courier'
         }
     ];
 
@@ -74,19 +78,23 @@ const BusinessSolutions: React.FC = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
-                            className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl hover:border-bel-blue/30 transition-all"
+                            className="h-full"
                         >
-                            <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-bel-blue mb-6">
-                                <benefit.icon className="h-8 w-8" aria-hidden="true" />
-                            </div>
-                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                                {benefit.title}
-                            </h3>
-                            <p className="text-slate-600 dark:text-slate-400 text-lg">
-                                {benefit.desc}
-                            </p>
+                            <Link href={`/${language}${benefit.path}`} className="block h-full bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xl hover:shadow-2xl hover:border-bel-blue/30 transition-all group cursor-pointer">
+                                <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-bel-blue mb-6 group-hover:scale-110 transition-transform">
+                                    <benefit.icon className="h-8 w-8" aria-hidden="true" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                                    {benefit.title}
+                                    <ArrowRightIcon className="h-5 w-5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-bel-blue" />
+                                </h3>
+                                <p className="text-slate-600 dark:text-slate-400 text-lg">
+                                    {benefit.desc}
+                                </p>
+                            </Link>
                         </motion.div>
                     ))}
+
 
                     {/* NEW: Fleet Management Detail Card */}
                     <motion.div

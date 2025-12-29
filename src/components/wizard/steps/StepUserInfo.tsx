@@ -5,6 +5,7 @@ import {
     DocumentIcon, TrashIcon, ShieldCheckIcon, CheckIcon, BanknotesIcon, DocumentTextIcon,
     InformationCircleIcon
 } from '@heroicons/react/24/outline';
+import { Bike } from 'lucide-react';
 import Sidebar from '../Sidebar';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
@@ -45,6 +46,29 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     const { handleBack, handleNext, handleSubmit } = useWizardActions(type);
     const router = useRouter();
     const { selectedShop, setSelectedShop } = useShop();
+
+    const [processingStep, setProcessingStep] = React.useState(0);
+
+    // Suspense Message Cycle
+    React.useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (state.isTransitioning) {
+            setProcessingStep(1);
+            interval = setInterval(() => {
+                setProcessingStep(prev => (prev >= 3 ? 3 : prev + 1));
+            }, 1500);
+        } else {
+            setProcessingStep(0);
+        }
+        return () => clearInterval(interval);
+    }, [state.isTransitioning]);
+
+    const getProcessingText = () => {
+        if (processingStep === 1) return t('processing_step_1');
+        if (processingStep === 2) return t('processing_step_2');
+        if (processingStep === 3) return t('processing_step_3');
+        return t('processing_generic');
+    };
 
     const step = state.step;
     const onBack = handleBack;
@@ -324,9 +348,9 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Screen Condition')}</label>
                             <div className="grid grid-cols-1 gap-3">
                                 {[
-                                    { id: 'flawless', label: 'Flawless', desc: 'Like new, no scratches' },
-                                    { id: 'scratches', label: 'Light Scratches', desc: 'Visible scratches but no cracks' },
-                                    { id: 'cracked', label: 'Cracked / Broken', desc: 'Glass is cracked or display broken' }
+                                    { id: 'flawless', label: 'Flawless', desc: 'screen_flawless_desc' },
+                                    { id: 'scratches', label: 'Light Scratches', desc: 'screen_scratches_desc' },
+                                    { id: 'cracked', label: 'Cracked / Broken', desc: 'screen_cracked_desc' }
                                 ].map((s) => (
                                     <button
                                         type="button"
@@ -339,15 +363,24 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                     </button>
                                 ))}
                             </div>
+                            {/* Dynamic Screen Condition Help Card */}
+                            {screenState && (
+                                <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-bel-blue/20 flex gap-3 animate-fade-in">
+                                    <InformationCircleIcon className="h-5 w-5 text-bel-blue shrink-0 mt-0.5" />
+                                    <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-relaxed">
+                                        {t(`explain_screen_${screenState}`)}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                         <div>
                             <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Body Condition')}</label>
                             <div className="grid grid-cols-1 gap-3">
                                 {[
-                                    { id: 'flawless', label: 'Flawless', desc: 'Like new, no dents or scratches' },
-                                    { id: 'scratches', label: 'Scratches', desc: 'Visible scratches or scuffs' },
-                                    { id: 'dents', label: 'Dents', desc: 'Visible dents on the frame' },
-                                    { id: 'bent', label: 'Bent / Broken', desc: 'Frame is bent or structural damage' }
+                                    { id: 'flawless', label: 'Flawless', desc: 'body_flawless_desc' },
+                                    { id: 'scratches', label: 'Scratches', desc: 'body_scratches_desc' },
+                                    { id: 'dents', label: 'Dents', desc: 'body_dents_desc' },
+                                    { id: 'bent', label: 'Bent / Broken', desc: 'body_bent_desc' }
                                 ].map((s) => (
                                     <button
                                         type="button"
@@ -360,6 +393,38 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                     </button>
                                 ))}
                             </div>
+                            {/* Dynamic Body Condition Help Card */}
+                            {bodyState && (
+                                <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-bel-blue/20 flex gap-3 animate-fade-in">
+                                    <InformationCircleIcon className="h-5 w-5 text-bel-blue shrink-0 mt-0.5" />
+                                    <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-relaxed">
+                                        {t(`explain_body_${bodyState}`)}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    {/* Mobile Summary & Action Block (Buyback Cosmetic) */}
+                    <div className="lg:hidden mt-8 mb-8 p-6 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                        <div className="flex flex-col gap-4">
+                            <div className="flex justify-between items-end">
+                                <div>
+                                    <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">{t('Estimated Value')}</p>
+                                    <div className="text-3xl font-extrabold text-bel-dark dark:text-white mt-1">
+                                        {loading ? <span className="animate-pulse">...</span> : `€${sidebarEstimate}`}
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-1">{t('Based on current selection')}</p>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={onNext}
+                                disabled={state.isTransitioning}
+                                className="w-full bg-bel-blue text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-lg flex items-center justify-center gap-2 transition-all hover:bg-bel-blue/90"
+                            >
+                                <span>{t('Accept & Recycle')}</span>
+                                <ChevronLeftIcon className="h-5 w-5 rotate-180" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -547,8 +612,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 >
                                     <div className="flex items-start">
                                         <div className="relative">
-                                            <TruckIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'courier' ? 'text-bel-blue' : 'text-gray-400'}`} />
-                                            <div className="absolute -top-3 -right-3 bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-sm z-10">{t('free')}</div>
+                                            <Bike className={`h-8 w-8 mr-4 ${deliveryMethod === 'courier' ? 'text-bel-blue' : 'text-gray-400'}`} />
+                                            <div className="absolute -top-3 -right-3 bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-sm z-10">FREE</div>
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2">
@@ -791,15 +856,15 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 type="submit"
                                 disabled={!termsAccepted || state.isTransitioning}
                                 variant="primary"
-                                className="w-full mt-6 lg:hidden"
+                                className="w-full mt-6 lg:hidden bg-linear-to-r from-bel-blue to-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/30 transition-all active:scale-95"
                             >
                                 {state.isTransitioning ? (
-                                    <div className="flex items-center justify-center gap-2">
+                                    <div className="flex items-center justify-center gap-2 animate-pulse">
                                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        <span>{t('Processing...')}</span>
+                                        <span className="font-medium tracking-wide">{getProcessingText()}</span>
                                     </div>
                                 ) : (
-                                    t('Confirm Request')
+                                    t('confirm_request')
                                 )}
                             </Button>
 
@@ -860,7 +925,6 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             </div>
                         </div>
                     </form>
-                    <WizardFAQ currentStep={step} flow={type} />
                 </div>
                 <Sidebar
                     type={type}
@@ -882,6 +946,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                     deliveryMethod={deliveryMethod}
                     courierTier={courierTier}
                     hasHydrogel={hasHydrogel}
+                    isProcessing={state.isTransitioning}
+                    processingText={getProcessingText()}
                 />
             </div>
         );

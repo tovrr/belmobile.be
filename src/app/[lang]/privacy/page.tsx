@@ -1,5 +1,6 @@
 import Privacy from '../../../components/Privacy';
 import { Metadata } from 'next';
+import { getFixedT } from '../../../utils/i18nFixed';
 
 type Props = {
     params: Promise<{ lang: string }>
@@ -7,9 +8,15 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang } = await params;
+    const t = getFixedT(lang);
+
     return {
-        title: lang === 'fr' ? 'Politique de Confidentialité | Belmobile' : lang === 'nl' ? 'Privacybeleid | Belmobile' : 'Privacy Policy | Belmobile',
-        description: 'Privacy Policy',
+        title: t('meta_privacy_title'),
+        description: t('meta_privacy_description'),
+        robots: {
+            index: false,
+            follow: true,
+        },
     };
 }
 

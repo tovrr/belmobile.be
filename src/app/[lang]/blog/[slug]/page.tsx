@@ -1,5 +1,5 @@
 import React, { cache } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Metadata } from 'next';
 import BlogPost from '../../../../components/BlogPost';
 import { MOCK_BLOG_POSTS } from '../../../../constants';
@@ -90,11 +90,17 @@ export async function generateStaticParams() {
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
-    const { slug } = await params;
+    const { slug, lang } = await params;
     const post = await getPost(slug);
 
     if (!post) {
         return notFound();
+    }
+
+    // SEO: Redirect to localized slug if the current one doesn't match the language preference
+    const expectedSlug = (post.slugs as any)?.[lang] || post.slug;
+    if (slug !== expectedSlug) {
+        redirect(`/${lang}/blog/${expectedSlug}`);
     }
 
     // Pass the server-fetched post as initialData to the CLIENT component

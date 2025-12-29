@@ -1,5 +1,6 @@
 import Terms from '../../../components/Terms';
 import { Metadata } from 'next';
+import { getFixedT } from '../../../utils/i18nFixed';
 
 type Props = {
     params: Promise<{ lang: string }>
@@ -7,9 +8,15 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang } = await params;
+    const t = getFixedT(lang);
+
     return {
-        title: lang === 'fr' ? 'Conditions Générales | Belmobile' : lang === 'nl' ? 'Algemene Voorwaarden | Belmobile' : 'Terms of Service | Belmobile',
-        description: 'Terms of Service',
+        title: t('meta_terms_title'),
+        description: t('meta_terms_description'),
+        robots: {
+            index: false,
+            follow: true,
+        },
     };
 }
 

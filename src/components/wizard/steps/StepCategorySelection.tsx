@@ -10,6 +10,7 @@ import { useWizard } from '../../../context/WizardContext';
 import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useDebounce } from '../../../hooks/useDebounce';
+import { POPULAR_REPAIR_KEYS, POPULAR_BUYBACK_KEYS } from '../../../data/popularDevices';
 
 interface SearchResult {
     brand: string;
@@ -38,7 +39,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
     const { state, dispatch } = useWizard();
     const { t } = useLanguage();
     // We can get handleNext from useWizardActions if not passed, but passing is fine
-    const { handleNext: actionHandleNext } = useWizardActions(type);
+    const { handleNext: actionHandleNext, handleCategorySelect } = useWizardActions(type);
 
     const onNext = handleNext || actionHandleNext;
 
@@ -60,13 +61,14 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
         ).slice(0, 5) as SearchResult[];
     }, [debouncedSearchTerm]);
 
-    // Popular suggestions (Hand-picked for immediate value)
+    // Popular suggestions (Hand-picked based on 2024/2025 market research)
     const popularSuggestions = useMemo(() => {
-        const popularKeys = ['iphone-16-pro-max', 'iphone-15-pro', 'galaxy-s24-ultra', 'nintendo-switch-oled', 'pixel-9-pro'];
-        return popularKeys
+        const keys = type === 'repair' ? POPULAR_REPAIR_KEYS : POPULAR_BUYBACK_KEYS;
+
+        return keys
             .map(key => SEARCH_INDEX[key])
             .filter(Boolean) as SearchResult[];
-    }, []);
+    }, [type]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
@@ -85,17 +87,26 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
         <div className="animate-fade-in w-full max-w-4xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
             {!hideStep1Title && (
                 <div className="text-center mb-12">
-                    <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">
+
+                    <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight flex flex-col items-center sm:block">
                         <span className="sr-only">
                             {type === 'buyback'
                                 ? "Sell Your Smartphone, Tablet, or Laptop at the Best Price"
                                 : "Professional Repair for Smartphone, Tablet, or Laptop"}
                         </span>
-                        <span aria-hidden="true" className="inline-block relative">
-                            {type === 'buyback' ? t('Sell') : t('Repair')}
+                        <span aria-hidden="true">
+                            {type === 'buyback' ? t('wizard_action_sell') : t('wizard_action_repair')}
+                        </span>
+                        <span aria-hidden="true" className="text-bel-blue mt-2 sm:mt-0 sm:ml-3 relative inline-flex justify-start min-h-[1.2em] align-top">
                             <TypewriterInput
-                                phrases={DEVICE_TYPES.map(dt => t(dt.label))}
-                                className="text-bel-blue ml-3"
+                                phrases={[
+                                    t('typewriter_1'),
+                                    t('typewriter_2'),
+                                    t('typewriter_3'),
+                                    t('typewriter_4'),
+                                    t('typewriter_5'),
+                                ]}
+                                className=""
                             />
                         </span>
                     </h2>
@@ -127,7 +138,30 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                     <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 overflow-hidden z-20 animate-in fade-in slide-in-from-top-2 duration-200">
                         {searchTerm.length === 0 ? (
                             <div className="p-2">
-                                <div className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">{t('popular_devices')}</div>
+                                <div className="px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 dark:border-slate-800">
+                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('popular_devices')}</div>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {type === 'repair' ? (
+                                            <>
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-100 dark:border-blue-800 uppercase">
+                                                    {t('screen')}
+                                                </span>
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-100 dark:border-green-800 uppercase">
+                                                    {t('battery')}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 uppercase">
+                                                    {t('instant_cash')}
+                                                </span>
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-100 dark:border-purple-800 uppercase">
+                                                    {t('eco_friendly')}
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
                                 {popularSuggestions.map((item, idx) => (
                                     <SearchResultItem
                                         key={`popular-${idx}`}
@@ -168,25 +202,30 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                     <button
                         key={dt.id}
                         onClick={() => {
-                            dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: dt.id } });
-                            onNext();
+                            if (handleCategorySelect) {
+                                handleCategorySelect(dt.id);
+                            } else {
+                                // Fallback if action not available (shouldn't happen)
+                                dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: dt.id } });
+                                onNext();
+                            }
                         }}
-                        className={`group flex flex-col items-center justify-center p-4 lg:p-8 rounded-3xl border-2 transition-all duration-300 hover:shadow-xl ${state.deviceType === dt.id
-                            ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20'
+                        className={`group flex flex-col items-center justify-center p-4 lg:p-8 rounded-3xl border-2 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${state.deviceType === dt.id
+                            ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 shadow-blue-500/20'
                             : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'
                             }`}
                     >
-                        <div className={`relative w-16 h-16 p-4 rounded-2xl mb-4 transition-all duration-300 ${state.deviceType === dt.id ? 'bg-bel-blue scale-110 shadow-lg shadow-blue-500/30' : 'bg-transparent'}`}>
+                        <div className={`relative w-16 h-16 p-4 rounded-2xl mb-4 transition-all duration-300 ${state.deviceType === dt.id ? 'bg-bel-blue scale-110 shadow-lg shadow-blue-500/30' : 'bg-gray-50 dark:bg-slate-800 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/10'}`}>
                             <Image
                                 src={dt.icon}
                                 alt={`${t(dt.label)} category icon`}
                                 fill
                                 priority
                                 sizes="64px"
-                                className={`object-contain p-2 transition-all duration-300 ${state.deviceType === dt.id ? 'brightness-0 invert' : 'opacity-60 dark:invert dark:opacity-80 group-hover:opacity-100'}`}
+                                className={`object-contain p-2 transition-all duration-300 ${state.deviceType === dt.id ? 'brightness-0 invert' : 'opacity-60 dark:invert dark:opacity-80 group-hover:opacity-100 group-hover:scale-110'}`}
                             />
                         </div>
-                        <span className="font-bold text-gray-900 dark:text-white">{t(dt.label)}</span>
+                        <span className="font-bold text-gray-900 dark:text-white group-hover:text-bel-blue transition-colors">{t(dt.label)}</span>
                     </button>
                 ))}
             </div>
@@ -213,7 +252,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({ item, onSelect, typ
             }}
             className="w-full px-4 py-3 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-slate-800 transition rounded-xl text-left"
         >
-            <div className="w-14 h-14 relative bg-gray-50 dark:bg-slate-800 rounded-xl overflow-hidden shrink-0 border border-gray-100 dark:border-slate-700">
+            <div className="w-14 h-14 relative bg-gray-50 dark:bg-slate-200 rounded-xl overflow-hidden shrink-0 border border-gray-100 dark:border-slate-700">
                 {deviceImg ? (
                     <Image
                         src={deviceImg}
@@ -237,29 +276,6 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({ item, onSelect, typ
                     <span className="text-xs text-gray-500 uppercase">{t(DEVICE_TYPES.find(d => d.id === item.category)?.label || item.category)}</span>
                 </div>
                 <div className="font-bold text-gray-900 dark:text-white truncate">{item.model}</div>
-
-                {/* Visual Tags Mirroring the provided reference */}
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                    {type === 'repair' ? (
-                        <>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-100 dark:border-blue-800 uppercase">
-                                {t('screen')}
-                            </span>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-100 dark:border-green-800 uppercase">
-                                {t('battery')}
-                            </span>
-                        </>
-                    ) : (
-                        <>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 uppercase">
-                                {t('instant_cash')}
-                            </span>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-100 dark:border-purple-800 uppercase">
-                                {t('eco_friendly')}
-                            </span>
-                        </>
-                    )}
-                </div>
             </div>
             <div className="text-gray-300 dark:text-gray-600">
                 <ChevronLeftIcon className="w-5 h-5 rotate-180" />

@@ -44,6 +44,8 @@ const getShops = cache(async (): Promise<Shop[]> => {
                 zip: shopData.zip || staticInfo?.zip,
                 slugs: shopData.slugs || staticInfo?.slugs,
                 isHub: staticInfo?.isHub || false,
+                // Merge critical flags from constants
+                isPrimary: shopData.isPrimary ?? verifiedShop?.isPrimary ?? false,
                 // Override coordinates/address for specific shops as per previous logic
                 ...(verifiedShop && (shopData.id === 'schaerbeek' || shopData.id === 'anderlecht' || shopData.id === 'molenbeek') ? {
                     coords: verifiedShop.coords,
@@ -154,6 +156,12 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
     const buybackLink = buybackService ? `/${lang}/${buybackService.slugs[lang as keyof typeof buybackService.slugs]}/smartphone/${shop.slugs?.[lang as keyof typeof shop.slugs] || shop.id}` : `/${lang}/rachat`;
     const productsLink = productsService ? `/${lang}/${productsService.slugs[lang as keyof typeof productsService.slugs]}` : `/${lang}/produits`;
 
+    // Calculate Schaerbeek Link for the Interceptor
+    // We get the Schaerbeek shop to find its correct slug for the current lang
+    const schaerbeekShop = SHOPS.find(s => s.id === 'schaerbeek');
+    const schaerbeekSlug = schaerbeekShop?.slugs?.[lang as keyof typeof schaerbeekShop.slugs] || 'schaerbeek';
+    const schaerbeekLink = `/${lang}/stores/${schaerbeekSlug}`;
+
     // Helper to translate opening hours
     const translateHours = (hours: string[]) => {
         if (!hours) return [];
@@ -238,7 +246,7 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
                                     </div>
                                 </div>
                                 <a
-                                    href={`/${lang}/stores/schaerbeek`}
+                                    href={schaerbeekLink}
                                     className="px-6 py-3 bg-white text-bel-blue font-black rounded-xl hover:scale-105 transition-transform shadow-xl whitespace-nowrap"
                                 >
                                     {t('Go to Schaerbeek')} →

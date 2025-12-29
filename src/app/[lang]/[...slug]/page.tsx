@@ -16,19 +16,13 @@ import LocalPainPoints from '@/components/LocalPainPoints';
 import Hreflang from '@/components/seo/Hreflang';
 import SchemaOrg from '@/components/seo/SchemaOrg';
 import StoreLocator from '@/components/StoreLocator';
+import { findDefaultBrandCategory } from '@/utils/deviceLogic';
+import { generateSeoMetadata } from '@/utils/seo-templates';
 
 interface PageProps {
     params: Promise<{ lang: string; slug: string[] }>;
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
-
-const findDevice = (slug: string) => {
-    for (const [type, brands] of Object.entries(DEVICE_BRANDS)) {
-        const found = (brands as string[]).find(b => createSlug(b) === slug);
-        if (found) return { value: found, deviceType: type };
-    }
-    return null;
-};
 
 const parseRouteParams = (slug: string[]) => {
     const firstSegment = slug[0];
@@ -77,8 +71,20 @@ const parseRouteParams = (slug: string[]) => {
         const foundCat = DEVICE_TYPES.find(d => d.id === seg1);
         if (foundCat) {
             deviceCategory = foundCat.id;
+            // Check if next segment is a Brand
+            if (segments.length > 1) {
+                const seg2 = segments[1];
+                const foundDev = findDefaultBrandCategory(seg2);
+                if (foundDev) {
+                    device = foundDev;
+                    // Note: foundDev.deviceType might differ but we enforce category from URL
+                    if (segments.length > 2) {
+                        deviceModel = segments[2];
+                    }
+                }
+            }
         } else {
-            const foundDev = findDevice(seg1);
+            const foundDev = findDefaultBrandCategory(seg1);
             if (foundDev) {
                 device = foundDev;
                 deviceCategory = foundDev.deviceType;
@@ -92,46 +98,7 @@ const parseRouteParams = (slug: string[]) => {
     return { service, location, device, deviceModel, deviceCategory };
 };
 
-
-
-// Helper functions for Title Generation
-const getRepairSuffix = (lang: string, isHomeConsole: boolean, isPortableConsole: boolean) => {
-    if (isHomeConsole) {
-        if (lang === 'fr') return ': Prix HDMI & Nettoyage';
-        if (lang === 'nl') return ': Prijs HDMI & Reiniging';
-        return ': HDMI & Cleaning Price';
-    }
-    if (isPortableConsole) {
-        if (lang === 'fr') return ': Prix Écran & Joystick';
-        if (lang === 'nl') return ': Prijs Scherm & Joystick';
-        return ': Screen & Joystick Price';
-    }
-    if (lang === 'fr') return ': Prix Écran & Batterie';
-    if (lang === 'nl') return ': Prijs Scherm & Batterij';
-    return ': Screen & Battery Price';
-};
-
-const getBuybackSuffix = (lang: string) => {
-    if (lang === 'fr') return ': Meilleur Prix de Reprise';
-    if (lang === 'nl') return ': Beste Inruilprijs';
-    return ': Best Trade-in Price';
-};
-
-const getRepairServicesText = (lang: string, isHomeConsole: boolean, isPortableConsole: boolean) => {
-    if (isHomeConsole) {
-        if (lang === 'fr') return "la réparation HDMI et le nettoyage";
-        if (lang === 'nl') return "HDMI-reparatie en reiniging";
-        return "HDMI repair and cleaning";
-    }
-    if (isPortableConsole) {
-        if (lang === 'fr') return "la réparation d'écran et de joystick (drift)";
-        if (lang === 'nl') return "schermreparatie en joystick (drift)";
-        return "screen & joystick (drift) repair";
-    }
-    if (lang === 'fr') return "le remplacement d'écran et de batterie";
-    if (lang === 'nl') return "scherm- en batterijvervanging";
-    return "screen & battery replacement";
-};
+// Helper functions removed - now handled in src/utils/seo-templates.ts
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { lang, slug } = await params;
@@ -142,9 +109,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const { service, location, device, deviceModel, deviceCategory } = routeData;
     const isRepair = service.id === 'repair';
 
-    // Construct Title
-    let title = '';
-    let description = '';
+    // Variables for title/desc are now handled by seo-templates utility below
 
     // Format the model name properly (convert slug to display name)
     const formattedModel = deviceModel ? slugToDisplayName(deviceModel) : '';
@@ -184,52 +149,37 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // If city is missing, fallback to parsing the name
     const locationName = location ? (location.city || location.name.replace('Belmobile ', '')) : '';
 
-    // Construct Title & Description using "Golden Formula" & CSV Insights
-    // Formula: [Service] [Device] [Location] - [Value Prop]
+    // Construct Title & Description using Deterministic Randomization
+    const seoData = generateSeoMetadata({
+        lang: lang as 'fr' | 'nl' | 'en',
+        serviceId: service?.id as 'repair' | 'buyback',
+        deviceValue: device?.value,
+        deviceModel: deviceModel,
+        deviceCategory: deviceCategory,
+        locationName: locationName,
+        isHomeConsole: deviceCategory === 'console_home',
+        isPortableConsole: deviceCategory === 'console_portable'
+    });
 
-    // Value Props (Rotated or selected based on priority)
-    // Keywords generation
+    let { title, description } = seoData;
+
+    // DEBUG FALLBACK
+    if (!title || !description) {
+        console.error('Generating Metadata Failed:', { lang, slug, title, description, routeData });
+        title = service?.id === 'repair' ? `Repair ${device?.value || 'Device'}` : `Sell ${device?.value || 'Device'}`;
+        description = 'Contact Belmobile for the best service in Brussels.';
+    }
+
+    // Keywords generation (Restored)
     const keywordsList = getKeywordsForPage(lang, service.id, device?.value, deviceModel || undefined, deviceCategory || undefined);
     const keywords = generateMetaKeywords(keywordsList);
-
-    // Check for Console (Home & Portable) to adjust meta props
-    const isHomeConsole = deviceCategory === 'console_home';
-    const isPortableConsole = deviceCategory === 'console_portable';
-
-
-
-    if (lang === 'fr') {
-        if (isRepair) {
-            title = `Réparation ${displayDeviceName} ${locationName || 'Bruxelles'} ${getRepairSuffix('fr', isHomeConsole, isPortableConsole)}`;
-            description = `Réparation ${displayDeviceName} à ${locationName || 'Bruxelles'}. Découvrez nos tarifs pour ${getRepairServicesText('fr', isHomeConsole, isPortableConsole)}. Service rapide en 30 min, sans rendez-vous. Garantie 1 an.`;
-        } else {
-            title = `Rachat ${displayDeviceName} ${locationName || 'Bruxelles'} ${getBuybackSuffix('fr')}`;
-            description = `Vendez votre ${fullDeviceName} au meilleur prix chez Belmobile à ${locationName || 'Bruxelles'}. Estimation immédiate et paiement cash. Offre de reprise sérieuse et écologique.`;
-        }
-    } else if (lang === 'nl') {
-        if (isRepair) {
-            title = `Reparatie ${displayDeviceName} ${locationName || 'Brussel'} ${getRepairSuffix('nl', isHomeConsole, isPortableConsole)}`;
-            description = `Reparatie ${displayDeviceName} in ${locationName || 'Brussel'}. Bekijk onze prijzen voor ${getRepairServicesText('nl', isHomeConsole, isPortableConsole)}. Klaar in 30 min, zonder afspraak. 1 jaar garantie.`;
-        } else {
-            // Updated to "Verkoop uw" (Sell your) for better user intent matching
-            title = `Verkoop uw ${displayDeviceName} ${locationName || 'Brussel'} ${getBuybackSuffix('nl')}`;
-            description = `Verkoop uw ${fullDeviceName} voor de beste prijs bij Belmobile in ${locationName || 'Brussel'}. Directe schatting en contante betaling.`;
-        }
-    } else {
-        if (isRepair) {
-            title = `${displayDeviceName} Repair ${locationName || 'Brussels'} ${getRepairSuffix('en', isHomeConsole, isPortableConsole)}`;
-            description = `Professional ${displayDeviceName} repair in ${locationName || 'Brussels'}. Check our prices for ${getRepairServicesText('en', isHomeConsole, isPortableConsole)}. Done in 30 min. 1 Year Warranty.`;
-        } else {
-            title = `Sell ${displayDeviceName} ${locationName || 'Brussels'} ${getBuybackSuffix('en')}`;
-            description = `Sell your ${fullDeviceName} for the best price at Belmobile in ${locationName || 'Brussels'}. Instant quote and cash payment. Eco-friendly recycling.`;
-        }
-    }
 
     const baseUrl = 'https://belmobile.be';
     const currentUrl = `${baseUrl}/${lang}/${slug.join('/')}`;
 
     // Dynamic OG Image Strategy via API Route
     // We construct the URL with title and subtitle params
+    // NOTE: We use a relative URL here so it respects metadataBase (localhost vs prod)
 
     // Create a cleaner, punchier title for social media keys
     let ogDisplayTitle = '';
@@ -245,18 +195,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         : (lang === 'fr' ? 'Meilleur Prix Garanti • Paiement Cash' : lang === 'nl' ? 'Beste Prijs Garantie • Direct Cash' : 'Best Price Guaranteed • Instant Cash');
     const ogSubtitle = encodeURIComponent(ogSubtitleText);
 
-    // const ogImage = device && device.value ? `${baseUrl}/images/brands/${device.value.toLowerCase()}.jpg` : `${baseUrl}/og-image.jpg`; 
-    // Use API Route
-    const ogImage = `${baseUrl}/api/og?title=${ogTitle}&subtitle=${ogSubtitle}`;
+    // Use Relative API Route to allow localhost testing
+    const ogImage = `/api/og?title=${ogTitle}&subtitle=${ogSubtitle}`;
 
     return {
         title,
         description,
         keywords,
         alternates: {
+            // Canonical should stay absolute
             canonical: currentUrl,
             languages: {
-                // simple construction, could be better
                 'en': `${baseUrl}/en/${slug.join('/')}`,
                 'fr': `${baseUrl}/fr/${slug.join('/')}`,
                 'nl': `${baseUrl}/nl/${slug.join('/')}`,
@@ -265,6 +214,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         openGraph: {
             title,
             description,
+            // URL should stay absolute or respect metadataBase
             url: currentUrl,
             siteName: 'Belmobile',
             locale: lang,
@@ -275,6 +225,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                     width: 1200,
                     height: 630,
                     alt: title,
+
                 }
             ],
         },

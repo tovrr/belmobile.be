@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { ChevronLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import Sidebar from '../Sidebar';
 import { REPAIR_ISSUES } from '../../../constants';
@@ -51,6 +51,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
         specsData,
         repairIssues,
         selectedScreenQuality,
+        controllerCount,
         screenState,
         bodyState
     } = state;
@@ -63,6 +64,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
     const setFaceIdWorking = (val: boolean | null) => dispatch({ type: 'SET_WIZARD_DATA', payload: { faceIdWorking: val } });
     const setBatteryHealth = (val: 'normal' | 'service' | null) => dispatch({ type: 'SET_WIZARD_DATA', payload: { batteryHealth: val } });
     const setSelectedScreenQuality = (val: 'generic' | 'oled' | 'original' | '') => dispatch({ type: 'SET_WIZARD_DATA', payload: { selectedScreenQuality: val } });
+    const setControllerCount = (val: number) => dispatch({ type: 'SET_WIZARD_DATA', payload: { controllerCount: val } });
 
     const toggleRepairIssue = (issue: string) => {
         const currentIssues = repairIssues || [];
@@ -72,16 +74,65 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
         dispatch({ type: 'SET_WIZARD_DATA', payload: { repairIssues: newIssues } });
     };
 
+    // Auto-select best condition (Green Boxes) defaults for Buyback to match max price
+    useEffect(() => {
+        if (type === 'buyback' && step === 3 && !loading) {
+            // 1. Storage: Select Max Capacity
+            if (!storage) {
+                const staticOptions = (specsData && selectedModel ? specsData[selectedModel] : []) || [];
+                const dynamicOptions = dynamicBuybackPrices ? dynamicBuybackPrices.map(p => p.storage) : [];
+
+                let options: string[] = [];
+                if (dynamicOptions.length > 0) options = Array.from(new Set(dynamicOptions));
+                else if (staticOptions.length > 0) options = staticOptions;
+                else options = ['64GB', '128GB', '256GB']; // Fallback
+
+                const getVal = (s: string) => {
+                    if (s.endsWith('TB')) return parseFloat(s) * 1024;
+                    return parseFloat(s);
+                };
+
+                // Sort descending (Max first)
+                options.sort((a, b) => getVal(b) - getVal(a));
+
+                if (options.length > 0) setStorage(options[0]);
+            }
+
+            // 2. Functional Checks: Select "Yes" (Best Condition)
+            if (turnsOn === null) setTurnsOn(true);
+            if (worksCorrectly === null) setWorksCorrectly(true);
+            if (isUnlocked === null) setIsUnlocked(true);
+
+            // 3. Apple Specifics
+            const isAppleSmartphone = selectedBrand?.toLowerCase() === 'apple' && (deviceType === 'smartphone' || deviceType === 'tablet');
+            if (isAppleSmartphone) {
+                if (faceIdWorking === null) setFaceIdWorking(true);
+                if (batteryHealth === null) setBatteryHealth('normal'); // > 80%
+            }
+        }
+    }, [
+        type, step, loading, dynamicBuybackPrices, specsData, selectedModel, selectedBrand, deviceType,
+        storage, turnsOn, worksCorrectly, isUnlocked, faceIdWorking, batteryHealth,
+        // Dependencies are stable or guarded, preventing loops
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    ]);
+
     // -------------------------------------------------------------------------
     // BUYBACK VIEW
     // -------------------------------------------------------------------------
     if (type === 'buyback') {
         const isAppleSmartphone = selectedBrand?.toLowerCase() === 'apple' && (deviceType === 'smartphone' || deviceType === 'tablet');
+        const isHomeConsole = deviceType === 'console_home';
 
         // Strict validation logic (mirrors original)
         let nextDisabled = !storage || turnsOn === null;
         if (turnsOn !== false) {
-            nextDisabled = nextDisabled || worksCorrectly === null || isUnlocked === null || (isAppleSmartphone && (!batteryHealth || faceIdWorking === null));
+            nextDisabled = nextDisabled || worksCorrectly === null || (deviceType === 'smartphone' && isUnlocked === null) || (isAppleSmartphone && (!batteryHealth || faceIdWorking === null));
+
+            // Console validation
+            if (isHomeConsole && (controllerCount === null || controllerCount === undefined)) {
+                nextDisabled = true;
+            }
         }
 
         return (
@@ -144,7 +195,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         {[
                             { label: 'Turns On?', state: turnsOn, setter: setTurnsOn },
                             { label: 'Everything Works?', state: worksCorrectly, setter: setWorksCorrectly },
-                            { label: 'Unlocked?', state: isUnlocked, setter: setIsUnlocked },
+                            ...(deviceType === 'smartphone' ? [{ label: 'Unlocked?', state: isUnlocked, setter: setIsUnlocked }] : []),
                             ...(isAppleSmartphone ? [{ label: 'Face ID Working?', state: faceIdWorking, setter: setFaceIdWorking }] : [])
                         ].map((item, i) => {
                             const isDisabled = turnsOn === false && item.label !== 'Turns On?';
@@ -181,12 +232,64 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         <div className={turnsOn === false ? 'opacity-50 pointer-events-none' : ''}>
                             <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Battery Health')}</label>
                             <div className="grid grid-cols-2 gap-3">
-                                <button type="button" onClick={() => setBatteryHealth('normal')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border ${batteryHealth === 'normal' ? 'bg-green-600 text-white border-green-600' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}>{t('Normal (Above 80%)')}</button>
-                                <button type="button" onClick={() => setBatteryHealth('service')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border ${batteryHealth === 'service' ? 'bg-red-600 text-white border-red-600' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'}`}>{t('Service Required (Below 80%)')}</button>
+                                <button type="button" onClick={() => setBatteryHealth('normal')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border ${batteryHealth === 'normal' ? 'bg-green-600 text-white border-green-600' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}>{t('battery_normal_desc')}</button>
+                                <button type="button" onClick={() => setBatteryHealth('service')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border ${batteryHealth === 'service' ? 'bg-red-600 text-white border-red-600' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'}`}>{t('battery_service_desc')}</button>
                             </div>
                         </div>
                     )}
-                    <WizardFAQ currentStep={step} flow={type} />
+
+                    {/* Controller Count (Home Consoles Only) */}
+                    {isHomeConsole && (
+                        <div className={turnsOn === false ? 'opacity-50 pointer-events-none' : ''}>
+                            <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('How many controllers?')}</label>
+                            <div className="grid grid-cols-3 gap-3">
+                                {[0, 1, 2].map((count) => (
+                                    <button
+                                        key={count}
+                                        type="button"
+                                        onClick={() => setControllerCount(count)}
+                                        disabled={turnsOn === false}
+                                        className={`py-3 px-4 rounded-xl font-bold transition-all border ${controllerCount === count
+                                            ? 'bg-bel-blue text-white border-bel-blue'
+                                            : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800'
+                                            }`}
+                                    >
+                                        {count === 0 ? t('No Controller') : (count === 1 ? t('1 Controller') : t('2 Controllers'))}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {/* Mobile Summary & Action Block (Buyback) */}
+                    <div className="lg:hidden mt-8 mb-8 p-6 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                        <div className="flex flex-col gap-4">
+                            <div className="flex justify-between items-end">
+                                <div>
+                                    <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">{t('Estimated Value')}</p>
+                                    <div className="text-3xl font-extrabold text-bel-dark dark:text-white mt-1">
+                                        {loading ? <span className="animate-pulse">...</span> : `€${sidebarEstimate}`}
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-1">{t('Based on current selection')}</p>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={onNext}
+                                disabled={nextDisabled}
+                                className="w-full bg-bel-blue text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-lg flex items-center justify-center gap-2 transition-all hover:bg-bel-blue/90"
+                            >
+                                <span>{t('Next')}</span>
+                                <ChevronLeftIcon className="h-5 w-5 rotate-180" />
+                            </button>
+                        </div>
+                    </div>
+                    <WizardFAQ
+                        currentStep={step}
+                        flow={type}
+                        deviceType={deviceType}
+                        selectedBrand={selectedBrand || undefined}
+                        selectedModel={selectedModel || undefined}
+                    />
                 </div>
 
                 <Sidebar
@@ -401,7 +504,13 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             </button>
                         </div>
                     </div>
-                    <WizardFAQ currentStep={step} flow={type} />
+                    <WizardFAQ
+                        currentStep={step}
+                        flow={type}
+                        deviceType={deviceType}
+                        selectedBrand={selectedBrand || undefined}
+                        selectedModel={selectedModel || undefined}
+                    />
                 </div>
 
                 <Sidebar

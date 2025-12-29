@@ -1,5 +1,6 @@
 import BusinessSolutions from '../../../components/BusinessSolutions';
 import { Metadata } from 'next';
+import { getFixedT } from '../../../utils/i18nFixed';
 
 type Props = {
     params: Promise<{ lang: string }>
@@ -7,15 +8,12 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang } = await params;
-
-    // Load translations manually for metadata as this is a server component
-    const translations = await import(`../../../../src/data/i18n/${lang}.json`).then(m => m.default);
-
+    const t = getFixedT(lang);
     const baseUrl = 'https://belmobile.be';
 
     return {
-        title: translations.meta_business_title,
-        description: translations.meta_business_description,
+        title: t('meta_business_title'),
+        description: t('meta_business_description'),
         alternates: {
             canonical: `${baseUrl}/${lang}/business`,
             languages: {

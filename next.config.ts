@@ -615,7 +615,227 @@ const nextConfig = {
         ],
       },
     ];
-  }
+  },
+
+  async rewrites() {
+    return [
+      // --- LOCALIZED SERVICE SLUGS ---
+      // Microsoldering
+      {
+        source: '/fr/services/microsoudure',
+        destination: '/fr/services/microsoldering',
+      },
+      {
+        source: '/nl/diensten/microsolderen',
+        destination: '/nl/services/microsoldering',
+      },
+      {
+        source: '/nl/services/microsolderen',
+        destination: '/nl/services/microsoldering',
+      },
+      // Data Recovery
+      {
+        source: '/fr/services/recuperation-donnees',
+        destination: '/fr/services/data-recovery',
+      },
+      {
+        source: '/fr/services/recuperation-de-donnees',
+        destination: '/fr/services/data-recovery',
+      },
+      {
+        source: '/nl/diensten/data-recovery',
+        destination: '/nl/services/data-recovery',
+      },
+      {
+        source: '/nl/services/data-recovery',
+        destination: '/nl/services/data-recovery',
+      },
+
+      // --- SUSTAINABILITY SLUGS ---
+      {
+        source: '/fr/a-propos/durabilite',
+        destination: '/fr/about/sustainability',
+      },
+      {
+        source: '/fr/about/durabilite',
+        destination: '/fr/about/sustainability',
+      },
+      {
+        source: '/nl/over-ons/duurzaamheid',
+        destination: '/nl/about/sustainability',
+      },
+      {
+        source: '/nl/about/duurzaamheid',
+        destination: '/nl/about/sustainability',
+      },
+      // About Page
+      {
+        source: '/fr/a-propos',
+        destination: '/fr/about',
+      },
+      {
+        source: '/nl/over-ons',
+        destination: '/nl/about',
+      },
+
+      // Students
+      {
+        source: '/fr/etudiants',
+        destination: '/fr/students',
+      },
+      {
+        source: '/nl/studenten',
+        destination: '/nl/students',
+      },
+
+      // Express Courier
+      {
+        source: '/fr/coursier-express',
+        destination: '/fr/express-courier',
+      },
+      {
+        source: '/nl/express-koerier',
+        destination: '/nl/express-courier',
+      },
+
+      // Careers
+      {
+        source: '/fr/carrieres',
+        destination: '/fr/careers',
+      },
+      {
+        source: '/nl/vacatures',
+        destination: '/nl/careers',
+      },
+
+      {
+        source: '/nl/diensten',
+        destination: '/nl/services',
+      },
+
+      // --- LEGAL & SUPPORT ---
+      // Warranty
+      {
+        source: '/fr/garantie',
+        destination: '/fr/warranty',
+      },
+      {
+        source: '/nl/garantie',
+        destination: '/nl/warranty',
+      },
+      // Privacy
+      {
+        source: '/fr/vie-privee',
+        destination: '/fr/privacy',
+      },
+      {
+        source: '/nl/privacy', // Already Dutch, but good to be explicit or if we want 'privacybeleid'
+        destination: '/nl/privacy',
+      },
+      // Terms
+      {
+        source: '/fr/conditions-generales',
+        destination: '/fr/terms',
+      },
+      {
+        source: '/nl/algemene-voorwaarden',
+        destination: '/nl/terms',
+      },
+      // Cookies
+      {
+        source: '/fr/cookies', // Same in FR/EN often, but 'politique-cookies' maybe? Keeping simple for now unless requested
+        destination: '/fr/cookies',
+      },
+      // Track Order
+      {
+        source: '/fr/suivi-commande',
+        destination: '/fr/track-order',
+      },
+      {
+        source: '/nl/bestelling-volgen',
+        destination: '/nl/track-order',
+      },
+
+      // Business
+      {
+        source: '/nl/zakelijk',
+        destination: '/nl/business',
+      },
+
+      // Support Hub
+      {
+        source: '/fr/support', // Common term in FR tech, or 'aide'
+        destination: '/fr/support',
+      },
+      {
+        source: '/nl/ondersteuning',
+        destination: '/nl/support',
+      },
+      {
+        source: '/nl/support',
+        destination: '/nl/support',
+      },
+
+      // Franchise
+      {
+        source: '/fr/devenir-partenaire',
+        destination: '/fr/franchise',
+      },
+      {
+        source: '/nl/word-partner',
+        destination: '/nl/franchise',
+      },
+
+      // Stores
+      {
+        source: '/fr/magasins',
+        destination: '/fr/stores',
+      },
+      {
+        source: '/nl/winkels',
+        destination: '/nl/stores',
+      },
+      // Deep links for stores (e.g. /fr/magasins/bruxelles)
+      {
+        source: '/fr/magasins/:slug*',
+        destination: '/fr/stores/:slug*',
+      },
+      {
+        source: '/nl/winkels/:slug*',
+        destination: '/nl/stores/:slug*',
+      },
+
+      {
+        source: '/nl/winkels/:slug*',
+        destination: '/nl/stores/:slug*',
+      },
+
+      // Products
+      {
+        source: '/fr/produits',
+        destination: '/fr/products',
+      },
+      {
+        source: '/nl/producten',
+        destination: '/nl/products',
+      },
+      // Deep links for products
+      {
+        source: '/fr/produits/:slug*',
+        destination: '/fr/products/:slug*',
+      },
+      {
+        source: '/nl/producten/:slug*',
+        destination: '/nl/products/:slug*',
+      },
+
+      // Franchise - common word, but ensuring consistency
+      {
+        source: '/nl/franchising', // Optional alias
+        destination: '/nl/franchise',
+      },
+    ];
+  },
 };
 
 

@@ -5,21 +5,20 @@ import { useLanguage } from '../hooks/useLanguage';
 import { ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
 import LegalPageLayout from './LegalPageLayout';
 
+import ReactMarkdown from 'react-markdown';
+
 const Warranty: React.FC = () => {
     const { t } = useLanguage();
 
     return (
         <LegalPageLayout
             title={t('warranty_title')}
-            description={t('warranty_content').split('\n')[0]}
             icon={ClipboardDocumentCheckIcon}
         >
             <div className="prose dark:prose-invert max-w-none">
-                {t('warranty_content').split('\n').map((line, index) => (
-                    <p key={index} className="mb-4 text-slate-600 dark:text-slate-300">
-                        {line}
-                    </p>
-                ))}
+                <ReactMarkdown>
+                    {t('warranty_content').replace(/\\n/g, '\n')}
+                </ReactMarkdown>
             </div>
         </LegalPageLayout>
     );

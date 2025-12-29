@@ -93,7 +93,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) 
                     ) : (
                         displayReviews.map((review: Review, i: number) => (
                             <FadeIn key={review.id} delay={i * 0.1}>
-                                <div className="h-full bg-white dark:bg-slate-900/60 backdrop-blur-xl p-8 rounded-3xl border border-gray-100 dark:border-white/10 shadow-lg hover:shadow-xl transition-all duration-300">
+                                <article className="h-full bg-white dark:bg-slate-900/60 backdrop-blur-xl p-8 rounded-3xl border border-gray-100 dark:border-white/10 shadow-lg hover:shadow-xl transition-all duration-300">
                                     <div className="flex items-center mb-6">
                                         {review.photoUrl ? (
                                             <div className="relative w-12 h-12 rounded-full mr-4 border border-gray-100 dark:border-white/10 overflow-hidden">
@@ -111,7 +111,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) 
                                             </div>
                                         )}
                                         <div>
-                                            <div className="font-bold text-lg text-slate-900 dark:text-white">{review.author}</div>
+                                            <h3 className="font-bold text-lg text-slate-900 dark:text-white">{review.author}</h3>
                                             <div className="text-sm text-slate-500">
                                                 {review.date}
                                                 {review.shopName && (
@@ -127,8 +127,8 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) 
                                             <StarIcon key={i} className={`h-5 w-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-slate-700'}`} />
                                         ))}
                                     </div>
-                                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed italic line-clamp-4">&quot;{review.text}&quot;</p>
-                                </div>
+                                    <blockquote className="text-slate-600 dark:text-slate-300 leading-relaxed italic line-clamp-4">&quot;{review.text}&quot;</blockquote>
+                                </article>
                             </FadeIn>
                         ))
                     )}

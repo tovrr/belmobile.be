@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { NAV_LINKS } from '../constants';
+import { NAV_LINKS, MOCK_BLOG_POSTS } from '../constants';
 import { Bars3Icon, XMarkIcon, PhoneIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../hooks/useLanguage';
 
@@ -51,26 +51,59 @@ const Header: React.FC = () => {
             segments.unshift(newLang);
         }
 
-        // Handle Product Translations
-        const productTerms = { en: 'products', fr: 'produits', nl: 'producten' };
-        const repairTerms = { en: 'repair', fr: 'reparation', nl: 'reparatie' };
-        const buybackTerms = { en: 'buyback', fr: 'rachat', nl: 'inkoop' };
-        const storeTerms = { en: 'stores', fr: 'magasins', nl: 'winkels' };
+        // Handle Comprehensive Slug Translations
+        const slugMappings: Record<string, Record<string, string>> = {
+            products: { en: 'products', fr: 'produits', nl: 'producten' },
+            repair: { en: 'repair', fr: 'reparation', nl: 'reparatie' },
+            buyback: { en: 'buyback', fr: 'rachat', nl: 'inkoop' },
+            stores: { en: 'stores', fr: 'magasins', nl: 'winkels' },
+            services: { en: 'services', fr: 'services', nl: 'diensten' }, // Added diensten
+            about: { en: 'about', fr: 'a-propos', nl: 'over-ons' }, // Main about page
+            sustainability: { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' },
+            students: { en: 'students', fr: 'etudiants', nl: 'studenten' },
+            courier: { en: 'express-courier', fr: 'coursier-express', nl: 'express-koerier' },
+            careers: { en: 'careers', fr: 'carrieres', nl: 'vacatures' },
+            warranty: { en: 'warranty', fr: 'garantie', nl: 'garantie' },
+            privacy: { en: 'privacy', fr: 'vie-privee', nl: 'privacy' },
+            terms: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden' },
+            track: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen' },
+            business: { en: 'business', fr: 'business', nl: 'zakelijk' },
+            support: { en: 'support', fr: 'support', nl: 'ondersteuning' },
+            franchise: { en: 'franchise', fr: 'devenir-partenaire', nl: 'word-partner' },
+            // Extra specific segments
+            'a-propos': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
+            'over-ons': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
+            'durabilite': { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' },
+            'duurzaamheid': { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' }
+        };
 
         // Helper to translate a segment if it matches any known term
-        const translateSegment = (segment: string, terms: Record<string, string>) => {
-            if (Object.values(terms).includes(segment)) {
-                return terms[newLang];
+        const translateSegment = (segment: string) => {
+            for (const key in slugMappings) {
+                const terms = slugMappings[key];
+                if (Object.values(terms).includes(segment)) {
+                    return terms[newLang];
+                }
             }
             return segment;
         };
 
         // Iterate through segments and translate known terms
         for (let i = 0; i < segments.length; i++) {
-            segments[i] = translateSegment(segments[i], productTerms);
-            segments[i] = translateSegment(segments[i], repairTerms);
-            segments[i] = translateSegment(segments[i], buybackTerms);
-            segments[i] = translateSegment(segments[i], storeTerms);
+            segments[i] = translateSegment(segments[i]);
+        }
+
+        // Special Handling for Blog Posts (Dynamic Slugs)
+        if (segments.includes('blog') && segments.length > segments.indexOf('blog') + 1) {
+            const blogIndex = segments.indexOf('blog');
+            const currentSlug = segments[blogIndex + 1];
+            const post = MOCK_BLOG_POSTS.find(p =>
+                p.slug === currentSlug ||
+                (p.slugs && Object.values(p.slugs).includes(currentSlug))
+            );
+            if (post && post.slugs) {
+                segments[blogIndex + 1] = post.slugs[newLang] || post.slug;
+            }
         }
 
         const newPath = '/' + segments.join('/');
@@ -92,8 +125,18 @@ const Header: React.FC = () => {
                 >
                     <div className="flex items-center justify-between">
                         {/* Logo */}
-                        <Link href={`/${language}`} className="flex flex-col group leading-none">
-                            <Logo variant="dark" />
+                        <Link href={`/${language}`} className="flex items-center gap-3 group">
+                            <div className="w-10 h-10 group-hover:scale-110 transition-transform duration-300">
+                                <Logo className="w-full h-full" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="font-black text-2xl tracking-tighter text-gray-900 dark:text-white leading-none">
+                                    BELMOBILE<span className="text-cyber-citron">.BE</span>
+                                </span>
+                                <span className="text-[10px] font-bold tracking-[0.19em] text-slate-500 uppercase leading-none mt-0.5 group-hover:text-cyber-citron transition-colors">
+                                    {t('logo_slogan')}
+                                </span>
+                            </div>
                         </Link>
 
                         {/* Desktop Nav */}

@@ -9,30 +9,30 @@ const Careers: React.FC = () => {
 
     const jobs = [
         {
-            title: "Technicien Smartphone (H/F)",
+            title: "careers_job_tech_title",
             type: "Full-Time",
             location: "Brussels (Schaerbeek)",
-            desc: "Expert en microsoudure et réparation niveau 3. Passionné par Apple et Samsung."
+            desc: "careers_job_tech_desc"
         },
         {
-            title: "Sales Advisor",
+            title: "careers_job_sales_title",
             type: "Part-Time",
             location: "Brussels (Molenbeek)",
-            desc: "Accueillir les clients, conseiller sur les produits et gérer les stocks."
+            desc: "careers_job_sales_desc"
         },
         {
-            title: "E-commerce Manager",
+            title: "careers_job_ecom_title",
             type: "Full-Time",
             location: "Brussels (Hybrid)",
-            desc: "Gestion du site web, SEO et campagnes marketing digital."
+            desc: "careers_job_ecom_desc"
         }
     ];
 
     const values = [
-        { icon: SparklesIcon, title: "Excellence", desc: "We aim for perfection in every repair." },
-        { icon: UserGroupIcon, title: "Team Spirit", desc: "We grow together and support each other." },
-        { icon: RocketLaunchIcon, title: "Innovation", desc: "Always learning the latest technologies." },
-        { icon: HeartIcon, title: "Passion", desc: "We love what we do and it shows." },
+        { icon: SparklesIcon, title: "careers_value_excellence", desc: "careers_value_excellence_desc" },
+        { icon: UserGroupIcon, title: "careers_value_team", desc: "careers_value_team_desc" },
+        { icon: RocketLaunchIcon, title: "careers_value_innovation", desc: "careers_value_innovation_desc" },
+        { icon: HeartIcon, title: "careers_value_passion", desc: "careers_value_passion_desc" },
     ];
 
     return (
@@ -54,7 +54,7 @@ const Careers: React.FC = () => {
                         {t('Join the Team')}
                     </h1>
                     <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                        {t('Build the future of mobile repair with us. We are looking for passionate people.')}
+                        {t('careers_hero_subtitle')}
                     </p>
                 </div>
 
@@ -81,16 +81,16 @@ const Careers: React.FC = () => {
                         {jobs.map((job, idx) => (
                             <div key={idx} className="bg-white/50 dark:bg-white/5 p-6 rounded-2xl hover:bg-white dark:hover:bg-white/10 transition-colors border border-transparent hover:border-primary/20 flex flex-col md:flex-row md:items-center justify-between group">
                                 <div className="mb-4 md:mb-0">
-                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{job.title}</h3>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{t(job.title)}</h3>
                                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1 space-x-4">
                                         <span>{job.type}</span>
                                         <span>•</span>
                                         <span>{job.location}</span>
                                     </div>
-                                    <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm max-w-xl">{job.desc}</p>
+                                    <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm max-w-xl">{t(job.desc)}</p>
                                 </div>
                                 <a
-                                    href={`mailto:jobs@belmobile.be?subject=Application: ${job.title}`}
+                                    href={`mailto:jobs@belmobile.be?subject=Application: ${t(job.title)}`}
                                     className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl hover:scale-105 transition-transform text-center whitespace-nowrap"
                                 >
                                     {t('Apply Now')}

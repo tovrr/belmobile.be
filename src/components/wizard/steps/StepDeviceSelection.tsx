@@ -49,7 +49,7 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
 
     // Local handler to wrap the action if needed, or stick to direct usage
     const onBrandClick = (brand: string) => {
-        handleBrandSelect(brand);
+        handleBrandSelect(brand, deviceType);
         // Wait for state update/render then scroll
         setTimeout(() => {
             if (modelSelectRef?.current) {

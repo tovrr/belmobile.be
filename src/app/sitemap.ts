@@ -57,11 +57,109 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: 'daily',
             priority: 1.0,
         });
+
+        // 1.5 Specialized Services (Microsoldering & Data Recovery & Legal/Support)
+        const specializedServices = [
+            // Services
+            {
+                id: 'microsoldering',
+                slugs: { en: 'services/microsoldering', fr: 'services/microsoudure', nl: 'services/microsolderen' }
+            },
+            {
+                id: 'data-recovery',
+                slugs: { en: 'services/data-recovery', fr: 'services/recuperation-donnees', nl: 'services/data-recovery' }
+            },
+            {
+                id: 'services',
+                slugs: { en: 'services', fr: 'services', nl: 'diensten' }
+            },
+            // Business & Corporate
+            {
+                id: 'business',
+                slugs: { en: 'business', fr: 'business', nl: 'zakelijk' }
+            },
+            {
+                id: 'franchise',
+                slugs: { en: 'franchise', fr: 'franchise', nl: 'franchise' }
+            },
+            {
+                id: 'careers',
+                slugs: { en: 'careers', fr: 'carrieres', nl: 'vacatures' }
+            },
+            {
+                id: 'express-courier',
+                slugs: { en: 'express-courier', fr: 'coursier-express', nl: 'express-koerier' }
+            },
+            {
+                id: 'students',
+                slugs: { en: 'students', fr: 'etudiants', nl: 'studenten' }
+            },
+            // Company Info
+            {
+                id: 'about',
+                slugs: { en: 'about', fr: 'a-propos', nl: 'over-ons' }
+            },
+            {
+                id: 'sustainability',
+                slugs: { en: 'about/sustainability', fr: 'about/durabilite', nl: 'about/duurzaamheid' }
+            },
+            // Support & Tools
+            {
+                id: 'support',
+                slugs: { en: 'support', fr: 'support', nl: 'ondersteuning' }
+            },
+            {
+                id: 'track-order',
+                slugs: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen' }
+            },
+            {
+                id: 'stores',
+                slugs: { en: 'stores', fr: 'magasins', nl: 'winkels' }
+            },
+            {
+                id: 'comp-products',
+                slugs: { en: 'products', fr: 'produits', nl: 'producten' }
+            },
+            // Legal Pages
+            {
+                id: 'warranty',
+                slugs: { en: 'warranty', fr: 'garantie', nl: 'garantie' }
+            },
+            {
+                id: 'terms',
+                slugs: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden' }
+            },
+            {
+                id: 'privacy',
+                slugs: { en: 'privacy', fr: 'vie-privee', nl: 'privacy' }
+            },
+            {
+                id: 'cookies',
+                slugs: { en: 'cookies', fr: 'cookies', nl: 'cookies' }
+            },
+            {
+                id: 'contact',
+                slugs: { en: 'contact', fr: 'contact', nl: 'contact' }
+            },
+            {
+                id: 'faq',
+                slugs: { en: 'faq', fr: 'faq', nl: 'faq' }
+            }
+        ];
+
+        specializedServices.forEach(service => {
+            sitemap.push({
+                url: `${BASE_URL}/${lang}/${service.slugs[lang as keyof typeof service.slugs]}`,
+                lastModified: new Date(),
+                changeFrequency: 'weekly',
+                priority: 0.85,
+            });
+        });
     });
 
     // 2. Services
     SERVICES.forEach(service => {
-        if (service.id === 'products') return; // Skip products for now, focus on repair/buyback
+        if (service.id === 'products') return; // Skip product category here, handled above or in individual products
 
         languages.forEach(lang => {
             const serviceSlug = service.slugs[lang as keyof typeof service.slugs];
@@ -179,12 +277,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         });
     });
 
-    // 4. Other Static Pages
+    // 4. Other Static Pages (Jobs/Feedback - whatever wasn't covered above)
     const staticPages = [
-        'stores', 'contact', 'faq', 'legal', 'privacy',
-        'terms', 'warranty', 'jobs', 'careers', 'franchise',
-        'business', 'track-order', 'products', 'cookies',
-        'feedback', 'express-courier'
+        'feedback', 'jobs' // most are now in specializedServices
     ];
 
     languages.forEach(lang => {

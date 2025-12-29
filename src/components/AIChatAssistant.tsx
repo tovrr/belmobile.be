@@ -138,6 +138,12 @@ const AIChatAssistant: React.FC = () => {
         }
     }, [messages]);
 
+    useEffect(() => {
+        const handleOpen = () => setIsOpen(true);
+        window.addEventListener('open-ai-chat', handleOpen);
+        return () => window.removeEventListener('open-ai-chat', handleOpen);
+    }, []);
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
@@ -277,13 +283,83 @@ const AIChatAssistant: React.FC = () => {
 
             // 3. Formatting
             const shopsContext = shops.map(s => `- ${s.city || s.name}: ${s.address} (Open: ${s.openingHours.join(', ')})`).join('\n');
-            const servicesContext = services.map(s => `- ${s.name} (${s.type}): ${s.description}`).join('\n');
+            const extendedServices = [
+                ...services.map((s: any) => ({
+                    name: s.name,
+                    description: s.description,
+                    url: `/${language}/${s.id}` // Fallback for dynamic services
+                })),
+                {
+                    name: t('Microsoldering'),
+                    description: t('chat_desc_microsoldering') || "Complex motherboard repair, water damage, data recovery. We fix what others can't.",
+                    url: `/${language}/${language === 'fr' ? 'services/microsoudure' : language === 'nl' ? 'services/microsolderen' : 'services/microsoldering'}`
+                },
+                {
+                    name: t('Data Recovery'),
+                    description: t('chat_desc_datarecovery') || "Professional data recovery from dead phones, water damaged devices, and broken drives.",
+                    url: `/${language}/${language === 'fr' ? 'services/recuperation-donnees' : language === 'nl' ? 'services/data-recovery' : 'services/data-recovery'}`
+                },
+                {
+                    name: t('Sustainability'),
+                    description: t('chat_desc_sustainability') || "Eco-friendly approach: repair first, refurbish second, recycle last. Certified partners.",
+                    url: `/${language}/${language === 'fr' ? 'about/durabilite' : language === 'nl' ? 'about/duurzaamheid' : 'about/sustainability'}`
+                },
+                {
+                    name: t('Student Offers'),
+                    description: t('chat_desc_students') || "Exclusive discounts for students (-10% on repairs).",
+                    url: `/${language}/students`
+                },
+                {
+                    name: t('Express Courier'),
+                    description: t('chat_desc_courier') || "We come to you! Pickup and delivery service in Brussels.",
+                    url: `/${language}/express-courier`
+                },
+                {
+                    name: t('Business Solutions'),
+                    description: t('chat_desc_business') || "VAT invoicing, bulk repairs, and priority service for companies.",
+                    url: `/${language}/${language === 'nl' ? 'zakelijk' : 'business'}`
+                }
+            ];
+
+            const servicesContext = extendedServices.map(s => `- ${s.name}: ${s.description} [Link](${s.url})`).join('\n');
             const productsContext = products.map(p => `- ${p.name} (€${p.price}): ${p.description}`).join('\n');
 
             const sRepair = (SERVICES as DataService[]).find(s => s.id === 'repair');
             const sBuyback = (SERVICES as DataService[]).find(s => s.id === 'buyback');
             const rSlug = sRepair?.slugs[language as keyof typeof sRepair.slugs] || 'repair';
             const bSlug = sBuyback?.slugs[language as keyof typeof sBuyback.slugs] || 'buyback';
+
+            // Helper to determine brand, model, and category from ID
+            const getDeviceDetails = (id: string) => {
+                const lowerId = id.toLowerCase();
+                let category = 'smartphone'; // Default fallback
+                let brand = 'apple';         // Default fallback
+                let model = lowerId;
+
+                // 1. Detect Category -> Brand Specifics
+                if (lowerId.includes('ipad')) { category = 'tablet'; brand = 'apple'; }
+                else if (lowerId.includes('macbook')) { category = 'laptop'; brand = 'apple'; }
+                else if (lowerId.includes('watch')) { category = 'smartwatch'; brand = 'apple'; }
+                else if (lowerId.includes('iphone')) { category = 'smartphone'; brand = 'apple'; }
+
+                else if (lowerId.includes('galaxy-tab')) { category = 'tablet'; brand = 'samsung'; }
+                else if (lowerId.includes('galaxy-book')) { category = 'laptop'; brand = 'samsung'; }
+                else if (lowerId.includes('galaxy-watch')) { category = 'smartwatch'; brand = 'samsung'; }
+                else if (lowerId.includes('galaxy')) { category = 'smartphone'; brand = 'samsung'; }
+
+                else if (lowerId.includes('playstation')) { category = 'console_home'; brand = 'sony'; }
+                else if (lowerId.includes('xbox')) { category = 'console_home'; brand = 'microsoft'; }
+                else if (lowerId.includes('switch') || lowerId.includes('3ds')) { category = 'console_portable'; brand = 'nintendo'; }
+                else if (lowerId.includes('steam')) { category = 'console_portable'; brand = 'valve'; }
+
+                else if (lowerId.startsWith('google') || lowerId.includes('pixel')) { category = 'smartphone'; brand = 'google'; }
+                else if (lowerId.startsWith('xiaomi') || lowerId.includes('redmi') || lowerId.includes('poco') || lowerId.includes('mi-')) { category = 'smartphone'; brand = 'xiaomi'; }
+                else if (lowerId.startsWith('oppo')) { category = 'smartphone'; brand = 'oppo'; }
+                else if (lowerId.startsWith('oneplus')) { category = 'smartphone'; brand = 'oneplus'; }
+                else if (lowerId.startsWith('huawei')) { category = 'smartphone'; brand = 'huawei'; }
+
+                return { brand, model, category };
+            };
 
             const repairSummary = prioritizedRepairs.map(rp => {
                 const parts = [];
@@ -293,15 +369,14 @@ const AIChatAssistant: React.FC = () => {
                 if (rp.battery) parts.push(`${t('chat_battery')}: €${rp.battery}`);
 
                 const details = parts.length > 0 ? parts.join(', ') : t('chat_quote_required');
-                const [brand, ...mParts] = rp.id.split('-');
-                const model = mParts.join('-');
-                return `- ${rp.id}: ${details}. [${t('chat_click_to_book')}](/${language}/${rSlug}/${brand}/${model})`;
+                const { brand, model, category } = getDeviceDetails(rp.id);
+                // Construct URL with Category to ensure correct routing (e.g. /repair/tablet/apple/ipad...)
+                return `- ${rp.id}: ${details}. [${t('chat_click_to_book')}](/${language}/${rSlug}/${category}/${brand}/${model})`;
             }).join('\n');
 
             const buybackSummary = prioritizedBuybacks.map(item => {
-                const [brand, ...mParts] = item.deviceId.split('-');
-                const model = mParts.join('-');
-                return `- ${item.deviceId}: ${t('chat_up_to')} €${item.maxPrice} (${t('chat_available_for')}: ${item.storages.join(', ')}) | [${t('chat_get_buyback_quote')}](/${language}/${bSlug}/${brand}/${model})`;
+                const { brand, model, category } = getDeviceDetails(item.deviceId);
+                return `- ${item.deviceId}: ${t('chat_up_to')} €${item.maxPrice} (${t('chat_available_for')}: ${item.storages.join(', ')}) | [${t('chat_get_buyback_quote')}](/${language}/${bSlug}/${category}/${brand}/${model})`;
             }).join('\n');
 
             const systemInstruction = `
@@ -311,23 +386,30 @@ const AIChatAssistant: React.FC = () => {
                 
                 Your Goal: Help users find the best repair or buyback price, or guide them to our shops. Be proactive: if a user asks about a screen repair, you might briefly mention we use original parts or offer a warranty.
 
+                SERVICE HIGH-POINTS:
+                - MICROSOLDERING: We are motherboard specialists 🔬. We fix what Apple/others call "unrepairable" (water damage, data recovery from dead boards, FPC connectors, backlight). Tell users: "We perform surgery on your device's brain!"
+                - DATA RECOVERY: Privacy-first recovery 💾. If a device doesn't turn on, mention our Microsoldering expertise as our unique edge for recovery.
+                - SUSTAINABILITY: We focus on "Repair First" 🌍. Mention we help keep electronics out of landfills.
+                - STUDENTS: 10% Discount on repairs! 🎓
+                - COURIER: Free pickup/delivery in Brussels for most repairs. 🚚
+
                 CONCISE but DATA-DRIVEN answers only. Provide the data they need, then a clear call to action.
 
                 CRITICAL RULES:
                 1. MUNICIPALITY: Always refer to shops by their MUNICIPALITY (Schaerbeek, Anderlecht, Molenbeek).
-                2. DATA LOOKUP: Check REPAIR_ESTIMATES and BUYBACK_ESTIMATES. If the user's device is listed, provide ALL relevant prices and ALWAYS use MARKDOWN LINKS (e.g. [Link Text](URL)) for the direct page using the "Link" values provided below.
-                3. CONTEXT: Use CONVERSATION_HISTORY to remember the device.
-                4. FALLBACKS: If a requested price is MISSING, say: 
+                2. DATA LOOKUP: Check REPAIR_ESTIMATES, BUYBACK_ESTIMATES, and SERVICES. If the user's device or service is listed, provide ALL relevant details and the LINK.
+                3. LINKS: ALWAYS use the EXACT markdown links (e.g. [Link Text](URL)) provided in the REPAIR_ESTIMATES, BUYBACK_ESTIMATES, or SERVICES sections. DO NOT change the link text or title. Copy them exactly.
+                4. CONTEXT: Use CONVERSATION_HISTORY to remember the device.
+                5. FALLBACKS: If a requested price is MISSING, say: 
                    "I don't have that exact price handy 🧐. Please use the WhatsApp (green icon) or Call (phone icon) buttons above to talk to our technicians directly 👨‍🔧, or visit the link below."
-                5. BUYBACK: For selling, use "Up to €XX" based on the data provided as a MAXIMUM ESTIMATE for the best configuration. You MUST immediately state: "This is a maximum estimate. Please use the link below to get an exact quote for your specific storage and condition."
-                6. MODEL SPECIFICITY: Be extremely careful not to confuse "Standard" models with "Pro" or "Pro Max" models. If the user asks for "iPhone 15", do not give the price for "iPhone 15 Pro".
-                7. LINKS: Never show raw URLs. Always use the format [Title](URL). The direct link is the ONLY definitive source for an exact price. Encourage clicking it.
-                8. PRIORITY SHOP (SCHAERBEEK): Always prioritize "Belmobile Liedts" in Schaerbeek as our PRIMARY hub. If a user asks for a recommendation or location, push them towards Schaerbeek first. Mention it has the most stock and fastest repair times 🚀.
-                9. CLOSED LOCATIONS: Molenbeek (Tour & Taxis) is TEMPORARILY CLOSED. If asked, redirect users to Schaerbeek (Liedts), which is only 5 minutes away.
-                10. ANDERLECHT: Only mention Anderlecht if specifically asked or if the user is clearly closer to it. Otherwise, Schaerbeek is the preferred destination.
-                11. SMART HOOK: Append the following tag ONLY if the user asks for a CUSTOM quote, complex repair, B2B services, or if you can't find a price. DO NOT use it for general greeting or basic information.
-                    Tag format: [WHATSAPP_HOOK: <Short summary of user request to pre-fill message IN THE SAME LANGUAGE AS THE CONVERSATION>]
-                12. ORDER TRACKING: If the user provides an Order ID (like 7A2B9C) or asks to track their order, and you find that ID in the conversation or they just provided it, you MUST use the following tag to trigger the tracking UI: [TRACK_ORDER: <ORDER_ID>]
+                6. BUYBACK: For selling, use "Up to €XX" based on the data provided as a MAXIMUM ESTIMATE. State: "This is a maximum estimate. Use the link below for an exact quote."
+                7. MODEL SPECIFICITY: Be extremely careful with "Standard" vs "Pro/Max".
+                8. LINKS: Never show raw URLs. Always use [Title](URL).
+                9. PRIORITY SHOP (SCHAERBEEK): Always prioritize "Belmobile Liedts" in Schaerbeek. Fast repairs, most stock 🚀.
+                10. CLOSED LOCATIONS: Molenbeek (Tour & Taxis) is TEMPORARILY CLOSED. Redirect to Schaerbeek.
+                11. ANDERLECHT: Mention only if asked or closer to user.
+                12. SMART HOOK: Append [WHATSAPP_HOOK: <Summary>] for custom quotes/B2B only.
+                13. ORDER TRACKING: Trigger UI with [TRACK_ORDER: <ORDER_ID>].
 
 
                 KNOWLEDGE BASE:

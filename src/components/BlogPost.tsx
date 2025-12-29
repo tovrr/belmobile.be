@@ -1,14 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
-import { ArrowLeftIcon, CalendarDaysIcon, UserIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, CalendarDaysIcon, UserIcon, ClockIcon, WrenchScrewdriverIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import SchemaMarkup from '../components/SchemaMarkup';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 import { BlogPost as BlogPostType, Product } from '../types';
 
@@ -24,6 +25,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ initialPost }) => {
 
 
     const post = initialPost || blogPosts.find(p => String(p.id) === String(id));
+    const localizedSlug = post?.slugs?.[language] || post?.slug;
 
     if (!post) {
         return (
@@ -61,6 +63,13 @@ const BlogPost: React.FC<BlogPostProps> = ({ initialPost }) => {
     const localizedContent = contentTrans !== contentKey ? contentTrans : post.content;
     const localizedCategory = categoryTrans !== categoryKey ? categoryTrans : post.category;
 
+    const readingTime = useMemo(() => {
+        const wordsPerMinute = 200;
+        const noOfWords = localizedContent.split(/\s+/g).length;
+        const minutes = noOfWords / wordsPerMinute;
+        return Math.ceil(minutes);
+    }, [localizedContent]);
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pt-32 pb-20 relative overflow-hidden">
             {/* Background Gradients */}
@@ -72,17 +81,19 @@ const BlogPost: React.FC<BlogPostProps> = ({ initialPost }) => {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl relative z-10">
                 <SchemaMarkup
                     type="article"
-                    product={{
-                        id: post.id,
-                        name: localizedTitle,
-                        description: localizedExcerpt,
-                        imageUrl: post.imageUrl,
-                        price: 0,
-                        slug: post.slug,
-                        availability: {},
+                    article={{
+                        headline: localizedTitle,
+                        image: post.imageUrl,
                         author: post.author,
-                        date: post.date
-                    } as unknown as Product}
+                        datePublished: post.date,
+                        description: localizedExcerpt,
+                        slug: post.slug
+                    }}
+                    breadcrumbs={[
+                        { name: t('Home'), item: `https://belmobile.be/${language}` },
+                        { name: 'Blog', item: `https://belmobile.be/${language}/blog` },
+                        { name: localizedTitle, item: `https://belmobile.be/${language}/blog/${localizedSlug}` }
+                    ]}
                 />
 
                 <Link
@@ -122,18 +133,51 @@ const BlogPost: React.FC<BlogPostProps> = ({ initialPost }) => {
                                 <span className="mr-1">{t('By')}</span>
                                 <span className="font-bold text-gray-900 dark:text-white">{post.author}</span>
                             </span>
-                            <span className="flex items-center">
+                            <span className="flex items-center mr-8">
                                 <CalendarDaysIcon className="h-5 w-5 mr-2 text-primary dark:text-bel-blue" />
                                 {t('Posted on')} {post.date}
+                            </span>
+                            <span className="flex items-center">
+                                <ClockIcon className="h-5 w-5 mr-2 text-primary dark:text-bel-blue" />
+                                {readingTime} {t('min read')}
                             </span>
                         </div>
 
 
 
-                        <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed">
-                            <ReactMarkdown>
-                                {localizedContent}
-                            </ReactMarkdown>
+                        <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-relaxed 
+                                      prose-headings:text-gray-900 dark:prose-headings:text-white 
+                                      prose-a:text-primary dark:prose-a:text-bel-blue prose-strong:text-gray-900 dark:prose-strong:text-white
+                                      prose-table:border prose-table:border-gray-200 dark:prose-table:border-white/10
+                                      prose-th:bg-gray-50 dark:prose-th:bg-white/5 prose-th:px-4 prose-th:py-3
+                                      prose-td:px-4 prose-td:py-3 overflow-hidden">
+                            <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-white/10">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {localizedContent}
+                                </ReactMarkdown>
+                            </div>
+                        </div>
+
+                        {/* Sticky CTA / Action Plan Footer */}
+                        <div className="mt-16 p-8 rounded-3xl bg-linear-to-br from-primary to-bel-blue text-white shadow-2xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32 group-hover:scale-110 transition-transform duration-700" />
+                            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                                <div className="max-w-xl">
+                                    <h3 className="text-2xl font-black mb-2 flex items-center">
+                                        <WrenchScrewdriverIcon className="h-6 w-6 mr-3" />
+                                        {t('Ready to restore your device?')}
+                                    </h3>
+                                    <p className="text-white/80 font-medium">
+                                        {t('Belmobile is the premier choice for expert electronics repair in Brussels. Fast, reliable, and data-secure.')}
+                                    </p>
+                                </div>
+                                <Link
+                                    href={`/${language}/#wizard`}
+                                    className="whitespace-nowrap bg-bel-yellow hover:bg-yellow-400 text-black px-8 py-4 rounded-2xl font-black transition-all shadow-lg hover:shadow-bel-yellow/30 hover:-translate-y-1"
+                                >
+                                    {t('Get a Free Quote')}
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </article>

@@ -134,7 +134,7 @@ const ExpressCourierClient: React.FC = () => {
                                     <div>
                                         <p className="font-bold text-xl">{t('courier_zone_tt_title')}</p>
                                         <p className="text-slate-400 text-sm mt-1">{t('courier_zone_tt_desc')}</p>
-                                        <span className="inline-block mt-2 text-xs font-black uppercase text-amber-400 px-2 py-0.5 border border-amber-400/30 rounded">Free / Gratuit / Gratis</span>
+                                        <span className="inline-block mt-2 text-xs font-black uppercase text-amber-400 px-2 py-0.5 border border-amber-400/30 rounded">{t('courier_free_badge')}</span>
                                     </div>
                                 </li>
                                 <li className="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
@@ -144,26 +144,21 @@ const ExpressCourierClient: React.FC = () => {
                                     <div>
                                         <p className="font-bold text-xl">{t('courier_zone_bxl_title')}</p>
                                         <p className="text-slate-400 text-sm mt-1">{t('courier_zone_bxl_desc')}</p>
-                                        <span className="inline-block mt-2 text-xs font-black uppercase text-amber-400 px-2 py-0.5 border border-amber-400/30 rounded">15€ Flat Fee</span>
+                                        <span className="inline-block mt-2 text-xs font-black uppercase text-amber-400 px-2 py-0.5 border border-amber-400/30 rounded">{t('courier_flat_fee_badge')}</span>
                                     </div>
                                 </li>
                             </ul>
                             <div className="p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20">
                                 <p className="text-sm italic opacity-80">
-                                    {language === 'fr'
-                                        ? "Depuis que notre atelier de Molenbeek est temporairement fermé, nous avons dédié une flotte de coursiers pour réduire la distance. Mêmes techniciens, même qualité, zéro déplacement pour vous."
-                                        : language === 'nl'
-                                            ? "Sinds onze werkplaats in Molenbeek tijdelijk gesloten is, hebben we een vloot koeriers ingezet om de afstand te overbruggen. Dezelfde technici, dezelfde kwaliteit, nul verplaatsing voor u."
-                                            : "Since our Molenbeek workshop is temporarily closed, we've dedicated a courier fleet to bridge the gap. Same technicians, same quality, zero travel for you."
-                                    }
+                                    {t('courier_info_text')}
                                 </p>
                             </div>
                         </div>
                         <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10">
                             <div className="absolute inset-0 bg-linear-to-br from-bel-blue/20 to-slate-900 border border-white/20 flex flex-col items-center justify-center p-8 text-center">
                                 <MapPinIcon className="h-16 w-16 text-bel-blue mb-4 animate-bounce" />
-                                <p className="font-bold text-2xl mb-2">Brussels Express Hub</p>
-                                <p className="text-slate-400 italic">1030 Schaerbeek ↔ 1000 Brussels Hub</p>
+                                <p className="font-bold text-2xl mb-2">{t('courier_map_hub_title')}</p>
+                                <p className="text-slate-400 italic">{t('courier_map_hub_desc')}</p>
                             </div>
                         </div>
                     </div>

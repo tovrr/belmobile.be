@@ -19,6 +19,7 @@ export interface PricingParams {
     hasHydrogel?: boolean;
     deliveryMethod?: 'dropoff' | 'send' | 'courier' | null;
     courierTier?: 'bridge' | 'brussels';
+    controllerCount?: number | null;
 }
 
 export interface PricingData {
@@ -53,6 +54,13 @@ export const calculateBuybackPriceShared = (params: PricingParams, data: Pricing
     if (params.bodyState === 'scratches') baseParamsPrice -= 20;
     if (params.bodyState === 'dents') baseParamsPrice -= backRepairPrice;
     if (params.bodyState === 'bent') baseParamsPrice -= (backRepairPrice + 40);
+
+    // Console Logic: Adjust for controllers (Base price assumes 1 controller)
+    if (params.deviceType === 'console_home' && typeof params.controllerCount === 'number') {
+        const CONTROLLER_VALUE = 30; // Estimated value per controller
+        if (params.controllerCount === 0) baseParamsPrice -= CONTROLLER_VALUE;
+        if (params.controllerCount === 2) baseParamsPrice += CONTROLLER_VALUE;
+    }
 
     return Math.max(0, Math.round(baseParamsPrice));
 };

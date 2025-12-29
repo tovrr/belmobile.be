@@ -1,0 +1,8 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Icon Centered (Original 100x100) -> Scale 3x -> 300x300. Translate to Center (106, 106) -->
+    <g transform="translate(106, 106) scale(3)">
+        <path d="M60 10 H 40 C 25 10 20 25 20 40 V 70 C 20 85 30 90 45 90 H 65 C 80 90 85 80 85 65 V 55" stroke="#EAB308" stroke-width="10" stroke-linecap="round" />
+        <circle cx="52" cy="78" r="4" fill="#EAB308" />
+        <path d="M75 15 V 45 M 60 30 H 90" stroke="#DC2626" stroke-width="10" stroke-linecap="round" />
+    </g>
+</svg>

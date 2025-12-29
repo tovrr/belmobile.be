@@ -112,9 +112,9 @@ export const pricingService = {
                 const mock = MOCK_REPAIR_PRICES.find(p => p.id === dId);
                 if (mock) {
                     // Map mock fields to dynamic keys (Correct IDs from repair-issues.ts)
-                    if (mock.charging_port) rPrices['hdmi'] = mock.charging_port; // 'hdmi' is the correct ID
-                    if (mock.battery) rPrices['power_supply'] = mock.battery; // Reusing battery slot for PSU
-                    if (mock.screen_generic) rPrices['disc_drive'] = 80; // Mock value
+                    if (typeof mock.charging_port === 'number') rPrices['hdmi'] = mock.charging_port; // 'hdmi' is the correct ID
+                    if (typeof mock.battery === 'number') rPrices['power_supply'] = mock.battery; // Reusing battery slot for PSU
+                    if (typeof mock.screen_generic === 'number') rPrices['disc_drive'] = 80; // Mock value
                     rPrices['cleaning'] = 60; // Standard cleaning price
                 }
             }

@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useData } from '../hooks/useData';
-import { MapPinIcon, PhoneIcon, EnvelopeIcon, PaperAirplaneIcon, ArrowUpTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, PhoneIcon, EnvelopeIcon, PaperAirplaneIcon, ArrowUpTrayIcon, XMarkIcon, ChatBubbleLeftRightIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../hooks/useLanguage';
 import FAQ from '../components/FAQ';
 import SchemaMarkup from '../components/SchemaMarkup';
@@ -19,13 +20,50 @@ import Skeleton from './ui/Skeleton';
 
 const Contact: React.FC = () => {
     const { shops, loadingShops, sendEmail, addContactMessage } = useData();
-    const { t } = useLanguage();
+    const { language, t } = useLanguage();
     const [submitted, setSubmitted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [honeypot, setHoneypot] = useState('');
     const [attachment, setAttachment] = useState<File | null>(null);
     const [attachmentError, setAttachmentError] = useState<string | null>(null);
     const [privacyAccepted, setPrivacyAccepted] = useState(false);
+    const [initialSubject, setInitialSubject] = useState('');
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const subject = searchParams.get('subject');
+        if (subject) {
+            setInitialSubject(subject);
+        }
+    }, [searchParams]);
+
+    const contactLinks = [
+        {
+            icon: PhoneIcon,
+            title: 'support_call_label',
+            value: '+32 2 275 98 67',
+            href: 'tel:+3222759867',
+            color: 'bg-blue-500'
+        },
+        {
+            icon: ChatBubbleLeftRightIcon,
+            title: 'support_whatsapp_label',
+            value: 'WhatsApp',
+            href: `https://wa.me/32484837560?text=${encodeURIComponent(t('whatsapp_message') || 'Bonjour Belmobile, j\'ai une question :')}`,
+            color: 'bg-green-500'
+        },
+        {
+            icon: SparklesIcon,
+            title: 'support_chat_label',
+            value: 'AI Assistant',
+            href: '#chat',
+            color: 'bg-purple-500',
+            onClick: (e: React.MouseEvent) => {
+                e.preventDefault();
+                window.dispatchEvent(new CustomEvent('open-ai-chat'));
+            }
+        }
+    ];
 
     // Sort shops: Active shops first, Coming Soon last
     const sortedShops = useMemo(() => {
@@ -208,10 +246,31 @@ const Contact: React.FC = () => {
             </div>
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-10 pb-20 relative z-20">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
+                {/* Quick Support - Horizontal Links */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+                    {contactLinks.map((link) => (
+                        <a
+                            key={link.title}
+                            href={link.href}
+                            onClick={link.onClick}
+                            className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-6 rounded-2xl border border-white/20 dark:border-white/5 shadow-lg hover:shadow-xl transition-all group"
+                        >
+                            <div className="flex items-center space-x-4">
+                                <div className={`p-3 rounded-xl ${link.color} text-white group-hover:scale-110 transition-transform`}>
+                                    <link.icon className="w-6 h-6" />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t(link.title)}</p>
+                                    <p className="text-sm font-bold text-bel-dark dark:text-white mt-0.5">{link.value}</p>
+                                </div>
+                            </div>
+                        </a>
+                    ))}
+                </div>
 
-                    {/* Contact Form - Sticky */}
-                    <div className="lg:sticky lg:top-32 animate-fade-in-up delay-300">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 lg:gap-16 items-start">
+                    {/* Contact Form */}
+                    <div className="xl:col-span-8 animate-fade-in-up delay-300 xl:sticky xl:top-32">
                         <div className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-8 lg:p-10 rounded-3xl shadow-2xl border border-white/20 dark:border-white/5 ring-1 ring-black/5 dark:ring-white/10">
                             {submitted ? (
                                 <div className="text-center py-16">
@@ -282,6 +341,8 @@ const Contact: React.FC = () => {
                                         name="subject"
                                         label={t('contact_subject')}
                                         required
+                                        value={initialSubject}
+                                        onChange={(e) => setInitialSubject(e.target.value)}
                                         options={[
                                             { value: '', label: t('contact_subject_placeholder') },
                                             { value: 'info', label: t('contact_subject_info') },
@@ -378,124 +439,101 @@ const Contact: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Stores List */}
-                    <div className="space-y-8 animate-fade-in-up delay-400">
-                        <div>
-                            <h2 className="text-3xl font-bold text-bel-dark dark:text-white mb-2">{t('contact_locations_title')}</h2>
-                            <p className="text-gray-500 dark:text-gray-400">{t('contact_locations_subtitle')}</p>
-                        </div>
-
-                        {loadingShops && shops.length === 0 ? (
-                            <div className="grid grid-cols-1 gap-6">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="space-y-3 w-48">
-                                                <Skeleton variant="text" className="h-6 w-3/4" />
-                                                <Skeleton variant="text" className="h-4 w-1/2" />
-                                            </div>
-                                            <Skeleton variant="circle" />
-                                        </div>
-                                        <div className="space-y-2 mt-6">
-                                            <Skeleton variant="text" className="h-4" />
-                                            <Skeleton variant="text" className="h-4 w-2/3" />
-                                        </div>
-                                    </div>
-                                ))}
+                    {/* Sidebar: Shop Addresses & Details */}
+                    <div className="xl:col-span-4 animate-fade-in-up delay-400">
+                        <div className="space-y-6 xl:sticky xl:top-32">
+                            <div>
+                                <h2 className="text-3xl font-bold text-bel-dark dark:text-white mb-2">{t('contact_locations_title')}</h2>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{t('contact_locations_subtitle')}</p>
                             </div>
-                        ) : (
-                            <div className="grid grid-cols-1 gap-6">
-                                {sortedShops.map((shop, idx) => (
-                                    <FadeIn key={shop.id} delay={idx * 0.1}>
-                                        <div
-                                            className={`
-                                                relative bg-white dark:bg-slate-800 p-8 rounded-3xl border transition-all duration-300 group
-                                                ${shop.isPrimary
-                                                    ? 'border-bel-blue ring-2 ring-bel-blue/20 shadow-xl shadow-bel-blue/10'
-                                                    : shop.status === 'coming_soon'
-                                                        ? 'border-dashed border-gray-300 dark:border-slate-700 opacity-90'
-                                                        : 'border-gray-100 dark:border-white/5 shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-1 hover:border-bel-blue/30 dark:hover:border-blue-500/30'
-                                                }
-                                            `}
-                                        >
-                                            {/* Priority Badge */}
-                                            {shop.badge && (
-                                                <div className="absolute top-0 right-0">
-                                                    <div className="bg-bel-blue text-white text-[10px] font-bold px-3 py-1 rounded-tr-3xl rounded-bl-xl uppercase tracking-tighter animate-pulse">
-                                                        {shop.badge}
-                                                    </div>
-                                                </div>
-                                            )}
 
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div>
-                                                    <h3 className={`text-xl font-bold mb-1 ${shop.status === 'coming_soon' ? 'text-gray-500 dark:text-gray-400' : 'text-bel-dark dark:text-white group-hover:text-bel-blue dark:group-hover:text-blue-400 transition-colors'}`}>
-                                                        {shop.name}
-                                                    </h3>
-                                                    {shop.status === 'coming_soon' ? (
-                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500">
-                                                            {t('Coming Soon')}
-                                                        </span>
-                                                    ) : shop.status === 'temporarily_closed' ? (
-                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                                                            <span className="w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span>
-                                                            {t('Temporarily Closed')}
-                                                        </span>
-                                                    ) : isShopOpen(shop.openingHours) ? (
-                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                                                            <span className="w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-pulse"></span>
-                                                            {t('Open Now')}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                                                            <span className="w-2 h-2 rounded-full bg-red-500 mr-1.5"></span>
-                                                            {t('Closed')}
-                                                        </span>
+                            {loadingShops && shops.length === 0 ? (
+                                <div className="space-y-6">
+                                    {[1, 2, 3].map((i) => (
+                                        <div key={i} className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-6 rounded-3xl border border-white/20 dark:border-white/5 shadow-lg">
+                                            <Skeleton variant="text" className="h-6 w-3/4 mb-4" />
+                                            <Skeleton variant="text" className="h-4 w-1/2" />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    {sortedShops.map((shop, idx) => (
+                                        <FadeIn key={shop.id} delay={idx * 0.1}>
+                                            <div
+                                                className={`
+                                                    relative bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-6 rounded-3xl border transition-all duration-300 group
+                                                    ${shop.isPrimary
+                                                        ? 'border-bel-blue ring-2 ring-bel-blue/20 shadow-xl'
+                                                        : shop.status === 'coming_soon'
+                                                            ? 'border-dashed border-gray-300 dark:border-slate-700 opacity-90'
+                                                            : 'border-white/20 dark:border-white/5 shadow-lg hover:border-bel-blue/30'
+                                                    }
+                                                `}
+                                            >
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <div>
+                                                        <h3 className={`text-lg font-bold ${shop.status === 'coming_soon' ? 'text-gray-500' : 'text-bel-dark dark:text-white group-hover:text-bel-blue transition-colors'}`}>
+                                                            {shop.name}
+                                                        </h3>
+                                                        {shop.status === 'coming_soon' ? (
+                                                            <span className="text-[10px] font-bold text-yellow-600 uppercase tracking-widest">{t('Coming Soon')}</span>
+                                                        ) : isShopOpen(shop.openingHours) ? (
+                                                            <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest">{t('Open Now')}</span>
+                                                        ) : (
+                                                            <span className="text-[10px] font-bold text-red-400 uppercase tracking-widest">{t('Closed')}</span>
+                                                        )}
+                                                    </div>
+                                                    <MapPinIcon className="w-5 h-5 text-gray-400" />
+                                                </div>
+
+                                                <div className="space-y-3 text-sm">
+                                                    <div className="flex items-start">
+                                                        <MapPinIcon className="w-4 h-4 mr-2 text-gray-400 mt-0.5" />
+                                                        <span className="text-gray-600 dark:text-gray-400">{shop.address}</span>
+                                                    </div>
+                                                    {shop.phone && (
+                                                        <div className="flex items-center">
+                                                            <PhoneIcon className="w-4 h-4 mr-2 text-gray-400" />
+                                                            <a href={`tel:${shop.phone}`} className="text-gray-600 dark:text-gray-400 hover:text-bel-blue transition-colors text-xs font-semibold">
+                                                                {shop.phone}
+                                                            </a>
+                                                        </div>
+                                                    )}
+                                                    {shop.email && (
+                                                        <div className="flex items-center">
+                                                            <EnvelopeIcon className="w-4 h-4 mr-2 text-gray-400" />
+                                                            <a href={`mailto:${shop.email}`} className="text-gray-600 dark:text-gray-400 hover:text-bel-blue transition-colors text-xs font-semibold break-all">
+                                                                {shop.email}
+                                                            </a>
+                                                        </div>
                                                     )}
                                                 </div>
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${shop.isPrimary ? 'bg-bel-blue text-white' : 'bg-gray-50 dark:bg-slate-700 text-gray-400 group-hover:bg-bel-blue group-hover:text-white'}`}>
-                                                    <MapPinIcon className="w-5 h-5" />
-                                                </div>
-                                            </div>
 
-                                            <div className="space-y-3">
-                                                <div className="flex items-start group/addr">
-                                                    <MapPinIcon className="w-5 h-5 mr-3 text-gray-400 mt-0.5 group-hover/addr:text-bel-blue transition-colors" />
-                                                    <span className="text-gray-600 dark:text-gray-300">{shop.address}</span>
-                                                </div>
-                                                {shop.phone && (
-                                                    <div className="flex items-center group/phone">
-                                                        <PhoneIcon className="w-5 h-5 mr-3 text-gray-400 group-hover/phone:text-bel-blue transition-colors" />
-                                                        <a href={`tel:${shop.phone}`} className="text-gray-600 dark:text-gray-300 hover:text-bel-dark dark:hover:text-white transition-colors">
-                                                            {shop.phone}
+                                                {shop.status !== 'coming_soon' && (
+                                                    <div className="mt-6 pt-4 border-t border-gray-100 dark:border-white/5">
+                                                        <a
+                                                            href={shop.googleMapUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="block w-full py-2 rounded-xl bg-gray-50 dark:bg-white/5 text-bel-dark dark:text-white font-bold text-center hover:bg-gray-100 dark:hover:bg-white/10 transition-all text-xs"
+                                                        >
+                                                            {t('Get Directions')}
                                                         </a>
                                                     </div>
                                                 )}
                                             </div>
-
-                                            {shop.status !== 'coming_soon' && (
-                                                <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 flex gap-4">
-                                                    <a
-                                                        href={shop.googleMapUrl || `https://www.google.com/maps?q=${shop.coords?.lat},${shop.coords?.lng}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex-1 py-2.5 px-4 rounded-xl bg-gray-50 dark:bg-slate-700/50 text-bel-dark dark:text-white font-semibold text-center hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-sm"
-                                                    >
-                                                        {t('Get Directions')}
-                                                    </a>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </FadeIn>
-                                ))}
-                            </div>
-                        )}
+                                        </FadeIn>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div className="mt-20 pt-20 border-t border-gray-200 dark:border-white/5">
-                    <FAQ />
-                </div>
+            <div className="mt-20 pt-20 border-t border-gray-200 dark:border-white/5">
+                <FAQ />
             </div>
         </div>
     );

@@ -1,5 +1,6 @@
 import Blog from '../../../components/Blog';
 import { Metadata } from 'next';
+import { getFixedT } from '../../../utils/i18nFixed';
 
 type Props = {
     params: Promise<{ lang: string }>
@@ -7,20 +8,11 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang } = await params;
-    const titles: Record<string, string> = {
-        en: 'Blog - Latest News & Tips | Belmobile',
-        fr: 'Blog - Dernières Nouvelles & Conseils | Belmobile',
-        nl: 'Blog - Laatste Nieuws & Tips | Belmobile'
-    };
-    const descriptions: Record<string, string> = {
-        en: 'Stay updated with the latest mobile tech news, repair tips, and sustainability guides from Belmobile.',
-        fr: 'Restez informé des dernières nouvelles technologiques mobiles, conseils de réparation et guides de durabilité de Belmobile.',
-        nl: 'Blijf op de hoogte van het laatste mobiele tech-nieuws, reparatietips en duurzaamheidsgidsen van Belmobile.'
-    };
+    const t = getFixedT(lang);
 
     return {
-        title: titles[lang] || titles['en'],
-        description: descriptions[lang] || descriptions['en'],
+        title: t('meta_blog_title'),
+        description: t('meta_blog_description'),
     };
 }
 

@@ -1,54 +1,94 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { useLanguage } from '../../hooks/useLanguage';
-import { ChevronDownIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
-import { AnimatePresence, motion } from 'framer-motion';
+import { slugToDisplayName } from '../../utils/slugs';
+import { QuestionMarkCircleIcon, PhoneIcon, ChatBubbleLeftRightIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
-interface FAQ {
-    q: string;
-    a: string;
-    steps: number[];
-    flows?: ('buyback' | 'repair')[];
+interface ContactButtonProps {
+    icon: React.ElementType;
+    title: string;
+    value: string;
+    href: string;
+    color: string;
+    onClick?: (e: React.MouseEvent) => void;
 }
 
-export const WizardFAQ: React.FC<{ currentStep: number; flow: 'buyback' | 'repair' }> = ({ currentStep, flow }) => {
+const ContactButton: React.FC<ContactButtonProps> = ({ icon: Icon, title, value, href, color, onClick }) => {
     const { t } = useLanguage();
-    const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-    const faqs: FAQ[] = useMemo(() => [
-        {
-            q: t('faq_condition_q'),
-            a: t('faq_condition_a'),
-            steps: [3, 4], // Expanded for both flows logic if needed
-            flows: ['buyback']
-        },
-        {
-            q: t('faq_payment_q'),
-            a: t('faq_payment_a'), // "When will I be paid?" - Buyback only
-            steps: [4, 5],
-            flows: ['buyback']
-        },
-        {
-            q: t('faq_privacy_q'),
-            a: t('faq_privacy_a'),
-            steps: [5, 4], // Step 5 in buyback, Step 4 in repair
-            flows: ['buyback', 'repair']
-        },
-        {
-            q: t('faq_repair_time_q'), // "How long does repair take?" - Repair only
-            a: t('faq_repair_time_a'),
-            steps: [2, 3],
-            flows: ['repair']
-        }
-    ], [t]);
-
-    const activeFaqs = faqs.filter(f =>
-        f.steps.includes(currentStep) &&
-        (!f.flows || f.flows.includes(flow))
+    return (
+        <a
+            href={href}
+            onClick={onClick}
+            target={href.startsWith('http') ? '_blank' : undefined}
+            rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+            className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white dark:bg-slate-900/50 border border-gray-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group h-full"
+        >
+            <div className={`p-2.5 rounded-xl ${color} text-white mb-2 group-hover:scale-110 transition-transform`}>
+                <Icon className="w-5 h-5" />
+            </div>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-wider text-center mb-0.5 leading-tight">{t(title)}</p>
+            <p className="text-xs font-bold text-slate-900 dark:text-white text-center leading-tight">{value}</p>
+        </a>
     );
+};
 
-    if (activeFaqs.length === 0) return null;
+export const WizardFAQ: React.FC<{
+    currentStep?: number;
+    flow?: 'buyback' | 'repair';
+    deviceType?: string;
+    selectedBrand?: string;
+    selectedModel?: string;
+}> = ({ flow, deviceType, selectedBrand, selectedModel }) => {
+    const { t } = useLanguage();
+
+    // Construct WhatsApp Message
+    const getWhatsAppMessage = () => {
+        if (selectedBrand && selectedModel && flow) {
+            const template = flow === 'buyback' ? 'whatsapp_msg_buyback' : 'whatsapp_msg_repair';
+            // We need to fetch the translated template and replace placeholders
+            // Since `t` usually just returns the string, we might need a helper or manual replace if `t` doesn't support interpolation directly in this project's setup.
+            // Assuming `t` returns the raw string if no interpolation support or checking if we need to do manual replace.
+            // Based on earlier usage i.e., {0}, likely manual replace or formatted.
+            // Let's assume manual replacement for safety if `t` signature isn't known to be smart.
+            let msg = t(template) || '';
+            const brand = selectedBrand || '';
+            const model = selectedModel ? (slugToDisplayName ? slugToDisplayName(selectedModel) : selectedModel) : '';
+
+            // Replace {0} with Brand, {1} with Model
+            msg = msg.replace('{0}', brand).replace('{1}', model);
+            return msg;
+        }
+        return t('whatsapp_msg_general');
+    };
+
+    const buttons = [
+        {
+            icon: PhoneIcon,
+            title: 'support_call_label',
+            value: '+32 2 275 98 67',
+            href: 'tel:+3222759867',
+            color: 'bg-blue-500'
+        },
+        {
+            icon: ChatBubbleLeftRightIcon,
+            title: 'support_whatsapp_label',
+            value: 'WhatsApp',
+            href: `https://wa.me/32484837560?text=${encodeURIComponent(getWhatsAppMessage())}`,
+            color: 'bg-green-500'
+        },
+        {
+            icon: SparklesIcon,
+            title: 'support_chat_label',
+            value: 'AI Assistant',
+            href: '#chat',
+            color: 'bg-purple-500',
+            onClick: (e: React.MouseEvent) => {
+                e.preventDefault();
+                window.dispatchEvent(new CustomEvent('open-ai-chat'));
+            }
+        }
+    ];
 
     return (
         <div className="mt-8 space-y-4 animate-fade-in border-t border-gray-100 dark:border-slate-800 pt-8">
@@ -57,38 +97,9 @@ export const WizardFAQ: React.FC<{ currentStep: number; flow: 'buyback' | 'repai
                 {t('need_help_title')}
             </h4>
 
-            <div className="space-y-3">
-                {activeFaqs.map((faq, idx) => (
-                    <div
-                        key={idx}
-                        className="bg-white dark:bg-slate-900/50 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-all"
-                    >
-                        <button
-                            onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                            className="w-full flex justify-between items-center text-left p-4 focus:outline-none"
-                            aria-expanded={openIndex === idx}
-                        >
-                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200 pr-4">{faq.q}</span>
-                            <ChevronDownIcon
-                                className={`h-4 w-4 text-gray-500 transition-transform duration-300 ${openIndex === idx ? 'rotate-180' : ''}`}
-                            />
-                        </button>
-
-                        <AnimatePresence>
-                            {openIndex === idx && (
-                                <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    className="px-4 pb-4 overflow-hidden"
-                                >
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                                        {faq.a}
-                                    </p>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
+            <div className="grid grid-cols-3 gap-3">
+                {buttons.map((btn, idx) => (
+                    <ContactButton key={idx} {...btn} />
                 ))}
             </div>
         </div>

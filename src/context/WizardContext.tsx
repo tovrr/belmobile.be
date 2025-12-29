@@ -27,6 +27,7 @@ export interface WizardState {
     repairIssues: string[];
     hasHydrogel: boolean;
     selectedScreenQuality: 'generic' | 'oled' | 'original' | '';
+    controllerCount: number | null; // For home consoles (number of joysticks)
 
     // User Info
     customerName: string;
@@ -81,6 +82,7 @@ const initialState: WizardState = {
     repairIssues: [],
     hasHydrogel: false,
     selectedScreenQuality: '',
+    controllerCount: null,
     customerName: '',
     customerEmail: '',
     customerPhone: '',

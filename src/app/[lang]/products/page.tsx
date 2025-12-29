@@ -22,9 +22,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         nl: 'Bekijk onze selectie van hoogwaardige gereviseerde apparaten.'
     };
 
+    const keywords: Record<string, string> = {
+        en: 'refurbished iphone, buy used samsung, macbook belgium, second hand smartphone brussels, cheap iphone 13',
+        fr: 'iphone reconditionné, acheter samsung occasion, macbook belgique, smartphone pas cher bruxelles, iphone 13 occasion',
+        nl: 'refurbished iphone, tweedehands samsung kopen, macbook belgie, goedkope smartphone brussel, iphone 13 occasie'
+    };
+
     return {
         title: titles[lang] || titles['en'],
         description: descriptions[lang] || descriptions['en'],
+        keywords: keywords[lang] || keywords['en'],
+        alternates: {
+            canonical: `https://belmobile.be/${lang}/products`,
+        }
     };
 }
 

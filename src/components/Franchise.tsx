@@ -89,9 +89,7 @@ const Franchise: React.FC = () => {
                         <BoltIcon className="h-4 w-4 mr-2 text-cyber-citron" />
                         {t('franchise_badge')}
                     </div>
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-white mb-8 leading-tight">
-                        {t('franchise_hero_title')}
-                    </h1>
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight text-white mb-8 leading-tight" dangerouslySetInnerHTML={{ __html: t('franchise_hero_title') }} />
                     <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-slate-300 leading-relaxed mb-10">
                         {t('franchise_hero_subtitle')}
                     </p>
@@ -100,13 +98,13 @@ const Franchise: React.FC = () => {
                             onClick={(e) => scrollToSection(e, 'apply-form')}
                             className="px-8 py-4 bg-cyber-citron text-slate-900 font-bold rounded-xl hover:bg-white transition-all shadow-glow-accent flex items-center justify-center cursor-pointer"
                         >
-                            {t('Start Your Application')} <ArrowRightIcon className="h-5 w-5 ml-2" />
+                            {t('apply_now')} <ArrowRightIcon className="h-5 w-5 ml-2" />
                         </button>
                         <button
                             onClick={(e) => scrollToSection(e, 'benefits')}
                             className="px-8 py-4 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 border border-white/20 transition-all backdrop-blur-sm flex items-center justify-center cursor-pointer"
                         >
-                            {t('Learn More')}
+                            {t('learn_more')}
                         </button>
                     </div>
                 </div>

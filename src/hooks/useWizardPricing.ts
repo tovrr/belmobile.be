@@ -43,7 +43,8 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
             ...state,
             type: 'buyback',
             brand: state.selectedBrand,
-            model: state.selectedModel
+            model: state.selectedModel,
+            controllerCount: state.controllerCount
         }, state.pricingData);
     }, [type, state]);
 

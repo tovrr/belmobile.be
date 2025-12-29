@@ -2,12 +2,15 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { MOCK_BLOG_POSTS } from '../constants';
 import { useLanguage } from '../hooks/useLanguage';
-import Logo from './Logo';
+
 
 import { LOCATIONS } from '../data/locations';
 import { PaperAirplaneIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { Bike } from 'lucide-react';
 import Input from './ui/Input';
+import Logo from './ui/Logo';
 
 const POPULAR_REPAIRS = [
     { name: 'iPhone 15 Pro Max', brand: 'Apple', model: 'iPhone 15 Pro Max', category: 'smartphone' },
@@ -59,26 +62,58 @@ const Footer: React.FC = () => {
             segments.unshift(newLang);
         }
 
-        // Handle Product Translations
-        const productTerms = { en: 'products', fr: 'produits', nl: 'producten' };
-        const repairTerms = { en: 'repair', fr: 'reparation', nl: 'reparatie' };
-        const buybackTerms = { en: 'buyback', fr: 'rachat', nl: 'inkoop' };
-        const storeTerms = { en: 'stores', fr: 'magasins', nl: 'winkels' };
+        // Handle Comprehensive Slug Translations
+        const slugMappings: Record<string, Record<string, string>> = {
+            products: { en: 'products', fr: 'produits', nl: 'producten' },
+            repair: { en: 'repair', fr: 'reparation', nl: 'reparatie' },
+            buyback: { en: 'buyback', fr: 'rachat', nl: 'inkoop' },
+            stores: { en: 'stores', fr: 'magasins', nl: 'winkels' },
+            services: { en: 'services', fr: 'services', nl: 'diensten' },
+            about: { en: 'about', fr: 'a-propos', nl: 'over-ons' },
+            sustainability: { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' },
+            students: { en: 'students', fr: 'etudiants', nl: 'studenten' },
+            courier: { en: 'express-courier', fr: 'coursier-express', nl: 'express-koerier' },
+            careers: { en: 'careers', fr: 'carrieres', nl: 'vacatures' },
+            warranty: { en: 'warranty', fr: 'garantie', nl: 'garantie' },
+            privacy: { en: 'privacy', fr: 'vie-privee', nl: 'privacy' },
+            terms: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden' },
+            track: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen' },
+            business: { en: 'business', fr: 'business', nl: 'zakelijk' },
+            support: { en: 'support', fr: 'support', nl: 'ondersteuning' },
+            franchise: { en: 'franchise', fr: 'devenir-partenaire', nl: 'word-partner' },
+            'a-propos': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
+            'over-ons': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
+            'durabilite': { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' },
+            'duurzaamheid': { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' }
+        };
 
         // Helper to translate a segment if it matches any known term
-        const translateSegment = (segment: string, terms: Record<string, string>) => {
-            if (Object.values(terms).includes(segment)) {
-                return terms[newLang];
+        const translateSegment = (segment: string) => {
+            for (const key in slugMappings) {
+                const terms = slugMappings[key];
+                if (Object.values(terms).includes(segment)) {
+                    return terms[newLang];
+                }
             }
             return segment;
         };
 
         // Iterate through segments and translate known terms
         for (let i = 0; i < segments.length; i++) {
-            segments[i] = translateSegment(segments[i], productTerms);
-            segments[i] = translateSegment(segments[i], repairTerms);
-            segments[i] = translateSegment(segments[i], buybackTerms);
-            segments[i] = translateSegment(segments[i], storeTerms);
+            segments[i] = translateSegment(segments[i]);
+        }
+
+        // Special Handling for Blog Posts (Dynamic Slugs)
+        if (segments.includes('blog') && segments.length > segments.indexOf('blog') + 1) {
+            const blogIndex = segments.indexOf('blog');
+            const currentSlug = segments[blogIndex + 1];
+            const post = MOCK_BLOG_POSTS.find(p =>
+                p.slug === currentSlug ||
+                (p.slugs && Object.values(p.slugs).includes(currentSlug))
+            );
+            if (post && post.slugs) {
+                segments[blogIndex + 1] = post.slugs[newLang] || post.slug;
+            }
         }
 
         const newPath = '/' + segments.join('/');
@@ -104,14 +139,26 @@ const Footer: React.FC = () => {
             <div className="absolute top-0 left-0 w-full h-[2px] bg-linear-to-r from-transparent via-electric-indigo to-transparent shadow-[0_0_15px_rgba(99,102,241,0.8)] z-10"></div>
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-12">
+                <div className="grid grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-8 mb-12">
 
 
 
-                    {/* Brand Column (Span 4) */}
-                    <div className="lg:col-span-4">
+                    {/* Brand Column (Span 4) - Increased from 3 */}
+                    <div className="col-span-2 lg:col-span-4">
                         <Link href={`/${language}`} className="block mb-6 group">
-                            <Logo variant="light" className="scale-110 origin-left" />
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12">
+                                    <Logo className="w-full h-full" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="font-black text-3xl tracking-tighter text-white leading-none">
+                                        BELMOBILE<span className="text-cyber-citron">.BE</span>
+                                    </span>
+                                    <span className="text-[11px] font-bold tracking-[0.33em] text-slate-400 uppercase leading-none mt-1 group-hover:text-cyber-citron transition-colors">
+                                        {t('logo_slogan')}
+                                    </span>
+                                </div>
+                            </div>
                         </Link>
                         <p className="text-slate-400 leading-relaxed mb-8 max-w-sm">
                             {language === 'fr'
@@ -162,81 +209,263 @@ const Footer: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Services Column (Span 2) */}
-                    <div className="lg:col-span-2">
-                        <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('Services')}</h4>
+                    {/* Services Column (Span 3) - Increased from 2 */}
+                    <div className="col-span-1 lg:col-span-3">
+                        <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">
+                            <Link
+                                href={
+                                    language === 'nl'
+                                        ? '/nl/diensten'
+                                        : `/${language}/services`
+                                }
+                                className="hover:text-white transition-colors duration-200"
+                            >
+                                {t('Services')}
+                            </Link>
+                        </h4>
                         <ul className="space-y-4 text-sm text-slate-400">
                             <li><Link href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Repair')}</Link></li>
                             <li><Link href={`/${language}/${language === 'fr' ? 'rachat' : language === 'nl' ? 'inkoop' : 'buyback'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Buyback')}</Link></li>
                             <li><Link href={`/${language}${language === 'fr' ? '/produits' : language === 'nl' ? '/producten' : '/products'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Products')}</Link></li>
-                            <li><Link href={`/${language}/business`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Business Solutions')}</Link></li>
-                            <li><Link href={`/${language}/express-courier`} className="hover:text-white hover:translate-x-1 inline-block duration-200 font-bold text-cyber-citron transition-all animate-pulse hover:animate-none">{t('Express Courier')}</Link></li>
-                            <li><Link href={`/${language}/franchise`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Become a Partner')}</Link></li>
+                            <li>
+                                <Link
+                                    href={
+                                        language === 'nl'
+                                            ? '/nl/zakelijk'
+                                            : `/${language}/business`
+                                    }
+                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
+                                >
+                                    {t('Business Solutions')}
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href={
+                                        language === 'fr'
+                                            ? '/fr/services/recuperation-donnees'
+                                            : language === 'nl'
+                                                ? '/nl/services/data-recovery'
+                                                : `/${language}/services/data-recovery`
+                                    }
+                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
+                                >
+                                    {t('Data Recovery')}
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href={
+                                        language === 'fr'
+                                            ? '/fr/services/microsoudure'
+                                            : language === 'nl'
+                                                ? '/nl/services/microsolderen'
+                                                : `/${language}/services/microsoldering`
+                                    }
+                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
+                                >
+                                    {t('Microsoldering')}
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href={`/${language}/students`} className="hover:text-white transition-colors hover:translate-x-1 inline-flex items-center duration-200 group">
+                                    <span className="font-semibold text-white">{t('Student Offers')}</span>
+                                    <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                        -10%
+                                    </span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href={`/${language}/express-courier`} className="hover:text-white hover:translate-x-1 inline-flex items-center duration-200 group font-bold text-sky-400 transition-all">
+                                    <Bike className="w-4 h-4 mr-1.5 animate-pulse" />
+                                    {t('Express Courier')}
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href={
+                                        language === 'fr'
+                                            ? '/fr/devenir-partenaire'
+                                            : language === 'nl'
+                                                ? '/nl/word-partner'
+                                                : `/${language}/franchise`
+                                    }
+                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
+                                >
+                                    {t('Become a Partner')}
+                                </Link>
+                            </li>
                             <li><Link href={`/${language}/${language === 'fr' ? 'carrieres' : language === 'nl' ? 'vacatures' : 'jobs'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Careers')}</Link></li>
                         </ul>
                     </div>
 
-                    {/* Support Column (Span 3) */}
-                    <div className="lg:col-span-3">
-                        <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('Support')}</h4>
+                    {/* Support Column (Span 3) - Increased from 2 */}
+                    <div className="col-span-1 lg:col-span-3">
+                        <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">
+                            <Link
+                                href={
+                                    language === 'nl'
+                                        ? '/nl/ondersteuning'
+                                        : `/${language}/support`
+                                }
+                                className="hover:text-white transition-colors duration-200"
+                            >
+                                {t('Support')}
+                            </Link>
+                        </h4>
                         <ul className="space-y-4 text-sm text-slate-400">
                             <li><Link href={`/${language}/contact`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Contact Us')}</Link></li>
                             <li><Link href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${language === 'fr' ? 'bruxelles' : language === 'nl' ? 'brussel' : 'brussels'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Store Locator')}</Link></li>
                             <li><Link href={`/${language}/faq`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Help Center')}</Link></li>
-                            <li><Link href={`/${language}/track-order`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Track Order')}</Link></li>
+                            <li>
+                                <Link
+                                    href={
+                                        language === 'fr'
+                                            ? '/fr/suivi-commande'
+                                            : language === 'nl'
+                                                ? '/nl/bestelling-volgen'
+                                                : `/${language}/track-order`
+                                    }
+                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
+                                >
+                                    {t('Track Order')}
+                                </Link>
+                            </li>
                             <li><Link href={`/${language}/blog`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Blog')}</Link></li>
+                            <li>
+                                <Link
+                                    href={
+                                        language === 'fr'
+                                            ? '/fr/a-propos'
+                                            : language === 'nl'
+                                                ? '/nl/over-ons'
+                                                : `/${language}/about`
+                                    }
+                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
+                                >
+                                    {t('About Us')}
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href={
+                                        language === 'fr'
+                                            ? '/fr/a-propos/durabilite'
+                                            : language === 'nl'
+                                                ? '/nl/over-ons/duurzaamheid'
+                                                : `/${language}/about/sustainability`
+                                    }
+                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
+                                >
+                                    {t('Sustainability')}
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 
-                    {/* Legal Column (Span 3) */}
-                    <div className="lg:col-span-3">
+                    {/* Legal Column (Span 2) */}
+                    <div className="col-span-1 lg:col-span-2">
                         <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('Legal')}</h4>
                         <ul className="space-y-4 text-sm text-slate-400">
-                            <li><Link href={`/${language}/terms`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Terms of Service')}</Link></li>
-                            <li><Link href={`/${language}/privacy`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Privacy Policy')}</Link></li>
+                            <li>
+                                <Link
+                                    href={
+                                        language === 'fr'
+                                            ? '/fr/conditions-generales'
+                                            : language === 'nl'
+                                                ? '/nl/algemene-voorwaarden'
+                                                : `/${language}/terms`
+                                    }
+                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
+                                >
+                                    {t('Terms of Service')}
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href={
+                                        language === 'fr'
+                                            ? '/fr/vie-privee'
+                                            : language === 'nl'
+                                                ? '/nl/privacy'
+                                                : `/${language}/privacy`
+                                    }
+                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
+                                >
+                                    {t('Privacy Policy')}
+                                </Link>
+                            </li>
                             <li><Link href={`/${language}/cookies`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Cookie Policy')}</Link></li>
-                            <li><Link href={`/${language}/warranty`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Warranty Info')}</Link></li>
+                            <li>
+                                <Link
+                                    href={
+                                        language === 'fr'
+                                            ? '/fr/garantie'
+                                            : language === 'nl'
+                                                ? '/nl/garantie'
+                                                : `/${language}/warranty`
+                                    }
+                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
+                                >
+                                    {t('Warranty Info')}
+                                </Link>
+                            </li>
                         </ul>
                     </div>
+
+                    {/* Service Areas Column (Span 3) - HIDDEN as per user request (too dense) */}
+                    {/* <div className="lg:col-span-3">
+                        <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('service_areas_title')}</h4>
+                        <ul className="space-y-4 text-sm text-slate-400">
+                            <li><Link href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${language === 'fr' ? 'schaerbeek' : language === 'nl' ? 'schaarbeek' : 'schaerbeek'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('service_area_schaerbeek')}</Link></li>
+                            <li><Link href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${language === 'fr' ? 'anderlecht' : 'anderlecht'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('service_area_anderlecht')}</Link></li>
+                            <li><span className="text-slate-600 cursor-default">{t('service_area_ixelles')} (Coming Soon)</span></li>
+                            <li><span className="text-slate-600 cursor-default">{t('service_area_uccle')} (Coming Soon)</span></li>
+                            <li><span className="text-slate-600 cursor-default">{t('service_area_etterbeek')} (Coming Soon)</span></li>
+                            <li><span className="text-slate-600 cursor-default">{t('service_area_woluwe')} (Coming Soon)</span></li>
+                        </ul>
+                    </div> */}
                 </div>
 
                 {/* Popular Repairs (Integrated with Spacing) */}
-                <div className="border-t border-white/10 pt-8 mb-8">
+                <nav aria-label={t('Popular Repairs')} className="border-t border-white/10 pt-8 mb-8">
                     <h4 className="text-sm font-bold text-cyber-citron uppercase tracking-widest mb-6 text-center md:text-left">
                         {t('Popular Repairs')}
                     </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <ul className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {POPULAR_REPAIRS.map((item, index) => (
-                            <Link
-                                key={index}
-                                href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}/${createSlug(item.brand)}/${createSlug(item.model)}?category=${item.category}`}
-                                className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
-                            >
-                                <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
-                                {t('Repair')} {item.name}
-                            </Link>
+                            <li key={index}>
+                                <Link
+                                    href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}/${createSlug(item.brand)}/${createSlug(item.model)}?category=${item.category}`}
+                                    className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
+                                >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
+                                    {t('Repair')} {item.name}
+                                </Link>
+                            </li>
                         ))}
-                    </div>
-                </div>
+                    </ul>
+                </nav>
 
                 {/* Locations */}
-                <div className="border-t border-white/10 pt-8 mb-12">
+                <nav aria-label={t('Our Stores')} className="border-t border-white/10 pt-8 mb-12">
                     <h4 className="text-sm font-bold text-cyber-citron uppercase tracking-widest mb-6 text-center md:text-left">
                         {t('Our Stores')}
                     </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <ul className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {LOCATIONS.map((loc) => (
-                            <Link
-                                key={loc.id}
-                                href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${loc.slugs[language] || loc.slugs.en}`}
-                                className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
-                            >
-                                <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
-                                {loc.city.split('-')[0]}
-                            </Link>
+                            <li key={loc.id}>
+                                <Link
+                                    href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${loc.slugs[language] || loc.slugs.en}`}
+                                    className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
+                                >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
+                                    {loc.city.split('-')[0]}
+                                </Link>
+                            </li>
                         ))}
-                    </div>
-                </div>
+                    </ul>
+                </nav>
 
                 {/* Bottom Bar: Copyright + Controls */}
                 <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">

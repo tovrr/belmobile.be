@@ -44,7 +44,7 @@ interface BuybackRepairProps {
     initialWizardProps?: any;
 }
 
-const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, hideStep1Title }) => {
+const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, hideStep1Title, initialCategory }) => {
     const { state, dispatch } = useWizard();
     const {
         step, isTransitioning, isLoadingData,
@@ -72,6 +72,13 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
             if (shop && shop.status === 'open') setSelectedShop(shop);
         }
     }, [initialShop, shops, setSelectedShop]);
+
+    // React to initialCategory prop changes (Sync State with URL)
+    useEffect(() => {
+        if (initialCategory && initialCategory !== state.deviceType) {
+            dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: initialCategory } });
+        }
+    }, [initialCategory, dispatch, state.deviceType]);
 
     // Data Loading
     useEffect(() => {

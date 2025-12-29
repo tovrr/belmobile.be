@@ -44,6 +44,8 @@ interface SidebarProps {
     courierTier?: string;
     hasHydrogel?: boolean;
     isSubmitting?: boolean;
+    isProcessing?: boolean;
+    processingText?: string;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -61,16 +63,22 @@ const Sidebar: React.FC<SidebarProps> = ({
     nextLabel,
     selectedScreenQuality,
     repairEstimates,
-    dynamicRepairPrices, // This prop is no longer used in the component logic for price calculation, but kept for now if needed elsewhere.
+    dynamicRepairPrices,
     getSingleIssuePrice,
     loading,
     deliveryMethod,
     courierTier,
     hasHydrogel,
-    isSubmitting = false
+    isSubmitting = false,
+    isProcessing = false,
+    processingText
 }) => {
     const { t } = useLanguage();
     const isBuyback = type === 'buyback';
+
+    // Consolidate processing state
+    const isLoadingState = isSubmitting || isProcessing;
+    const loadingText = processingText || t('Processing...');
 
     // Image Logic
     const specificImage = selectedModel ? getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`)) : null;
@@ -301,18 +309,18 @@ const Sidebar: React.FC<SidebarProps> = ({
                         {((isBuyback && step === 5) || (!isBuyback && step === 4)) && (
                             <button
                                 onClick={onNext} // Reusing onNext for submission as it triggers the handler in StepUserInfo
-                                disabled={nextDisabled || isSubmitting}
-                                className="w-full bg-bel-blue text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-100 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                disabled={nextDisabled || isLoadingState}
+                                className={`w-full font-bold py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${isLoadingState ? 'bg-linear-to-r from-bel-blue to-blue-600 cursor-wait' : 'bg-bel-blue hover:bg-blue-700'} text-white shadow-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed`}
                             >
-                                {isSubmitting ? (
+                                {isLoadingState ? (
                                     <>
                                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        <span>{t('Processing...')}</span>
+                                        <span className="animate-pulse">{loadingText}</span>
                                     </>
                                 ) : (
                                     <>
                                         <CheckBadgeIcon className="w-5 h-5" />
-                                        {t('Complete Request')}
+                                        {t('confirm_request')}
                                     </>
                                 )}
                             </button>
