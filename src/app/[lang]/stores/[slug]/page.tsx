@@ -43,8 +43,10 @@ const getShops = cache(async (): Promise<Shop[]> => {
                 zip: shopData.zip || staticInfo?.zip,
                 slugs: shopData.slugs || staticInfo?.slugs,
                 isHub: staticInfo?.isHub || false,
-                // Merge critical flags from constants
+                // Merge critical flags and data from constants
                 isPrimary: shopData.isPrimary ?? verifiedShop?.isPrimary ?? false,
+                googleReviewUrl: shopData.googleReviewUrl || verifiedShop?.googleReviewUrl,
+                googlePlaceId: shopData.googlePlaceId || verifiedShop?.googlePlaceId,
                 // Override coordinates/address for specific shops as per previous logic
                 ...(verifiedShop && (shopData.id === 'schaerbeek' || shopData.id === 'anderlecht' || shopData.id === 'molenbeek') ? {
                     coords: verifiedShop.coords,
