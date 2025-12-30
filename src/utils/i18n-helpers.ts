@@ -1,5 +1,17 @@
 import { MOCK_BLOG_POSTS } from '../constants';
 
+/**
+ * Ensures a URL string has a protocol (defaults to https://) and handles potential whitespace.
+ */
+export function sanitizeUrl(url: string | undefined, defaultUrl: string = 'https://belmobile.be'): string {
+    if (!url) return defaultUrl;
+    let sanitized = url.trim();
+    if (!sanitized.startsWith('http://') && !sanitized.startsWith('https://')) {
+        sanitized = `https://${sanitized}`;
+    }
+    return sanitized;
+}
+
 export const SLUG_MAPPINGS: Record<string, Record<string, string>> = {
     products: { en: 'products', fr: 'produits', nl: 'producten' },
     repair: { en: 'repair', fr: 'reparation', nl: 'reparatie' },

@@ -132,20 +132,24 @@ export async function POST(req: NextRequest) {
                 `;
 
                 // Send to Customer
-                await serverEmailService.sendEmail(
+                console.log(`[Email] Starting dispatch to customer: ${body.customerEmail}`);
+                const customerResult = await serverEmailService.sendEmail(
                     body.customerEmail,
                     t('email_buyback_repair_subject', type === 'buyback' ? t('Buyback') : t('Repair'), preGeneratedId),
                     htmlContent,
                     [{ name: safeFileName, content: base64 }]
                 );
+                console.log(`[Email] Customer dispatch success:`, customerResult);
 
                 // Send to Admin
-                await serverEmailService.sendEmail(
+                console.log(`[Email] Starting dispatch to admin: info@belmobile.be`);
+                const adminResult = await serverEmailService.sendEmail(
                     'info@belmobile.be',
                     `[ADMIN COPY] Order ${preGeneratedId} (${body.customerName})`,
                     htmlContent,
                     [{ name: safeFileName, content: base64 }]
                 );
+                console.log(`[Email] Admin dispatch success:`, adminResult);
 
             } catch (emailError) {
                 // Log but don't fail the request (Order is already saved)

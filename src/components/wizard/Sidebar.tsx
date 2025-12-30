@@ -303,7 +303,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 variant="cyber"
                                 className="w-full"
                             >
-                                {nextLabel || t('Next')}
+                                {isLoadingState ? loadingText : (nextLabel || t('Next'))}
                             </Button>
                         )}
 
@@ -317,7 +317,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 isLoading={isLoadingState}
                                 icon={<CheckBadgeIcon className="w-5 h-5" />}
                             >
-                                {t('confirm_request')}
+                                {isLoadingState ? loadingText : t('confirm_request')}
                             </Button>
                         )}
 
