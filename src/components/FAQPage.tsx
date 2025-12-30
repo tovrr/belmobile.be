@@ -7,14 +7,17 @@ import {
     PlusIcon,
     MinusIcon,
     MagnifyingGlassIcon,
+} from '@heroicons/react/24/outline';
+import {
     PhoneIcon,
-    ChatBubbleLeftRightIcon,
-    EnvelopeIcon,
+    WhatsAppIcon,
+    EmailIcon,
     MapPinIcon,
     SparklesIcon
-} from '@heroicons/react/24/outline';
+} from './ui/BrandIcons';
 
 import SchemaMarkup from './SchemaMarkup';
+import Image from 'next/image';
 
 const FAQPage: React.FC = () => {
     const { t, language } = useLanguage();
@@ -53,7 +56,7 @@ const FAQPage: React.FC = () => {
             color: 'bg-blue-500'
         },
         {
-            icon: ChatBubbleLeftRightIcon,
+            icon: WhatsAppIcon,
             title: 'support_whatsapp_label',
             value: 'WhatsApp',
             href: `https://wa.me/32484837560?text=${encodeURIComponent(t('whatsapp_message') || 'Bonjour Belmobile, j\'ai une question :')}`,
@@ -70,7 +73,7 @@ const FAQPage: React.FC = () => {
             }
         },
         {
-            icon: EnvelopeIcon,
+            icon: EmailIcon,
             title: 'support_email_label',
             value: 'info@belmobile.be',
             href: `/${language}/contact?subject=info`,
@@ -228,8 +231,14 @@ const FAQPage: React.FC = () => {
                                     </p>
                                     <div className="flex -space-x-3">
                                         {[1, 2, 3, 4].map(i => (
-                                            <div key={i} className="w-10 h-10 rounded-full border-2 border-bel-dark bg-gray-200 overflow-hidden transition-transform group-hover:translate-x-1">
-                                                <img src={`https://i.pravatar.cc/150?u=${i + 10}`} alt="Technician" />
+                                            <div key={i} className="w-10 h-10 rounded-full border-2 border-bel-dark bg-slate-800 overflow-hidden transition-transform group-hover:translate-x-1 shadow-lg ring-2 ring-white/5">
+                                                <Image
+                                                    src={`/images/avatars/avatar_tech_${i}.png`}
+                                                    alt={t('Technician')}
+                                                    width={40}
+                                                    height={40}
+                                                    className="object-cover w-full h-full"
+                                                />
                                             </div>
                                         ))}
                                         <div className="w-10 h-10 rounded-full border-2 border-bel-dark bg-bel-blue flex items-center justify-center text-xs font-bold transition-transform group-hover:translate-x-1">

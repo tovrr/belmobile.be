@@ -223,7 +223,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
             }
         }
         return (
-            <div className="lg:hidden bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 mb-8 border border-gray-200 dark:border-slate-800 shadow-sm animate-fade-in mx-auto w-full">
+            <div className="lg:hidden bg-white dark:bg-slate-900 rounded-ui-lg p-4 sm:p-6 mb-8 border border-gray-200 dark:border-slate-800 shadow-sm animate-fade-in mx-auto w-full">
                 <div className="flex items-center gap-2 mb-4">
                     <button
                         onClick={onBack}
@@ -330,7 +330,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     // -------------------------------------------------------------------------
     if (step === 4 && type === 'buyback') {
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
+            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-4 lg:p-8">
                 <div className="flex-1 space-y-8">
                     <div className="flex items-center gap-2 mb-6">
                         <button
@@ -456,7 +456,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     // -------------------------------------------------------------------------
     if (step === 5 || (step === 4 && type === 'repair')) {
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-2xl sm:rounded-3xl p-3 sm:p-6 lg:p-8">
+            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-3 sm:p-6 lg:p-8">
                 {renderMobileSummary()}
                 <div className="flex-1">
                     <div className="mb-8">
@@ -672,7 +672,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                         </div>
 
                         {/* User Details */}
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200 dark:border-slate-800">
+                        <div className="bg-white dark:bg-slate-900 rounded-ui-lg p-4 sm:p-6 border border-gray-200 dark:border-slate-800">
                             <label className="block text-xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">{t('Your Details')}</label>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <Input
@@ -810,7 +810,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
 
                             {/* Repair Extras */}
                             {type === 'repair' && (
-                                <div className="bg-bel-blue/5 dark:bg-blue-900/10 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-bel-blue/10 mb-6 mt-8">
+                                <div className="bg-bel-blue/5 dark:bg-blue-900/10 p-4 sm:p-6 rounded-ui-lg border border-bel-blue/10 mb-6 mt-8">
                                     <h4 className="text-sm font-bold text-bel-blue uppercase tracking-widest mb-4">{t('Extra Options')}</h4>
                                     <div
                                         onClick={() => setHasHydrogel(!hasHydrogel)}
@@ -855,17 +855,11 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             <Button
                                 type="submit"
                                 disabled={!termsAccepted || state.isTransitioning}
-                                variant="primary"
-                                className="w-full mt-6 lg:hidden bg-linear-to-r from-bel-blue to-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/30 transition-all active:scale-95"
+                                variant="cyber"
+                                className="w-full mt-6 lg:hidden"
+                                isLoading={state.isTransitioning}
                             >
-                                {state.isTransitioning ? (
-                                    <div className="flex items-center justify-center gap-2 animate-pulse">
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        <span className="font-medium tracking-wide">{getProcessingText()}</span>
-                                    </div>
-                                ) : (
-                                    t('confirm_request')
-                                )}
+                                {t('confirm_request')}
                             </Button>
 
                             {/* Trust Signals */}

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Shop } from '../types';
 import { useData } from '../hooks/useData';
+import BrandLoader from './ui/BrandLoader';
 import { useLanguage } from '../hooks/useLanguage';
 import Link from 'next/link';
 import {
@@ -10,7 +11,7 @@ import {
     PhoneIcon,
     ClockIcon,
     BuildingStorefrontIcon
-} from '@heroicons/react/24/outline';
+} from './ui/BrandIcons';
 import SchemaOrg from '../components/seo/SchemaOrg';
 import dynamic from 'next/dynamic';
 import { isShopOpen } from '../utils/shopUtils';
@@ -132,9 +133,8 @@ const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className
                 {/* Scrollable List */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
                     {loadingShops ? (
-                        <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                            <div className="w-8 h-8 border-2 border-bel-blue border-t-transparent rounded-full animate-spin mb-4"></div>
-                            <p className="text-gray-500 dark:text-gray-400 font-medium">{t('Loading stores...')}</p>
+                        <div className="flex flex-col items-center justify-center p-12">
+                            <BrandLoader text={t('loading_stores')} />
                             <p className="text-xs text-gray-400 mt-2">If this takes too long, please check your connection.</p>
                         </div>
                     ) : shops.length === 0 ? (

@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useData } from '../hooks/useData';
-import { MapPinIcon, PhoneIcon, EnvelopeIcon, PaperAirplaneIcon, ArrowUpTrayIcon, XMarkIcon, ChatBubbleLeftRightIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, PhoneIcon, EnvelopeIcon, PaperAirplaneIcon, UploadIcon as ArrowUpTrayIcon, CloseIcon as XMarkIcon, ChatIcon as ChatBubbleLeftRightIcon, SparklesIcon } from './ui/BrandIcons';
 import { useLanguage } from '../hooks/useLanguage';
 import FAQ from '../components/FAQ';
 import SchemaMarkup from '../components/SchemaMarkup';
@@ -253,7 +253,7 @@ const Contact: React.FC = () => {
                             key={link.title}
                             href={link.href}
                             onClick={link.onClick}
-                            className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-6 rounded-2xl border border-white/20 dark:border-white/5 shadow-lg hover:shadow-xl transition-all group"
+                            className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-6 rounded-ui-lg border border-white/20 dark:border-white/5 shadow-lg hover:shadow-xl transition-all group"
                         >
                             <div className="flex items-center space-x-4">
                                 <div className={`p-3 rounded-xl ${link.color} text-white group-hover:scale-110 transition-transform`}>
@@ -271,7 +271,7 @@ const Contact: React.FC = () => {
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 lg:gap-16 items-start">
                     {/* Contact Form */}
                     <div className="xl:col-span-8 animate-fade-in-up delay-300 xl:sticky xl:top-32">
-                        <div className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-8 lg:p-10 rounded-3xl shadow-2xl border border-white/20 dark:border-white/5 ring-1 ring-black/5 dark:ring-white/10">
+                        <div className="bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-8 lg:p-10 rounded-ui-lg shadow-2xl border border-white/20 dark:border-white/5 ring-1 ring-black/5 dark:ring-white/10">
                             {submitted ? (
                                 <div className="text-center py-16">
                                     <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -281,7 +281,7 @@ const Contact: React.FC = () => {
                                     <p className="text-lg text-gray-600 dark:text-gray-300">{t('contact_success_desc')}</p>
                                     <Button
                                         onClick={() => setSubmitted(false)}
-                                        variant="ghost"
+                                        variant="outline"
                                         className="mt-8 mx-auto"
                                     >
                                         {t('contact_send_another')}
@@ -423,16 +423,13 @@ const Contact: React.FC = () => {
 
                                     <Button
                                         type="submit"
-                                        variant="primary"
+                                        variant="cyber"
                                         className="w-full"
                                         disabled={isSubmitting || !privacyAccepted}
-                                        icon={isSubmitting ? (
-                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true" />
-                                        ) : (
-                                            <PaperAirplaneIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
-                                        )}
+                                        isLoading={isSubmitting}
+                                        icon={<PaperAirplaneIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />}
                                     >
-                                        {isSubmitting ? t('contact_sending') : t('contact_send_button')}
+                                        {t('contact_send_button')}
                                     </Button>
                                 </form>
                             )}
@@ -462,7 +459,7 @@ const Contact: React.FC = () => {
                                         <FadeIn key={shop.id} delay={idx * 0.1}>
                                             <div
                                                 className={`
-                                                    relative bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-6 rounded-3xl border transition-all duration-300 group
+                                                    relative bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-6 rounded-ui-lg border transition-all duration-300 group
                                                     ${shop.isPrimary
                                                         ? 'border-bel-blue ring-2 ring-bel-blue/20 shadow-xl'
                                                         : shop.status === 'coming_soon'

@@ -6,7 +6,7 @@ import { Product } from '../types';
 import { useShop } from '../hooks/useShop';
 import ReservationModal from './ReservationModal';
 import { useLanguage } from '../hooks/useLanguage';
-import { CameraIcon } from '@heroicons/react/24/outline';
+import { CameraIcon } from './ui/BrandIcons';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
@@ -48,7 +48,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
                 onClick={handleCardClick}
                 whileHover={{ y: -8 }}
                 transition={{ type: "spring", stiffness: 300 }}
-                className="group bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full relative cursor-pointer overflow-hidden border border-white/10 hover:border-bel-blue/50"
+                className="group bg-slate-900/60 backdrop-blur-xl rounded-ui-lg shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full relative cursor-pointer overflow-hidden border border-white/10 hover:border-bel-blue/50"
             >
 
 
@@ -102,7 +102,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
                         <button
                             onClick={(e) => { e.stopPropagation(); handleOpenModal(); }}
                             disabled={!canReserve}
-                            className={`w-full sm:w-auto px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all transform active:scale-95 ${canReserve
+                            className={`w-full sm:w-auto px-3 sm:px-5 py-2 sm:py-2.5 rounded-ui font-bold text-xs sm:text-sm transition-all transform active:scale-95 ${canReserve
                                 ? 'bg-bel-blue text-white hover:bg-blue-700 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40'
                                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                 }`}

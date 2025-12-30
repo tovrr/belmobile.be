@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useLanguage } from '../hooks/useLanguage';
-import { SparklesIcon, UserGroupIcon, RocketLaunchIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, UsersIcon as UserGroupIcon, RocketIcon as RocketLaunchIcon, HeartIcon } from './ui/BrandIcons';
 
 const Careers: React.FC = () => {
     const { t } = useLanguage();

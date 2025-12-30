@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { useData } from '../hooks/useData';
 import { FranchiseApplication } from '../types';
-import { CheckCircleIcon, BuildingStorefrontIcon, UserGroupIcon, TruckIcon, ChartBarIcon, ArrowRightIcon, BanknotesIcon, BoltIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, BuildingStorefrontIcon, UsersIcon as UserGroupIcon, TruckIcon, ChartBarIcon, ArrowRightIcon, BanknotesIcon, BoltIcon, PaperAirplaneIcon } from './ui/BrandIcons';
 import Input from './ui/Input';
 import Textarea from './ui/Textarea';
 import Button from './ui/Button';
@@ -76,7 +76,7 @@ const Franchise: React.FC = () => {
             <div className="relative bg-slate-900 overflow-hidden">
                 <div className="absolute inset-0">
                     <Image
-                        src="/images/franchise_hero.png"
+                        src="/images/franchise_hero.webp"
                         fill
                         className="object-cover opacity-10"
                         alt="Mobile Shop Business"

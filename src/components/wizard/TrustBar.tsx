@@ -3,8 +3,7 @@
 import React from 'react';
 import { useReviews } from '../../hooks/useReviews';
 import { useLanguage } from '../../hooks/useLanguage';
-import { StarIcon } from '@heroicons/react/24/solid';
-import { ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { StarIcon, ShieldCheckIcon } from '../ui/BrandIcons';
 
 export const TrustBar: React.FC = () => {
     const { stats, loading } = useReviews();

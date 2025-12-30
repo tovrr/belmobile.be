@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { WrenchScrewdriverIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { RepairIcon as WrenchScrewdriverIcon, ArrowRightIcon } from './ui/BrandIcons';
 import { useLanguage } from '../hooks/useLanguage';
 import FadeIn from './ui/FadeIn';
 
@@ -25,11 +25,11 @@ const BentoServices: React.FC = () => {
                     <Link prefetch={false} href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}`} className="group relative md:row-span-2 bg-slate-900/60 backdrop-blur-xl rounded-4xl p-8 border border-white/10 overflow-hidden hover:shadow-2xl transition-all duration-500" aria-label={t('Expert Repair')}>
                         <div className="absolute inset-0 z-0">
                             <Image
-                                src="/images/bento/repair_bg.png"
+                                src="/images/bento/repair_bg.webp"
                                 alt={t('Expert Repair')}
                                 fill
                                 sizes="(max-width: 768px) 100vw, 33vw"
-                                className="object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700 blur-[2px] group-hover:blur-0"
+                                className="object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700 blur-[1px] group-hover:blur-0"
                             />
                             <div className="absolute inset-0 bg-linear-to-b from-slate-900/60 via-slate-900/40 to-slate-900/80"></div>
                         </div>
@@ -53,11 +53,11 @@ const BentoServices: React.FC = () => {
                     <Link prefetch={false} href={`/${language}/${language === 'fr' ? 'rachat' : language === 'nl' ? 'inkoop' : 'buyback'}`} className="group relative md:col-span-2 bg-slate-900/40 backdrop-blur-xl rounded-4xl p-8 border border-white/10 overflow-hidden hover:shadow-2xl transition-all duration-500" aria-label={t('Sell Your Device')}>
                         <div className="absolute inset-0 z-0">
                             <Image
-                                src="/images/hero_phone_bg.png"
+                                src="/images/hero_phone_branded.webp"
                                 alt={t('Sell Your Device')}
                                 fill
                                 sizes="(max-width: 768px) 100vw, 66vw"
-                                className="object-cover opacity-30 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700"
+                                className="object-cover opacity-40 group-hover:opacity-50 group-hover:scale-105 transition-all duration-700"
                             />
                             <div className="absolute inset-0 bg-linear-to-r from-slate-900/80 via-slate-900/40 to-transparent"></div>
                         </div>
@@ -77,7 +77,7 @@ const BentoServices: React.FC = () => {
                     <Link prefetch={false} href={`/${language}/${language === 'fr' ? 'produits' : language === 'nl' ? 'producten' : 'products'}`} className="group relative bg-slate-900/60 backdrop-blur-xl rounded-4xl p-8 border border-white/10 overflow-hidden hover:shadow-2xl transition-all duration-500" aria-label={t('Shop Refurbished')}>
                         <div className="absolute inset-0 z-0">
                             <Image
-                                src="/images/bento/shop_bg.png"
+                                src="/images/bento/shop_bg.webp"
                                 alt={t('bento_shop_alt')}
                                 fill
                                 sizes="(max-width: 768px) 100vw, 33vw"
@@ -100,7 +100,7 @@ const BentoServices: React.FC = () => {
                     <Link prefetch={false} href={`/${language}/business`} className="group relative bg-slate-900/60 backdrop-blur-xl rounded-4xl p-8 border border-white/10 overflow-hidden hover:shadow-2xl transition-all duration-500" aria-label={t('Business Solutions')}>
                         <div className="absolute inset-0 z-0">
                             <Image
-                                src="/images/bento/business_bg.png"
+                                src="/images/bento/business_bg.webp"
                                 alt={t('bento_business_alt')}
                                 fill
                                 sizes="(max-width: 768px) 100vw, 33vw"

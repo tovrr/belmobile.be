@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../hooks/useData';
+import BrandLoader from '../ui/BrandLoader';
 import {
     HomeIcon,
     ShoppingBagIcon,
@@ -53,7 +54,7 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-900">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bel-blue"></div>
+                <BrandLoader />
             </div>
         );
     }
@@ -153,7 +154,7 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
                     <button
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                        className="hidden lg:block p-2 rounded-xl hover:bg-gray-100/50 dark:hover:bg-slate-800/50 text-gray-500 transition-colors"
+                        className="hidden lg:block p-2 rounded-ui hover:bg-gray-100/50 dark:hover:bg-slate-800/50 text-gray-500 transition-colors"
                     >
                         {isSidebarOpen ? (
                             <ArrowLeftOnRectangleIcon className="h-5 w-5 rotate-180" />
@@ -170,7 +171,7 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             <select
                                 value={adminShopFilter}
                                 onChange={(e) => setAdminShopFilter(e.target.value)}
-                                className="w-full text-xs font-bold bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-bel-blue/20 transition-all appearance-none cursor-pointer"
+                                className="w-full text-xs font-bold bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-ui px-3 py-2 outline-none focus:ring-2 focus:ring-bel-blue/20 transition-all appearance-none cursor-pointer"
                             >
                                 <option value="all">🌍 All Shops</option>
                                 {shops.map(s => <option key={s.id} value={s.id}>📍 {s.name || s.id}</option>)}
@@ -187,7 +188,7 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                 key={item.name}
                                 href={item.href}
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className={`flex items-center px-4 py-3 rounded-2xl transition-all duration-300 group ${isActive
+                                className={`flex items-center px-4 py-3 rounded-ui transition-all duration-300 group ${isActive
                                     ? 'bg-linear-to-r from-bel-blue to-purple-600 text-white shadow-lg shadow-blue-500/30'
                                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50/80 dark:hover:bg-slate-800/80 hover:scale-[1.02]'
                                     }`}
@@ -211,7 +212,7 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </nav>
 
                 <div className="p-4 border-t border-gray-100 dark:border-slate-800/50">
-                    <div className={`mb-4 px-4 py-3 rounded-2xl bg-gray-50/50 dark:bg-slate-800/30 border border-gray-100 dark:border-slate-700/50 ${!isSidebarOpen ? 'lg:hidden' : ''}`}>
+                    <div className={`mb-4 px-4 py-3 rounded-ui bg-gray-50/50 dark:bg-slate-800/30 border border-gray-100 dark:border-slate-700/50 ${!isSidebarOpen ? 'lg:hidden' : ''}`}>
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-linear-to-tr from-bel-blue to-purple-600 flex items-center justify-center text-white text-[10px] font-black">
                                 {profile?.displayName?.substring(0, 2).toUpperCase() || user?.email?.substring(0, 2).toUpperCase()}
@@ -224,7 +225,7 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     </div>
                     <button
                         onClick={() => logout()}
-                        className="flex items-center w-full px-4 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all hover:scale-[1.02]"
+                        className="flex items-center w-full px-4 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-ui transition-all hover:scale-[1.02]"
                     >
                         <ArrowLeftOnRectangleIcon className="h-6 w-6 shrink-0" />
                         <span className={`ml-3 font-medium ${!isSidebarOpen ? 'lg:hidden' : ''}`}>Logout</span>

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useData } from '../hooks/useData';
 import { useLanguage } from '../hooks/useLanguage';
-import { ArrowLeftIcon, CalendarDaysIcon, UserIcon, ClockIcon, WrenchScrewdriverIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, CalendarIcon as CalendarDaysIcon, UsersIcon as UserIcon, ClockIcon, RepairIcon as WrenchScrewdriverIcon } from './ui/BrandIcons';
 import Image from 'next/image';
 import SchemaMarkup from '../components/SchemaMarkup';
 import ReactMarkdown from 'react-markdown';

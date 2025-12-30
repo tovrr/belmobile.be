@@ -2,6 +2,9 @@ import React from 'react';
 import Link from 'next/link';
 
 import { LOCATIONS } from '../data/locations';
+import { PaperAirplaneIcon, SparklesIcon } from './ui/BrandIcons';
+import { Bike } from 'lucide-react';
+import Input from './ui/Input';
 import Logo from './ui/Logo';
 
 import FooterSocials from './footer-components/FooterSocials';
@@ -58,10 +61,19 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
 
                     {/* Brand Column (Span 4) */}
                     <div className="col-span-2 lg:col-span-4">
-                        <Link href={`/${language}`} className="block mb-6 group">
+                        <Link
+                            href={`/${language}`}
+                            className="block mb-6 group"
+                            aria-label="Belmobile Home"
+                            itemScope
+                            itemType="https://schema.org/Organization"
+                        >
+                            <meta itemProp="name" content="Belmobile" />
+                            <meta itemProp="url" content="https://belmobile.be" />
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12">
+                                <div className="w-12 h-12 text-cyber-citron" itemProp="logo" itemScope itemType="https://schema.org/ImageObject">
                                     <Logo className="w-full h-full" />
+                                    <meta itemProp="url" content="https://belmobile.be/logo.png" />
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="font-black text-3xl tracking-tighter text-white leading-none">

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation'; // Only used for linking, not hook logic
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
@@ -74,7 +74,7 @@ const Products: React.FC<ProductsProps> = ({ lang, initialProducts = [], searchP
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Link
                         href={`/${lang}/buyback`}
-                        className="group relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-800 p-8 flex flex-col justify-center min-h-[200px]"
+                        className="group relative overflow-hidden rounded-ui-lg bg-slate-900 dark:bg-slate-800 p-8 flex flex-col justify-center min-h-[200px]"
                     >
                         <div className="absolute top-0 right-0 w-64 h-64 bg-electric-indigo/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-electric-indigo/30 transition-all"></div>
                         <div className="relative z-10">
@@ -89,7 +89,7 @@ const Products: React.FC<ProductsProps> = ({ lang, initialProducts = [], searchP
 
                     <Link
                         href={`/${lang}/repair`}
-                        className="group relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 flex flex-col justify-center min-h-[200px] hover:border-bel-blue/50 transition-all shadow-sm hover:shadow-lg"
+                        className="group relative overflow-hidden rounded-ui-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 flex flex-col justify-center min-h-[200px] hover:border-bel-blue/50 transition-all shadow-sm hover:shadow-lg"
                     >
                         <div className="absolute top-0 right-0 w-64 h-64 bg-bel-blue/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-bel-blue/20 transition-all"></div>
                         <div className="relative z-10">

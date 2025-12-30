@@ -31,30 +31,31 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
 
 const FAQ: React.FC = () => {
     const { t } = useLanguage();
-    
+
     const faqs = [
-        { q: t('faq_q1'), a: t('faq_a1') },
-        { q: t('faq_q2'), a: t('faq_a2') },
-        { q: t('faq_q3'), a: t('faq_a3') },
+        { q: t('faq_contact_how_q'), a: t('faq_contact_how_a') },
+        { q: t('faq_contact_response_q'), a: t('faq_contact_response_a') },
+        { q: t('faq_contact_support_q'), a: t('faq_contact_support_a') },
+        { q: t('faq_contact_tracking_q'), a: t('faq_contact_tracking_a') },
     ];
-    
+
     const faqSchema = {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": faqs.map(faq => ({
-        "@type": "Question",
-        "name": faq.q,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": faq.a
-        }
-      }))
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+            "@type": "Question",
+            "name": faq.q,
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": faq.a
+            }
+        }))
     };
 
     return (
         <div className="mt-12">
-            <h2 className="text-3xl font-bold text-center text-bel-dark dark:text-white">{t('Frequently Asked Questions')}</h2>
-             <div className="mt-8 max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold text-center text-bel-dark dark:text-white">{t('faq_title')}</h2>
+            <div className="mt-8 max-w-3xl mx-auto">
                 {faqs.map((faq, index) => (
                     <FAQItem key={index} question={faq.q} answer={faq.a} />
                 ))}

@@ -9,11 +9,16 @@ export default function Logo({ className = "w-10 h-10", variant }: LogoProps) {
     return (
         <div className={`flex items-center gap-3 ${className}`}>
             <svg
+                id="belmobile-logo-ui"
                 viewBox="0 0 100 100"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className="w-full h-full"
+                role="img"
+                aria-labelledby="logo-ui-title logo-ui-desc"
             >
+                <title id="logo-ui-title">Belmobile Logo</title>
+                <desc id="logo-ui-desc">Belmobile - Smartphone Repair & Buyback Specialist</desc>
                 {/* 
                    Concept: 'b' letter + Phone chassis + Doctor Cross
                    Style: Minimalist, thick rounded strokes, flat 2D

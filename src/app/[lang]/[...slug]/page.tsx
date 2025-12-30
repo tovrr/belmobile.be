@@ -10,7 +10,7 @@ import { Shop } from '@/types';
 import { parseRouteParams } from '@/utils/route-parser';
 import { generateSeoMetadata, getKeywordsForPage, generateMetaKeywords } from '@/utils/seo-templates';
 
-import BuybackRepair from '@/components/BuybackRepair'; // Main client component, kept standard import but wrapped in Suspense below
+import BuybackRepair from '@/components/BuybackRepair';
 import Hreflang from '@/components/seo/Hreflang';
 import SchemaOrg from '@/components/seo/SchemaOrg';
 
@@ -162,22 +162,6 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
         step: urlStep
     };
 
-    // 4. Construct Hreflang Slugs
-    const getSlugForLang = (l: string) => {
-        const parts = [];
-        if (service) parts.push(service.slugs[l as keyof typeof service.slugs]);
-        if (device) parts.push(createSlug(device.value));
-        if (deviceModel) parts.push(deviceModel);
-        if (location) parts.push(location.slugs[l as keyof typeof location.slugs]);
-        return parts.join('/');
-    };
-
-    const hreflangSlugs = {
-        fr: getSlugForLang('fr'),
-        nl: getSlugForLang('nl'),
-        en: getSlugForLang('en')
-    };
-
     // Cast location to Shop to satisfy SchemaOrg props
     const shopForSchema = location as unknown as Shop;
 
@@ -230,10 +214,6 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
 
     return (
         <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-950 dark:to-indigo-950 transition-colors duration-500">
-            <Hreflang
-                slugs={hreflangSlugs}
-                baseUrl="https://belmobile.be"
-            />
             <SchemaOrg
                 shop={shopForSchema}
                 language={lang}
