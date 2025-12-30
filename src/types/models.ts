@@ -1,6 +1,5 @@
 
-// Fix: Import React to provide the 'React' namespace for types like React.ElementType.
-import React from 'react';
+// -- Core Entities --
 
 export interface Shop {
     id: number | string;
@@ -13,6 +12,7 @@ export interface Shop {
     email: string;
     openingHours: string[];
     coords: { lat: number; lng: number };
+    slug?: string; // Original URL slug (legacy or primary)
     status: 'open' | 'coming_soon' | 'temporarily_closed';
     isHub?: boolean;
     isPrimary?: boolean;
@@ -23,6 +23,8 @@ export interface Shop {
     description?: string;
     photos?: string[];
     services?: string[];
+    rating?: number;
+    reviewCount?: number;
 }
 
 export interface Product {
@@ -55,6 +57,30 @@ export interface Service {
     price?: number;
 }
 
+export interface BlogPost {
+    id: number | string;
+    slug: string; // Default slug (usually FR or primary)
+    slugs?: { [lang: string]: string }; // Localized slugs
+    title: string;
+    excerpt: string;
+    content: string;
+    author: string;
+    date: string;
+    imageUrl: string;
+    category: string;
+}
+
+export interface Review {
+    id: number | string;
+    customerName: string;
+    rating: number; // 1-5
+    comment: string;
+    date: string;
+    platform: 'Google' | 'Website';
+}
+
+// -- Orders & Quotes --
+
 export interface Reservation {
     id: number | string;
     productId: number | string;
@@ -73,8 +99,20 @@ export interface Reservation {
     estimatedPrice?: number;
     createdAt?: { seconds: number; nanoseconds: number } | Date | string;
     isPaid?: boolean;
+    language?: string;
     paymentLink?: string;
     paymentReceiptUrl?: string;
+}
+
+export interface ActivityLogEntry {
+    timestamp: string; // ISO String
+    adminId: string;
+    adminName?: string; // Optional for display
+    action: string; // "status_change", "price_change", "note_added"
+    field?: string;
+    oldValue?: any;
+    newValue?: any;
+    note?: string;
 }
 
 export interface Quote {
@@ -128,26 +166,17 @@ export interface Quote {
     faceIdWorking?: boolean | null;
 }
 
-export type UserRole = 'super_admin' | 'shop_manager' | 'technician';
-
-export interface AdminProfile {
-    uid: string;
+export interface ContactMessage {
+    id: string;
+    name: string;
     email: string;
-    displayName?: string;
-    role: UserRole;
-    shopId?: string; // Forced if shop_manager, optional/all for super_admin
+    phone?: string;
+    subject?: string;
+    message: string;
+    attachmentUrl?: string;
+    status: 'new' | 'read' | 'replied';
+    date: string;
     createdAt: string;
-}
-
-export interface ActivityLogEntry {
-    timestamp: string; // ISO String
-    adminId: string;
-    adminName?: string; // Optional for display
-    action: string; // "status_change", "price_change", "note_added"
-    field?: string;
-    oldValue?: any;
-    newValue?: any;
-    note?: string;
 }
 
 export interface FranchiseApplication {
@@ -163,63 +192,7 @@ export interface FranchiseApplication {
     documentUrl?: string; // Optional link to an uploaded CV or business plan
 }
 
-export interface BlogPost {
-    id: number | string;
-    slug: string; // Default slug (usually FR or primary)
-    slugs?: { [lang: string]: string }; // Localized slugs
-    title: string;
-    excerpt: string;
-    content: string;
-    author: string;
-    date: string;
-    imageUrl: string;
-    category: string;
-}
-
-export interface Review {
-    id: number | string;
-    customerName: string;
-    rating: number; // 1-5
-    comment: string;
-    date: string;
-    platform: 'Google' | 'Website';
-}
-
-export interface FAQItem {
-    q: string;
-    a: string;
-}
-
-export interface FAQCategory {
-    id: string;
-    title: string;
-    items: FAQItem[];
-}
-
-
-export interface NavLink {
-    name: string;
-    path: string;
-}
-
-export interface AdminStat {
-    label: string;
-    value: string;
-    icon: React.ElementType;
-    trend?: string;
-    color?: string; // Text color class for icon/value e.g. "text-green-600"
-}
-
-export interface ChartData {
-    name: string;
-    value: number;
-}
-
-export interface MapProps {
-    shops: Shop[];
-    center: [number, number];
-    zoom: number;
-}
+// -- Pricing Models --
 
 export interface RepairIssue {
     id: string;
@@ -232,6 +205,7 @@ export interface RepairIssue {
     icon: string;
 }
 
+// Legacy repair pricing - likely to be phased out but kept for compatibility
 export interface RepairPricing {
     id: string; // model slug
     screen_generic?: number;
@@ -294,24 +268,14 @@ export interface RepairPriceRecord {
 // -- Buyback Types --
 export type BuybackCondition = 'new' | 'like-new' | 'good' | 'fair' | 'damaged';
 
-// -- Stock & Audit Types --
-export interface StockLog {
-    id?: string;
-    productId: string;
-    productName: string;
-    type: 'stock_update' | 'price_update' | 'creation' | 'deletion';
-    change: string; // e.g., "Stock updated: 5 -> 10", "Price: €500 -> €450"
-    userEmail: string;
-    date: string;
-    targetShopId?: string; // If specific to a shop
-}
-
 export interface BuybackPriceRecord {
     id?: string;
     deviceId: string; // "apple-iphone-13"
     storage: string; // "128gb", "256gb"
     condition: BuybackCondition;
     price: number; // The offer price we give to the customer
+    brand?: string;
+    model?: string;
     marketValue?: number; // The "Like New" Resale Value used for calculation
     currency: string;
     updatedAt: string;
@@ -330,15 +294,24 @@ export interface ProductPriceRecord {
     updatedAt: string;
 }
 
-export interface ContactMessage {
-    id: string;
+// -- Webhooks & External APIs --
+
+export interface SendCloudParcel {
     name: string;
+    address: string;
+    city: string;
+    postal_code: string;
+    country: string;
     email: string;
-    phone?: string;
-    subject?: string;
-    message: string;
-    attachmentUrl?: string;
-    status: 'new' | 'read' | 'replied';
-    date: string;
-    createdAt: string;
+    telephone: string;
+    request_label: boolean;
+    to_service_point?: number | null;
+}
+
+export interface BrevoEmailPayload {
+    sender: { name: string; email: string };
+    to: { email: string }[];
+    subject: string;
+    htmlContent: string;
+    attachment?: { name: string; content: string }[];
 }

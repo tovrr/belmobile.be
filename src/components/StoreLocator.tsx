@@ -41,9 +41,10 @@ interface StoreLocatorProps {
     shops?: Shop[];
     className?: string;
     zoom?: number;
+    center?: [number, number];
 }
 
-const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className }) => {
+const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className, center, zoom }) => {
     const { shops: contextShops, loadingShops } = useData();
     const shops = propShops || contextShops;
     const { t, language } = useLanguage();
@@ -57,7 +58,7 @@ const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className
     const cardRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
     const listContainerRef = useRef<HTMLDivElement>(null);
 
-    const mapCenter: [number, number] = [50.8503, 4.3517]; // Brussels Center
+    const mapCenter: [number, number] = center || [50.8503, 4.3517]; // Props OR Default Brussels Center
 
     // Filter logic
     const filteredShops = useMemo(() => {
@@ -324,7 +325,7 @@ const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className
                 <Map
                     shops={filteredShops}
                     center={mapCenter}
-                    zoom={12}
+                    zoom={zoom || 12}
                     selectedShopId={selectedShopId}
                     onMarkerClick={handleShopClick}
                     hoveredShopId={hoveredShopId}

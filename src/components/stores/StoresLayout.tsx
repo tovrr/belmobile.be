@@ -6,7 +6,7 @@ import StoresList from './StoresList';
 import dynamic from 'next/dynamic';
 
 // Dynamically import StoreMap with no SSR because Leaflet requires window
-const StoreMap = dynamic(() => import('./StoreMap'), {
+const StoreMap = dynamic(() => import('../StoreMap'), {
     ssr: false,
     loading: () => (
         <div className="w-full h-full min-h-[400px] bg-transparent flex items-center justify-center">

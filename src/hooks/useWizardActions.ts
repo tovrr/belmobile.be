@@ -216,20 +216,16 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                 ...state,
                 type,
                 price,
-                condition: type === 'buyback' ? { screen: state.screenState || null, body: state.bodyState || null } : null,
+                condition: type === 'buyback' ? { screen: state.screenState, body: state.bodyState } : null,
                 issues: type === 'repair' ? state.repairIssues : null,
                 language: lang || 'fr',
                 brand: state.selectedBrand,
                 model: state.selectedModel
             }, t);
 
-            // Send Confirmation Email (Includes PDF attachment) - No Download
-            // 4. Send Confirmation Email (Backgrounded)
-            orderService.sendOrderConfirmationEmail(readableId, firestoreData, lang || 'fr', t, sendEmail)
-                .catch(err => console.error("Email sending failed:", err));
-
-            // 5. Redirect Immediately to Success Page
-            // We don't await the email sending to ensure the user gets immediate feedback
+            // 4. Redirect Immediately to Success Page
+            // The emails are now handled server-side in the /api/orders/submit route
+            // to avoid race conditions during navigation.
             const emailParam = encodeURIComponent(state.customerEmail);
             router.push(`/${lang}/track-order?id=${readableId}&email=${emailParam}&success=true`);
 

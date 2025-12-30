@@ -500,7 +500,7 @@ const TrackOrder: React.FC = () => {
                                             try {
                                                 const { generatePDFFromPdfData, savePDFBlob } = await import('../utils/pdfGenerator');
                                                 const { mapQuoteToPdfData } = await import('../utils/orderMappers');
-                                                const { getFixedT } = await import('../utils/i18nFixed');
+                                                const { getFixedT } = await import('../utils/i18n-server');
 
                                                 if (!status) return;
 

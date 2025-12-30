@@ -1,6 +1,6 @@
 import Privacy from '../../../components/Privacy';
 import { Metadata } from 'next';
-import { getFixedT } from '../../../utils/i18nFixed';
+import { getFixedT } from '../../../utils/i18n-server';
 
 type Props = {
     params: Promise<{ lang: string }>

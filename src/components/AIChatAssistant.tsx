@@ -144,6 +144,17 @@ const AIChatAssistant: React.FC = () => {
         return () => window.removeEventListener('open-ai-chat', handleOpen);
     }, []);
 
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        const handleMenuState = (e: Event) => {
+            const customEvent = e as CustomEvent;
+            setIsMobileMenuOpen(customEvent.detail.isOpen);
+        };
+        window.addEventListener('mobile-menu-state', handleMenuState);
+        return () => window.removeEventListener('mobile-menu-state', handleMenuState);
+    }, []);
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
@@ -557,9 +568,9 @@ const AIChatAssistant: React.FC = () => {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
+        <div className={`fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans transition-all ${isMobileMenuOpen ? 'hidden' : ''}`}>
             {isOpen && (
-                <div className="bg-white w-80 sm:w-96 h-[550px] rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-4 border border-gray-100 animate-fade-in-up ring-1 ring-black/5">
+                <div className="bg-white w-80 sm:w-96 h-[500px] max-h-[calc(100vh-140px)] rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-4 border border-gray-100 animate-fade-in-up ring-1 ring-black/5">
                     <div className="bg-white p-4 border-b border-gray-100 flex justify-between items-center bg-linear-to-r from-bel-blue to-blue-700">
                         <div className="flex items-center text-white">
                             <div className="p-1.5 bg-white/20 rounded-lg mr-3">

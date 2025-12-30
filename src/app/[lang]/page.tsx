@@ -1,7 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
-import HomeClient from '../../components/HomeClient';
-import { getReviews } from '../../../src/services/reviewService';
+import HomeClient from '@/components/HomeClient';
+import { getReviews } from '@/services/reviewService';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const { lang } = await params;
 
     // Load translations manually for metadata as this is a server component
-    const translations = await import(`../../../src/data/i18n/${lang}.json`).then(m => m.default);
+    const translations = await import(`@/data/i18n/${lang}.json`).then(m => m.default);
 
     const baseUrl = 'https://belmobile.be';
 

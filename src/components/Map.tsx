@@ -6,16 +6,26 @@ import 'leaflet/dist/leaflet.css';
 import { Shop } from '../types';
 import { PaperAirplaneIcon } from '@heroicons/react/24/solid';
 
-interface MapProps {
+export interface MapProps {
     shops: Shop[];
-    center: [number, number];
-    zoom: number;
+    center?: [number, number];
+    zoom?: number;
+    lang?: string;
     selectedShopId?: number | string | null;
     hoveredShopId?: number | string | null;
     onMarkerClick?: (id: number | string) => void;
+    className?: string;
 }
 
-const Map: React.FC<MapProps> = ({ shops, center, zoom, selectedShopId, hoveredShopId, onMarkerClick }) => {
+const Map: React.FC<MapProps> = ({
+    shops,
+    center = [50.8503, 4.3517],
+    zoom = 12,
+    lang = 'fr',
+    selectedShopId,
+    hoveredShopId,
+    onMarkerClick
+}) => {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<L.Map | null>(null);
     const markersRef = useRef<{ [key: string]: L.Marker }>({});
@@ -139,6 +149,30 @@ const Map: React.FC<MapProps> = ({ shops, center, zoom, selectedShopId, hoveredS
                         easeLinearity: 0.25
                     });
                 });
+
+            // Re-adding popup logic if needed (e.g. for simple store pages)
+            if ((shop as any).showPopup || true) { // Defaulting to true for now to restore functionality
+                const shopSlug = shop.slugs?.[lang as keyof typeof shop.slugs] || shop.id;
+                const storePathSegment = {
+                    fr: 'magasins',
+                    nl: 'winkels',
+                    en: 'stores'
+                }[lang as 'en' | 'fr' | 'nl'] || 'stores';
+
+                const url = `/${lang}/${storePathSegment}/${shopSlug}`;
+
+                marker.bindPopup(`
+                    <div style="font-family: sans-serif; min-width: 200px; padding: 4px;">
+                        <h3 style="font-weight: bold; margin-bottom: 4px; font-size: 16px; color: #1e293b;">${shop.name}</h3>
+                        <p style="margin: 0 0 12px 0; color: #475569; font-size: 13px;">${shop.address}</p>
+                        <a href="${url}" style="display: inline-block; background: #0066cc; color: white; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 12px;">
+                            ${lang === 'nl' ? 'Details bekijken' : lang === 'en' ? 'View Details' : 'Voir les détails'} &rarr;
+                        </a>
+                    </div>
+                `, {
+                    className: 'custom-leaflet-popup'
+                });
+            }
 
             markersRef.current[shop.id] = marker;
         });

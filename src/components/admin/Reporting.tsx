@@ -42,8 +42,22 @@ const Reporting: React.FC = () => {
         else if (timeRange === 'ytd') startDate = new Date(now.getFullYear(), 0, 1);
 
         const filterFn = (item: Quote | Reservation) => {
-            const date = item.date ? new Date(item.date) : (item.createdAt ? new Date(item.createdAt instanceof Date ? item.createdAt : (item.createdAt as any).toDate?.() || item.createdAt) : null);
-            return date && date >= startDate && date <= now;
+            const createdAt = item.createdAt;
+            let dateVal: Date | null = null;
+
+            if (item.date) {
+                dateVal = new Date(item.date);
+            } else if (createdAt) {
+                if (createdAt instanceof Date) {
+                    dateVal = createdAt;
+                } else if (typeof createdAt === 'object' && 'seconds' in createdAt) {
+                    dateVal = new Date(createdAt.seconds * 1000);
+                } else if (typeof createdAt === 'string') {
+                    dateVal = new Date(createdAt);
+                }
+            }
+
+            return dateVal && dateVal >= startDate && dateVal <= now;
         };
 
         const fQuotes = quotes.filter(filterFn);
@@ -116,10 +130,25 @@ const Reporting: React.FC = () => {
         }
 
         [...fQuotes, ...fReservations].forEach(item => {
-            const d = item.date ? item.date : (item.createdAt ? new Date((item.createdAt as any).toDate?.() || item.createdAt).toISOString().split('T')[0] : null);
-            if (d && daily[d]) {
-                daily[d].revenue += (Number((item as any).price || (item as any).estimatedPrice) || 0);
-                daily[d].volume += 1;
+            const createdAt = item.createdAt;
+            let dateKey: string | null = null;
+
+            if (item.date) {
+                dateKey = item.date;
+            } else if (createdAt) {
+                if (typeof createdAt === 'object' && 'seconds' in createdAt) {
+                    dateKey = new Date(createdAt.seconds * 1000).toISOString().split('T')[0];
+                } else if (typeof createdAt === 'string') {
+                    dateKey = createdAt.split('T')[0];
+                } else if (createdAt instanceof Date) {
+                    dateKey = createdAt.toISOString().split('T')[0];
+                }
+            }
+
+            if (dateKey && daily[dateKey]) {
+                const price = 'price' in item ? Number(item.price) : ('estimatedPrice' in item ? Number((item as Reservation).estimatedPrice) : 0);
+                daily[dateKey].revenue += price || 0;
+                daily[dateKey].volume += 1;
             }
         });
 
@@ -277,7 +306,7 @@ const Reporting: React.FC = () => {
                                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10 }} tickFormatter={(val) => `€${val}`} />
                                 <Tooltip
                                     contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                                    formatter={(value: any) => [`€${value}`, 'Revenue']}
+                                    formatter={(value: number | string | (number | string)[] | undefined) => [`€${value || 0}`, 'Revenue']}
                                 />
                                 <Line
                                     type="monotone"
@@ -315,7 +344,7 @@ const Reporting: React.FC = () => {
                                     ))}
                                 </Pie>
                                 <Tooltip
-                                    formatter={(value: any) => [`€${Number(value).toLocaleString()}`, 'Revenue']}
+                                    formatter={(value: number | string | (number | string)[] | undefined) => [`€${Number(value || 0).toLocaleString()}`, 'Revenue']}
                                 />
                                 <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 12, fontWeight: 'bold' }} />
                             </PieChart>
@@ -346,7 +375,7 @@ const Reporting: React.FC = () => {
                                 <Tooltip
                                     cursor={{ fill: 'rgba(67, 56, 202, 0.05)' }}
                                     contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                                    formatter={(value: any) => [`€${value.toLocaleString()}`, 'Revenue']}
+                                    formatter={(value: number | string | (number | string)[] | undefined) => [`€${Number(value || 0).toLocaleString()}`, 'Revenue']}
                                 />
                                 <Bar
                                     dataKey="revenue"

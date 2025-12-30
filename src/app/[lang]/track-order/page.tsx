@@ -1,7 +1,7 @@
 import TrackOrder from '../../../components/TrackOrder';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import { getFixedT } from '../../../utils/i18nFixed';
+import { getFixedT } from '../../../utils/i18n-server';
 
 export const dynamic = 'force-dynamic';
 

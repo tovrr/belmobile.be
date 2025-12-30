@@ -89,7 +89,7 @@ export const CustomerInfoCard: React.FC<{ quote: Quote }> = ({ quote }) => {
         if (exactMatch) return exactMatch.name;
 
         // Fallback: try matching by slugified name if shopId is actually a slug
-        const slugMatch = shops.find((s: Shop) => (s as any).slug === quote.shopId || String(s.id).toLowerCase() === String(quote.shopId).toLowerCase());
+        const slugMatch = shops.find((s: Shop) => s.slug === quote.shopId || String(s.id).toLowerCase() === String(quote.shopId).toLowerCase());
         if (slugMatch) return slugMatch.name;
 
         return 'Unknown Shop';

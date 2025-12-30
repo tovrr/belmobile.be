@@ -488,5 +488,126 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
             : `Sell your ${fullDeviceName} at Belmobile ${loc}. Instant cash payment.`;
     }
 
-    return { title, description };
+    // --- OG METADATA ---
+    let ogTitle = '';
+    const ogDeviceName = deviceModel ? slugToDisplayName(deviceModel) : (brand || (lang === 'fr' ? 'Appareil' : lang === 'nl' ? 'Toestel' : 'Device'));
+
+    if (lang === 'fr') ogTitle = serviceId === 'repair' ? `Réparation ${ogDeviceName}` : `Rachat ${ogDeviceName}`;
+    else if (lang === 'nl') ogTitle = serviceId === 'repair' ? `Reparatie ${ogDeviceName}` : `Verkoop ${ogDeviceName}`;
+    else ogTitle = serviceId === 'repair' ? `${ogDeviceName} Repair` : `Sell ${ogDeviceName}`;
+
+    let ogSubtitle = '';
+    if (serviceId === 'repair') {
+        if (lang === 'fr') ogSubtitle = 'En 30 minutes • Garantie 1 An';
+        else if (lang === 'nl') ogSubtitle = 'In 30 minuten • 1 Jaar Garantie';
+        else ogSubtitle = 'Done within 30 minutes • 1 Year Warranty';
+    } else {
+        if (lang === 'fr') ogSubtitle = 'Meilleur Prix Garanti • Paiement Cash';
+        else if (lang === 'nl') ogSubtitle = 'Beste Prijs Garantie • Direct Cash';
+        else ogSubtitle = 'Best Price Guaranteed • Instant Cash';
+    }
+
+    return { title, description, ogTitle, ogSubtitle };
+};
+
+// --- KEYWORDS HELPERS ---
+
+export const getKeywordsForPage = (
+    lang: string,
+    serviceId: string,
+    brand?: string,
+    model?: string,
+    category?: string
+): string[] => {
+    const keywords: string[] = [];
+    const location = lang === 'fr' ? 'Bruxelles' : lang === 'nl' ? 'Brussel' : 'Brussels';
+
+    // 1. Core Service Keywords
+    if (serviceId === 'repair') {
+        if (lang === 'fr') keywords.push('réparation', 'réparer', 'écran', 'brisé', 'cassé', 'batterie', 'remplacement', 'prix', 'pas cher', 'gsm', 'téléphone', 'mobile');
+        if (lang === 'nl') keywords.push('reparatie', 'repareren', 'scherm', 'vervangen', 'glas', 'batterij', 'kosten', 'goedkoop', 'gsm', 'telefoon', 'mobiel');
+        if (lang === 'en') keywords.push('repair', 'fix', 'screen', 'broken', 'replacement', 'battery', 'cost', 'cheap', 'mobile', 'cell phone');
+    } else if (serviceId === 'buyback') {
+        if (lang === 'fr') keywords.push('rachat', 'vendre', 'revendre', 'reprise', 'recyclage', 'estimation', 'cash');
+        if (lang === 'nl') keywords.push('inkoop', 'verkopen', 'inruilen', 'recycling', 'waarde', 'contant');
+        if (lang === 'en') keywords.push('buyback', 'sell', 'trade-in', 'recycle', 'value', 'cash');
+    }
+
+    // 2. Niche / Multimedia Box
+    if (category === 'multimedia-box' || (!category && !serviceId)) {
+        if (lang === 'fr') keywords.push('boitier android', 'smart tv box', 'multimédia', 'streaming box', '4k');
+        if (lang === 'nl') keywords.push('android box', 'smart tv', 'mediaspeler', 'streaming');
+        else keywords.push('android box', 'smart tv box', 'streaming player', 'media center');
+    }
+
+    // 3. Device Specifics
+    if (brand) {
+        keywords.push(brand);
+        if (lang === 'fr') keywords.push(`réparation ${brand} bruxelles`);
+        if (lang === 'nl') keywords.push(`reparatie ${brand} brussel`);
+
+        if (brand.toLowerCase() === 'apple') {
+            keywords.push('iphone', 'ipad', 'macbook');
+            if (lang === 'fr') keywords.push('réparation iphone bruxelles', 'réparation écran iphone');
+            if (lang === 'nl') keywords.push('iphone reparatie brussel', 'iphone scherm repareren');
+        }
+    }
+
+    if (model) {
+        keywords.push(model);
+        if (model.toLowerCase().includes('iphone')) {
+            keywords.push('iphone', 'apple iphone');
+            if (lang === 'fr') keywords.push(`réparation ${model} bruxelles`, 'écran iphone', 'batterie iphone', 'face id');
+            if (lang === 'nl') keywords.push(`reparatie ${model} brussel`, 'iphone scherm', 'iphone batterij');
+        } else {
+            let combinedName = `${brand} ${model}`;
+            if (brand && model.toLowerCase().startsWith(brand.toLowerCase())) {
+                combinedName = model;
+            }
+            if (lang === 'fr') keywords.push(`réparation ${combinedName} bruxelles`);
+            if (lang === 'nl') keywords.push(`reparatie ${combinedName} brussel`);
+        }
+
+        // Consoles
+        if (model.toLowerCase().includes('playstation 5')) keywords.push('ps5', 'sony ps5');
+        if (model.toLowerCase().includes('switch')) keywords.push('nintendo switch', 'joycon');
+    }
+
+    // 4. Categories
+    if (category === 'console_home') {
+        keywords.push('console', 'gaming', 'ps5', 'xbox');
+        if (lang === 'fr') keywords.push('réparation console', 'hdmi ps5');
+        if (lang === 'nl') keywords.push('console reparatie', 'hdmi poort');
+    }
+    if (category === 'console_portable') {
+        keywords.push('switch', 'steam deck');
+        if (lang === 'fr') keywords.push('réparation switch', 'joystick');
+        if (lang === 'nl') keywords.push('switch reparatie');
+    }
+    if (category === 'tablet') {
+        keywords.push('tablet', 'ipad');
+        if (lang === 'fr') keywords.push('réparation ipad', 'vitre tablette');
+        if (lang === 'nl') keywords.push('ipad reparatie', 'scherm tablet');
+    }
+    if (category === 'laptop') {
+        keywords.push('laptop', 'macbook', 'pc');
+        if (lang === 'fr') keywords.push('réparation macbook', 'écran pc portable');
+        if (lang === 'nl') keywords.push('laptop reparatie', 'macbook scherm');
+    }
+    if (category === 'smartwatch') {
+        keywords.push('smartwatch', 'apple watch');
+        if (lang === 'fr') keywords.push('réparation apple watch');
+        if (lang === 'nl') keywords.push('apple watch reparatie');
+    }
+
+    // 5. Location
+    if (location) keywords.push(location);
+    if (lang === 'fr') keywords.push(`réparation ${brand || 'gsm'} ${location}`);
+    if (lang === 'nl') keywords.push(`reparatie ${brand || 'gsm'} ${location}`);
+
+    return [...new Set(keywords)];
+};
+
+export const generateMetaKeywords = (tags: string[]): string => {
+    return tags.join(', ');
 };

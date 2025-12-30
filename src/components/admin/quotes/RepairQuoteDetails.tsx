@@ -97,7 +97,7 @@ const RepairQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
         try {
             const { mapQuoteToPdfData } = await import('../../../utils/orderMappers');
             const { generatePDFFromPdfData, savePDFBlob } = await import('../../../utils/pdfGenerator');
-            const { getFixedT } = await import('../../../utils/i18nFixed');
+            const { getFixedT } = await import('../../../utils/i18n-server');
 
             // Force PDF to use customer's language, fallback to 'fr'
             const fixedT = getFixedT(quote.language || 'fr');

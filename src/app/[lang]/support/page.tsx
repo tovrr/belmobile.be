@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getFixedT } from '@/utils/i18nFixed';
+import { getFixedT } from '@/utils/i18n-server';
 import SupportHubPage from '@/components/SupportHubPage';
 
 type Props = {

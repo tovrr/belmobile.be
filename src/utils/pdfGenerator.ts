@@ -1,4 +1,5 @@
 import { createPdfDefinition, PdfData } from './PdfTemplates';
+import { TFunction } from './i18n-server';
 
 // --- Interfaces ---
 export interface ReservationData {
@@ -65,7 +66,7 @@ export interface RepairBuybackData {
     footerHelpText?: string;
 }
 
-export const generateReservationPDF = async (data: ReservationData, t: any) => {
+export const generateReservationPDF = async (data: ReservationData, t: TFunction) => {
     // Dynamic import for pdfmake
     const pdfMakeModule = await import('pdfmake/build/pdfmake');
     const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
@@ -123,7 +124,7 @@ export const generateReservationPDF = async (data: ReservationData, t: any) => {
     });
 };
 
-export const generateRepairBuybackPDF = async (data: RepairBuybackData, t: any) => {
+export const generateRepairBuybackPDF = async (data: RepairBuybackData, t: TFunction) => {
     // Dynamic import
     const pdfMakeModule = await import('pdfmake/build/pdfmake');
     const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
@@ -269,10 +270,12 @@ export const generatePDFFromPdfData = async (pdfData: any, filenamePrefix: strin
     const docDefinition = createPdfDefinition(pdfData);
     const pdfGenerator = pdfMake.createPdf(docDefinition as any);
 
-    return new Promise<{ blob: Blob, safeFileName: string }>((resolve, reject) => {
+    return new Promise<{ blob: Blob, base64: string, safeFileName: string }>((resolve, reject) => {
         pdfGenerator.getBlob((blob: Blob) => {
-            const safeFileName = `${filenamePrefix}_${pdfData.orderId || 'Order'}.pdf`;
-            resolve({ blob, safeFileName });
+            pdfGenerator.getBase64((base64: string) => {
+                const safeFileName = `${filenamePrefix}_${pdfData.orderId || 'Order'}.pdf`;
+                resolve({ blob, base64, safeFileName });
+            });
         });
     });
 };
