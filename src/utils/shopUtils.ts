@@ -1,4 +1,63 @@
 
+import { Shop } from '../types';
+import { db } from '../firebase';
+import { collection, getDocs } from 'firebase/firestore';
+import { LOCATIONS } from '../data/locations';
+import { SHOPS } from '../constants';
+
+/**
+ * Fetch shops from Firestore and merge with static LOCATIONS
+ */
+export const fetchMergedShops = async (): Promise<Shop[]> => {
+    let shops: Shop[] = [];
+    try {
+        const snapshot = await getDocs(collection(db, 'shops'));
+        shops = snapshot.docs.map(doc => {
+            const shopData = { id: doc.id, ...doc.data() } as unknown as Shop;
+            // Override with verified constants for core shops
+            const verifiedShop = SHOPS.find(s => s.id === shopData.id);
+            const staticInfo = LOCATIONS.find(l => l.id === shopData.id);
+
+            return {
+                ...shopData,
+                // Ensure zip and slugs are always available from static data if missing in DB
+                zip: shopData.zip || staticInfo?.zip,
+                slugs: shopData.slugs || staticInfo?.slugs,
+                isHub: staticInfo?.isHub || false,
+                // Merge critical flags from constants
+                isPrimary: shopData.isPrimary ?? verifiedShop?.isPrimary ?? false,
+                // Override coordinates/address for specific shops as per previous logic
+                ...(verifiedShop && (shopData.id === 'schaerbeek' || shopData.id === 'anderlecht' || shopData.id === 'molenbeek') ? {
+                    coords: verifiedShop.coords,
+                    address: verifiedShop.address,
+                    name: verifiedShop.name
+                } : {})
+            };
+        });
+    } catch (error) {
+        console.error("Error fetching shops:", error);
+    }
+
+    // Merge static LOCATIONS
+    const staticShops = LOCATIONS.map(l => ({
+        ...l,
+        // Do not force 'open' here, let the merging logic handle it
+    } as unknown as Shop));
+
+    const combined = [...shops];
+    staticShops.forEach(s => {
+        const existing = combined.find(c => c.id === s.id);
+        if (!existing) {
+            combined.push(s);
+        } else if (!existing.status) {
+            // Keep the status from database if it exists, otherwise use 'open'
+            existing.status = 'open';
+        }
+    });
+
+    return combined;
+};
+
 /**
  * Helper to check if shop is open based on Brussels Time, supporting day ranges
  */

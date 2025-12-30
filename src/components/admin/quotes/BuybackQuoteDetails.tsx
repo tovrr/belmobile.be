@@ -129,7 +129,7 @@ const BuybackQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
         };
 
         const deviceIdSlug = `${quote.brand}-${quote.model}`.toLowerCase().replace(/\s+/g, '-');
-        const relevantBuybackPrices = buybackPrices.filter((p: any) =>
+        const relevantBuybackPrices = buybackPrices.filter((p: BuybackPriceRecord) =>
             (p.brand === quote.brand && p.model === quote.model) ||
             (p.deviceId === deviceIdSlug)
         ) as BuybackPriceRecord[];
@@ -195,7 +195,7 @@ const BuybackQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
         try {
             const { mapQuoteToPdfData } = await import('../../../utils/orderMappers');
             const { generatePDFFromPdfData, savePDFBlob } = await import('../../../utils/pdfGenerator');
-            const { getFixedT } = await import('../../../utils/i18nFixed');
+            const { getFixedT } = await import('../../../utils/i18n-server');
 
             // Force PDF to use customer's language
             const fixedT = getFixedT(quote.language || 'fr');

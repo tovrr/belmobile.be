@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
             const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
             const preGeneratedId = `ORD-${new Date().getFullYear()}-${randomSuffix}`;
 
-            const docRef = await addDoc(collection(db, 'quotes'), {
+            const docReference = await addDoc(collection(db, 'quotes'), {
                 ...body,
                 price: calculatedPrice, // Enforce server price
                 isVerified: true,
@@ -86,11 +86,82 @@ export async function POST(req: NextRequest) {
             Sentry.setTag("brand", brand);
             Sentry.setContext("order_details", { type, price: calculatedPrice, model });
 
-            return NextResponse.json({ success: true, id: docRef.id, orderId: preGeneratedId, price: calculatedPrice });
+            // 5. SERVER-SIDE EMAIL DISPATCH
+            // This ensures emails are sent reliably from the server, avoiding browser navigation race conditions.
+            try {
+                const { mapQuoteToPdfData } = await import('../../../../utils/orderMappers');
+                const { generatePDFFromPdfData } = await import('../../../../utils/pdfGenerator');
+                const { getFixedT } = await import('../../../../utils/i18n-server');
+                const { serverEmailService } = await import('../../../../services/server/emailService');
 
-        } catch (dbError: any) {
+                const lang = body.language || 'fr';
+                const t = getFixedT(lang);
+
+                // Prepare quote for mapper (mock Firestore shape)
+                const quoteData = {
+                    ...body,
+                    id: docReference.id,
+                    orderId: preGeneratedId,
+                    price: calculatedPrice,
+                    createdAt: { seconds: Math.floor(Date.now() / 1000) }
+                };
+
+                const pdfData = mapQuoteToPdfData(quoteData as any, t);
+                const { base64, safeFileName } = await generatePDFFromPdfData(pdfData, type === 'buyback' ? 'Buyback' : 'Repair');
+
+                const emailHeader = `<div style="background-color: #4338ca; padding: 30px; text-align: center;"><div style="display: inline-block; text-align: left;"><div style="font-size: 28px; font-weight: 900; letter-spacing: -1px; color: #ffffff; white-space: nowrap; margin-bottom: 2px; line-height: 1;">BELMOBILE<span style="color: #eab308;">.BE</span></div><div style="font-size: 10px; font-weight: 700; letter-spacing: 5.1px; text-transform: uppercase; color: #94a3b8; white-space: nowrap; line-height: 1; padding-left: 1px;">BUYBACK & REPAIR</div></div></div>`;
+                const emailFooter = `<div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;"><p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p><p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p><p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">&copy; ${new Date().getFullYear()} Belmobile. All rights reserved.</p></div>`;
+
+                const htmlContent = `
+                    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+                        ${emailHeader}
+                        <div style="padding: 30px; line-height: 1.6;">
+                            <h2 style="color: #4338ca;">${t('email_buyback_repair_greeting', body.customerName)}</h2>
+                            <p>${t('email_buyback_repair_thanks', type === 'buyback' ? t('Buyback') : t('Repair'))}</p>
+                            <p>${t('email_buyback_repair_attachment')}</p>
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="https://belmobile.be/${lang}/track-order?id=${preGeneratedId}&email=${encodeURIComponent(body.customerEmail)}" style="background-color: #4338ca; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                    ${t('email_track_button')}
+                                </a>
+                            </div>
+                            <hr style="border: 1px solid #eee; margin: 20px 0;">
+                            <p style="font-size: 12px; color: #666;">${t('email_automatic_message')}</p>
+                        </div>
+                        ${emailFooter}
+                    </div>
+                `;
+
+                // Send to Customer
+                console.log(`[Email] Starting dispatch to customer: ${body.customerEmail}`);
+                const customerResult = await serverEmailService.sendEmail(
+                    body.customerEmail,
+                    t('email_buyback_repair_subject', type === 'buyback' ? t('Buyback') : t('Repair'), preGeneratedId),
+                    htmlContent,
+                    [{ name: safeFileName, content: base64 }]
+                );
+                console.log(`[Email] Customer dispatch success:`, customerResult);
+
+                // Send to Admin
+                console.log(`[Email] Starting dispatch to admin: info@belmobile.be`);
+                const adminResult = await serverEmailService.sendEmail(
+                    'info@belmobile.be',
+                    `[ADMIN COPY] Order ${preGeneratedId} (${body.customerName})`,
+                    htmlContent,
+                    [{ name: safeFileName, content: base64 }]
+                );
+                console.log(`[Email] Admin dispatch success:`, adminResult);
+
+            } catch (emailError) {
+                // Log but don't fail the request (Order is already saved)
+                console.error('[API Order Submit] Email Dispatch Failed:', emailError);
+                Sentry.captureException(emailError);
+            }
+
+            return NextResponse.json({ success: true, id: docReference.id, orderId: preGeneratedId, price: calculatedPrice });
+
+        } catch (dbError) {
             console.error('Firestore Write Failed:', dbError);
-            if (dbError.code === 'permission-denied') {
+            if (dbError instanceof Error && 'code' in dbError && dbError.code === 'permission-denied') {
                 // Fallback: Validate ONLY, tell Client to write (Signed Token ideally, but simple OK for now)
                 return NextResponse.json({
                     success: true,

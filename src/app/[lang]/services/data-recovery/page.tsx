@@ -10,7 +10,7 @@ import {
     CheckBadgeIcon
 } from '@heroicons/react/24/outline';
 import Image from 'next/image';
-import { getFixedT } from '../../../../utils/i18nFixed';
+import { getFixedT } from '../../../../utils/i18n-server';
 
 type Props = {
     params: Promise<{ lang: string }>;

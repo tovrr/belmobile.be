@@ -216,25 +216,16 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                 ...state,
                 type,
                 price,
-                condition: type === 'buyback' ? { screen: state.screenState || null, body: state.bodyState || null } : null,
+                condition: type === 'buyback' ? { screen: state.screenState, body: state.bodyState } : null,
                 issues: type === 'repair' ? state.repairIssues : null,
                 language: lang || 'fr',
                 brand: state.selectedBrand,
                 model: state.selectedModel
             }, t);
 
-            // 4. Send Confirmation Email (Awaited to ensure PDF transmission completes)
-            // Note: We await this because the PDF payload is too large for fetch 'keepalive' (max 64KB),
-            // so navigating away would cancel the request.
-            try {
-                await orderService.sendOrderConfirmationEmail(readableId, firestoreData, lang || 'fr', t, sendEmail);
-            } catch (err) {
-                console.error("Email sending failed:", err);
-                // Proceed to success page regardless, as order is saved
-            }
-
-            // 5. Redirect Immediately to Success Page
-            // We don't await the email sending to ensure the user gets immediate feedback
+            // 4. Redirect Immediately to Success Page
+            // The emails are now handled server-side in the /api/orders/submit route
+            // to avoid race conditions during navigation.
             const emailParam = encodeURIComponent(state.customerEmail);
             router.push(`/${lang}/track-order?id=${readableId}&email=${emailParam}&success=true`);
 

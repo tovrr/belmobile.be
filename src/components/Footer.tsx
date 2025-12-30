@@ -1,16 +1,17 @@
-'use client';
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { MOCK_BLOG_POSTS } from '../constants';
-import { useLanguage } from '../hooks/useLanguage';
-
 
 import { LOCATIONS } from '../data/locations';
 import { PaperAirplaneIcon, SparklesIcon } from './ui/BrandIcons';
 import { Bike } from 'lucide-react';
 import Input from './ui/Input';
 import Logo from './ui/Logo';
+
+import FooterSocials from './footer-components/FooterSocials';
+import FooterNewsletter from './footer-components/FooterNewsletter';
+import FooterColumns from './footer-components/FooterColumns';
+import FooterLanguageSwitcher from './footer-components/FooterLanguageSwitcher';
+import { TranslationDict } from '@/utils/translations';
 
 const POPULAR_REPAIRS = [
     { name: 'iPhone 15 Pro Max', brand: 'Apple', model: 'iPhone 15 Pro Max', category: 'smartphone' },
@@ -27,98 +28,15 @@ const POPULAR_REPAIRS = [
     { name: 'Xiaomi 13', brand: 'Xiaomi', model: 'Xiaomi 13', category: 'smartphone' },
 ];
 
-const Footer: React.FC = () => {
-    const { language, t } = useLanguage();
+interface FooterProps {
+    lang?: string;
+    dict?: TranslationDict;
+}
 
-    const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
-    const [email, setEmail] = useState('');
-    const [isSubscribed, setIsSubscribed] = useState(false);
-
-    const handleSubscribe = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (email) {
-            setIsSubscribed(true);
-            setEmail('');
-            // Here you would typically send the email to your backend
-            setTimeout(() => setIsSubscribed(false), 5000);
-        }
-    };
-
-    const handleLanguageChange = (newLang: 'en' | 'fr' | 'nl') => {
-        if (newLang === language) return;
-        const currentPath = pathname;
-        const search = searchParams.toString() ? `?${searchParams.toString()}` : '';
-
-        // Split path into segments
-        const segments = currentPath.split('/').filter(Boolean);
-
-        // Check if first segment is a language code
-        if (['en', 'fr', 'nl'].includes(segments[0])) {
-            segments[0] = newLang;
-        } else {
-            // If no language prefix (shouldn't happen in MainLayout, but safe fallback)
-            segments.unshift(newLang);
-        }
-
-        // Handle Comprehensive Slug Translations
-        const slugMappings: Record<string, Record<string, string>> = {
-            products: { en: 'products', fr: 'produits', nl: 'producten' },
-            repair: { en: 'repair', fr: 'reparation', nl: 'reparatie' },
-            buyback: { en: 'buyback', fr: 'rachat', nl: 'inkoop' },
-            stores: { en: 'stores', fr: 'magasins', nl: 'winkels' },
-            services: { en: 'services', fr: 'services', nl: 'diensten' },
-            about: { en: 'about', fr: 'a-propos', nl: 'over-ons' },
-            sustainability: { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' },
-            students: { en: 'students', fr: 'etudiants', nl: 'studenten' },
-            courier: { en: 'express-courier', fr: 'coursier-express', nl: 'express-koerier' },
-            careers: { en: 'careers', fr: 'carrieres', nl: 'vacatures' },
-            warranty: { en: 'warranty', fr: 'garantie', nl: 'garantie' },
-            privacy: { en: 'privacy', fr: 'vie-privee', nl: 'privacy' },
-            terms: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden' },
-            track: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen' },
-            business: { en: 'business', fr: 'business', nl: 'zakelijk' },
-            support: { en: 'support', fr: 'support', nl: 'ondersteuning' },
-            franchise: { en: 'franchise', fr: 'devenir-partenaire', nl: 'word-partner' },
-            'a-propos': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
-            'over-ons': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
-            'durabilite': { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' },
-            'duurzaamheid': { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' }
-        };
-
-        // Helper to translate a segment if it matches any known term
-        const translateSegment = (segment: string) => {
-            for (const key in slugMappings) {
-                const terms = slugMappings[key];
-                if (Object.values(terms).includes(segment)) {
-                    return terms[newLang];
-                }
-            }
-            return segment;
-        };
-
-        // Iterate through segments and translate known terms
-        for (let i = 0; i < segments.length; i++) {
-            segments[i] = translateSegment(segments[i]);
-        }
-
-        // Special Handling for Blog Posts (Dynamic Slugs)
-        if (segments.includes('blog') && segments.length > segments.indexOf('blog') + 1) {
-            const blogIndex = segments.indexOf('blog');
-            const currentSlug = segments[blogIndex + 1];
-            const post = MOCK_BLOG_POSTS.find(p =>
-                p.slug === currentSlug ||
-                (p.slugs && Object.values(p.slugs).includes(currentSlug))
-            );
-            if (post && post.slugs) {
-                segments[blogIndex + 1] = post.slugs[newLang] || post.slug;
-            }
-        }
-
-        const newPath = '/' + segments.join('/');
-        router.push(newPath + search);
-    };
+const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
+    // Simple helper if dict lookup fails
+    const t = (key: string) => dict[key] || key;
+    const language = lang;
 
     const createSlug = (text: string) => text.toLowerCase().replace(/\s+/g, '-');
 
@@ -128,7 +46,7 @@ const Footer: React.FC = () => {
             <div
                 className="absolute inset-0 z-0 opacity-[0.07] pointer-events-none"
                 style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23eab308' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 1.79 4 4 1.79 4 4 1.79 4 4 1.79 4 4 1.79 4 4 1.79 4 4 1.79 4 4 1.79 4 4 1.79 4 4 1.79 4 4 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23eab308' fill-rule='evenodd'/%3E%3C/svg%3E")`,
                 }}
             ></div>
 
@@ -141,9 +59,7 @@ const Footer: React.FC = () => {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="grid grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-8 mb-12">
 
-
-
-                    {/* Brand Column (Span 4) - Increased from 3 */}
+                    {/* Brand Column (Span 4) */}
                     <div className="col-span-2 lg:col-span-4">
                         <Link
                             href={`/${language}`}
@@ -178,262 +94,11 @@ const Footer: React.FC = () => {
                             }
                         </p>
 
-                        {/* Newsletter Input */}
-                        <div className="relative max-w-sm mb-8">
-                            {isSubscribed ? (
-                                <div className="bg-green-500/20 border border-green-500/50 rounded-ui py-3 px-4 text-sm text-green-200 flex items-center">
-                                    <SparklesIcon className="h-5 w-5 mr-2 text-green-400" aria-hidden="true" />
-                                    {t('newsletter_success')}
-                                </div>
-                            ) : (
-                                <form onSubmit={handleSubscribe} className="relative">
-                                    <Input
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder={t('newsletter_placeholder')}
-                                        required
-                                        className="bg-white/5 border-white/10 placeholder-slate-500 text-white backdrop-blur-sm focus:ring-electric-indigo"
-                                        rightElement={
-                                            <button
-                                                type="submit"
-                                                aria-label={t('Subscribe')}
-                                                className="p-1.5 bg-electric-indigo rounded-ui text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/30"
-                                            >
-                                                <PaperAirplaneIcon className="h-4 w-4" />
-                                            </button>
-                                        }
-                                    />
-                                </form>
-                            )}
-                        </div>
-
-                        {/* Social Icons (Moved Here) */}
-                        <div className="flex space-x-4">
-                            <a href="https://www.facebook.com/Belmobile.be" target="_blank" rel="noopener noreferrer" className="bg-white/5 p-3 rounded-ui hover:bg-electric-indigo hover:scale-110 transition-all border border-white/5"><span className="sr-only">Facebook</span><svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg></a>
-                            <a href="https://www.instagram.com/belmobile.be" target="_blank" rel="noopener noreferrer" className="bg-white/5 p-3 rounded-ui hover:bg-electric-indigo hover:scale-110 transition-all border border-white/5"><span className="sr-only">Instagram</span><svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg></a>
-                            <a href="https://www.youtube.com/@belmobile-rachatreparation3659" target="_blank" rel="noopener noreferrer" className="bg-white/5 p-3 rounded-ui hover:bg-electric-indigo hover:scale-110 transition-all border border-white/5"><span className="sr-only">YouTube</span><svg className="h-5 w-5" fill="currentColor" viewBox="0 0 16 16"><path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z" /></svg></a>
-
-                            <a href="https://www.tiktok.com/@belmobile.be" target="_blank" rel="noopener noreferrer" className="bg-white/5 p-3 rounded-ui hover:bg-electric-indigo hover:scale-110 transition-all border border-white/5"><span className="sr-only">TikTok</span><svg className="h-5 w-5" fill="currentColor" viewBox="0 0 16 16"><path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z" /></svg></a>
-                        </div>
+                        <FooterNewsletter />
+                        <FooterSocials />
                     </div>
 
-                    {/* Services Column (Span 3) - Increased from 2 */}
-                    <div className="col-span-1 lg:col-span-3">
-                        <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">
-                            <Link
-                                href={
-                                    language === 'nl'
-                                        ? '/nl/diensten'
-                                        : `/${language}/services`
-                                }
-                                className="hover:text-white transition-colors duration-200"
-                            >
-                                {t('Services')}
-                            </Link>
-                        </h4>
-                        <ul className="space-y-4 text-sm text-slate-400">
-                            <li><Link href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Repair')}</Link></li>
-                            <li><Link href={`/${language}/${language === 'fr' ? 'rachat' : language === 'nl' ? 'inkoop' : 'buyback'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Buyback')}</Link></li>
-                            <li><Link href={`/${language}${language === 'fr' ? '/produits' : language === 'nl' ? '/producten' : '/products'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Products')}</Link></li>
-                            <li>
-                                <Link
-                                    href={
-                                        language === 'nl'
-                                            ? '/nl/zakelijk'
-                                            : `/${language}/business`
-                                    }
-                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
-                                >
-                                    {t('Business Solutions')}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href={
-                                        language === 'fr'
-                                            ? '/fr/services/recuperation-donnees'
-                                            : language === 'nl'
-                                                ? '/nl/services/data-recovery'
-                                                : `/${language}/services/data-recovery`
-                                    }
-                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
-                                >
-                                    {t('Data Recovery')}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href={
-                                        language === 'fr'
-                                            ? '/fr/services/microsoudure'
-                                            : language === 'nl'
-                                                ? '/nl/services/microsolderen'
-                                                : `/${language}/services/microsoldering`
-                                    }
-                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
-                                >
-                                    {t('Microsoldering')}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href={`/${language}/students`} className="hover:text-white transition-colors hover:translate-x-1 inline-flex items-center duration-200 group">
-                                    <span className="font-semibold text-white">{t('Student Offers')}</span>
-                                    <span className="ml-2 px-1.5 py-0.5 rounded-ui text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                        -10%
-                                    </span>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href={`/${language}/express-courier`} className="hover:text-white hover:translate-x-1 inline-flex items-center duration-200 group font-bold text-sky-400 transition-all">
-                                    <Bike className="w-4 h-4 mr-1.5 animate-pulse" />
-                                    {t('Express Courier')}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href={
-                                        language === 'fr'
-                                            ? '/fr/devenir-partenaire'
-                                            : language === 'nl'
-                                                ? '/nl/word-partner'
-                                                : `/${language}/franchise`
-                                    }
-                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
-                                >
-                                    {t('Become a Partner')}
-                                </Link>
-                            </li>
-                            <li><Link href={`/${language}/${language === 'fr' ? 'carrieres' : language === 'nl' ? 'vacatures' : 'jobs'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Careers')}</Link></li>
-                        </ul>
-                    </div>
-
-                    {/* Support Column (Span 3) - Increased from 2 */}
-                    <div className="col-span-1 lg:col-span-3">
-                        <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">
-                            <Link
-                                href={
-                                    language === 'nl'
-                                        ? '/nl/ondersteuning'
-                                        : `/${language}/support`
-                                }
-                                className="hover:text-white transition-colors duration-200"
-                            >
-                                {t('Support')}
-                            </Link>
-                        </h4>
-                        <ul className="space-y-4 text-sm text-slate-400">
-                            <li><Link href={`/${language}/contact`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Contact Us')}</Link></li>
-                            <li><Link href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${language === 'fr' ? 'bruxelles' : language === 'nl' ? 'brussel' : 'brussels'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Store Locator')}</Link></li>
-                            <li><Link href={`/${language}/faq`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Help Center')}</Link></li>
-                            <li>
-                                <Link
-                                    href={
-                                        language === 'fr'
-                                            ? '/fr/suivi-commande'
-                                            : language === 'nl'
-                                                ? '/nl/bestelling-volgen'
-                                                : `/${language}/track-order`
-                                    }
-                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
-                                >
-                                    {t('Track Order')}
-                                </Link>
-                            </li>
-                            <li><Link href={`/${language}/blog`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Blog')}</Link></li>
-                            <li>
-                                <Link
-                                    href={
-                                        language === 'fr'
-                                            ? '/fr/a-propos'
-                                            : language === 'nl'
-                                                ? '/nl/over-ons'
-                                                : `/${language}/about`
-                                    }
-                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
-                                >
-                                    {t('About Us')}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href={
-                                        language === 'fr'
-                                            ? '/fr/a-propos/durabilite'
-                                            : language === 'nl'
-                                                ? '/nl/over-ons/duurzaamheid'
-                                                : `/${language}/about/sustainability`
-                                    }
-                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
-                                >
-                                    {t('Sustainability')}
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Legal Column (Span 2) */}
-                    <div className="col-span-1 lg:col-span-2">
-                        <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('Legal')}</h4>
-                        <ul className="space-y-4 text-sm text-slate-400">
-                            <li>
-                                <Link
-                                    href={
-                                        language === 'fr'
-                                            ? '/fr/conditions-generales'
-                                            : language === 'nl'
-                                                ? '/nl/algemene-voorwaarden'
-                                                : `/${language}/terms`
-                                    }
-                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
-                                >
-                                    {t('Terms of Service')}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href={
-                                        language === 'fr'
-                                            ? '/fr/vie-privee'
-                                            : language === 'nl'
-                                                ? '/nl/privacy'
-                                                : `/${language}/privacy`
-                                    }
-                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
-                                >
-                                    {t('Privacy Policy')}
-                                </Link>
-                            </li>
-                            <li><Link href={`/${language}/cookies`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Cookie Policy')}</Link></li>
-                            <li>
-                                <Link
-                                    href={
-                                        language === 'fr'
-                                            ? '/fr/garantie'
-                                            : language === 'nl'
-                                                ? '/nl/garantie'
-                                                : `/${language}/warranty`
-                                    }
-                                    className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
-                                >
-                                    {t('Warranty Info')}
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Service Areas Column (Span 3) - HIDDEN as per user request (too dense) */}
-                    {/* <div className="lg:col-span-3">
-                        <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-cyber-citron">{t('service_areas_title')}</h4>
-                        <ul className="space-y-4 text-sm text-slate-400">
-                            <li><Link href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${language === 'fr' ? 'schaerbeek' : language === 'nl' ? 'schaarbeek' : 'schaerbeek'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('service_area_schaerbeek')}</Link></li>
-                            <li><Link href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${language === 'fr' ? 'anderlecht' : 'anderlecht'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('service_area_anderlecht')}</Link></li>
-                            <li><span className="text-slate-600 cursor-default">{t('service_area_ixelles')} (Coming Soon)</span></li>
-                            <li><span className="text-slate-600 cursor-default">{t('service_area_uccle')} (Coming Soon)</span></li>
-                            <li><span className="text-slate-600 cursor-default">{t('service_area_etterbeek')} (Coming Soon)</span></li>
-                            <li><span className="text-slate-600 cursor-default">{t('service_area_woluwe')} (Coming Soon)</span></li>
-                        </ul>
-                    </div> */}
+                    <FooterColumns lang={lang} dict={dict} />
                 </div>
 
                 {/* Popular Repairs (Integrated with Spacing) */}
@@ -465,7 +130,7 @@ const Footer: React.FC = () => {
                         {LOCATIONS.map((loc) => (
                             <li key={loc.id}>
                                 <Link
-                                    href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${loc.slugs[language] || loc.slugs.en}`}
+                                    href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${loc.slugs[language as 'en' | 'fr' | 'nl'] || loc.slugs.en}`}
                                     className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
                                 >
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
@@ -488,24 +153,7 @@ const Footer: React.FC = () => {
 
                     <div className="flex items-center gap-6 mt-4 md:mt-0 md:pr-24">
                         <Link href={`/${language}/sitemap`} className="hover:text-white transition-colors">{t('Sitemap')}</Link>
-
-
-
-                        {/* Language Selector */}
-                        <div className="flex items-center space-x-1 bg-white/5 rounded-ui p-1">
-                            {(['en', 'fr', 'nl'] as const).map((lang) => (
-                                <button
-                                    key={lang}
-                                    onClick={() => handleLanguageChange(lang)}
-                                    className={`px-2 py-1 rounded-ui text-[10px] font-bold uppercase transition-all ${language === lang
-                                        ? 'bg-electric-indigo text-white shadow-lg'
-                                        : 'text-slate-400 hover:text-white hover:bg-white/10'
-                                        }`}
-                                >
-                                    {lang}
-                                </button>
-                            ))}
-                        </div>
+                        <FooterLanguageSwitcher currentLang={lang} />
                     </div>
                 </div>
             </div>

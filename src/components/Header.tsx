@@ -8,6 +8,13 @@ import { MenuIcon as Bars3Icon, CloseIcon as XMarkIcon, PhoneIcon } from './ui/B
 import { useLanguage } from '../hooks/useLanguage';
 
 import Logo from './Logo';
+import { getLocalizedPath } from '@/utils/i18n-helpers';
+import dynamic from 'next/dynamic';
+
+const MobileMenu = dynamic(() => import('./MobileMenu'), {
+    ssr: false,
+    loading: () => <div className="absolute top-full left-0 right-0 mt-4 mx-4 h-96 rounded-3xl bg-white/50 backdrop-blur-sm animate-pulse z-40"></div>
+});
 
 const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,84 +43,23 @@ const Header: React.FC = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
+    useEffect(() => {
+        // Dispatch event for other components (like Chat Widget) to know menu state
+        const event = new CustomEvent('mobile-menu-state', { detail: { isOpen: isMenuOpen } });
+        window.dispatchEvent(event);
+    }, [isMenuOpen]);
+
     const handleLanguageChange = (newLang: 'en' | 'fr' | 'nl') => {
         const currentPath = pathname;
         const search = searchParams.toString() ? `?${searchParams.toString()}` : '';
-
-        // Split path into segments
-        const segments = currentPath.split('/').filter(Boolean);
-
-        // Check if first segment is a language code
-        if (['en', 'fr', 'nl'].includes(segments[0])) {
-            segments[0] = newLang;
-        } else {
-            // If no language prefix (shouldn't happen in MainLayout, but safe fallback)
-            segments.unshift(newLang);
-        }
-
-        // Handle Comprehensive Slug Translations
-        const slugMappings: Record<string, Record<string, string>> = {
-            products: { en: 'products', fr: 'produits', nl: 'producten' },
-            repair: { en: 'repair', fr: 'reparation', nl: 'reparatie' },
-            buyback: { en: 'buyback', fr: 'rachat', nl: 'inkoop' },
-            stores: { en: 'stores', fr: 'magasins', nl: 'winkels' },
-            services: { en: 'services', fr: 'services', nl: 'diensten' }, // Added diensten
-            about: { en: 'about', fr: 'a-propos', nl: 'over-ons' }, // Main about page
-            sustainability: { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' },
-            students: { en: 'students', fr: 'etudiants', nl: 'studenten' },
-            courier: { en: 'express-courier', fr: 'coursier-express', nl: 'express-koerier' },
-            careers: { en: 'careers', fr: 'carrieres', nl: 'vacatures' },
-            warranty: { en: 'warranty', fr: 'garantie', nl: 'garantie' },
-            privacy: { en: 'privacy', fr: 'vie-privee', nl: 'privacy' },
-            terms: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden' },
-            track: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen' },
-            business: { en: 'business', fr: 'business', nl: 'zakelijk' },
-            support: { en: 'support', fr: 'support', nl: 'ondersteuning' },
-            franchise: { en: 'franchise', fr: 'devenir-partenaire', nl: 'word-partner' },
-            // Extra specific segments
-            'a-propos': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
-            'over-ons': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
-            'durabilite': { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' },
-            'duurzaamheid': { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' }
-        };
-
-        // Helper to translate a segment if it matches any known term
-        const translateSegment = (segment: string) => {
-            for (const key in slugMappings) {
-                const terms = slugMappings[key];
-                if (Object.values(terms).includes(segment)) {
-                    return terms[newLang];
-                }
-            }
-            return segment;
-        };
-
-        // Iterate through segments and translate known terms
-        for (let i = 0; i < segments.length; i++) {
-            segments[i] = translateSegment(segments[i]);
-        }
-
-        // Special Handling for Blog Posts (Dynamic Slugs)
-        if (segments.includes('blog') && segments.length > segments.indexOf('blog') + 1) {
-            const blogIndex = segments.indexOf('blog');
-            const currentSlug = segments[blogIndex + 1];
-            const post = MOCK_BLOG_POSTS.find(p =>
-                p.slug === currentSlug ||
-                (p.slugs && Object.values(p.slugs).includes(currentSlug))
-            );
-            if (post && post.slugs) {
-                segments[blogIndex + 1] = post.slugs[newLang] || post.slug;
-            }
-        }
-
-        const newPath = '/' + segments.join('/');
-        router.push(newPath + search);
+        const newPath = getLocalizedPath(currentPath, newLang, search);
+        router.push(newPath);
     };
 
     return (
         <>
             {/* Floating Island Navigation */}
-            <header className={`fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-[1600px] z-50 transition-all duration-500 ease-in-out px-4 sm:px-0 flex justify-center`}>
+            <header className={`fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-[1600px] z-60 transition-all duration-500 ease-in-out px-4 sm:px-0 flex justify-center`}>
                 <div
                     className={`
                         relative w-full max-w-6xl rounded-full transition-all duration-500
@@ -216,76 +162,24 @@ const Header: React.FC = () => {
                         </div>
                     </div>
 
+
+
                     {/* Mobile Menu Overlay */}
                     {isMenuOpen && (
-                        <div className="absolute top-full left-0 right-0 mt-4 mx-4 rounded-3xl p-2 shadow-2xl animate-fade-in md:hidden bg-white dark:bg-slate-900 border border-white/20 z-40">
-                            <div className="flex flex-col space-y-1">
-                                {NAV_LINKS.map(link => {
-                                    let path = link.path;
-                                    if (path === '/products') {
-                                        if (language === 'fr') path = '/produits';
-                                        if (language === 'nl') path = '/producten';
-                                    }
-                                    if (path === '/repair') {
-                                        if (language === 'fr') path = '/reparation';
-                                        if (language === 'nl') path = '/reparatie';
-                                    }
-                                    if (path === '/buyback') {
-                                        if (language === 'fr') path = '/rachat';
-                                        if (language === 'nl') path = '/inkoop';
-                                    }
-                                    if (path === '/stores') {
-                                        if (language === 'fr') path = '/magasins';
-                                        if (language === 'nl') path = '/winkels';
-                                    }
-
-                                    const href = `/${language}${path}`;
-                                    const isActive = pathname === href || pathname.startsWith(href + '/');
-
-                                    return (
-                                        <Link
-                                            key={link.name}
-                                            href={href}
-                                            onClick={() => setIsMenuOpen(false)}
-                                            aria-label={t(link.name)}
-                                            className={`px-6 py-4 rounded-2xl text-lg font-bold transition-all flex items-center justify-between ${isActive
-                                                ? 'bg-slate-100 dark:bg-slate-800 text-electric-indigo dark:text-indigo-400'
-                                                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                                                }`
-                                            }
-                                        >
-                                            {t(link.name)}
-                                            <span className="text-slate-300 dark:text-slate-600">→</span>
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Mobile Language Selector */}
-                            <div className="flex justify-center gap-4 p-4 border-t border-gray-100 dark:border-slate-800 mt-2">
-                                {(['en', 'fr', 'nl'] as const).map(l => (
-                                    <button
-                                        key={l}
-                                        onClick={() => { handleLanguageChange(l); setIsMenuOpen(false); }}
-                                        aria-label={`Switch to ${l.toUpperCase()}`}
-                                        className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold uppercase transition-all ${language === l
-                                            ? 'bg-electric-indigo text-white shadow-md'
-                                            : 'bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400'
-                                            }`}
-                                    >
-                                        {l}
-                                    </button>
-                                ))}
-                            </div>
-
-                            <div className="mt-2 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl text-center">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">{t('need_help')}</p>
-                                <a href="tel:+3222759867" className="flex items-center justify-center gap-2 w-full py-4 bg-cyber-citron text-midnight rounded-ui font-black shadow-lg shadow-cyber-citron/20 group">
-                                    <PhoneIcon className="h-5 w-5 group-hover:animate-medical-pulse" aria-hidden="true" />
-                                    <span>{t('call_expert')}</span>
-                                </a>
-                            </div>
-                        </div>
+                        <>
+                            {/* Backdrop to capture outside clicks and block interaction with underlying elements */}
+                            <div
+                                className="fixed inset-0 bg-black/20 backdrop-blur-[2px] z-[-1] h-screen w-screen -top-4 -left-[calc(50vw-50%)]"
+                                onClick={() => setIsMenuOpen(false)}
+                                aria-hidden="true"
+                            />
+                            <MobileMenu
+                                isOpen={isMenuOpen}
+                                onClose={() => setIsMenuOpen(false)}
+                                language={language}
+                                t={t}
+                            />
+                        </>
                     )}
                 </div>
             </header>
@@ -296,3 +190,4 @@ const Header: React.FC = () => {
 };
 
 export default Header;
+

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { BrevoEmailPayload } from '@/types/models';
 
 export async function POST(request: Request) {
     try {
@@ -20,16 +21,8 @@ export async function POST(request: Request) {
 
         console.log(`[EmailAPI] Attempting to send email to: ${to} | Subject: ${subject}`);
 
-        interface BrevoEmailBody {
-            sender: { name: string; email: string };
-            to: { email: string }[];
-            subject: string;
-            htmlContent: string;
-            attachment?: { name: string; content: string }[];
-        }
-
         const senderEmail = process.env.SENDER_EMAIL || "info@belmobile.be";
-        const body: BrevoEmailBody = {
+        const body: BrevoEmailPayload = {
             sender: {
                 name: "Belmobile.be",
                 email: senderEmail

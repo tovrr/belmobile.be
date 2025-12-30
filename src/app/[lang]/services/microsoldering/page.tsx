@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { CpuChipIcon, BoltIcon, WrenchScrewdriverIcon, ShieldCheckIcon, PlusSmallIcon, MinusSmallIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
-import { getFixedT } from '../../../../utils/i18nFixed';
+import { getFixedT } from '../../../../utils/i18n-server';
 
 interface PageProps {
     params: Promise<{ lang: string }>;

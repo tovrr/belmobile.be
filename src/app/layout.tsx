@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
+import { sanitizeUrl } from "../utils/i18n-helpers";
 import "./globals.css";
 
 const inter = Inter({
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     ],
   },
   manifest: '/manifest.json',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be'),
+  metadataBase: new URL(sanitizeUrl(process.env.NEXT_PUBLIC_BASE_URL)),
   openGraph: {
     type: 'website',
     locale: 'fr_BE',

@@ -58,10 +58,10 @@ export const LanguageProvider: React.FC<{ children: ReactNode; initialLanguage?:
 
                 if (isMounted && dict) {
                     setTranslationsDict(dict.default || dict);
-                    setIsLoading(false);
                 }
             } catch (error) {
                 console.error(`Failed to load translations for ${language}:`, error);
+            } finally {
                 if (isMounted) setIsLoading(false);
             }
         };

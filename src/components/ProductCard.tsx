@@ -12,9 +12,10 @@ import Image from 'next/image';
 
 interface ProductCardProps {
     product: Product;
+    priority?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) => {
     const { selectedShop } = useShop();
     const { t, language } = useLanguage();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,9 +52,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             >
 
 
-
-
-
                 {/* Image */}
                 <div className="relative pt-[100%] bg-transparent p-4">
                     {hasImage ? (
@@ -62,6 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                             src={product.imageUrl}
                             alt={language === 'fr' ? product.altText_fr || localizedName : language === 'nl' ? product.altText_nl || localizedName : product.altText || localizedName}
                             fill
+                            priority={priority}
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                             onError={() => setImgError(true)}
                         />

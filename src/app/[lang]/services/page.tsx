@@ -1,7 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { getFixedT } from '../../../utils/i18nFixed';
+import { getFixedT } from '../../../utils/i18n-server';
 import {
     WrenchScrewdriverIcon,
     CurrencyEuroIcon,

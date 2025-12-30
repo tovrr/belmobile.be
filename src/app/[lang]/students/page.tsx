@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { AcademicCapIcon, BoltIcon, CurrencyEuroIcon, MapPinIcon } from '@heroicons/react/24/outline';
-import { getFixedT } from '../../../utils/i18nFixed';
+import { getFixedT } from '../../../utils/i18n-server';
 
 // Icon Fallbacks
 function CheckBadgeIcon(props: any) {

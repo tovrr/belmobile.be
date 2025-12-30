@@ -63,7 +63,7 @@ export default async function LangLayout({
 
                 <LayoutWrapper>
                     <Suspense fallback={<div className="h-40" />}>
-                        <Footer />
+                        <Footer lang={lang} dict={translations} />
                     </Suspense>
                     <CookieConsent />
                     <AIChatAssistantWrapper />

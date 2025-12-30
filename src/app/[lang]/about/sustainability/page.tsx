@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { GlobeEuropeAfricaIcon, ArrowPathRoundedSquareIcon, ScaleIcon, CheckBadgeIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
-import { getFixedT } from '../../../../utils/i18nFixed';
+import { getFixedT } from '../../../../utils/i18n-server';
 
 interface PageProps {
     params: Promise<{ lang: string }>;

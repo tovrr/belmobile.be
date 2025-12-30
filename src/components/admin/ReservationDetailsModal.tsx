@@ -63,7 +63,9 @@ const ReservationDetailsModal = ({ reservation, onClose }: { reservation: Reserv
             if (nextPaid) {
                 if (window.confirm("Payment marked as PAID. Send confirmation email to customer?")) {
                     const { getPaymentReceivedEmail } = await import('../../utils/emailTemplates');
-                    const lang = (reservation as any).language || 'fr';
+                    const lang = (reservation.language === 'en' || reservation.language === 'nl' || reservation.language === 'fr')
+                        ? reservation.language
+                        : 'fr';
                     const { subject, html } = getPaymentReceivedEmail(reservation, lang);
                     await user?.email && updateReservationFields(reservation.id, { isPaid: true }); // Redundant but safe
 

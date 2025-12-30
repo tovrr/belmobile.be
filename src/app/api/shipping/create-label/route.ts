@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminToken } from '@/lib/auth';
+import { SendCloudParcel } from '@/types/models';
 
 export async function POST(request: NextRequest) {
     try {
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
         // If this is a Buyback (Return), we might need a different flow (e.g. Return Portal),
         // but for now we'll generate a standard label.
 
-        const parcelData: Record<string, unknown> = {
+        const parcelData: SendCloudParcel = {
             name: customer.name,
             address: customer.address,
             city: customer.city,
@@ -33,9 +34,6 @@ export async function POST(request: NextRequest) {
             email: customer.email,
             telephone: customer.phone,
             request_label: true,
-            // shipment: {
-            //     id: 8 // User suggested rules might be in play. Letting SendCloud decide.
-            // }
         };
 
         // If service point is selected, add it

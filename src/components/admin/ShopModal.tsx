@@ -35,6 +35,9 @@ const ShopModal: React.FC<ShopModalProps> = ({ onClose, shop }) => {
             status: formData.get('status') as Shop['status'],
             googleMapUrl: formData.get('googleMapUrl') as string,
             email: formData.get('email') as string,
+            rating: formData.get('rating') ? Number(formData.get('rating')) : undefined,
+            reviewCount: formData.get('reviewCount') ? Number(formData.get('reviewCount')) : undefined,
+            photos: (formData.get('photos') as string)?.split('\n').map(line => line.trim()).filter(line => line.length > 0) || [],
         };
 
         try {
@@ -119,6 +122,23 @@ const ShopModal: React.FC<ShopModalProps> = ({ onClose, shop }) => {
                             <input type="number" step="any" name="lng" id="lng" defaultValue={shop?.coords.lng} required className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" />
                         </div>
                     </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="rating" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Google Rating</label>
+                            <input type="number" step="0.1" min="0" max="5" name="rating" id="rating" defaultValue={shop?.rating} className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" />
+                        </div>
+                        <div>
+                            <label htmlFor="reviewCount" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Review Count</label>
+                            <input type="number" name="reviewCount" id="reviewCount" defaultValue={shop?.reviewCount} className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label htmlFor="photos" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Photos (One URL per line)</label>
+                        <textarea name="photos" id="photos" rows={3} defaultValue={shop?.photos?.join('\n')} className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-bel-blue outline-none transition" placeholder="https://example.com/photo1.jpg" />
+                    </div>
+
                     <div className="pt-4 flex justify-end gap-3">
                         <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl font-bold text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700 transition">Cancel</button>
                         <button type="submit" className="bg-bel-blue text-white font-bold py-2 px-6 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200 dark:shadow-none">

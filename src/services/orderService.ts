@@ -3,6 +3,7 @@ import { collection, addDoc, serverTimestamp, updateDoc, setDoc, doc } from 'fir
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { REPAIR_ISSUES } from '../constants';
 import * as Sentry from "@sentry/nextjs";
+import { TFunction } from '../utils/i18n-server';
 
 export interface OrderSubmissionData {
     customerName: string;
@@ -15,12 +16,12 @@ export interface OrderSubmissionData {
     model: string;
     type: 'buyback' | 'repair';
     price: number;
-    condition: any;
+    condition: string | { screen: string; body: string } | null;
     issues: string[] | null;
     deliveryMethod: string | null;
     iban?: string | null;
     idFile?: File | null;
-    servicePoint?: any | null;
+    servicePoint?: any | null; // Third-party object structure
     language: string;
     storage?: string;
     hasHydrogel?: boolean;
@@ -141,7 +142,13 @@ export const orderService = {
         });
     },
 
-    async sendOrderConfirmationEmail(readableId: string, data: any, lang: string, t: (key: string, ...args: (string | number)[]) => string, sendEmail: any) {
+    async sendOrderConfirmationEmail(
+        readableId: string,
+        data: OrderSubmissionData & { id?: string },
+        lang: string,
+        t: TFunction,
+        sendEmail: (to: string, subject: string, html: string, attachments?: any[]) => Promise<void>
+    ) {
         // dynamic imports to avoid edge runtime issues if any, though likely not needed for node
         const { generatePDFFromPdfData } = await import('../utils/pdfGenerator');
         const { mapQuoteToPdfData } = await import('../utils/orderMappers');
@@ -152,8 +159,13 @@ export const orderService = {
             ...data,
             orderId: readableId,
             id: readableId, // mapping fallback
-            createdAt: { seconds: Date.now() / 1000 } // approximate for date formatting
-        };
+            createdAt: { seconds: Date.now() / 1000, nanoseconds: 0 }, // approximate
+            status: 'new', // Default status
+            date: new Date().toISOString().split('T')[0],
+            deviceType: 'smartphone', // Default or infer from model? Safe default for PDF.
+            shopId: 'online',
+            ...data
+        } as unknown as import('../types').Quote;
 
         // Use the CENTRALIZED mapper - this ensures 1:1 match with TrackOrder page
         const pdfData = mapQuoteToPdfData(quoteLikeData, t);
