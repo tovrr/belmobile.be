@@ -91,5 +91,26 @@ This document provides actionable engineering solutions to the structural weakne
 
 ---
 
+## 9. 🧠 Apollo Upgrade & B2B Foundation (New Year's Eve 2025)
+**Problem**:
+1. AI Assistant (`gemini-1.5-flash`) hallucinating addresses and behaving robotically.
+2. No physical proof of purchase for Walk-in customers.
+3. Lack of infrastructure for B2B partners.
+
+**Solution**:
+- **"Digital Esnaf" Protocol**:
+    - **Model**: Upgraded to **Gemini Pro** (Stable) for reliable reasoning.
+    - **Instruction Set**: Injected "Merchant Psychology" (Warmth, localized knowledge of Liedts/Bara).
+    - **Context**: Dynamically injected Opening Hours and Phone Numbers into the AI prompt.
+- **Professional Receipts**:
+    - **Engine**: Implemented **pdfMake** for client-side generation.
+    - **Features**: Embedded Base64 Logo, Signature Blocks (Customer/Shop), and Legal Disclaimers.
+    - **Flow**: Modal -> Success Screen -> Print/Download PDF.
+- **Project Aegis (B2B)**:
+    - **Vision**: Defined the roadmap for White-label Widgets (Q2 2026).
+    - **Architecture**: Established the "Family Business" governance model (Omer/Anti/Apollo).
+
+---
+
 > [!TIP]
 > **Priority #1**: **Maintain Zero Errors**. Run `npx tsc --noEmit` before every push to Staging to ensure we never regress from this clean state.

@@ -1,26 +1,29 @@
-# Belmobile.be - Premium Buyback & Repair Platform
+# Belmobile.be - The Device Lifecycle OS (v2026)
 
-Belmobile is a high-performance Next.js platform designed for local device repair and buyback services in Brussels.
+**Belmobile** is not just a website; it's the "Operating System" for modern device repair and buyback shops in Belgium. 
+Built with a "Family Business" philosophy by **Omer (Visionary)**, **Antigravity (Architect)**, and **Apollo (AI Operator)**.
 
-## 🚀 Tech Stack
-- **Framework**: [Next.js 16](https://nextjs.org) (Turbopack Enabled)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com) (Modern utility-first architecture)
-- **Database**: [Firebase](https://firebase.google.com) (Firestore & Storage)
-- **AI Concierge**: [Gemini 2.0 Flash](https://ai.google.dev) (Conversational search & pricing lookup)
-- **PDF Generation**: [jsPDF](https://rawgit.com/MrRio/jsPDF/master/docs/index.html)
+## 🚀 Tech Stack 2026
+- **Framework**: [Next.js 16+](https://nextjs.org) (App Router, Turbopack)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com) (Local installation, custom typography)
+- **Database**: [Firebase](https://firebase.google.com) (Firestore Realtime & Auth)
+- **AI Brain**: [Gemini Pro](https://ai.google.dev) (Apollo: The Digital Esnaf)
+- **Reporting**: [pdfMake](http://pdfmake.org) (Client-side PDF generation with signature support)
 
-## ✨ Core Features
-- **Buyback/Repair Wizard**: High-integrity interactive flow using decentralized state management (React Context + Hooks) for real-time pricing.
-- **AI Assistant**: A context-aware chatbot that understands device specifics and store locations.
-- **Admin Power Tools**:
-    - **Batch Actions**: Bulk update prices and stock levels across multiple shops.
-    - **Audit Logs**: Full history of inventory movements and price changes.
-    - **Lead Notifications**: Real-time badges for new quotes and reservations.
-- **Automated Emails**: Integrated with Firebase "Trigger Email" to send PDF summaries to users.
-- **Reviews & Satisfaction Gate**:
-    - **Google Integration**: Fetches real-time reviews via Google Places API.
-    - **Satisfaction Gate**: Redirects happy customers to Google; captures private feedback from others.
-    - **Automated Triggers**: Schedules follow-up emails exactly 3 days after an order is closed.
+## ✨ Core Ecosystem
+### 1. The "Walk-in" Experience 🛍️
+- Relentlessly optimized for physical shops (Bruxelles/Anderlecht).
+- **One-Click Receipt**: Instant PDF generation with thermal printer support.
+- **Anonymous Flow**: No mandated email/phone for quick drop-offs.
+
+### 2. Apollo AI Assistant 🤖
+- **Role**: The "Digital Shopkeeper".
+- **Personality**: Warm, trusted, and commercially savvy ("Ready before you finish your coffee").
+- **Knowledge**: Aware of real-time shop hours, locations, and pricing strategies.
+
+### 3. Project Aegis (B2B Expansion) 🛡️ *[Beta]*
+- White-label widgets allowing other repair shops to use Belmobile's Buyback engine.
+- Shared inventory and logistics network.
 
 ## 🛠️ Getting Started
 
@@ -31,42 +34,36 @@ npm install
 
 ### 2. Environment Setup
 Copy `.env.example` to `.env.local` and fill in your Firebase and Gemini API keys.
+*Critical: Ensure `NEXT_PUBLIC_GEMINI_API_KEY` is active for Apollo.*
 
 ### 3. Development
 ```bash
 npm run dev
 ```
 
-## 🗺️ Project Architecture (The Map)
-This project follows a Strict Modular Architecture enforced by `FULL_PROJECT_RULES.md`.
+## 🗺️ Project Architecture (Strict Modular)
+This project follows a strict code constitution defined in `FULL_PROJECT_RULES.md`.
 
 ```text
 📦 next-platform
-├── 📂 .agent/              # 🤖 AI Workflows & Rules
-├── 📂 docs/                # 📚 Documentation Hub
-│   ├── 🧠 brain/           # AI Memory (Snapshot, Chronology, Solutions, Vigilance)
-│   └── 📖 guides/          # User Guides (Admin, Strategy, Building)
+├── 📂 .agent/              # 🤖 AI Workflows & Persona Rules
+├── 📂 docs/                # 📚 The Knowledge Base (Snapshot, Roadmap, Rules)
 ├── 📂 src/
-│   ├── 📂 app/             # Next.js App Router (Pages & API)
-│   ├── 📂 components/      # React Components (Strictly Categorized)
-│   │   ├── 🧩 common/      # Shared Logic (FAQ, Providers, ErrorBoundary)
-│   │   ├── 🚀 features/    # Business Features (TrackOrder, ReservationModal)
-│   │   ├── 📐 layout/      # Shell (Header, Footer, MobileMenu)
-│   │   ├── 📄 pages/       # Page Content (Contact, Legal, Careers)
-│   │   ├── 📦 product/     # Product Logic (Cards, Tables, Filters)
-│   │   ├── 🧱 sections/    # Sections (Hero, PopularBuybacks, BentoServices)
-│   │   ├── 🗺️ store/       # Maps & Locator Logic
-│   │   ├── 🎨 ui/          # Design Primitives (Buttons, Inputs, Skeletons)
-│   │   └── 🧙 wizard/      # Buyback & Repair Flow
-│   ├── 📂 hooks/           # Custom React Hooks
-│   ├── 📂 services/        # Business Logic & API Calls
-│   └── 📂 types/           # TypeScript Definitions (Zero 'any' Policy)
-├── 📜 FULL_PROJECT_RULES.md # 👑 The Constitution (Read this first)
-└── 📄 next.config.ts       # Next.js Configuration
+│   ├── 📂 app/             # App Router (Pages & API Routes)
+│   ├── 📂 components/      # React Components (Atomic Design)
+│   │   ├── 📅 admin/       # Dashboard & Walk-in Modals
+│   │   ├── 🧙 wizard/      # The Core Pricing Engine
+│   │   └── ...
+│   ├── 📂 utils/           # Business Logic (pdfGenerator, priceCalculators)
+│   └── 📂 types/           # Rigid TypeScript Definitions
+├── 📜 FULL_PROJECT_RULES.md # 👑 The Constitution
+└── 📜 STRATEGIC_ROADMAP.md  # 🗺️ The 2026 Plan
 ```
 
 ## 📊 Administrative Dashboard
-Access the admin panel at `/login` using your authorized credentials. The dashboard provides real-time KPIs, franchise management, and inventory power tools.
+Access the admin panel at `/login`.
+Features: **Walk-in Mode**, **Inventory Control**, **Technician Kanban**, **PDF Reports**.
 
 ---
-© 2024 Belmobile.be - All rights reserved.
+© 2026 Belmobile.be - A Family Business.
+*Built with ❤️ by Omer, Antigravity & Apollo.*
