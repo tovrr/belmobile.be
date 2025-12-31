@@ -5,19 +5,20 @@
 
 ---
 
-## 🚀 The 3 Golden Rules (Quick Reference)
+## 🚀 The 4 Golden Rules (Quick Reference)
 
 1.  **The `@/types` Reflex**: Before adding a component or service, define/update the interface in `src/types/models.ts` or `ui.ts`. **Zero `any` policy**.
-2.  **RSC-First Hybrid**: New layout elements (Footer/Header) must be **Server Components** by default. Use Client Components only for surgical interactivity.
-3.  **Mandatory `loading.tsx`**: Every public dynamic route must have a `loading.tsx` skeleton that mimics the final content dimensions to eliminate CLS.
+2.  **Strict Modular Structure**: New components MUST be placed in semantic folders (`src/components/features`, `ui`, `layout`, `store`, etc.). **Do not dump files in `components` root**.
+3.  **RSC-First Hybrid**: New layout elements (Footer/Header) must be **Server Components** by default. Use Client Components only for surgical interactivity.
+4.  **Mandatory `loading.tsx`**: Every public dynamic route must have a `loading.tsx` skeleton for CLS prevention.
 
 ---
 
 ## 🧠 AI Agent Brain Initialization (Read First)
 To maintain the integrity of this project, every new AI session MUST:
-1.  **Scan Context**: Read `FULL_PROJECT_SNAPSHOT.md` and `FULL_PROJECT_CRITIQUE.md`.
-2.  **Align Strategy**: Refer to `FULL_PROJECT_SOLUTIONS.md` for refactoring and `FULL_PROJECT_BUILDING.md` for new features.
-3.  **Enforce History**: Consult `FULL_PROJECT_CHRONOLOGY.md` to avoid repeating past mistakes.
+1.  **Scan Context**: Read `docs/brain/SNAPSHOT.md` and `docs/brain/CRITIQUE.md`.
+2.  **Align Strategy**: Refer to `docs/brain/SOLUTIONS.md` for refactoring and `docs/guides/BUILDING.md` for new features.
+3.  **Enforce History**: Consult `docs/brain/CHRONOLOGY.md` to avoid repeating past mistakes.
 4.  **Verification**: Always run `npm test` after modifying core business logic (Pricing/Routing).
 
 ---
