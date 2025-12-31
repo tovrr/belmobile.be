@@ -140,6 +140,11 @@ export interface PdfData {
         subtotal: string;
         vat: string;
     };
+    signatureBlock?: {
+        customerLabel: string;
+        shopLabel: string;
+    };
+    legalDisclaimer?: string;
 }
 
 export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
@@ -148,6 +153,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
         pageMargins: [25, 15, 25, 15], // Standardized margins
 
         content: [
+            // ... (Existing content structure) ...
             // 1. Header (Logo Left, QR + Title Right)
             {
                 columns: [
@@ -454,7 +460,61 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         }
                     ] : [])
                 ],
-            } as any
+            } as any,
+
+            // 8. Signature Block & Legal Disclaimer (Walk-in Receipt Mode)
+            ...(data.signatureBlock ? [
+                {
+                    unbreakable: true,
+                    stack: [
+                        { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 545, y2: 0, lineWidth: 1, lineColor: COLORS.Border, dash: { length: 5 } }], margin: [0, 20, 0, 15] },
+                        {
+                            table: {
+                                widths: ['45%', '10%', '45%'],
+                                body: [[
+                                    {
+                                        stack: [
+                                            { text: data.signatureBlock.customerLabel, style: 'sectionHeader', alignment: 'center', margin: [0, 0, 0, 40] },
+                                            { text: '(Sign Here)', style: 'label', alignment: 'center', color: '#9ca3af' }
+                                        ],
+                                        border: [true, true, true, true],
+                                        borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border]
+                                    },
+                                    { text: '', border: [false, false, false, false] },
+                                    {
+                                        stack: [
+                                            { text: data.signatureBlock.shopLabel, style: 'sectionHeader', alignment: 'center', margin: [0, 0, 0, 40] },
+                                            { text: '(Stamp & Sign)', style: 'label', alignment: 'center', color: '#9ca3af' }
+                                        ],
+                                        border: [true, true, true, true],
+                                        borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border]
+                                    }
+                                ]]
+                            },
+                            layout: {
+                                defaultBorder: false,
+                                paddingLeft: () => 5,
+                                paddingRight: () => 5,
+                                paddingTop: () => 10,
+                                paddingBottom: () => 10
+                            }
+                        }
+                    ],
+                    margin: [0, 10, 0, 10]
+                }
+            ] : []),
+
+            ...(data.legalDisclaimer ? [
+                {
+                    text: data.legalDisclaimer,
+                    style: 'label',
+                    italics: true,
+                    color: '#6b7280',
+                    margin: [0, 10, 0, 0],
+                    alignment: 'justify',
+                    fontSize: 6
+                }
+            ] : [])
         ],
 
         // Minimal Footer
