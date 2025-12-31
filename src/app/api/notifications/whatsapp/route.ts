@@ -9,53 +9,57 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Missing target phone or message' }, { status: 400 });
         }
 
-        // 2. Twilio Configuration (Placeholder/infrastructure)
-        // In production, these will be in .env.local
-        const accountSid = process.env.TWILIO_ACCOUNT_SID;
-        const authToken = process.env.TWILIO_AUTH_TOKEN;
-        const fromNumber = process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+14155238886'; // Twilio sandbox default
+        // 2. Meta Cloud API Configuration
+        const accessToken = process.env.META_ACCESS_TOKEN;
+        const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+        const version = 'v22.0'; // Current Graph API Version
 
         // 3. Simulated / Production Dispatch
         console.log(`[WhatsApp API] Attempting to send to ${to} for Order ${orderId}`);
 
-        if (!accountSid || !authToken) {
-            console.warn('[WhatsApp API] Twilio credentials missing. Running in MOCK mode.');
-            // We return success to the caller so the "Eyes and Ears" flow continues, 
-            // but we log that it was just a simulation.
+        if (!accessToken || !phoneNumberId) {
+            console.warn('[WhatsApp API] Meta credentials missing. Running in MOCK mode.');
             return NextResponse.json({
                 success: true,
                 mock: true,
-                message: 'WhatsApp simulated successfully (Add credentials to activate real dispatch)'
+                message: 'WhatsApp simulated successfully (Add META_ACCESS_TOKEN and WHATSAPP_PHONE_NUMBER_ID to activate)'
             });
         }
 
-        // Real Twilio Dispatch logic
-        // Using basic auth for Twilio REST API
-        const auth = Buffer.from(`${accountSid}:${authToken}`).toString('base64');
-        const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+        // Meta Cloud API Dispatch
+        const metaUrl = `https://graph.facebook.com/${version}/${phoneNumberId}/messages`;
 
-        const params = new URLSearchParams();
-        params.append('To', `whatsapp:${to}`);
-        params.append('From', fromNumber);
-        params.append('Body', message);
+        // Clean user's phone number (Must be digits only)
+        const cleanTo = to.replace(/\D/g, '');
 
-        const response = await fetch(twilioUrl, {
+        const payload = {
+            messaging_product: "whatsapp",
+            recipient_type: "individual",
+            to: cleanTo,
+            type: "text",
+            text: {
+                preview_url: false,
+                body: message
+            }
+        };
+
+        const response = await fetch(metaUrl, {
             method: 'POST',
             headers: {
-                'Authorization': `Basic ${auth}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
             },
-            body: params.toString()
+            body: JSON.stringify(payload)
         });
 
         const result = await response.json();
 
         if (!response.ok) {
-            console.error('[WhatsApp API] Twilio Error:', result);
-            return NextResponse.json({ error: 'Twilio dispatch failed', details: result }, { status: response.status });
+            console.error('[WhatsApp API] Meta Error:', result);
+            return NextResponse.json({ error: 'Meta Cloud API dispatch failed', details: result }, { status: response.status });
         }
 
-        return NextResponse.json({ success: true, messageId: result.sid });
+        return NextResponse.json({ success: true, messageId: result.messages?.[0]?.id });
 
     } catch (error: any) {
         console.error('[WhatsApp API] Internal Error:', error);
