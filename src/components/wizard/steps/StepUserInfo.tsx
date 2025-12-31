@@ -851,45 +851,30 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         <span className="font-bold text-gray-900 dark:text-white text-sm">{t('Email')}</span>
                                     </label>
 
-                                    {/* SMS */}
-                                    <label className={`flex items-center gap-2 p-3 pr-4 rounded-xl border-2 cursor-pointer transition-all ${notificationPreferences?.includes('sms') ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 hover:border-bel-blue/50'}`}>
+                                    {/* SMS (Coming Soon) */}
+                                    <label className="flex items-center gap-2 p-3 pr-4 rounded-xl border-2 border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 opacity-60 cursor-not-allowed">
                                         <input
                                             type="checkbox"
-                                            checked={notificationPreferences?.includes('sms')}
-                                            onChange={() => {
-                                                const current = notificationPreferences || [];
-                                                const newPrefs = current.includes('sms')
-                                                    ? current.filter(p => p !== 'sms')
-                                                    : [...current, 'sms'];
-                                                setNotificationPreferences(newPrefs as ('email' | 'whatsapp' | 'sms')[]);
-                                            }}
+                                            disabled
                                             className="hidden"
                                         />
-                                        <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${notificationPreferences?.includes('sms') ? 'bg-bel-blue border-bel-blue' : 'border-gray-300 dark:border-slate-600'}`}>
-                                            {notificationPreferences?.includes('sms') && <CheckIcon className="h-3.5 w-3.5 text-white" />}
+                                        <div className="w-5 h-5 rounded flex items-center justify-center border border-gray-300 dark:border-slate-600">
                                         </div>
-                                        <span className="font-bold text-gray-900 dark:text-white text-sm">{t('SMS')}</span>
-                                        <span className="text-[10px] bg-green-100 text-green-700 px-1.5 rounded uppercase font-bold">Free</span>
+                                        <span className="font-bold text-gray-400 dark:text-gray-500 text-sm">{t('SMS')}</span>
+                                        <span className="text-[10px] bg-gray-200 text-gray-500 px-1.5 rounded uppercase font-bold text-xs whitespace-nowrap">{t('coming_soon') || 'Soon'}</span>
                                     </label>
 
-                                    {/* WhatsApp */}
-                                    <label className={`flex items-center gap-2 p-3 pr-4 rounded-xl border-2 cursor-pointer transition-all ${notificationPreferences?.includes('whatsapp') ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 hover:border-bel-blue/50'}`}>
+                                    {/* WhatsApp (Coming Soon) */}
+                                    <label className="flex items-center gap-2 p-3 pr-4 rounded-xl border-2 border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 opacity-60 cursor-not-allowed">
                                         <input
                                             type="checkbox"
-                                            checked={notificationPreferences?.includes('whatsapp')}
-                                            onChange={() => {
-                                                const current = notificationPreferences || [];
-                                                const newPrefs = current.includes('whatsapp')
-                                                    ? current.filter(p => p !== 'whatsapp')
-                                                    : [...current, 'whatsapp'];
-                                                setNotificationPreferences(newPrefs as ('email' | 'whatsapp' | 'sms')[]);
-                                            }}
+                                            disabled
                                             className="hidden"
                                         />
-                                        <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${notificationPreferences?.includes('whatsapp') ? 'bg-bel-blue border-bel-blue' : 'border-gray-300 dark:border-slate-600'}`}>
-                                            {notificationPreferences?.includes('whatsapp') && <CheckIcon className="h-3.5 w-3.5 text-white" />}
+                                        <div className="w-5 h-5 rounded flex items-center justify-center border border-gray-300 dark:border-slate-600">
                                         </div>
-                                        <span className="font-bold text-gray-900 dark:text-white text-sm">{t('WhatsApp')}</span>
+                                        <span className="font-bold text-gray-400 dark:text-gray-500 text-sm">{t('WhatsApp')}</span>
+                                        <span className="text-[10px] bg-gray-200 text-gray-500 px-1.5 rounded uppercase font-bold text-xs whitespace-nowrap">{t('coming_soon') || 'Soon'}</span>
                                     </label>
                                 </div>
                                 <p className="text-xs text-gray-500 mt-2">{t('notification_preferences_desc') || 'Choose how you want to receive updates about your order.'}</p>

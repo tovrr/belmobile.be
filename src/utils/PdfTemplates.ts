@@ -145,7 +145,7 @@ export interface PdfData {
 export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
     return {
         pageSize: 'A4',
-        pageMargins: [25, 15, 25, 20], // Ultra-compact margins for single page
+        pageMargins: [25, 10, 25, 10], // Ultra-compact margins
 
         content: [
             // 1. Header (Clean, Text Only)
@@ -167,7 +167,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         width: 'auto',
                         text: data.documentTitle.toUpperCase(),
                         style: 'documentTitle',
-                        margin: [0, 8, 0, 0]
+                        margin: [0, 6, 0, 0]
                     }
                 ]
             } as any,
@@ -175,13 +175,13 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
             // Single Minimal Divider
             {
                 canvas: [{ type: 'line', x1: 0, y1: 3, x2: 545, y2: 3, lineWidth: 1, lineColor: COLORS.Primary }],
-                margin: [0, 3, 0, 6]
+                margin: [0, 2, 0, 4]
             } as any,
 
             // 2. Info Box (Bordered Card, No Fill)
             {
                 table: {
-                    widths: ['30%', '25%', '25%', '20%'], // Fixed widths to prevent overflow/multi-page reflow server-side
+                    widths: ['30%', '25%', '25%', '20%'],
                     body: [[
                         {
                             stack: [
@@ -209,7 +209,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         // QR Code inside the box if exists
                         (data.trackingUrl ? {
                             stack: [
-                                { qr: data.trackingUrl, fit: 40, alignment: 'right' },
+                                { qr: data.trackingUrl, fit: 35, alignment: 'right' },
                             ],
                             border: [true, false, false, false],
                             borderColor: [COLORS.Border, '#000', '#000', '#000']
@@ -218,10 +218,10 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                 },
                 layout: {
                     defaultBorder: false,
-                    paddingLeft: (i: number) => i === 0 ? 0 : 10,
-                    paddingRight: (i: number) => 10,
-                    paddingTop: () => 5,
-                    paddingBottom: () => 5
+                    paddingLeft: (i: number) => i === 0 ? 0 : 8,
+                    paddingRight: (i: number) => 8,
+                    paddingTop: () => 2,
+                    paddingBottom: () => 2
                 }
             } as any,
 
@@ -231,53 +231,53 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                 columns: [
                     // Left: Customer
                     {
-                        width: '48%', // Fixed width slightly less than 50% to account for gap
+                        width: '48%',
                         stack: [
                             {
                                 stack: [
-                                    { text: data.labels.clientDetails.toUpperCase(), style: 'sectionHeader', margin: [0, 4, 0, 1] },
-                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 4] }
+                                    { text: data.labels.clientDetails.toUpperCase(), style: 'sectionHeader', margin: [0, 3, 0, 1] },
+                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 3] }
                                 ]
                             },
-                            { text: data.labels.name, style: 'label', margin: [0, 2, 0, 0] },
+                            { text: data.labels.name, style: 'label', margin: [0, 1, 0, 0] },
                             { text: data.customer.name, style: 'value' },
 
-                            { text: data.labels.email, style: 'label', margin: [0, 2, 0, 0] },
+                            { text: data.labels.email, style: 'label', margin: [0, 1, 0, 0] },
                             { text: data.customer.email || '-', style: 'value' },
 
-                            { text: data.labels.phone, style: 'label', margin: [0, 2, 0, 0] },
+                            { text: data.labels.phone, style: 'label', margin: [0, 1, 0, 0] },
                             { text: data.customer.phone, style: 'value' },
 
                             ...(data.isCompany ? [
-                                { text: data.labels.companyName, style: 'label', margin: [0, 2, 0, 0] },
+                                { text: data.labels.companyName, style: 'label', margin: [0, 1, 0, 0] },
                                 { text: data.companyName || '-', style: 'valueBold' },
-                                { text: data.labels.vatNumber, style: 'label', margin: [0, 2, 0, 0] },
+                                { text: data.labels.vatNumber, style: 'label', margin: [0, 1, 0, 0] },
                                 { text: data.vatNumber || '-', style: 'value', fontFeatures: ['tnum'] }
                             ] : []),
 
                             ...(data.customer.address ? [
-                                { text: data.labels.address, style: 'label', margin: [0, 2, 0, 0] },
+                                { text: data.labels.address, style: 'label', margin: [0, 1, 0, 0] },
                                 { text: data.customer.address, style: 'value' }
                             ] : [])
                         ]
                     },
                     // Right: Shop or Device
                     {
-                        width: '48%', // Fixed width
+                        width: '48%',
                         stack: [
                             {
                                 stack: [
-                                    { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader', margin: [0, 4, 0, 1] },
-                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 4] }
+                                    { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader', margin: [0, 3, 0, 1] },
+                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 3] }
                                 ]
                             },
                             // Name (Shop or Device)
-                            { text: data.type === 'reservation' ? (data.labels.shop || 'Magasin') : (data.labels.model || 'Modèle'), style: 'label', margin: [0, 2, 0, 0] },
-                            { text: data.shopOrDevice.name, style: 'valueBold' }, // Bold logic for device name
+                            { text: data.type === 'reservation' ? (data.labels.shop || 'Magasin') : (data.labels.model || 'Modèle'), style: 'label', margin: [0, 1, 0, 0] },
+                            { text: data.shopOrDevice.name, style: 'valueBold' },
                             // Dynamic Details List
                             ...data.shopOrDevice.details.map(detail => ({
                                 stack: [
-                                    { text: detail.label, style: 'label', margin: [0, 2, 0, 0] },
+                                    { text: detail.label, style: 'label', margin: [0, 1, 0, 0] },
                                     { text: detail.value, style: 'value' }
                                 ]
                             }))
@@ -288,15 +288,15 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                 margin: [0, 2, 0, 2]
             } as any,
 
-            // 4. Specs (Buyback) - Kept together
+            // 4. Specs (Buyback)
             ...(data.specs ? [
                 {
                     unbreakable: true,
                     stack: [
                         {
                             stack: [
-                                { text: data.labels.featuresSpecs.toUpperCase(), style: 'sectionHeader', margin: [0, 4, 0, 1] },
-                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 545, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 4] }
+                                { text: data.labels.featuresSpecs.toUpperCase(), style: 'sectionHeader', margin: [0, 3, 0, 1] },
+                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 545, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 3] }
                             ]
                         },
                         {
@@ -322,12 +322,12 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
 
             // 5. Financials Table - Clean Borders - Keep Header with Table
             {
-                unbreakable: true, // Critical: Keep price breakdown and total on same page
+                unbreakable: true,
                 stack: [
                     {
                         stack: [
-                            { text: data.labels.financials.toUpperCase(), style: 'sectionHeader', margin: [0, 8, 0, 2] },
-                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 535, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 8] }
+                            { text: data.labels.financials.toUpperCase(), style: 'sectionHeader', margin: [0, 6, 0, 2] },
+                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 535, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 6] }
                         ]
                     },
                     {
@@ -337,13 +337,13 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                             body: [
                                 // Header
                                 [
-                                    { text: data.labels.description, style: 'tableHeader', margin: [0, 5, 0, 5], border: [false, false, false, true] },
-                                    { text: data.labels.price, style: 'tableHeader', alignment: 'right', margin: [0, 5, 0, 5], border: [false, false, false, true] }
+                                    { text: data.labels.description, style: 'tableHeader', margin: [0, 3, 0, 3], border: [false, false, false, true] },
+                                    { text: data.labels.price, style: 'tableHeader', alignment: 'right', margin: [0, 3, 0, 3], border: [false, false, false, true] }
                                 ],
                                 // Rows
                                 ...data.priceBreakdown.map(item => [
-                                    { text: item.label, style: 'tableCell', margin: [0, 4, 0, 4], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] },
-                                    { text: `€${item.price.toFixed(2)}`, style: 'tableCell', alignment: 'right', margin: [0, 4, 0, 4], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] }
+                                    { text: item.label, style: 'tableCell', margin: [0, 3, 0, 3], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] },
+                                    { text: `€${item.price.toFixed(2)}`, style: 'tableCell', alignment: 'right', margin: [0, 3, 0, 3], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] }
                                 ])
                             ]
                         },
@@ -361,8 +361,8 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                                 table: {
                                     widths: [100, 100],
                                     body: [[
-                                        { text: data.totalLabel, style: 'totalLabel', alignment: 'left', margin: [0, 5, 0, 5] },
-                                        { text: `€${data.totalPrice.toFixed(2)}`, style: 'totalValue', alignment: 'right', margin: [0, 5, 0, 5] }
+                                        { text: data.totalLabel, style: 'totalLabel', alignment: 'left', margin: [0, 4, 0, 4] },
+                                        { text: `€${data.totalPrice.toFixed(2)}`, style: 'totalValue', alignment: 'right', margin: [0, 4, 0, 4] }
                                     ]]
                                 },
                                 layout: {
