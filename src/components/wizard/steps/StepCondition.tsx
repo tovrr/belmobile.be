@@ -204,7 +204,10 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
 
                             return (
                                 <div key={i} className={`flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200 dark:border-slate-800 ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}>
-                                    <span className="font-medium text-gray-900 dark:text-white">{t(item.label)}</span>
+                                    <div className="flex flex-col">
+                                        <span className="font-medium text-gray-900 dark:text-white">{t(item.label)}</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('desc_' + item.label)}</span>
+                                    </div>
                                     <div className="flex space-x-2">
                                         <button
                                             type="button"
