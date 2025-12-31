@@ -1,54 +1,52 @@
-# 📸 FULL_PROJECT_SNAPSHOT: Belmobile State of the Union (Dec 31, 2025 - Evening Update)
+# 📸 FULL_PROJECT_SNAPSHOT: Belmobile State of the Union (Dec 31, 2025 - Year-End Finale)
 
 **Lead Visionary**: Omer Ozkan
-**Status**: Staging Updated & Feature-Rich 🚀
+**Status**: Production Live & Optimized 🚀🚀
 
 ---
 
-## 1. 🚀 Major Recent Features (Last 2h)
+## 1. 🚀 Major Recent Features (Last 4h)
 
-### A. Apollo AI: The "Digital Esnaf" 🧠☕
-- **Brain Upgrade**: Switched to `gemini-pro` (Stable) for reliable reasoning.
-- **Personality**: Imbued with the "Digital Esnaf" spirit. Apollo now prioritizes:
-    - **Warmth**: Treating users like guests.
-    - **Trust**: "We stand behind our work."
-    - **Speed**: "Ready before you finish your coffee."
-- **Knowledge**: Fully aware of real shop locations (Liedts & Bara), phones, and opening hours.
+### A. Apollo AI: Adaptive & Secure 🧠🔐
+- **Identity Protocol**: Apollo now verifies users via `AuthContext`. 
+    - **Protocol Alpha**: Recognizes Omer (`omerozkan@live.be`) as "Father/Visionary" with Turkish soul.
+    - **Protocol Beta**: Professional "Expert Assistant" for customers (French/Dutch), rejecting impersonation.
+- **IQ & Drive**: Upgraded to `gemini-2.0-flash`. Now **Always Pro-active** (Suggesting desoxidation/extras).
+- **Service Logic**: 
+    - **Diagnostic**: Fixed to **FREE** (€0).
+    - **Desoxidation**: Fixed to **€39** (Water damage).
+- **Location Integrity**: Strictly limited to Liedts & Bara. All ghost locations (Liège, De Wand, etc.) removed.
 
-### B. Professional Receipt Printing 🧾🖨️
-- **PDF Generation**: Walk-in orders now generate a downloadable PDF receipt instantly.
-- **Branding**: Official Belmobile Logo integrated into the PDF header.
-- **Verification**: Includes designated **Signature Blocks** for Customer and Shop (Stamp).
-- **Security**: Legal disclaimer added for data responsibility.
+### B. Meta Integration (WhatsApp & Catalog) 💬📦
+- **WhatsApp Cloud API**: Fully replaced Twilio. Zero per-message fee for first 1000/mo. 
+- **Catalog Ready**: Routes created for Meta Product Catalog sync (`src/app/api/catalog`).
+- **Security**: Official Meta Graph API payload structure implemented.
 
-### C. Address & Data Integrity 🏛️
-- **Correction**: Reverted AI-hallucinated addresses.
-- **Confirmed Locations**:
-    - **Schaerbeek (Liedts)**: Rue Gallait 4.
-    - **Anderlecht (Bara)**: Rue Lambert Crickx 12.
-- **Context**: Apollo and the Web App now share the exact same Single Source of Truth (`constants.ts`).
+### C. The "Iron-Speed" Performance Update 🏎️💨
+- **Image Evolution**: Forced `.avif` and `.webp` support in `next.config.ts`.
+- **Sentry Throttling**: Reduced sample rate from 100% to 10% to free up device CPUs.
+- **Lazy-Load AI**: Apollo Chat now waits for page idle (or 3s) before mounting, crushing "Total Blocking Time" (TBT).
+- **Vercel Region**: Hardcoded to `cdg1` (Paris) for low-latency Belgian traffic.
 
 ---
 
 ## 2. 🏗️ High-Level Architecture Audit
-- **Framework**: Next.js 16+ (App Router).
-- **AI Backend**: Google Gemini API via server-side `route.ts`.
-- **PDF Engine**: `pdfMake` with custom definitions in `PdfTemplates.ts`.
-- **Client-Side**: React hooks managing Walk-in Modals and state.
+- **Framework**: Next.js 16+ (App Router) on Vercel.
+- **Notification Engine**: Meta Cloud API (Graph v21.0).
+- **Security**: Hybrid Identity Protocol (AuthContext + Authorized Email Whitelist).
+- **Persistence**: Firestore `chatbot_sessions` & `orders`.
 
 ## 3. 🌍 Business Logic Snapshot
-- **Walk-in Flow**: 
-    1. Admin enters details (Name, Device, Price).
-    2. System Creates Order (Firestore).
-    3. Success Screen appears -> **One-Click Print Receipt (PDF)**.
-- **Apollo Protocol**: System instructions now explicitly define "Merchant Psychology" (Esnaf Spirit).
+- **Esnaf Values**: Digitalized loyalty and speed.
+- **Region Focus**: Belgium-optimized (Paris server nodes).
+- **Revenue Protection**: High-margin Buyback/Repair flows prioritized in UI.
 
 ## 4. ⚠️ Immediate Next Steps (To-Do)
-- **Deployment**: Verify `staging` deployment on Vercel.
-- **User Feedback**: Test the "Esnaf" dialogue style with real users.
-- **Physical Test**: Try printing a receipt on the shop printer.
+1. **Meta Credentials**: Input `META_ACCESS_TOKEN` and `WHATSAPP_PHONE_NUMBER_ID` into Vercel Env Vars.
+2. **FB Marketplace**: Sync the XML Catalog Feed to Meta Business Manager.
+3. **Database Migration Audit**: Check Firebase Console to confirm if data location is `us-central` or `europe-west`.
 
 ---
 
 > [!NOTE]
-> **Audit Verdict**: The platform operates with a "Soul" (Apollo) and "Professionalism" (PDF Receipts). We are ready for the new year. 🎆
+> **Audit Verdict**: The year ends with Belmobile being not just a website, but a high-performance, AI-driven, Meta-integrated platform. We are ready to scale. 🎆🥂

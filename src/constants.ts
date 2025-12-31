@@ -29,20 +29,6 @@ export const SHOPS: Shop[] = [
         googleReviewUrl: 'https://search.google.com/local/writereview?placeid=ChIJk6VQXpHDw0cRNEdLpSrOUkY'
     },
     {
-        id: 'liege',
-        name: 'Belmobile Liège',
-        address: 'Boulevard de la Sauvenière 110, 4000 Liège',
-        phone: '04/222.22.22', // Placeholder
-        email: 'liege@belmobile.be',
-        openingHours: ['Mon-Sat: 10:30 - 18:30', 'Sun: Closed'],
-        slugs: { fr: 'liege', nl: 'luik', en: 'liege' },
-        coords: { lat: 50.6412, lng: 5.5718 },
-        status: 'open',
-        badge: 'New',
-        city: 'Liège',
-        googleMapUrl: 'https://maps.google.com/?q=Boulevard+de+la+Sauvenière+110+4000+Liège'
-    },
-    {
         id: 'anderlecht',
         name: 'Belmobile Bara',
         address: 'Rue Lambert Crickx 12, 1070 Anderlecht',
@@ -56,57 +42,6 @@ export const SHOPS: Shop[] = [
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Bara&query_place_id=ChIJY6KmKtLDw0cRy7JDeNAZ2wQ',
         googlePlaceId: 'ChIJY6KmKtLDw0cRy7JDeNAZ2wQ',
         googleReviewUrl: 'https://search.google.com/local/writereview?placeid=ChIJY6KmKtLDw0cRy7JDeNAZ2wQ'
-    },
-    {
-        id: 'molenbeek',
-        name: 'Belmobile Tour & Taxis',
-        address: 'Rue Ulens 88, 1080 Molenbeek-Saint-Jean',
-        phone: '02/306.76.56',
-        email: 'molenbeek@belmobile.be',
-        openingHours: ['Temporarily Closed'],
-        slugs: { fr: 'molenbeek', nl: 'molenbeek', en: 'molenbeek' },
-        coords: { lat: 50.86285, lng: 4.34240 },
-        status: 'temporarily_closed',
-        city: 'Molenbeek-Saint-Jean',
-        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis&query_place_id=ChIJGxd7E8HDw0cR-MZLYJTdG2w',
-        googlePlaceId: 'ChIJGxd7E8HDw0cR-MZLYJTdG2w',
-        googleReviewUrl: 'https://search.google.com/local/writereview?placeid=ChIJGxd7E8HDw0cR-MZLYJTdG2w'
-    },
-    {
-        id: 4,
-        name: 'Belmobile Antwerpen',
-        address: 'Antwerpen Region',
-        phone: 'Coming Soon',
-        email: 'antwerpen@belmobile.be',
-        openingHours: ['Coming Soon'],
-        slugs: { fr: 'antwerpen', nl: 'antwerpen', en: 'antwerp' },
-        coords: { lat: 51.2194, lng: 4.4025 },
-        status: 'coming_soon',
-        googleMapUrl: ''
-    },
-    {
-        id: 5,
-        name: 'Belmobile Gent',
-        address: 'Gent Region',
-        phone: 'Coming Soon',
-        email: 'gent@belmobile.be',
-        openingHours: ['Coming Soon'],
-        slugs: { fr: 'gand', nl: 'gent', en: 'ghent' },
-        coords: { lat: 51.0543, lng: 3.7174 },
-        status: 'coming_soon',
-        googleMapUrl: ''
-    },
-    {
-        id: 6,
-        name: 'Belmobile Hasselt',
-        address: 'Hasselt Region',
-        phone: 'Coming Soon',
-        email: 'hasselt@belmobile.be',
-        openingHours: ['Coming Soon'],
-        slugs: { fr: 'hasselt', nl: 'hasselt', en: 'hasselt' },
-        coords: { lat: 50.9307, lng: 5.3325 },
-        status: 'coming_soon',
-        googleMapUrl: ''
     }
 ];
 
