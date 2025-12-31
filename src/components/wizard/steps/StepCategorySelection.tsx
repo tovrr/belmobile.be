@@ -110,6 +110,25 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
 
     const showDropdown = isFocused && (isSearching || (searchTerm.length === 0 && popularSuggestions.length > 0));
 
+    // Dynamic Placeholder Logic
+    const [placeholderIndex, setPlaceholderIndex] = useState(0);
+    const placeholders = [
+        "Search 'iPhone 13'...",
+        "Search 'Samsung S23'...",
+        "Search 'MacBook Air'...",
+        "Search 'PS5'...",
+        "Search 'iPad Pro'..."
+    ];
+
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+        }, 2500);
+        return () => clearInterval(interval);
+    }, []);
+
+    const currentPlaceholder = wizardPlaceholder || placeholders[placeholderIndex];
+
     return (
         <div className={`animate-fade-in w-full mx-auto ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : 'max-w-4xl pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8'}`}>
             {!hideStep1Title && (
@@ -145,16 +164,19 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
 
             {/* Search Bar */}
             <div className={`relative max-w-lg mx-auto ${hideStep1Title ? 'mb-8' : 'mb-12'}`}>
-                <div className="relative z-20">
-                    <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                <div className="relative z-20 group">
+                    <MagnifyingGlassIcon
+                        className={`absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 transition-colors duration-300 ${isFocused ? 'text-bel-blue' : 'text-gray-400 group-hover:text-bel-blue/70'} ${!searchTerm && !isFocused ? 'animate-pulse' : ''}`}
+                        aria-hidden="true"
+                    />
                     <input
                         type="text"
-                        placeholder={wizardPlaceholder || t('Search...')}
+                        placeholder={currentPlaceholder}
                         value={searchTerm}
                         onChange={handleSearchChange}
                         onFocus={() => setIsFocused(true)}
                         onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-                        className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-bel-blue focus:ring-4 focus:ring-blue-500/10 transition-all text-lg shadow-sm"
+                        className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-bel-blue focus:ring-4 focus:ring-blue-500/10 transition-all text-lg shadow-xl shadow-blue-500/5 hover:shadow-blue-500/10 hover:border-blue-200 dark:hover:border-blue-900"
                         aria-expanded={showDropdown}
                         aria-haspopup="listbox"
                     />
