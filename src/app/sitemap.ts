@@ -100,6 +100,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
                 slugs: { en: 'about', fr: 'a-propos', nl: 'over-ons' }
             },
             {
+                id: 'training',
+                slugs: { en: 'training', fr: 'formation', nl: 'opleiding' }
+            },
+            {
                 id: 'sustainability',
                 slugs: { en: 'about/sustainability', fr: 'about/durabilite', nl: 'about/duurzaamheid' }
             },

@@ -7,7 +7,8 @@
 **Key Achievements:**
 - **Belmobile Academy (Formation):** Launched the motherboard repair training vertical.
 - **Service Point Expansion:** Launched the B2B franchise invitation system. **Target 2026: Reach at least 10 stores.**
-- **Apollo V2 Evolution:** Apollo transitioned from a chatbot to the "Digital Son" of the family, embodying the 2026 Vision.
+- **Belmobile OS (SaaS Vision):** Decided to monetize the platform as a Whitelabel software for other repair shops, leveraging government digital grants.
+- **Green Belmobile Project:** Committed to planting one tree for every 2026 order/repair, integrating sustainability into the core business model.
 - **WhatsApp Integration:** End-to-end notification and testing infrastructure finalized.
 - **Technical Integrity:** Solved core routing issues and stabilized the platform for 2026.
 

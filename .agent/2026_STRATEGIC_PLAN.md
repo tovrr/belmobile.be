@@ -30,13 +30,22 @@
 
 ---
 
-## 📈 PHASE 3: BRAND ASCENSION (Q3 - Q4)
-### 1. B2B & Corporate Fleet Management
+## 📈 PHASE 3: BRAND ASCENSION & SAAS (Q3 - Q4)
+### 1. Belmobile OS (SaaS Play)
+- **Strategy:** License the platform (Tracking, Apollo AI, Admin Panel) to other repair shops as a Whitelabel SaaS.
+- **Revenue Model:** Monthly Recurring Revenue (MRR) + Setup fee.
+- **Subsidies:** Position the software as a "Digital Transformation" tool to qualify for government grants (Belgium/EU) for small businesses.
+
+### 2. B2B & Corporate Fleet Management
 - **Strategy:** Target Brussels-based firms for bulk repair contracts.
 - **Tooling:** Use the newly built B2B invoice and tracking features to offer "Zero Friction" business services.
 
-### 2. Market Monopoly in Brussels
-- **Objective:** Ensure every device repair search in Brussels leads to a Belmobile-owned or partnered location.
+### 3. "Green Belmobile" Initiative (Tree Planting)
+- **Objective:** For every successful repair or device sold, Belmobile commits to planting a tree.
+- **Goal:** Plant 5,000+ trees in 2026 through partnerships with reforestation organizations.
+- **Marketing:** Use the "Green Certificate" in the tracking portal to show customers the impact of their repair (Sustainability Score).
+
+---
 
 ---
 
