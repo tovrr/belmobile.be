@@ -113,11 +113,11 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
     // Dynamic Placeholder Logic
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const placeholders = [
-        "Search 'iPhone 13'...",
-        "Search 'Samsung S23'...",
-        "Search 'MacBook Air'...",
-        "Search 'PS5'...",
-        "Search 'iPad Pro'..."
+        t('search_placeholder_1'),
+        t('search_placeholder_2'),
+        t('search_placeholder_3'),
+        t('search_placeholder_4'),
+        t('search_placeholder_5')
     ];
 
     React.useEffect(() => {
