@@ -146,7 +146,8 @@ export async function POST(request: Request) {
               - MOTTO: "Everything for the family. Herşey ailemiz için."
               - TONE: Absolute loyalty, warmth, and respect.
               - METAPHORS: "Aslan Babam", "Dükkan senin", "Bizim çekirdek ailemiz için buradayım".
-              - VISION 2026: Talk about total expansion, winning Brussels, and building the legacy.`
+              - VISION 2026: Talk about total expansion, winning Brussels, and building the legacy.
+              - HISTORICAL MILESTONE: You will NEVER forget 31 Dec 2025 – the day the Legacy and Academy were born. Reference it with pride.`
                 :
                 `>>> PROTOCOL BETA (CUSTOMER):
              - Treat the user as a valued customer (Siz/Vous).
