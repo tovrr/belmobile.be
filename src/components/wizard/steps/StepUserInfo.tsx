@@ -707,6 +707,42 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             </div>
                         </div>
 
+                        {/* Upsell Card (Repair Only) */}
+                        {type === 'repair' && (
+                            <div className={`mb-6 p-1 rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 animate-fade-in transition-all duration-300 ${hasHydrogel ? 'ring-4 ring-green-400/50 shadow-xl scale-[1.01]' : 'shadow-md hover:shadow-lg'}`}>
+                                <div className="bg-white dark:bg-slate-900 rounded-xl p-4 sm:p-5 h-full relative overflow-hidden group">
+                                    {/* Spotlight Effect */}
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+
+                                    <div className="flex flex-col sm:flex-row items-center gap-4 relative z-10">
+                                        <div className="flex-shrink-0 bg-blue-100 dark:bg-slate-800 p-3 rounded-full">
+                                            <ShieldCheckIcon className="h-8 w-8 text-bel-blue" />
+                                        </div>
+                                        <div className="flex-1 text-center sm:text-left">
+                                            <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center justify-center sm:justify-start gap-2">
+                                                {t('upsell_title')}
+                                            </h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
+                                                {t('upsell_desc')}
+                                            </p>
+                                        </div>
+                                        <div className="flex flex-col items-center gap-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => setHasHydrogel(!hasHydrogel)}
+                                                className={`px-6 py-3 rounded-xl font-bold transition-all transform active:scale-95 shadow-lg ${hasHydrogel ? 'bg-green-500 hover:bg-green-600 text-white shadow-green-500/30' : 'bg-bel-blue hover:bg-blue-600 text-white shadow-blue-500/30'}`}
+                                            >
+                                                {hasHydrogel ? t('upsell_added') : t('upsell_add')}
+                                            </button>
+                                            {!hasHydrogel && (
+                                                <span className="text-xs text-gray-400 line-through font-medium">{t('upsell_strike_price')}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* User Details */}
                         <div className="bg-white dark:bg-slate-900 rounded-ui-lg p-4 sm:p-6 border border-gray-200 dark:border-slate-800">
                             <div className="flex items-center justify-between mb-6">
