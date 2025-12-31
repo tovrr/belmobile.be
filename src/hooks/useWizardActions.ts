@@ -141,6 +141,10 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
             level: "info",
             data: { modelName: model },
         });
+
+        // IMMEDIATE: Set transitioning to hide sidebar price update glitch
+        dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: true } });
+
         dispatch({ type: 'SET_DEVICE_INFO', payload: { selectedModel: model } });
         dispatch({ type: 'SET_UI_STATE', payload: { isInitialized: false } });
 

@@ -14,6 +14,8 @@ import { createSlug, slugToDisplayName } from '../../utils/slugs';
 import { TRUST_SIGNALS, SignalContext } from '../../data/trustSignals';
 import Button from '../ui/Button';
 
+import { useWizard } from '../../context/WizardContext';
+
 // Map string icon names to components
 const ICON_MAP: Record<string, React.ElementType> = {
     WrenchScrewdriverIcon,
@@ -75,6 +77,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     processingText
 }) => {
     const { t } = useLanguage();
+    const { state } = useWizard();
+    const isTransitioning = state.isTransitioning;
     const isBuyback = type === 'buyback';
 
     // Consolidate processing state
@@ -256,7 +260,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                             </div>
                         </div>
                         <div className="text-3xl font-extrabold text-bel-dark dark:text-white">
-                            {loading || (isBuyback && typeof estimateDisplay === 'number' && estimateDisplay === 0) ? (
+                            {loading || isTransitioning || (isBuyback && typeof estimateDisplay === 'number' && estimateDisplay === 0) ? (
                                 <div className="flex space-x-1 h-9 items-center justify-center">
                                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
