@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Block Admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login/
+
+# Optimization for AI Bots (Optional but good for 2025)
+User-agent: GPTBot
+Disallow: /admin/
+
+# Sitemap Location
+Sitemap: https://belmobile.be/sitemap.xml
