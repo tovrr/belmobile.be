@@ -53,6 +53,12 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
         if (selectedBrand && modelSelectRef?.current) {
             setTimeout(() => {
                 modelSelectRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Add visual highlight only (no focus to prevent keyboard opening on mobile)
+                const selectElement = modelSelectRef.current?.querySelector('select');
+                if (selectElement) {
+                    selectElement.classList.add('ring-4', 'ring-bel-blue/30', 'transition-all', 'duration-500');
+                    setTimeout(() => selectElement.classList.remove('ring-4', 'ring-bel-blue/30'), 1500);
+                }
             }, 400); // Slightly longer delay to allow page transition
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
