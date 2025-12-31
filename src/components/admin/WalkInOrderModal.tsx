@@ -23,7 +23,7 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
     const [customerName, setCustomerName] = useState('');
     const [customerPhone, setCustomerPhone] = useState('');
     const [customerEmail, setCustomerEmail] = useState('');
-    const [notifyChannels, setNotifyChannels] = useState<('email' | 'whatsapp' | 'sms')[]>(['email', 'whatsapp']);
+    const [notifyChannels, setNotifyChannels] = useState<('email' | 'whatsapp' | 'sms')[]>(['whatsapp']); // Default to WhatsApp, Email is secondary
 
     const [brand, setBrand] = useState('Apple');
     const [model, setModel] = useState('');
@@ -47,6 +47,16 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
             const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
             const generatedOrderId = `ORD-${dateStr}-${randomSuffix}`;
 
+            // Smart Email Handling with Shop Tag
+            // format: walkin.shop{id}@belmobile.be
+            const currentShopId = '1'; // TODO: Get from context/user selection
+            const finalEmail = customerEmail.trim() || `walkin.shop${currentShopId}@belmobile.be`;
+
+            // Auto-remove email from notifications if not provided
+            const finalNotifyChannels = customerEmail.trim()
+                ? notifyChannels
+                : notifyChannels.filter(c => c !== 'email');
+
             const newOrder: Partial<Quote> = {
                 type: type,
                 id: generatedOrderId, // Use this for display ID
@@ -58,7 +68,7 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                 condition: 'used', // Default
                 issue: issue || 'Walk-in Inspection',
                 customerName,
-                customerEmail: customerEmail || 'walkin@belmobile.be', // Placeholder if empty
+                customerEmail: finalEmail,
                 customerPhone: customerPhone || '',
                 price: parseFloat(price),
                 initialPrice: parseFloat(price),
@@ -67,7 +77,7 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                 shopId: '1', // Default to main shop or get from context if available
                 deliveryMethod: 'dropoff', // Always dropoff for walk-in
                 isCompany: false,
-                notificationPreferences: notifyChannels,
+                notificationPreferences: finalNotifyChannels,
                 isWalkIn: true, // Flag for analytics
                 internalNotes: `Walk-in Order. ${internalNotes}`,
                 activityLog: [{

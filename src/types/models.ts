@@ -171,6 +171,7 @@ export interface Quote {
     companyName?: string;
     vatNumber?: string;
     notificationPreferences?: ('email' | 'whatsapp' | 'sms')[];
+    isWalkIn?: boolean;
 }
 
 export interface ContactMessage {
