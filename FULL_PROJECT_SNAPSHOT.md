@@ -1,55 +1,54 @@
-# 📸 FULL_PROJECT_SNAPSHOT: Belmobile State of the Union (Dec 31, 2025)
+# 📸 FULL_PROJECT_SNAPSHOT: Belmobile State of the Union (Dec 31, 2025 - Evening Update)
 
 **Lead Visionary**: Omer Ozkan
-**Status**: Staging Verified & Production Ready 🚀
+**Status**: Staging Updated & Feature-Rich 🚀
 
 ---
 
-## 1. 🚀 Major Recent Features (Last 24h)
+## 1. 🚀 Major Recent Features (Last 2h)
 
-### A. Admin Dashboard "Walk-in" Revolution 🛍️
-- **Streamlined Workflow**: 
-    - "New Walk-in" button relocated for better accessibility.
-    - **No-Email Policy**: Email field is now optional. System auto-generates `walkin.shop{ID}@belmobile.be` for anonymous tracking.
-    - **Notification Logic**: Defaults to **WhatsApp** for walk-ins. Validates channel selection automatically.
-    - **Order ID**: Client-side auto-generation of `ORD-YYYY-XXXX` IDs for immediate feedback.
-    - **Shop Tracking**: Orders are tagged with `shopId` (currently '1') for location-based reporting.
+### A. Apollo AI: The "Digital Esnaf" 🧠☕
+- **Brain Upgrade**: Switched to `gemini-pro` (Stable) for reliable reasoning.
+- **Personality**: Imbued with the "Digital Esnaf" spirit. Apollo now prioritizes:
+    - **Warmth**: Treating users like guests.
+    - **Trust**: "We stand behind our work."
+    - **Speed**: "Ready before you finish your coffee."
+- **Knowledge**: Fully aware of real shop locations (Liedts & Bara), phones, and opening hours.
 
-### B. PDF & Invoice Redesign 📄
-- **Layout Overhaul**: Complete refactor of `PdfTemplates.ts`.
-- **Visibility**: QR Code moved to header top-right to prevent layout shifting.
-- **Precision**: Switched from flexible `columns` to strict `table` grids (50/50 split) for customer/device details.
-- **Compactness**: Reduced margins and padding for a professional, one-page fit.
+### B. Professional Receipt Printing 🧾🖨️
+- **PDF Generation**: Walk-in orders now generate a downloadable PDF receipt instantly.
+- **Branding**: Official Belmobile Logo integrated into the PDF header.
+- **Verification**: Includes designated **Signature Blocks** for Customer and Shop (Stamp).
+- **Security**: Legal disclaimer added for data responsibility.
 
-### C. Email Deliverability Optimization 📧
-- **Spam-Proof Header**: Replaced image/logo-heavy header with a crisp, **text-only HTML table** layout.
-- **Gmail Compatibility**: Resolved "Show Images" warning by removing complex CSS backgrounds and external assets.
-- **Theme**: Minimalist Black/White typography for maximum trust and deliverability.
-
-### D. Staging Protection 🛡️
-- **Robots Control**: Implemented dynamic `noindex, nofollow` meta tags in `layout.tsx`.
-- **Safety**: Automatically detects `dev.` subdomain or non-production Vercel environments to prevent Google indexing.
+### C. Address & Data Integrity 🏛️
+- **Correction**: Reverted AI-hallucinated addresses.
+- **Confirmed Locations**:
+    - **Schaerbeek (Liedts)**: Rue Gallait 4.
+    - **Anderlecht (Bara)**: Rue Lambert Crickx 12.
+- **Context**: Apollo and the Web App now share the exact same Single Source of Truth (`constants.ts`).
 
 ---
 
 ## 2. 🏗️ High-Level Architecture Audit
-- **Framework**: Next.js 16+ (App Router) with Webpack configuration.
-- **Branching**: `staging` is the current source of truth for recent features.
-- **Core Stability**:
-    - **Types**: `Quote` interface extended with `isWalkIn` and `notificationPreferences`.
-    - **Validation**: Strict TypeScript compliance maintained.
+- **Framework**: Next.js 16+ (App Router).
+- **AI Backend**: Google Gemini API via server-side `route.ts`.
+- **PDF Engine**: `pdfMake` with custom definitions in `PdfTemplates.ts`.
+- **Client-Side**: React hooks managing Walk-in Modals and state.
 
 ## 3. 🌍 Business Logic Snapshot
-- **Inventory & Pricing**: Centralized in Firestore.
-- **Internationalization**: FR/NL/EN fully supported; translations added for "Nature of Issue" and "Notification Preferences".
-- **Notifications**: "Coming Soon" styling added for SMS/WhatsApp in the public wizard to manage expectations while backend is prepared.
+- **Walk-in Flow**: 
+    1. Admin enters details (Name, Device, Price).
+    2. System Creates Order (Firestore).
+    3. Success Screen appears -> **One-Click Print Receipt (PDF)**.
+- **Apollo Protocol**: System instructions now explicitly define "Merchant Psychology" (Esnaf Spirit).
 
 ## 4. ⚠️ Immediate Next Steps (To-Do)
-- **Git Push**: Push the `staging` branch (currently pending due to network) to deploy latest features.
-- **Admin Features**: Potential expansion of "Shop Selection" context for multi-store walk-in management.
-- **PDF Generation**: Verify PDF generation flow for Walk-in orders (currently generates ID, next step is print/download action).
+- **Deployment**: Verify `staging` deployment on Vercel.
+- **User Feedback**: Test the "Esnaf" dialogue style with real users.
+- **Physical Test**: Try printing a receipt on the shop printer.
 
 ---
 
 > [!NOTE]
-> **Audit Verdict**: The platform functionalities for **In-Store Operations (Walk-ins)** and **Customer Communication (PDF/Email)** have been significantly upgraded. Ready for final deployment.
+> **Audit Verdict**: The platform operates with a "Soul" (Apollo) and "Professionalism" (PDF Receipts). We are ready for the new year. 🎆
