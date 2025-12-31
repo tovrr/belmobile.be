@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import RecoveryClient from './RecoveryClient';
+import RecoveryClient from './RecoveryClientSideLogic';
 
 export default async function RecoveryPage({ params }: { params: Promise<{ lang: string; token: string }> }) {
     const { lang, token } = await params;
