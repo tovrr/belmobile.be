@@ -1,5 +1,5 @@
-import React from 'react';
 import { ClockIcon, CurrencyEuroIcon, ShieldCheckIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import { slugToDisplayName } from '../utils/slugs';
 
 interface LocalPainPointsProps {
     lang: 'fr' | 'nl' | 'en';
@@ -8,7 +8,8 @@ interface LocalPainPointsProps {
     type?: 'repair' | 'buyback';
 }
 
-export default function LocalPainPoints({ lang, locationName, deviceType, type = 'repair' }: LocalPainPointsProps) {
+export default function LocalPainPoints({ lang, locationName, deviceType: rawDeviceType, type = 'repair' }: LocalPainPointsProps) {
+    const deviceType = rawDeviceType ? slugToDisplayName(rawDeviceType) : '';
     const isBrussels = (locationName || '').toLowerCase().includes('brussels') || (locationName || '').toLowerCase().includes('bruxelles') || (locationName || '').toLowerCase().includes('brussel');
 
     const content = {

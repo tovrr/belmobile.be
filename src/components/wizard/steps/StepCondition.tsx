@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { ChevronLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import Sidebar from '../Sidebar';
 import { REPAIR_ISSUES } from '../../../constants';
@@ -23,6 +23,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
     const { state, dispatch } = useWizard();
     const { t } = useLanguage();
     const { handleNext, handleBack } = useWizardActions(type);
+    const [activeCategory, setActiveCategory] = useState<string>('all');
 
     const step = state.step;
     const onNext = handleNext;
@@ -136,8 +137,8 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
         }
 
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
-                <div className="flex-1 space-y-8">
+            <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8 gap-6">
+                <div className="flex-1 min-w-0 space-y-8">
                     <div className="flex items-center gap-2 mb-6">
                         <button
                             onClick={onBack}
@@ -324,8 +325,8 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
         const isNintendo = selectedBrand?.toLowerCase() === 'nintendo';
 
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
-                <div className="flex-1">
+            <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8 gap-6">
+                <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                         <button
                             onClick={onBack}
@@ -337,46 +338,40 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         </button>
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('What needs fixing?')}</h2>
                     </div>
-                    <p className="text-gray-500 mb-8">{selectedBrand} {slugToDisplayName(selectedModel || '')}</p>
+                    <p className="text-gray-500 mb-6">{selectedBrand} {slugToDisplayName(selectedModel || '')}</p>
+
+                    {/* Category Selector */}
+                    <div className="flex overflow-x-auto pb-4 mb-4 gap-2 no-scrollbar scroll-smooth snap-x">
+                        {['all', 'display', 'power', 'camera', 'body', 'technical'].map((cat) => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`px-5 py-2.5 rounded-full whitespace-nowrap font-bold transition-all snap-start ${activeCategory === cat
+                                    ? 'bg-bel-blue text-white shadow-lg shadow-blue-500/30 ring-2 ring-blue-500/20'
+                                    : 'bg-white/50 dark:bg-slate-800/50 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800'
+                                    }`}
+                            >
+                                {t('cat_' + cat)}
+                            </button>
+                        ))}
+                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                         {REPAIR_ISSUES.filter(issue => {
-                            // -------------------------
-                            // Issue Filtering Logic
-                            // -------------------------
+                            // 1. Initial Filtering (Device, Brand, Prices, etc.)
                             if (issue.devices && !issue.devices.includes(deviceType)) return false;
                             const brand = selectedBrand?.toLowerCase();
+                            if (issue.brands && !issue.brands.some(b => b.toLowerCase() === brand)) return false;
 
-                            // Generic Brand Filter
-                            if (issue.brands && !issue.brands.some(b => b.toLowerCase() === brand)) {
-                                return false;
-                            }
+                            // 2. Category Filtering
+                            if (activeCategory !== 'all' && issue.category !== activeCategory) return false;
 
-                            // Specific Game Console Logic
-                            if (brand === 'nintendo') {
-                                if (['hdmi', 'disc'].includes(issue.id)) return false;
-                            } else {
-                                if (issue.id === 'card_reader') return false;
-                            }
-
-                            // Foldable Check
+                            // 3. Model Specific Filtering
                             const modelName = selectedModel || '';
                             const isFoldableModel = modelName.includes('Fold') || modelName.includes('Flip') || modelName.includes('Find N') || modelName.includes('Pixel Fold') || modelName.includes('Razr') || modelName.includes('Open');
-
-                            // Soft Delete Logic (Hide if price is negative)
-                            const p = getSingleIssuePrice(issue.id);
                             const isFoldableIssue = ['screen_foldable_inner', 'screen_foldable_outer'].includes(issue.id);
-
-                            // Soft Delete Exemptions
-                            const isHandheldScreenIssue = ['screen_upper', 'screen_bottom', 'screen_digitizer', 'screen_lcd', 'screen_component'].includes(issue.id);
-                            const isHandheldDevice = deviceType === 'console_portable' || deviceType === 'tablet';
-
-                            const isExemptFromSoftDelete = (isFoldableIssue && isFoldableModel) || (isHandheldDevice && isHandheldScreenIssue);
-
-                            if (typeof p === 'number' && p < 0 && !isExemptFromSoftDelete) return false;
-
-                            // Foldable Logic
                             if (isFoldableIssue && !isFoldableModel) return false;
+
                             if (issue.id === 'screen') {
                                 const innerPrice = getSingleIssuePrice('screen_foldable_inner');
                                 const outerPrice = getSingleIssuePrice('screen_foldable_outer');
@@ -384,7 +379,14 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                 if (isFoldableModel || hasFoldablePrices) return false;
                             }
 
-                            // Unified Profile Check
+                            // 4. Soft Delete (Negative Prices)
+                            const p = getSingleIssuePrice(issue.id);
+                            const isHandheldScreenIssue = ['screen_upper', 'screen_bottom', 'screen_digitizer', 'screen_lcd', 'screen_component'].includes(issue.id);
+                            const isHandheldDevice = deviceType === 'console_portable' || deviceType === 'tablet';
+                            const isExemptFromSoftDelete = (isFoldableIssue && isFoldableModel) || (isHandheldDevice && isHandheldScreenIssue);
+                            if (typeof p === 'number' && p < 0 && !isExemptFromSoftDelete) return false;
+
+                            // 5. Profile Check
                             const unifiedProfile = getRepairProfileForModel(modelName, deviceType);
                             if (unifiedProfile) {
                                 if (!unifiedProfile.includes(issue.id)) return false;

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import {
     ChevronLeftIcon, CheckCircleIcon, BuildingStorefrontIcon, TruckIcon,
     ChevronRightIcon, XMarkIcon, MapPinIcon, ClockIcon, CloudArrowUpIcon,
@@ -113,7 +113,10 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
         idFile,
         hasHydrogel,
         honeypot,
-        termsAccepted
+        termsAccepted,
+        isCompany,
+        companyName,
+        vatNumber
     } = state;
 
     // Setters
@@ -134,6 +137,33 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     const setIdFile = (val: File | null) => dispatch({ type: 'SET_WIZARD_DATA', payload: { idFile: val } });
     const setHasHydrogel = (val: boolean) => dispatch({ type: 'SET_WIZARD_DATA', payload: { hasHydrogel: val } });
     const setHoneypot = (val: string) => dispatch({ type: 'SET_WIZARD_DATA', payload: { honeypot: val } });
+    const setIsCompany = (val: boolean) => dispatch({ type: 'SET_WIZARD_DATA', payload: { isCompany: val } });
+    const setCompanyName = (val: string) => dispatch({ type: 'SET_WIZARD_DATA', payload: { companyName: val } });
+    const setVatNumber = (val: string) => dispatch({ type: 'SET_WIZARD_DATA', payload: { vatNumber: val } });
+
+    const [validatingVat, setValidatingVat] = useState(false);
+    const [vatValidationError, setVatValidationError] = useState<string | null>(null);
+
+    const handleVatBlur = async () => {
+        if (!vatNumber || vatNumber.length < 5) return;
+        setValidatingVat(true);
+        setVatValidationError(null);
+        try {
+            const res = await fetch('/api/b2b/validate-vat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ vatNumber })
+            });
+            const data = await res.json();
+            if (!data.isValid) {
+                setVatValidationError(data.message || 'Invalid VAT number');
+            }
+        } catch (err) {
+            console.error('VAT validation failed', err);
+        } finally {
+            setValidatingVat(false);
+        }
+    };
 
     const handleEmailBlur = async () => {
         if (!customerEmail || !customerEmail.includes('@')) return;
@@ -151,7 +181,11 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
             timestamp: Date.now()
         };
 
-        await orderService.saveLead(customerEmail, leadContext);
+        // Sanitize state for Firestore (remove File objects)
+        const sanitizedState = { ...state };
+        delete (sanitizedState as any).idFile;
+
+        await orderService.saveLead(customerEmail, leadContext, sanitizedState);
     };
     const setTermsAccepted = (val: boolean) => dispatch({ type: 'SET_WIZARD_DATA', payload: { termsAccepted: val } });
 
@@ -673,7 +707,51 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
 
                         {/* User Details */}
                         <div className="bg-white dark:bg-slate-900 rounded-ui-lg p-4 sm:p-6 border border-gray-200 dark:border-slate-800">
-                            <label className="block text-xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">{t('Your Details')}</label>
+                            <div className="flex items-center justify-between mb-6">
+                                <label className="block text-xl font-bold text-gray-900 dark:text-white tracking-tight">{t('Your Details')}</label>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsCompany(!isCompany)}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all border-2 ${isCompany ? 'bg-bel-blue border-bel-blue text-white' : 'bg-transparent border-gray-200 dark:border-slate-700 text-gray-500 dark:text-gray-400'}`}
+                                >
+                                    {isCompany ? <CheckIcon className="h-3 w-3" /> : <div className="h-3 w-3 rounded-full border border-current" />}
+                                    {t('is_company')}
+                                </button>
+                            </div>
+
+                            {isCompany && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 animate-fade-in">
+                                    <Input
+                                        label={t('company_name')}
+                                        required
+                                        name="companyName"
+                                        value={companyName}
+                                        placeholder="Belmobile SRL"
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCompanyName(e.target.value)}
+                                    />
+                                    <Input
+                                        label={t('vat_number')}
+                                        required
+                                        name="vatNumber"
+                                        value={vatNumber}
+                                        placeholder="BE0XXX.XXX.XXX"
+                                        error={vatValidationError || undefined}
+                                        onBlur={handleVatBlur}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                            setVatNumber(e.target.value.toUpperCase());
+                                            if (vatValidationError) setVatValidationError(null);
+                                        }}
+                                        rightElement={
+                                            validatingVat ? (
+                                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-bel-blue border-t-transparent" />
+                                            ) : vatNumber && !vatValidationError ? (
+                                                <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                                            ) : null
+                                        }
+                                    />
+                                </div>
+                            )}
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <Input
                                     label={t('contact_full_name')}
@@ -864,55 +942,44 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
 
                             {/* Trust Signals */}
                             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-bel-blue/20 mt-8">
-                                <h4 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                                    <CheckCircleIcon className="h-5 w-5 text-bel-blue" />
-                                    {t('trust_title')}
+                                <h4 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                    <CheckCircleIcon className="h-4 w-4 text-bel-blue" />
+                                    Brussels Local Choice
                                 </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div className="flex items-start gap-3">
-                                        <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
-                                            <BanknotesIcon className="h-5 w-5 text-bel-blue" />
+                                        <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
+                                            <BanknotesIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-gray-900 dark:text-white text-sm">
-                                                {type === 'buyback' ? t('trust_price_title_buyback') : t('trust_price_title')}
+                                            <p className="font-bold text-gray-900 dark:text-white text-xs">
+                                                {t('payment_bancontact')}
                                             </p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                {type === 'buyback' ? t('trust_price_subtitle_buyback') : t('price_vat_included')}
-                                            </p>
+                                            <p className="text-[10px] text-gray-500 uppercase font-black">{t('instant_cash')}</p>
                                         </div>
                                     </div>
+
                                     <div className="flex items-start gap-3">
-                                        <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
-                                            <ShieldCheckIcon className="h-5 w-5 text-bel-blue" />
+                                        <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
+                                            <MapPinIcon className="h-5 w-5 text-bel-blue" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-gray-900 dark:text-white text-sm">
-                                                {type === 'buyback' ? t('trust_warranty_title_buyback') : t('trust_warranty_title')}
+                                            <p className="font-bold text-gray-900 dark:text-white text-xs">
+                                                {t('transit_nearby')}
                                             </p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">{type === 'buyback' ? t('buyback_payment_terms') : t('repair_payment_terms')}</p>
+                                            <p className="text-[10px] text-gray-500 uppercase font-black">STIB/MIVB Network</p>
                                         </div>
                                     </div>
+
                                     <div className="flex items-start gap-3">
-                                        <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
-                                            <DocumentTextIcon className="h-5 w-5 text-bel-blue" />
+                                        <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
+                                            <DocumentTextIcon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-gray-900 dark:text-white text-sm">
-                                                {type === 'buyback' ? t('trust_document_title_buyback') : t('trust_document_title')}
+                                            <p className="font-bold text-gray-900 dark:text-white text-xs">
+                                                {t('insurance_invoice')}
                                             </p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">{type === 'buyback' ? t('pdf_confirmation_buyback') : t('pdf_confirmation_repair')}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start gap-3">
-                                        <div className="p-2 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
-                                            <XMarkIcon className="h-5 w-5 text-bel-blue" />
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-gray-900 dark:text-white text-sm">
-                                                {type === 'buyback' ? t('trust_flexibility_title_buyback') : t('Flexibility')}
-                                            </p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('cancellation_policy')}</p>
+                                            <p className="text-[10px] text-gray-500 uppercase font-black">Official VAT Proof</p>
                                         </div>
                                     </div>
                                 </div>

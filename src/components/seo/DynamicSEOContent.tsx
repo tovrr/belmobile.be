@@ -35,28 +35,30 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
 
     // Helper to get device name
     const getDeviceName = () => {
-        // Format model name (convert slug to display name)
+        // Format names (convert slug to display name)
         const formattedModel = model ? slugToDisplayName(model) : '';
+        const formattedBrand = brand ? slugToDisplayName(brand) : '';
+        const formattedCategory = deviceType ? slugToDisplayName(deviceType) : '';
 
         if (formattedModel) {
-            if (brand && formattedModel.toLowerCase().startsWith(brand.toLowerCase())) {
+            if (formattedBrand && formattedModel.toLowerCase().startsWith(formattedBrand.toLowerCase())) {
                 return formattedModel;
             }
-            return `${brand} ${formattedModel}`;
+            return `${formattedBrand || ''} ${formattedModel}`.trim();
         }
 
-        if (brand) {
+        if (formattedBrand) {
             // French: Type Brand (e.g., Smartphone Apple)
             if (lang === 'fr') {
-                if (brand.toLowerCase() === 'apple' && deviceType === 'smartphone') return 'iPhone';
-                return `${deviceType === 'smartphone' ? 'Smartphone' : 'appareil'} ${brand}`;
+                if (formattedBrand.toLowerCase() === 'apple' && deviceType === 'smartphone') return 'iPhone';
+                return `${deviceType === 'smartphone' ? 'Smartphone' : 'appareil'} ${formattedBrand}`;
             }
             // NL: Brand Type
             if (lang === 'nl') {
-                return `${brand} ${deviceType || 'toestel'}`;
+                return `${formattedBrand} ${formattedCategory || 'toestel'}`;
             }
             // EN: Brand Type (e.g., Apple Smartphone)
-            return `${brand} ${deviceType || 'device'}`;
+            return `${formattedBrand} ${formattedCategory || 'device'}`;
         }
 
         if (deviceType === 'smartphone') return 'Smartphone';

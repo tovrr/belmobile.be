@@ -147,6 +147,9 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
         .replace(/^besoin/i, 'Besoin')
         .replace(/appelez-nous/i, 'Appelez-nous');
 
+    // 8. Financial Math
+    const { subtotal, vat } = calculateOrderTotals(quote);
+
     return {
         orderId: quote.orderId || String(quote.id).toUpperCase(), // Fallback to doc ID if readable ID missing
         date: formattedDate,
@@ -161,6 +164,8 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
         priceBreakdown,
         totalLabel: isBuyback ? t('Montant Total') : t('Coût Total'),
         totalPrice: quote.price || 0,
+        subtotal: quote.isCompany ? subtotal : undefined,
+        vatAmount: quote.isCompany ? vat : undefined,
         nextSteps,
         iban: quote.iban,
         documentTitle: quote.type === 'buyback' ? t('Buyback Offer') : (quote.type === 'repair' ? t('Repair Quote') : t('Reservation Confirmation')),
@@ -169,6 +174,9 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
         trackingUrl: quote.orderId && email
             ? `https://belmobile.be/track-order?id=${quote.orderId}&email=${encodeURIComponent(email)}`
             : undefined,
+        isCompany: quote.isCompany,
+        companyName: quote.companyName,
+        vatNumber: quote.vatNumber,
         labels: {
             orderId: t('Order ID'),
             date: t('Date'),
@@ -178,24 +186,22 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
             email: t('Email'),
             phone: t('Phone'),
             address: t('Address'),
+            companyName: t('company_name'),
+            vatNumber: t('vat_number'),
             featuresSpecs: t('Device Details'),
             shop: t('Shop'),
             model: t('Model'),
             financials: t('Financials'),
-            // repairDetails: t('Description'), // Not in interface
-            // buybackDetails: t('Description'), // Not in interface
-            // financials: t('Financials'), // Not in interface
             paymentIban: t('Payment IBAN'),
             scanToTrack: t('Scan to Track'),
             description: t('Description'),
             price: t('Price'),
-            // vatIncluded: t('VAT Included'), // Not in interface
-            // total: t('Total'), // Not in interface
-            // subtotal: t('Subtotal'), // Not in interface
             followOrder: t('Follow Order'),
             nextSteps: t('Next Steps'),
             page: t('Page'),
-            of: t('of')
+            of: t('of'),
+            subtotal: t('Subtotal'),
+            vat: t('VAT (21%)')
         }
     };
 };

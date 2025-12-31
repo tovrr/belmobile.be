@@ -220,7 +220,10 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                 issues: type === 'repair' ? state.repairIssues : null,
                 language: lang || 'fr',
                 brand: state.selectedBrand,
-                model: state.selectedModel
+                model: state.selectedModel,
+                isCompany: state.isCompany,
+                companyName: state.companyName,
+                vatNumber: state.vatNumber
             }, t);
 
             // 4. Redirect Immediately to Success Page

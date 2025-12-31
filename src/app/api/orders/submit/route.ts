@@ -86,7 +86,51 @@ export async function POST(req: NextRequest) {
             Sentry.setTag("brand", brand);
             Sentry.setContext("order_details", { type, price: calculatedPrice, model });
 
-            // 5. SERVER-SIDE EMAIL DISPATCH
+            // 5. B2B INVOICE GENERATION & STORAGE
+            let invoiceUrl = null;
+            if (body.isCompany) {
+                try {
+                    const { storage } = await import('../../../../firebase');
+                    const { ref: storageRef, uploadBytes, getDownloadURL } = await import('firebase/storage');
+                    const { mapQuoteToPdfData } = await import('../../../../utils/orderMappers');
+                    const { generatePDFFromPdfData } = await import('../../../../utils/pdfGenerator');
+                    const { getFixedT } = await import('../../../../utils/i18n-server');
+
+                    const lang = body.language || 'fr';
+                    const t = getFixedT(lang);
+
+                    const quoteData = {
+                        ...body,
+                        id: docReference.id,
+                        orderId: preGeneratedId,
+                        price: calculatedPrice,
+                        createdAt: { seconds: Math.floor(Date.now() / 1000) }
+                    };
+
+                    const pdfData = mapQuoteToPdfData(quoteData as any, t);
+                    const { blob } = await generatePDFFromPdfData(pdfData, 'Invoice');
+
+                    // Upload to Firebase Storage
+                    const invoiceFileName = `invoices/${preGeneratedId}_${Date.now()}.pdf`;
+                    const invoiceStorageRef = storageRef(storage, invoiceFileName);
+                    await uploadBytes(invoiceStorageRef, blob);
+                    invoiceUrl = await getDownloadURL(invoiceStorageRef);
+
+                    // Update quote with invoice URL
+                    const { updateDoc, doc } = await import('firebase/firestore');
+                    await updateDoc(doc(db, 'quotes', docReference.id), {
+                        invoiceUrl
+                    });
+
+                    console.log(`[B2B Invoice] Generated and uploaded: ${invoiceUrl}`);
+                } catch (invoiceError) {
+                    console.error('[B2B Invoice] Generation failed:', invoiceError);
+                    Sentry.captureException(invoiceError);
+                    // Don't fail the order if invoice generation fails
+                }
+            }
+
+            // 6. SERVER-SIDE EMAIL DISPATCH
             // This ensures emails are sent reliably from the server, avoiding browser navigation race conditions.
             try {
                 const { mapQuoteToPdfData } = await import('../../../../utils/orderMappers');

@@ -96,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     const activeSignals = TRUST_SIGNALS.filter(s => s.condition ? s.condition(signalContext) : true).slice(0, 2); // Show top 2
 
     return (
-        <div className="hidden lg:block w-80 xl:w-96 shrink-0 ml-8">
+        <div className="hidden lg:block w-80 xl:w-96 flex-shrink-0">
             <div className="sticky top-24 bg-white dark:bg-slate-900 rounded-ui-lg shadow-lg border border-gray-100 dark:border-slate-800 overflow-hidden">
                 <div className="bg-bel-blue p-6 text-white text-center relative overflow-hidden">
 

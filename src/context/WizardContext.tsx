@@ -44,6 +44,11 @@ export interface WizardState {
     idFile: File | null;
     honeypot: string;
 
+    // B2B fields
+    isCompany: boolean;
+    companyName: string;
+    vatNumber: string;
+
     // Dynamic Data
     modelsData: Record<string, Record<string, number>>;
     specsData: Record<string, string[]>;
@@ -96,6 +101,9 @@ const initialState: WizardState = {
     servicePoint: null,
     idFile: null,
     honeypot: '',
+    isCompany: false,
+    companyName: '',
+    vatNumber: '',
     modelsData: {},
     specsData: {},
     pricingData: {

@@ -458,3 +458,28 @@ export const useContactMessages = (user: User | null, shopId: string = 'all') =>
 
     return { messages, loading };
 };
+
+export const useLeads = (user: User | null) => {
+    const [leads, setLeads] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!user) {
+            setLoading(false);
+            return;
+        }
+
+        const q = query(collection(db, 'leads'), orderBy('updatedAt', 'desc'));
+        const unsub = onSnapshot(q, (snapshot) => {
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setLeads(data);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching leads:", error);
+            setLoading(false);
+        });
+        return () => unsub();
+    }, [user]);
+
+    return { leads, loading };
+};

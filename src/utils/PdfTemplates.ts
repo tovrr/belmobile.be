@@ -12,74 +12,73 @@ const COLORS = {
 
 const STYLES: StyleDictionary = {
     headerTitle: {
-        fontSize: 22,
+        fontSize: 18,
         bold: true,
         color: COLORS.TextDark
     },
     headerSubtitle: {
-        fontSize: 9,
+        fontSize: 7,
         color: COLORS.TextGray,
-        margin: [0, 2, 0, 0],
-        characterSpacing: 1
+        margin: [0, 1, 0, 0],
+        characterSpacing: 0.8
     },
     documentTitle: {
-        fontSize: 12,
+        fontSize: 10,
         bold: true,
         color: COLORS.TextDark,
         alignment: 'right'
     },
     sectionHeader: {
-        fontSize: 10,
+        fontSize: 8,
         bold: true,
-        color: COLORS.Primary, // Pop of color just on text
-        margin: [0, 8, 0, 4]
+        color: COLORS.Primary,
+        margin: [0, 4, 0, 2]
     },
     label: {
-        fontSize: 9,
+        fontSize: 7,
         color: COLORS.TextGray,
-        lineHeight: 1.2
+        lineHeight: 1.1
     },
     value: {
-        fontSize: 10,
+        fontSize: 8,
         color: COLORS.TextDark,
         bold: false,
-        lineHeight: 1.2
+        lineHeight: 1.1
     },
     valueBold: {
-        fontSize: 11,
+        fontSize: 9,
         color: COLORS.TextDark,
         bold: true
     },
     tableHeader: {
-        fontSize: 9,
+        fontSize: 7,
         bold: true,
-        color: COLORS.TextDark,
-        // No fill color
+        color: COLORS.TextDark
     },
     tableCell: {
-        fontSize: 10,
+        fontSize: 8,
         color: COLORS.TextDark
     },
     totalLabel: {
-        fontSize: 14,
+        fontSize: 11,
         bold: true,
         color: COLORS.TextDark
     },
     totalValue: {
-        fontSize: 16,
+        fontSize: 13,
         bold: true,
         color: COLORS.Primary,
         alignment: 'right'
     },
     stepIndex: {
-        fontSize: 12,
+        fontSize: 9,
         bold: true,
         color: COLORS.Primary
     },
     stepText: {
-        fontSize: 10,
+        fontSize: 8,
         color: COLORS.TextDark,
-        margin: [5, 1, 0, 0]
+        margin: [4, 0, 0, 0]
     }
 };
 
@@ -110,6 +109,11 @@ export interface PdfData {
     documentTitle: string;
     trackingInfo?: string;
     trackingUrl?: string;
+    isCompany?: boolean;
+    companyName?: string;
+    vatNumber?: string;
+    subtotal?: number;
+    vatAmount?: number;
     labels: {
         orderId: string;
         date: string;
@@ -119,6 +123,8 @@ export interface PdfData {
         email: string;
         phone: string;
         address: string;
+        companyName?: string;
+        vatNumber?: string;
         shop?: string; // "Magasin"
         model?: string; // "Modèle"
         featuresSpecs: string;
@@ -131,13 +137,15 @@ export interface PdfData {
         scanToTrack: string;
         page: string; // "Page" (if needed, or x / y)
         of: string; // "/" or "of"
+        subtotal: string;
+        vat: string;
     };
 }
 
 export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
     return {
         pageSize: 'A4',
-        pageMargins: [30, 20, 30, 30], // More compact margins
+        pageMargins: [25, 15, 25, 20], // Ultra-compact margins for single page
 
         content: [
             // 1. Header (Clean, Text Only)
@@ -166,8 +174,8 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
 
             // Single Minimal Divider
             {
-                canvas: [{ type: 'line', x1: 0, y1: 5, x2: 535, y2: 5, lineWidth: 1.5, lineColor: COLORS.Primary }],
-                margin: [0, 5, 0, 10]
+                canvas: [{ type: 'line', x1: 0, y1: 3, x2: 545, y2: 3, lineWidth: 1, lineColor: COLORS.Primary }],
+                margin: [0, 3, 0, 6]
             } as any,
 
             // 2. Info Box (Bordered Card, No Fill)
@@ -226,21 +234,28 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         stack: [
                             {
                                 stack: [
-                                    { text: data.labels.clientDetails.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
-                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                                    { text: data.labels.clientDetails.toUpperCase(), style: 'sectionHeader', margin: [0, 4, 0, 1] },
+                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 4] }
                                 ]
                             },
-                            { text: data.labels.name, style: 'label', margin: [0, 5, 0, 0] },
+                            { text: data.labels.name, style: 'label', margin: [0, 2, 0, 0] },
                             { text: data.customer.name, style: 'value' },
 
-                            { text: data.labels.email, style: 'label', margin: [0, 5, 0, 0] },
+                            { text: data.labels.email, style: 'label', margin: [0, 2, 0, 0] },
                             { text: data.customer.email || '-', style: 'value' },
 
-                            { text: data.labels.phone, style: 'label', margin: [0, 5, 0, 0] },
+                            { text: data.labels.phone, style: 'label', margin: [0, 2, 0, 0] },
                             { text: data.customer.phone, style: 'value' },
 
+                            ...(data.isCompany ? [
+                                { text: data.labels.companyName, style: 'label', margin: [0, 2, 0, 0] },
+                                { text: data.companyName || '-', style: 'valueBold' },
+                                { text: data.labels.vatNumber, style: 'label', margin: [0, 2, 0, 0] },
+                                { text: data.vatNumber || '-', style: 'value', fontFeatures: ['tnum'] }
+                            ] : []),
+
                             ...(data.customer.address ? [
-                                { text: data.labels.address, style: 'label', margin: [0, 5, 0, 0] },
+                                { text: data.labels.address, style: 'label', margin: [0, 2, 0, 0] },
                                 { text: data.customer.address, style: 'value' }
                             ] : [])
                         ]
@@ -251,25 +266,25 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         stack: [
                             {
                                 stack: [
-                                    { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
-                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                                    { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader', margin: [0, 4, 0, 1] },
+                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 4] }
                                 ]
                             },
                             // Name (Shop or Device)
-                            { text: data.type === 'reservation' ? (data.labels.shop || 'Magasin') : (data.labels.model || 'Modèle'), style: 'label', margin: [0, 5, 0, 0] },
+                            { text: data.type === 'reservation' ? (data.labels.shop || 'Magasin') : (data.labels.model || 'Modèle'), style: 'label', margin: [0, 2, 0, 0] },
                             { text: data.shopOrDevice.name, style: 'valueBold' }, // Bold logic for device name
                             // Dynamic Details List
                             ...data.shopOrDevice.details.map(detail => ({
                                 stack: [
-                                    { text: detail.label, style: 'label', margin: [0, 5, 0, 0] },
+                                    { text: detail.label, style: 'label', margin: [0, 2, 0, 0] },
                                     { text: detail.value, style: 'value' }
                                 ]
                             }))
                         ]
                     }
                 ],
-                columnGap: 10, // Reduced gap
-                margin: [0, 5, 0, 5]
+                columnGap: 8,
+                margin: [0, 2, 0, 2]
             } as any,
 
             // 4. Specs (Buyback) - Kept together
@@ -278,8 +293,8 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     stack: [
                         {
                             stack: [
-                                { text: data.labels.featuresSpecs.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
-                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 535, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                                { text: data.labels.featuresSpecs.toUpperCase(), style: 'sectionHeader', margin: [0, 4, 0, 1] },
+                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 545, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 4] }
                             ]
                         },
                         {
@@ -297,7 +312,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                                         .map(([key, val]) => ({ text: [{ text: `${key}: `, style: 'label' }, { text: String(val), style: 'value' }] }))
                                 }
                             ],
-                            margin: [0, 5, 0, 10]
+                            margin: [0, 2, 0, 4]
                         }
                     ],
                     // Removed unbreakable to allow flow
@@ -325,15 +340,15 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                                 ],
                                 // Rows
                                 ...data.priceBreakdown.map(item => [
-                                    { text: item.label, style: 'tableCell', margin: [0, 8, 0, 8], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] },
-                                    { text: `€${item.price.toFixed(2)}`, style: 'tableCell', alignment: 'right', margin: [0, 8, 0, 8], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] }
+                                    { text: item.label, style: 'tableCell', margin: [0, 4, 0, 4], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] },
+                                    { text: `€${item.price.toFixed(2)}`, style: 'tableCell', alignment: 'right', margin: [0, 4, 0, 4], border: [false, false, false, true], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] }
                                 ])
                             ]
                         },
                         layout: {
                             defaultBorder: false,
                         },
-                        margin: [0, 0, 0, 10]
+                        margin: [0, 0, 0, 4]
                     },
                     // 6. Total Box (Inside same stack to keep with table)
                     {
@@ -357,8 +372,35 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                                 }
                             }
                         ],
-                        margin: [0, 0, 0, 10]
-                    }
+                        margin: [0, 0, 0, 4]
+                    },
+                    // Optional VAT Breakdown for B2B
+                    ...(data.isCompany && data.subtotal !== undefined && data.vatAmount !== undefined ? [
+                        {
+                            columns: [
+                                { width: '*', text: '' },
+                                {
+                                    width: 'auto',
+                                    stack: [
+                                        {
+                                            columns: [
+                                                { text: data.labels.subtotal, style: 'label', width: 100 },
+                                                { text: `€${data.subtotal.toFixed(2)}`, style: 'value', width: 100, alignment: 'right' }
+                                            ]
+                                        },
+                                        {
+                                            columns: [
+                                                { text: data.labels.vat, style: 'label', width: 100 },
+                                                { text: `€${data.vatAmount.toFixed(2)}`, style: 'value', width: 100, alignment: 'right' }
+                                            ],
+                                            margin: [0, 2, 0, 0]
+                                        }
+                                    ],
+                                    margin: [0, 5, 0, 0]
+                                }
+                            ]
+                        }
+                    ] : [])
                 ],
                 // Removed unbreakable to allow flow
             } as any,
@@ -384,19 +426,19 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     ...(data.nextSteps.length > 0 ? [
                         {
                             stack: [
-                                { text: data.labels.nextSteps.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
-                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 535, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                                { text: data.labels.nextSteps.toUpperCase(), style: 'sectionHeader', margin: [0, 4, 0, 1] },
+                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 545, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 4] }
                             ]
                         },
                         {
                             stack: data.nextSteps.map((step, index) => ({
                                 columns: [
-                                    { width: 25, text: `${index + 1}.`, style: 'stepIndex' },
+                                    { width: 20, text: `${index + 1}.`, style: 'stepIndex' },
                                     { width: '*', text: step, style: 'stepText' }
                                 ],
-                                margin: [0, 0, 0, 8]
+                                margin: [0, 0, 0, 4]
                             })),
-                            margin: [0, 10, 0, 20]
+                            margin: [0, 4, 0, 8]
                         }
                     ] : [])
                 ],

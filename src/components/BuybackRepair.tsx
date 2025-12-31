@@ -65,6 +65,33 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     const formRef = useRef<HTMLFormElement>(null);
     const modelSelectRef = useRef<HTMLDivElement>(null);
 
+    // Recovery Logic: Check for session-stored state (Magic Link Recovery)
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const recoveryData = sessionStorage.getItem('belmobile_recovery_state');
+        if (recoveryData) {
+            try {
+                const hydratedState = JSON.parse(recoveryData);
+                // Clean up to prevent re-hydrating on refresh
+                sessionStorage.removeItem('belmobile_recovery_state');
+
+                // Nuclear Hydration
+                dispatch({
+                    type: 'HYDRATE',
+                    payload: {
+                        ...hydratedState,
+                        isInitialized: true,
+                        // If we are recovering, we probably want to be on the last step (User Info)
+                        // but let's respect the saved step if it exists
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to parse recovery state', e);
+            }
+        }
+    }, [dispatch]);
+
     // Sync Shop
     useEffect(() => {
         if (shops.length > 0 && initialShop) {

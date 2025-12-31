@@ -367,6 +367,23 @@ const TrackOrder: React.FC = () => {
                                                     <span className="font-medium text-gray-900 dark:text-white">{(status as Reservation).productName}</span>
                                                 </div>
                                             )}
+                                            {(status as any).isCompany && (
+                                                <div className="py-3 px-4 bg-bel-blue/5 dark:bg-bel-blue/10 rounded-xl border border-bel-blue/10 mb-4 animate-fade-in">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-bel-blue" />
+                                                        <span className="text-[10px] font-black text-bel-blue uppercase tracking-widest">{t('B2B Order')}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center text-sm">
+                                                        <span className="text-gray-500 font-medium">{t('company_name')}</span>
+                                                        <span className="font-bold text-gray-900 dark:text-white">{(status as any).companyName}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center text-sm mt-1">
+                                                        <span className="text-gray-500 font-medium">{t('vat_number')}</span>
+                                                        <span className="font-mono text-gray-900 dark:text-white">{(status as any).vatNumber}</span>
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             {status.type !== 'reservation' && (
                                                 <div className="flex justify-between py-2 border-b border-gray-100 dark:border-slate-800">
                                                     <span className="text-gray-500">{t('Device')}</span>
@@ -498,6 +515,24 @@ const TrackOrder: React.FC = () => {
                                                         {t('Pay Now Securely')}
                                                     </a>
                                                     <p className="text-[10px] text-center text-gray-400 mt-2 uppercase tracking-widest">{t('Secure payment via Mollie')}</p>
+                                                </div>
+                                            )}
+
+                                            {/* B2B Invoice Download */}
+                                            {(status as any).isCompany && (status as any).invoiceUrl && (
+                                                <div className="pt-4 mt-4 border-t border-gray-100 dark:border-slate-800">
+                                                    <a
+                                                        href={(status as any).invoiceUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 font-bold rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition border border-indigo-200 dark:border-indigo-800"
+                                                    >
+                                                        <ArrowDownTrayIcon className="w-5 h-5" />
+                                                        {t('Download Invoice')}
+                                                    </a>
+                                                    <p className="text-[10px] text-center text-gray-400 mt-2 uppercase tracking-widest">
+                                                        {t('B2B Invoice')} • {(status as any).vatNumber}
+                                                    </p>
                                                 </div>
                                             )}
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
     ChartPieIcon, CubeIcon, WrenchScrewdriverIcon, BuildingStorefrontIcon, PhoneIcon, DocumentTextIcon,
-    Cog6ToothIcon, UserGroupIcon, NewspaperIcon, XMarkIcon, EnvelopeIcon
+    Cog6ToothIcon, UserGroupIcon, NewspaperIcon, XMarkIcon, EnvelopeIcon, PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
 
 const adminNavLinks = [
@@ -16,6 +16,7 @@ const adminNavLinks = [
     { name: 'Services', path: '/admin/services', icon: WrenchScrewdriverIcon },
     { name: 'Shops', path: '/admin/shops', icon: BuildingStorefrontIcon },
     { name: 'Quotes', path: '/admin/quotes', icon: DocumentTextIcon },
+    { name: 'Lead Recovery', path: '/admin/leads', icon: PaperAirplaneIcon },
     { name: 'Franchise', path: '/admin/franchise', icon: UserGroupIcon },
     { name: 'Content & SEO', path: '/admin/content', icon: NewspaperIcon },
     { name: 'Repair Pricing', path: '/admin/repair-pricing', icon: WrenchScrewdriverIcon },

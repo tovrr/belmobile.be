@@ -13,7 +13,7 @@ export interface Shop {
     openingHours: string[];
     coords: { lat: number; lng: number };
     slug?: string; // Original URL slug (legacy or primary)
-    status: 'open' | 'coming_soon' | 'temporarily_closed';
+    status: 'open' | 'closed' | 'coming_soon' | 'temporarily_closed' | 'coming soon' | 'temporarily closed';
     isHub?: boolean;
     isPrimary?: boolean;
     badge?: string;
@@ -164,6 +164,9 @@ export interface Quote {
     isUnlocked?: boolean | null;
     batteryHealth?: 'normal' | 'service' | null;
     faceIdWorking?: boolean | null;
+    isCompany?: boolean;
+    companyName?: string;
+    vatNumber?: string;
 }
 
 export interface ContactMessage {
@@ -295,6 +298,22 @@ export interface ProductPriceRecord {
 }
 
 // -- Webhooks & External APIs --
+
+export interface DraftLead {
+    id?: string;
+    email: string;
+    wizardState: any; // We'll store a serializable version of WizardState
+    status: 'draft' | 'converted' | 'recovered' | 'expired';
+    magicLinkToken?: string;
+    language: string;
+    name?: string;
+    phone?: string;
+    type?: 'buyback' | 'repair';
+    createdAt: any; // Firestore Timestamp
+    updatedAt: any; // Firestore Timestamp
+    recoveredAt?: any; // Firestore Timestamp
+    expiresAt: any; // Firestore Timestamp
+}
 
 export interface SendCloudParcel {
     name: string;

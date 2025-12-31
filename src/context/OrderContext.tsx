@@ -10,7 +10,8 @@ import {
     addDoc,
     updateDoc,
     deleteDoc,
-    getDoc
+    getDoc,
+    arrayUnion
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from './AuthContext';
@@ -61,8 +62,15 @@ interface OrderContextType {
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
 export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
     const [adminShopFilter, setAdminShopFilter] = useState('all');
+
+    // Auto-sync shop filter for localized roles (RBAC)
+    React.useEffect(() => {
+        if (profile && profile.role !== 'super_admin' && profile.shopId && profile.shopId !== 'all') {
+            setAdminShopFilter(profile.shopId);
+        }
+    }, [profile]);
 
     const { reservations, loading: loadRes, hasMore: hasMoreReservations, loadMore: loadMoreReservations } = useReservations(user, adminShopFilter);
     const { quotes, loading: loadQuotes, hasMore: hasMoreQuotes, loadMore: loadMoreQuotes } = useQuotes(user, adminShopFilter);
@@ -161,7 +169,21 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const updateQuoteStatus = async (id: number | string, status: QuoteStatus, notifyCustomer: boolean = false, extraFields: Partial<Quote> = {}) => {
         try {
             const docRef = doc(db, 'quotes', String(id));
-            await updateDoc(docRef, { status, ...extraFields });
+
+            // Create activity log entry
+            const logEntry = {
+                date: new Date().toISOString(),
+                adminId: user?.uid || 'system',
+                adminName: profile?.displayName || user?.email || 'System',
+                action: 'status_change',
+                newValue: status
+            };
+
+            await updateDoc(docRef, {
+                status,
+                ...extraFields,
+                activityLog: arrayUnion(logEntry)
+            });
 
             if (notifyCustomer) {
                 const snap = await getDoc(docRef);

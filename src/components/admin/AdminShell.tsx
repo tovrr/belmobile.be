@@ -69,6 +69,7 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
     const navigation = [
         { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon },
+        { name: 'Technician Portal', href: '/admin/technician', icon: WrenchScrewdriverIcon },
         { name: 'Orders & Quotes', href: '/admin/quotes', icon: ShoppingBagIcon, badge: newQuotesCount },
         { name: 'Reservations', href: '/admin/reservations', icon: CalendarIcon, badge: newReservationsCount },
         { name: 'Messages', href: '/admin/messages', icon: NewspaperIcon, badge: contactMessages.filter(m => m.status === 'new').length },

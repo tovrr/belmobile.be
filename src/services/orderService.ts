@@ -4,6 +4,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { REPAIR_ISSUES } from '../constants';
 import * as Sentry from "@sentry/nextjs";
 import { TFunction } from '../utils/i18n-server';
+import { OrderSubmissionSchema } from '../types/schemas';
 
 export interface OrderSubmissionData {
     customerName: string;
@@ -26,6 +27,9 @@ export interface OrderSubmissionData {
     storage?: string;
     hasHydrogel?: boolean;
     courierTier?: 'bridge' | 'brussels';
+    isCompany?: boolean;
+    companyName?: string;
+    vatNumber?: string;
 }
 
 export const orderService = {
@@ -76,17 +80,32 @@ export const orderService = {
                 }
             }
 
+            // AEGIS: Robust validation before submission
+            const validation = OrderSubmissionSchema.safeParse(orderData);
+            if (!validation.success) {
+                Sentry.captureException(new Error(`Order Validation Failed: ${JSON.stringify(validation.error.format())}`));
+                throw new Error('Invalid order data. Please check your inputs.');
+            }
+
             // Server-Side Submission with Fallback
             const firestoreData = {
-                ...orderData,
+                ...validation.data,
                 idUrl,
                 shippingLabelUrl,
                 trackingNumber,
                 createdAt: serverTimestamp(),
-                status: 'new', // Initial status
+                status: 'new',
                 date: new Date().toISOString().split('T')[0],
-                isPriceValidated: true // Optimistic flag, enforced by API or checks below
+                isPriceValidated: true
             };
+
+            Sentry.addBreadcrumb({
+                category: "order",
+                message: `Submitting order for ${orderData.customerEmail}`,
+                level: "info",
+                data: { brand: orderData.brand, model: orderData.model, type: orderData.type }
+            });
+
             // Explicitly remove File object
             delete (firestoreData as any).idFile;
 
@@ -101,14 +120,12 @@ export const orderService = {
                 const result = await response.json();
 
                 if (!response.ok) {
-                    // Return specific validation error to UI
                     throw new Error(result.error || `Submission failed with status ${response.status}`);
                 }
 
-                // 2. Scenario A: Server wrote successfully
                 if (result.success && result.id) {
-                    // Use the Server-Generated Order ID if available (which it should be)
                     const finalOrderId = result.orderId || `ORD-${new Date().getFullYear()}-${result.id.substring(0, 6).toUpperCase()}`;
+                    await this.markLeadAsConverted(orderData.customerEmail);
 
                     return {
                         success: true,
@@ -118,17 +135,15 @@ export const orderService = {
                     };
                 }
 
-                // 3. Scenario B: Server Validated but asks Client to Write (Permission Fallback)
                 if (result.success && result.verified) {
-                    console.warn("Server validation passed. Falling back to client-side write due to permissions.");
-                    // Client Write
                     const docRef = await addDoc(collection(db, 'quotes'), {
                         ...firestoreData,
-                        price: result.price, // Use validated price from server
+                        price: result.price,
                         isVerified: true
                     });
                     const readableId = `ORD-${new Date().getFullYear()}-${docRef.id.substring(0, 6).toUpperCase()}`;
                     await updateDoc(docRef, { orderId: readableId });
+                    await this.markLeadAsConverted(orderData.customerEmail);
 
                     return { success: true, docId: docRef.id, readableId, firestoreData: { ...firestoreData, orderId: readableId } };
                 }
@@ -149,31 +164,23 @@ export const orderService = {
         t: TFunction,
         sendEmail: (to: string, subject: string, html: string, attachments?: any[]) => Promise<void>
     ) {
-        // dynamic imports to avoid edge runtime issues if any, though likely not needed for node
         const { generatePDFFromPdfData } = await import('../utils/pdfGenerator');
         const { mapQuoteToPdfData } = await import('../utils/orderMappers');
 
-        // Normalize data to match Quote interface expected by mapper
-        // internal data usually has 'id' but mapper might expect 'orderId' in top level
         const quoteLikeData = {
             ...data,
             orderId: readableId,
-            id: readableId, // mapping fallback
-            createdAt: { seconds: Date.now() / 1000, nanoseconds: 0 }, // approximate
-            status: 'new', // Default status
+            id: readableId,
+            createdAt: { seconds: Date.now() / 1000, nanoseconds: 0 },
+            status: 'new',
             date: new Date().toISOString().split('T')[0],
-            deviceType: 'smartphone', // Default or infer from model? Safe default for PDF.
+            deviceType: 'smartphone',
             shopId: 'online',
-            ...data
         } as unknown as import('../types').Quote;
 
-        // Use the CENTRALIZED mapper - this ensures 1:1 match with TrackOrder page
         const pdfData = mapQuoteToPdfData(quoteLikeData, t);
-
-        // Generate using the generic generator which takes pre-mapped data
         const { blob, safeFileName } = await generatePDFFromPdfData(pdfData, data.type === 'buyback' ? 'Buyback' : 'Repair');
 
-        // Convert Blob to Base64 for Email Attachment
         const buffer = await blob.arrayBuffer();
         const base64 = Buffer.from(buffer).toString('base64');
 
@@ -205,19 +212,10 @@ export const orderService = {
     },
 
     async generateAndSendPDF(readableId: string, data: any, lang: string, t: (key: string, ...args: (string | number)[]) => string, sendEmail: any) {
-        // Re-use logic for backward compatibility or direct calls
         await this.sendOrderConfirmationEmail(readableId, data, lang, t, sendEmail);
-
-        // Also trigger download if this old method is called
-        const { generateRepairBuybackPDF, savePDFBlob } = await import('../utils/pdfGenerator');
-        // ... (We can skip re-generating PDF here if we returned blob from above, but for simplicity/cleanness let's just leave this method as 'send email' effectively, OR we can make it do both. 
-        // The user asked to NOT download. So I will ONLY use sendOrderConfirmationEmail in the wizard hook. This method can remain or be deprecated.
-        // For safety I will just update this method to call the new one and NOT download, effectively changing its behavior to "Send PDF" only implies email. 
-        // BUT the name implies download to some. 
-        // Let's keep this method purely for legacy if needed, but the actual fixes happen in useWizardActions calling the NEW method.
     },
 
-    async saveLead(email: string, data: any) {
+    async saveLead(email: string, data: any, fullWizardState?: any) {
         return Sentry.startSpan({ name: "saveLead", op: "lead.save" }, async (span) => {
             if (!email || !email.includes('@')) return;
             try {
@@ -225,20 +223,45 @@ export const orderService = {
                 const now = new Date();
                 const retentionDays = 30;
                 const expiresAt = new Date(now.getTime() + retentionDays * 24 * 60 * 60 * 1000);
+                const magicLinkToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
                 await setDoc(doc(db, 'leads', leadId), {
                     email: email.toLowerCase(),
                     ...data,
+                    wizardState: fullWizardState || null,
                     updatedAt: serverTimestamp(),
-                    createdAt: serverTimestamp(), // Will be ignored if doc exists due to merge: true (Firestore won't overwrite unless we use specific logic, but actually merge: true will overwrite if we provide it)
-                    // Better approach for createdAt:
-                    status: 'abandoned', // As requested to be "leak-proof" for recovery
-                    expiresAt: expiresAt.toISOString(), // GDPR: 30 days retention
-                    isConverted: false
+                    createdAt: serverTimestamp(),
+                    status: 'draft',
+                    expiresAt: expiresAt.toISOString(),
+                    isConverted: false,
+                    magicLinkToken
                 }, { merge: true });
             } catch (error) {
                 console.error('Lead capture error:', error);
             }
         });
+    },
+
+    async markLeadAsConverted(email: string) {
+        if (!email) return;
+        try {
+            const leadId = email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            await updateDoc(doc(db, 'leads', leadId), {
+                status: 'converted',
+                isConverted: true,
+                updatedAt: serverTimestamp()
+            });
+        } catch (error) {
+            console.warn('Could not mark lead as converted', error);
+        }
+    },
+
+    async getLeadByToken(token: string) {
+        const { query, where, getDocs, limit } = await import('firebase/firestore');
+        const q = query(collection(db, 'leads'), where('magicLinkToken', '==', token), limit(1));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) return null;
+        return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
     }
 };
