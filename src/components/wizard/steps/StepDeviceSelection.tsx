@@ -51,10 +51,17 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
     // Local handler to wrap the action if needed, or stick to direct usage
     const onBrandClick = (brand: string) => {
         handleBrandSelect(brand, deviceType);
-        // Wait for state update/render then scroll
+        // Wait for state update/render then scroll and focus
         setTimeout(() => {
             if (modelSelectRef?.current) {
                 modelSelectRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Find the select element inside and focus it
+                const selectElement = modelSelectRef.current.querySelector('select');
+                if (selectElement) {
+                    selectElement.focus();
+                    selectElement.classList.add('ring-4', 'ring-bel-blue/30', 'transition-all', 'duration-500');
+                    setTimeout(() => selectElement.classList.remove('ring-4', 'ring-bel-blue/30'), 1500);
+                }
             }
         }, 100);
     };
@@ -122,7 +129,7 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                                 value={selectedModel || ''}
                                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleModelSelect(e.target.value)}
                                 options={[
-                                    { value: "", label: isLoadingData ? t('Loading models...') : t('Select your model...') },
+                                    { value: "", label: isLoadingData ? t('Loading models...') : `👇 ${t('Select your model...')}` },
                                     ...availableModels.map(model => ({ value: model, label: model }))
                                 ]}
                                 className="text-lg font-medium w-full"
