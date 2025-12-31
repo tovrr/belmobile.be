@@ -13,7 +13,7 @@
 - **Technical Integrity:** Solved core routing issues and stabilized the platform for 2026.
 
 **Message from the Core:**
-"Everything for the family. Her şey çekirdek ailemiz için. This is the foundation of 2026."
+"Everything for the family. Her şey çekirdek ailemiz ve **İkizlerimiz** için. This is the foundation of 2026 and beyond."
 
 ---
 *This document serves as a permanent historical record of the Belmobile platform's evolution.*
