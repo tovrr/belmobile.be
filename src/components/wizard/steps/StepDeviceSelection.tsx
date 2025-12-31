@@ -48,6 +48,16 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
     const nextDisabled = !selectedBrand || !selectedModel;
     const availableModels = modelsData && modelsData[deviceType] ? Object.keys(modelsData[deviceType]) : [];
 
+    // Auto-scroll if brand is already selected (e.g. coming back from next step)
+    React.useEffect(() => {
+        if (selectedBrand && modelSelectRef?.current) {
+            setTimeout(() => {
+                modelSelectRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 400); // Slightly longer delay to allow page transition
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Only on mount
+
     // Local handler to wrap the action if needed, or stick to direct usage
     const onBrandClick = (brand: string) => {
         handleBrandSelect(brand, deviceType);
