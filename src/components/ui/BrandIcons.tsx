@@ -372,3 +372,28 @@ export const DocumentIcon = (props: IconProps) => (
     </BaseIcon>
 );
 
+export const AcademicCapIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+        <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
+    </BaseIcon>
+);
+
+export const MicroscopeIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <path d="M6 18h8" />
+        <path d="M3 22h18" />
+        <path d="M14 9a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path d="M12 12v2a4 4 0 004 4h2" />
+        <path d="M12 9V4a2 2 0 10-4 0v5" />
+    </BaseIcon>
+);
+
+export const IdentificationIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <circle cx="9" cy="10" r="3" />
+        <path d="M14 10h4M14 14h4M7 16a3 3 0 016 0" />
+    </BaseIcon>
+);
+

@@ -5,8 +5,9 @@ import { useAuth } from '../../../context/AuthContext';
 import { useLanguage } from '../../../hooks/useLanguage';
 import {
     PencilIcon, CheckIcon, XMarkIcon, ArrowPathIcon,
-    CreditCardIcon, CloudArrowUpIcon, DocumentIcon, CalculatorIcon
+    CreditCardIcon, CloudArrowUpIcon, DocumentIcon, CalculatorIcon, ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
+import { notificationService } from '../../../services/notificationService';
 import { calculateBuybackPrice } from '../../../utils/pricingCalculator';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../firebase';
@@ -209,6 +210,17 @@ const BuybackQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
         }
     };
 
+    const handleTestWhatsApp = async () => {
+        if (!confirm(`Send a test WhatsApp to ${quote.customerPhone}?`)) return;
+        try {
+            await notificationService.notifyStatusUpdate(quote, String(quote.id), ['whatsapp']);
+            alert("WhatsApp test message triggered! Check the console or the customer's phone.");
+        } catch (error) {
+            console.error(error)
+            alert("Failed to send WhatsApp test.");
+        }
+    };
+
     const handleDelete = async () => {
         if (confirm('Are you sure you want to delete this quote? This action cannot be undone.')) {
             try {
@@ -290,6 +302,14 @@ const BuybackQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
                                 <input type="checkbox" checked={notifyCustomer} onChange={e => setNotifyCustomer(e.target.checked)} className="mr-2" />
                                 Notify Customer
                             </label>
+
+                            <button
+                                onClick={handleTestWhatsApp}
+                                className="mt-4 w-full py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-green-100 transition-colors"
+                            >
+                                <ChatBubbleLeftRightIcon className="w-4 h-4" />
+                                Test WhatsApp Now
+                            </button>
                         </SectionWrapper>
                     </div>
 

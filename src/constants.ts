@@ -98,6 +98,7 @@ export const POPULAR_BUYBACKS = [
 export const NAV_LINKS: NavLink[] = [
     { name: 'Repair', path: '/repair' },
     { name: 'Buyback', path: '/buyback' },
+    { name: 'Training', path: '/formation' },
     { name: 'Products', path: '/products' },
     { name: 'Business', path: '/business' },
     { name: 'Store Locator', path: '/stores' },

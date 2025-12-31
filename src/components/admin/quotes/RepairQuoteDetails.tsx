@@ -5,8 +5,9 @@ import { useAuth } from '../../../context/AuthContext';
 import { useLanguage } from '../../../hooks/useLanguage';
 import {
     PencilIcon, CheckIcon, XMarkIcon, PlusIcon,
-    WrenchScrewdriverIcon, ArchiveBoxIcon
+    WrenchScrewdriverIcon, ArchiveBoxIcon, ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
+import { notificationService } from '../../../services/notificationService';
 import { QuoteHeader, CustomerInfoCard, DeviceBasicsCard, ActivityLogViewer, SectionWrapper, MagicLinkCard } from './SharedQuoteComponents';
 
 interface Props {
@@ -108,6 +109,17 @@ const RepairQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
         } catch (error) {
             console.error("Failed to generate PDF", error);
             alert("Failed to generate PDF");
+        }
+    };
+
+    const handleTestWhatsApp = async () => {
+        if (!confirm(`Send a test WhatsApp to ${quote.customerPhone}?`)) return;
+        try {
+            await notificationService.notifyStatusUpdate(quote, String(quote.id), ['whatsapp']);
+            alert("WhatsApp test message triggered! Check the console or the customer's phone.");
+        } catch (error) {
+            console.error(error);
+            alert("Failed to send WhatsApp test.");
         }
     };
 
@@ -255,6 +267,14 @@ const RepairQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
                                 <input type="checkbox" checked={notifyCustomer} onChange={e => setNotifyCustomer(e.target.checked)} className="mr-2" />
                                 Notify Customer on Change
                             </label>
+
+                            <button
+                                onClick={handleTestWhatsApp}
+                                className="mt-4 w-full py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-green-100 transition-colors"
+                            >
+                                <ChatBubbleLeftRightIcon className="w-4 h-4" />
+                                Test WhatsApp Now
+                            </button>
                         </SectionWrapper>
                     </div>
 

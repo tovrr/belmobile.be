@@ -110,6 +110,10 @@ const Header: React.FC = () => {
                                     if (language === 'fr') path = '/rachat';
                                     if (language === 'nl') path = '/inkoop';
                                 }
+                                if (path === '/formation') {
+                                    if (language === 'fr') path = '/formation';
+                                    if (language === 'nl') path = '/opleiding';
+                                }
                                 if (path === '/stores') {
                                     if (language === 'fr') path = '/magasins';
                                     if (language === 'nl') path = '/winkels';

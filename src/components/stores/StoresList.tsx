@@ -7,6 +7,7 @@ import { useLanguage } from '../../hooks/useLanguage';
 import { useData } from '../../hooks/useData';
 import { Shop } from '../../types';
 import { isShopOpen } from '../../utils/shopUtils';
+import { BuildingStorefrontIcon, ArrowRightIcon } from '../ui/BrandIcons';
 
 interface StoresListProps {
     lang: string;
@@ -157,6 +158,33 @@ const StoresList: React.FC<StoresListProps> = ({ lang, shops: propShops, compact
                     </Link>
                 );
             })}
+
+            {/* Service Point CTA Card */}
+            <Link
+                href={`/${lang}/franchise`}
+                className="group relative bg-midnight dark:bg-slate-900 rounded-[2.5rem] shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 border border-cyber-citron/20 p-8 flex flex-col items-center justify-center text-center min-h-[384px]"
+            >
+                <div className="absolute inset-0 bg-linear-to-br from-cyber-citron/10 to-transparent pointer-events-none"></div>
+
+                <div className="w-20 h-20 bg-cyber-citron/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <BuildingStorefrontIcon className="w-10 h-10 text-cyber-citron" />
+                </div>
+
+                <h2 className="text-2xl md:text-3xl font-black text-white mb-4 tracking-tighter leading-tight">
+                    {t('service_point_slogan')}
+                </h2>
+
+                <p className="text-slate-400 font-bold mb-8 max-w-[240px]">
+                    Join our network of premium repair experts.
+                </p>
+
+                <div className="flex items-center gap-2 text-cyber-citron font-black uppercase tracking-widest text-sm">
+                    Learn More <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+                </div>
+
+                {/* Visual decoration */}
+                <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-cyber-citron/5 rounded-full blur-3xl group-hover:bg-cyber-citron/10 transition-colors"></div>
+            </Link>
         </div>
     );
 };

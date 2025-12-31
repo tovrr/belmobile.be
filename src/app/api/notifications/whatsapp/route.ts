@@ -15,22 +15,35 @@ export async function POST(request: Request) {
         const version = 'v22.0'; // Current Graph API Version
 
         // 3. Simulated / Production Dispatch
-        console.log(`[WhatsApp API] Attempting to send to ${to} for Order ${orderId}`);
+        console.log(`[WhatsApp API] Request: To=${to}, Message=${message?.substring(0, 30)}...`);
 
-        if (!accessToken || !phoneNumberId) {
-            console.warn('[WhatsApp API] Meta credentials missing. Running in MOCK mode.');
+        if (!accessToken || !phoneNumberId || accessToken === 'YOUR_META_ACCESS_TOKEN') {
+            const reason = !accessToken ? 'Missing META_ACCESS_TOKEN' :
+                !phoneNumberId ? 'Missing WHATSAPP_PHONE_NUMBER_ID' :
+                    'Default placeholder token detected';
+
+            console.warn(`[WhatsApp API] Simulation Mode: ${reason}`);
             return NextResponse.json({
                 success: true,
-                mock: true,
-                message: 'WhatsApp simulated successfully (Add META_ACCESS_TOKEN and WHATSAPP_PHONE_NUMBER_ID to activate)'
+                simulated: true,
+                reason,
+                message: 'WhatsApp automated notification was simulated. To activate, please add valid Meta credentials to Vercel Environment Variables.'
             });
         }
 
         // Meta Cloud API Dispatch
         const metaUrl = `https://graph.facebook.com/${version}/${phoneNumberId}/messages`;
 
-        // Clean user's phone number (Must be digits only)
-        const cleanTo = to.replace(/\D/g, '');
+        // Clean user's phone number
+        // Meta requires: [country code][number] e.g. 32484... for Belgium
+        let cleanTo = to.replace(/\D/g, '');
+
+        // Auto-fix common Belgian input if prefix is missing
+        if (cleanTo.startsWith('04') && cleanTo.length === 10) {
+            cleanTo = '32' + cleanTo.substring(1);
+        } else if (cleanTo.startsWith('4') && cleanTo.length === 9) {
+            cleanTo = '32' + cleanTo;
+        }
 
         const payload = {
             messaging_product: "whatsapp",
@@ -42,6 +55,8 @@ export async function POST(request: Request) {
                 body: message
             }
         };
+
+        console.log(`[WhatsApp API] Dispatching to Meta Graph API: ${metaUrl} for ${cleanTo}`);
 
         const response = await fetch(metaUrl, {
             method: 'POST',
@@ -55,11 +70,20 @@ export async function POST(request: Request) {
         const result = await response.json();
 
         if (!response.ok) {
-            console.error('[WhatsApp API] Meta Error:', result);
-            return NextResponse.json({ error: 'Meta Cloud API dispatch failed', details: result }, { status: response.status });
+            console.error('[WhatsApp API] Meta API Error Response:', JSON.stringify(result, null, 2));
+            return NextResponse.json({
+                error: 'Meta Cloud API rejected the request',
+                status: response.status,
+                metaResponse: result
+            }, { status: response.status });
         }
 
-        return NextResponse.json({ success: true, messageId: result.messages?.[0]?.id });
+        console.log(`[WhatsApp API] Success! Message ID: ${result.messages?.[0]?.id}`);
+        return NextResponse.json({
+            success: true,
+            messageId: result.messages?.[0]?.id,
+            to: cleanTo
+        });
 
     } catch (error: any) {
         console.error('[WhatsApp API] Internal Error:', error);

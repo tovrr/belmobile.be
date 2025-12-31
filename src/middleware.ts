@@ -7,11 +7,13 @@ const PUBLIC_FILE = /\.(.*)$/;
 export function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-    // 1. Skip if it's an internal Next.js request, API, or static file
+    // 1. Skip if it's an internal Next.js request, API, static file, or Admin panel
     if (
         pathname.startsWith('/_next') ||
         pathname.startsWith('/api') ||
-        pathname.startsWith('/monitoring') || // Sentry tunnel handled by Next.js rewrites
+        pathname.startsWith('/admin') ||
+        pathname.startsWith('/widget') ||
+        pathname.startsWith('/monitoring') ||
         pathname.startsWith('/images') ||
         pathname.startsWith('/favicon.ico') ||
         PUBLIC_FILE.test(pathname)
