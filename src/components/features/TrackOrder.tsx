@@ -582,7 +582,7 @@ const TrackOrder: React.FC<TrackOrderProps> = ({ initialData }) => {
 
                     {status && (
                         <div className="lg:col-span-4 space-y-6">
-                            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl dark:shadow-none dark:border dark:border-slate-800 p-8 sticky top-32">
+                            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl dark:shadow-none dark:border dark:border-slate-800 p-8 sticky top-28 self-start">
                                 <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-8 border-b border-gray-100 dark:border-slate-800 pb-4">
                                     {t('Order Timeline')}
                                 </h3>
