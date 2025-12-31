@@ -11,9 +11,13 @@ const inter = Inter({
   display: "swap",
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be';
+const isStaging = baseUrl.includes('dev.') || baseUrl.includes('vercel.app') || process.env.VERCEL_ENV !== 'production';
+
 export const metadata: Metadata = {
   title: "Belmobile.be - Buyback & Repair Service",
   description: "The best place to sell your old device or get it repaired in Brussels. Fast, reliable, and eco-friendly.",
+  robots: isStaging ? { index: false, follow: false } : { index: true, follow: true },
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
