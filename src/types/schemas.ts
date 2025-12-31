@@ -61,7 +61,19 @@ export const OrderSubmissionSchema = z.object({
     orderId: z.string().optional(),
     status: z.string().optional(),
     date: z.string().optional()
-});
+}).refine(
+    (data) => {
+        // If isCompany is true, companyName and vatNumber must be provided
+        if (data.isCompany) {
+            return !!data.companyName && !!data.vatNumber;
+        }
+        return true;
+    },
+    {
+        message: "Company name and VAT number are required for B2B orders",
+        path: ["isCompany"]
+    }
+);
 
 export type ValidatedShop = z.infer<typeof ShopSchema>;
 export type ValidatedOrder = z.infer<typeof OrderSubmissionSchema>;

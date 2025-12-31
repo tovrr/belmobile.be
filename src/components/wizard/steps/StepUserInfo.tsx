@@ -364,8 +364,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     // -------------------------------------------------------------------------
     if (step === 4 && type === 'buyback') {
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-4 lg:p-8">
-                <div className="flex-1 space-y-8">
+            <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-4 lg:p-8 gap-6">
+                <div className="flex-1 min-w-0 space-y-8">
                     <div className="flex items-center gap-2 mb-6">
                         <button
                             onClick={onBack}
@@ -490,9 +490,9 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     // -------------------------------------------------------------------------
     if (step === 5 || (step === 4 && type === 'repair')) {
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-6xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-3 sm:p-6 lg:p-8">
+            <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-3 sm:p-6 lg:p-8 gap-6">
                 {renderMobileSummary()}
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                     <div className="mb-8">
                         <TrustBar />
                     </div>
