@@ -76,8 +76,10 @@ export async function POST(request: Request) {
             .sort((a, b) => b.score - a.score)
             .slice(0, 8);
 
-        // --- Context Assembly ---
-        const shopsContext = SHOPS.map((s: any) => `- ${s.name}: ${s.address}`).join('\n');
+        // Create context strings from data
+        const shopsContext = SHOPS.map((s: any) =>
+            `- ${s.name}: ${s.address} | 📞 ${s.phone} | 🕒 ${Array.isArray(s.openingHours) ? s.openingHours.join(', ') : s.openingHours}`
+        ).join('\n');
 
         const repairSummary = prioritizedRepairs.length > 0
             ? prioritizedRepairs.map(r => `- ${r.label}: From €${r.base}`).join('\n')

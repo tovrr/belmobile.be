@@ -12,21 +12,20 @@ export * from './data/repair-issues';
 
 export const SHOPS: Shop[] = [
     {
-        // OLD ID KEPT FOR COMPATIBILITY (Refers to Main Hub)
         id: 'schaerbeek',
-        name: 'Belmobile Bruxelles', // Updated Name
-        address: 'Rue de Wand 58, 1020 Bruxelles', // Updated Address (Laeken)
+        name: 'Belmobile Liedts',
+        address: 'Rue Gallait 4, 1030 Schaerbeek',
         phone: '0484/83.75.60',
-        email: 'bruxelles@belmobile.be',
-        openingHours: ['Mon-Sat: 10:30 - 19:00', 'Sun: Closed'],
-        slugs: { fr: 'bruxelles', nl: 'brussel', en: 'brussels' },
-        coords: { lat: 50.8935, lng: 4.3565 },
+        email: 'schaerbeek@belmobile.be',
+        openingHours: ['Tue-Sat: 10:30 - 19:00', 'Fri: 10:30-12:30 & 14:30-19:00', 'Mon, Sun: Closed'],
+        slugs: { fr: 'schaerbeek', nl: 'schaarbeek', en: 'schaerbeek' },
+        coords: { lat: 50.86486, lng: 4.36704 },
         status: 'open',
         isPrimary: true,
-        badge: 'Main Store',
-        city: 'Bruxelles',
-        googleMapUrl: 'https://maps.google.com/?q=Rue+de+Wand+58+1020+Bruxelles',
-        googlePlaceId: 'ChIJk6VQXpHDw0cRNEdLpSrOUkY', // TODO: Update Place ID for Rue de Wand
+        badge: 'Recommended',
+        city: 'Schaerbeek',
+        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Liedts&query_place_id=ChIJk6VQXpHDw0cRNEdLpSrOUkY',
+        googlePlaceId: 'ChIJk6VQXpHDw0cRNEdLpSrOUkY',
         googleReviewUrl: 'https://search.google.com/local/writereview?placeid=ChIJk6VQXpHDw0cRNEdLpSrOUkY'
     },
     {
