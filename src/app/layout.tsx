@@ -23,6 +23,14 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   metadataBase: new URL(sanitizeUrl(process.env.NEXT_PUBLIC_BASE_URL)),
+  alternates: {
+    canonical: './',
+    languages: {
+      'fr-BE': '/fr',
+      'nl-BE': '/nl',
+      'en-BE': '/en',
+    },
+  },
   openGraph: {
     type: 'website',
     locale: 'fr_BE',
