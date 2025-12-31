@@ -76,6 +76,7 @@ export interface WizardState {
     shopSelectionError: boolean;
     isShopListOpen: boolean;
     isWidget: boolean;
+    isKiosk: boolean;
 }
 
 const initialState: WizardState = {
@@ -128,6 +129,7 @@ const initialState: WizardState = {
     shopSelectionError: false,
     isShopListOpen: false,
     isWidget: false,
+    isKiosk: false,
 };
 
 /**

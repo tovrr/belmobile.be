@@ -43,10 +43,12 @@ interface BuybackRepairProps {
     hideStep1Title?: boolean;
     initialWizardProps?: any;
     isWidget?: boolean;
+    isKiosk?: boolean;
 }
 
 const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, hideStep1Title, initialCategory }) => {
     const { state, dispatch } = useWizard();
+
     const {
         step, isTransitioning, isLoadingData,
         selectedBrand, selectedModel, customerEmail,
@@ -229,6 +231,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = (props) => {
             customerEmail: props.initialWizardProps?.customerEmail || '',
             partnerId: props.initialWizardProps?.partnerId || '',
             isWidget: props.isWidget || false,
+            isKiosk: props.isKiosk || false,
             isInitialized: false,
             step: props.initialWizardProps?.step || ((props.initialDevice?.model && !['iphone', 'ipad', 'galaxy', 'pixels', 'switch'].includes(props.initialDevice.model.toLowerCase())) ? 3 : (props.initialDevice?.brand || props.initialCategory ? 2 : 1))
         }}>

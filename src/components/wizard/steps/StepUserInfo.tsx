@@ -117,8 +117,16 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
         isCompany,
         companyName,
         vatNumber,
-        notificationPreferences
+        notificationPreferences,
+        isKiosk
     } = state;
+
+    // KIOSK MODE: Force Dropoff
+    useEffect(() => {
+        if (isKiosk && deliveryMethod !== 'dropoff') {
+            setDeliveryMethod('dropoff');
+        }
+    }, [isKiosk, deliveryMethod]);
 
     // Setters
     const setScreenState = (val: any) => dispatch({ type: 'SET_WIZARD_DATA', payload: { screenState: val } });
@@ -500,9 +508,15 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                     </div>
                     <form ref={(formRef as any)} onSubmit={onHandleSubmit} className="space-y-8">
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">{t('Contact & Delivery')}</h2>
-                            <label className="block text-xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">{t('delivery_title')}</label>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                            {!isKiosk && (
+                                <>
+                                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">{t('Contact & Delivery')}</h2>
+                                    <label className="block text-xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">{t('delivery_title')}</label>
+                                </>
+                            )}
+                            {isKiosk && <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">{t('Your Details')}</h2>}
+
+                            <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 ${isKiosk ? 'hidden' : ''}`}>
                                 {/* Visit Store */}
                                 <div onClick={() => setDeliveryMethod(deliveryMethod === 'dropoff' ? null : 'dropoff')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'dropoff' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
                                     <div className="flex items-start">
