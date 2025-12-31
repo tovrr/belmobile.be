@@ -256,8 +256,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                             </div>
                         </div>
                         <div className="text-3xl font-extrabold text-bel-dark dark:text-white">
-                            {loading ? (
-                                <span className="animate-pulse opacity-50">...</span>
+                            {loading || (isBuyback && typeof estimateDisplay === 'number' && estimateDisplay === 0) ? (
+                                <div className="flex space-x-1 h-9 items-center justify-center">
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                </div>
                             ) : (
                                 typeof estimateDisplay === 'number' ? (
                                     estimateDisplay > 0 ? <>&euro;{estimateDisplay}</> : (estimateDisplay === -1 ? t('contact_for_price') : <span className="text-gray-400">-</span>)

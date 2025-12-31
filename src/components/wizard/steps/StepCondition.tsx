@@ -267,8 +267,16 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             <div className="flex justify-between items-end">
                                 <div>
                                     <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">{t('Estimated Value')}</p>
-                                    <div className="text-3xl font-extrabold text-bel-dark dark:text-white mt-1">
-                                        {loading ? <span className="animate-pulse">...</span> : `€${sidebarEstimate}`}
+                                    <div className="text-3xl font-extrabold text-bel-dark dark:text-white mt-1 min-h-[40px] flex items-center">
+                                        {loading || (type === 'buyback' && sidebarEstimate === 0) ? (
+                                            <div className="flex space-x-1">
+                                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                            </div>
+                                        ) : (
+                                            `€${sidebarEstimate}`
+                                        )}
                                     </div>
                                     <p className="text-xs text-gray-400 mt-1">{t('Based on current selection')}</p>
                                 </div>
@@ -491,8 +499,16 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             <div className="flex justify-between items-end">
                                 <div>
                                     <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">{t('Total Estimated Cost')}</p>
-                                    <div className="text-3xl font-extrabold text-bel-dark dark:text-white mt-1">
-                                        {loading ? <span className="animate-pulse">...</span> : `€${sidebarEstimate}`}
+                                    <div className="text-3xl font-extrabold text-bel-dark dark:text-white mt-1 min-h-[40px] flex items-center">
+                                        {loading ? (
+                                            <div className="flex space-x-1">
+                                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                            </div>
+                                        ) : (
+                                            `€${sidebarEstimate}`
+                                        )}
                                     </div>
                                     <p className="text-xs text-gray-400 mt-1">{t('includes_vat_labor')}</p>
                                 </div>

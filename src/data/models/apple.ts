@@ -8,7 +8,10 @@ export const MODELS = {
         'iPhone 12 Pro Max': 450, 'iPhone 12 Pro': 330, 'iPhone 12': 280, 'iPhone 12 mini': 230,
         'iPhone 11 Pro Max': 350, 'iPhone 11 Pro': 240, 'iPhone 11': 200,
         'iPhone XS Max': 250, 'iPhone XS': 170, 'iPhone XR': 150, 'iPhone X': 140,
-        'iPhone SE (3rd Gen)': 200, 'iPhone SE (2020)': 150
+        'iPhone 8 Plus': 110, 'iPhone 8': 80,
+        'iPhone 7 Plus': 70, 'iPhone 7': 50,
+        'iPhone 6s Plus': 40, 'iPhone 6s': 30,
+        'iPhone SE (3rd Gen)': 200, 'iPhone SE (2020)': 150, 'iPhone SE (1st Gen)': 30
     },
     tablet: {
         'iPad Pro 12.9 M2': 800, 'iPad Pro 12.9 (2022)': 750, 'iPad Pro 12.9 (2021)': 650, 'iPad Pro 12.9 (2020)': 550, 'iPad Pro 12.9 (2018)': 450,
@@ -64,8 +67,15 @@ export const SPECS = {
     'iPhone XS': ['64GB', '256GB', '512GB'],
     'iPhone XR': ['64GB', '128GB', '256GB'],
     'iPhone X': ['64GB', '256GB'],
+    'iPhone 8 Plus': ['64GB', '128GB', '256GB'],
+    'iPhone 8': ['64GB', '128GB', '256GB'],
+    'iPhone 7 Plus': ['32GB', '128GB', '256GB'],
+    'iPhone 7': ['32GB', '128GB', '256GB'],
+    'iPhone 6s Plus': ['16GB', '32GB', '64GB', '128GB'],
+    'iPhone 6s': ['16GB', '32GB', '64GB', '128GB'],
     'iPhone SE (3rd Gen)': ['64GB', '128GB', '256GB'],
     'iPhone SE (2020)': ['64GB', '128GB', '256GB'],
+    'iPhone SE (1st Gen)': ['16GB', '32GB', '64GB', '128GB'],
 
     // iPad
     'iPad Pro 12.9 M2': ['128GB', '256GB', '512GB', '1TB', '2TB'],
