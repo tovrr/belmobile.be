@@ -37,13 +37,33 @@ Copy `.env.example` to `.env.local` and fill in your Firebase and Gemini API key
 npm run dev
 ```
 
-## 📂 Project Structure
-- `/src/app`: Next.js 13+ App Router pages.
-- `/src/components`: UI components (Admin tools, Wizard, AI Chat).
-- `/src/context`: Global state (WizardContext, Data & Localization).
-- `/src/hooks`: Domain-specific hooks (`useWizardActions`, `useWizardPricing`, etc).
-- `/src/services`: Business logic layer (order handling, API interactions).
-- `/public`: Static assets (Logo, PWA manifest).
+## 🗺️ Project Architecture (The Map)
+This project follows a Strict Modular Architecture enforced by `FULL_PROJECT_RULES.md`.
+
+```text
+📦 next-platform
+├── 📂 .agent/              # 🤖 AI Workflows & Rules
+├── 📂 docs/                # 📚 Documentation Hub
+│   ├── 🧠 brain/           # AI Memory (Snapshot, Chronology, Solutions, Vigilance)
+│   └── 📖 guides/          # User Guides (Admin, Strategy, Building)
+├── 📂 src/
+│   ├── 📂 app/             # Next.js App Router (Pages & API)
+│   ├── 📂 components/      # React Components (Strictly Categorized)
+│   │   ├── 🧩 common/      # Shared Logic (FAQ, Providers, ErrorBoundary)
+│   │   ├── 🚀 features/    # Business Features (TrackOrder, ReservationModal)
+│   │   ├── 📐 layout/      # Shell (Header, Footer, MobileMenu)
+│   │   ├── 📄 pages/       # Page Content (Contact, Legal, Careers)
+│   │   ├── 📦 product/     # Product Logic (Cards, Tables, Filters)
+│   │   ├── 🧱 sections/    # Sections (Hero, PopularBuybacks, BentoServices)
+│   │   ├── 🗺️ store/       # Maps & Locator Logic
+│   │   ├── 🎨 ui/          # Design Primitives (Buttons, Inputs, Skeletons)
+│   │   └── 🧙 wizard/      # Buyback & Repair Flow
+│   ├── 📂 hooks/           # Custom React Hooks
+│   ├── 📂 services/        # Business Logic & API Calls
+│   └── 📂 types/           # TypeScript Definitions (Zero 'any' Policy)
+├── 📜 FULL_PROJECT_RULES.md # 👑 The Constitution (Read this first)
+└── 📄 next.config.ts       # Next.js Configuration
+```
 
 ## 📊 Administrative Dashboard
 Access the admin panel at `/login` using your authorized credentials. The dashboard provides real-time KPIs, franchise management, and inventory power tools.
