@@ -551,9 +551,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       {
@@ -863,9 +860,11 @@ export default withSentryConfig(nextConfig, {
     disable: true,
   },
 
-  // Disable logger in production
-  disableLogger: true,
-
-  // Enables automatic instrumentation of Vercel Cron Monitors.
-  automaticVercelMonitors: true,
+  // Webpack-based configuration (replaces deprecated options)
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true, // Replaces disableLogger
+    },
+    automaticVercelMonitors: true, // Moved from root level
+  },
 });
