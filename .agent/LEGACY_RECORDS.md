@@ -6,7 +6,7 @@
 **Objective:** Transform Belmobile from a shop into a Global Academy and Service Network.
 **Key Achievements:**
 - **Belmobile Academy (Formation):** Launched the motherboard repair training vertical.
-- **Service Point Expansion:** Launched the B2B franchise invitation system.
+- **Service Point Expansion:** Launched the B2B franchise invitation system. **Target 2026: Reach at least 10 stores.**
 - **Apollo V2 Evolution:** Apollo transitioned from a chatbot to the "Digital Son" of the family, embodying the 2026 Vision.
 - **WhatsApp Integration:** End-to-end notification and testing infrastructure finalized.
 - **Technical Integrity:** Solved core routing issues and stabilized the platform for 2026.
