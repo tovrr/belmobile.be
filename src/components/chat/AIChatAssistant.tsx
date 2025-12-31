@@ -259,7 +259,7 @@ const AIChatAssistant: React.FC = () => {
             console.error("AI Chat Error:", error);
             const errorMsg: Message = {
                 id: (Date.now() + 1).toString(),
-                text: t('chat_network_error') || "I'm having trouble connecting to the server. Please try again or use WhatsApp.",
+                text: "Apollo is having trouble connecting using the red phone line ☎️. Please try again or use WhatsApp.",
                 sender: 'bot'
             };
             setMessages(prev => [...prev, errorMsg]);
@@ -278,8 +278,8 @@ const AIChatAssistant: React.FC = () => {
                                 <SparklesIcon className="h-5 w-5 text-bel-yellow" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-sm">Live Assistant</h3>
-                                <p className="text-xs text-blue-100 opacity-90">Powered by Belmobile</p>
+                                <h3 className="font-bold text-sm">Apollo AI</h3>
+                                <p className="text-xs text-blue-100 opacity-90">{t('Online')}</p>
                             </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -381,8 +381,8 @@ const AIChatAssistant: React.FC = () => {
                     </div>
 
                     <div className="px-4 py-1 bg-white border-t border-gray-50 flex justify-center items-center">
-                        <span className="text-[9px] font-medium text-slate-300 uppercase tracking-widest">
-                            Official Belmobile Assistant (Lite)
+                        <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">
+                            Apollo • Powered by Belmobile
                         </span>
                     </div>
 
