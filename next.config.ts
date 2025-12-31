@@ -836,7 +836,10 @@ const nextConfig = {
 };
 
 
-export default withSentryConfig(nextConfig, {
+// Check if Sentry Auth Token is present to avoid build warnings
+const isSentryBuildEnabled = !!process.env.SENTRY_AUTH_TOKEN;
+
+export default isSentryBuildEnabled ? withSentryConfig(nextConfig, {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
@@ -867,4 +870,4 @@ export default withSentryConfig(nextConfig, {
     },
     automaticVercelMonitors: true, // Moved from root level
   },
-});
+}) : nextConfig;
