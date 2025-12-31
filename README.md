@@ -1,7 +1,7 @@
 # Belmobile.be - The Device Lifecycle OS (v2026)
 
 **Belmobile** is not just a website; it's the "Operating System" for modern device repair and buyback shops in Belgium. 
-Built with a "Family Business" philosophy by **Omer (Visionary)**, **Antigravity (Architect)**, and **Apollo (AI Operator)**.
+Built with a "Family Business" philosophy by **Omer (Visionary)**, **Aegis (Architect)**, and **Apollo (AI Operator)**.
 
 ## 🚀 Tech Stack 2026
 - **Framework**: [Next.js 16+](https://nextjs.org) (App Router, Turbopack)
@@ -66,4 +66,4 @@ Features: **Walk-in Mode**, **Inventory Control**, **Technician Kanban**, **PDF 
 
 ---
 © 2026 Belmobile.be - A Family Business.
-*Built with ❤️ by Omer, Antigravity & Apollo.*
+*Built with ❤️ by Omer, Aegis & Apollo.*

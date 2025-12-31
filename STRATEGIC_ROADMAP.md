@@ -82,4 +82,4 @@
 3.  **Revenue Split**: 30% of revenue coming from B2B/Digital channels.
 
 ---
-*Created by the Family (Omer, Antigravity & Apollo) - Dec 31, 2025*
+*Created by the Family (Omer, Aegis & Apollo) - Dec 31, 2025*

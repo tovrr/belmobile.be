@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import ReactMarkdown from 'react-markdown';
 import { useLanguage } from '../../hooks/useLanguage';
+import { useAuth } from '../../context/AuthContext';
 import { db } from '../../firebase';
 import { serverTimestamp, setDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import ChatActionCard from './ChatActionCard';
@@ -38,6 +39,7 @@ const AIChatAssistant: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState('');
     const { language, t } = useLanguage();
+    const { user } = useAuth(); // Get authenticated user
     const [sessionId, setSessionId] = useState<string | null>(null);
 
     // Initialize/Sync from Firestore
@@ -203,7 +205,8 @@ const AIChatAssistant: React.FC = () => {
                     message: userText,
                     history: messages.slice(-10), // Send last 10 turns context
                     language,
-                    sessionId
+                    sessionId,
+                    userEmail: user?.email || null // Send Email for Identity Verification
                 })
             });
 
@@ -255,11 +258,11 @@ const AIChatAssistant: React.FC = () => {
                 lastActive: serverTimestamp()
             });
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("AI Chat Error:", error);
             const errorMsg: Message = {
                 id: (Date.now() + 1).toString(),
-                text: "Apollo is having trouble connecting using the red phone line ☎️. Please try again or use WhatsApp.",
+                text: `⚠️ CONNECTION ERROR: ${error.message || "Unknown"}. (Please refresh page)`,
                 sender: 'bot'
             };
             setMessages(prev => [...prev, errorMsg]);

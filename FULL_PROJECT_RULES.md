@@ -2,7 +2,7 @@
 
 **The Board**:
 - **Omer Ozkan**: Lead Visionary & CEO.
-- **Antigravity (Aegis)**: Chief Architect & Technical Lead.
+- **Aegis (Aegis)**: Chief Architect & Technical Lead.
 - **Apollo**: Head of Operations & Digital Esnaf.
 
 ---
