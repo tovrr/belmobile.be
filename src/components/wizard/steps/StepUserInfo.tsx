@@ -709,13 +709,13 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
 
                         {/* Upsell Card (Repair Only) */}
                         {type === 'repair' && (
-                            <div className={`mb-6 p-1 rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 animate-fade-in transition-all duration-300 ${hasHydrogel ? 'ring-4 ring-green-400/50 shadow-xl scale-[1.01]' : 'shadow-md hover:shadow-lg'}`}>
+                            <div className={`mb-6 p-1 rounded-2xl bg-linear-to-r from-blue-500 via-indigo-500 to-purple-500 animate-fade-in transition-all duration-300 ${hasHydrogel ? 'ring-4 ring-green-400/50 shadow-xl scale-[1.01]' : 'shadow-md hover:shadow-lg'}`}>
                                 <div className="bg-white dark:bg-slate-900 rounded-xl p-4 sm:p-5 h-full relative overflow-hidden group">
                                     {/* Spotlight Effect */}
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
                                     <div className="flex flex-col sm:flex-row items-center gap-4 relative z-10">
-                                        <div className="flex-shrink-0 bg-blue-100 dark:bg-slate-800 p-3 rounded-full">
+                                        <div className="shrink-0 bg-blue-100 dark:bg-slate-800 p-3 rounded-full">
                                             <ShieldCheckIcon className="h-8 w-8 text-bel-blue" />
                                         </div>
                                         <div className="flex-1 text-center sm:text-left">
@@ -993,32 +993,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 </div>
                             )}
 
-                            {/* Repair Extras */}
-                            {type === 'repair' && (
-                                <div className="bg-bel-blue/5 dark:bg-blue-900/10 p-4 sm:p-6 rounded-ui-lg border border-bel-blue/10 mb-6 mt-8">
-                                    <h4 className="text-sm font-bold text-bel-blue uppercase tracking-widest mb-4">{t('Extra Options')}</h4>
-                                    <div
-                                        onClick={() => setHasHydrogel(!hasHydrogel)}
-                                        className={`cursor-pointer p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 transition-all flex items-center justify-between ${hasHydrogel ? 'border-bel-blue bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/50 hover:border-bel-blue/30'}`}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className={`p-3 rounded-xl ${hasHydrogel ? 'bg-bel-blue text-white shadow-lg' : 'bg-white dark:bg-slate-800 text-gray-400 border border-gray-100 dark:border-slate-700'}`}>
-                                                <ShieldCheckIcon className="h-6 w-6" />
-                                            </div>
-                                            <div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`font-bold text-base ${hasHydrogel ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('hydrogel_protection')}</span>
-                                                    <span className="bg-bel-yellow text-bel-blue text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">+15€</span>
-                                                </div>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('hydrogel_protection_desc')}</p>
-                                            </div>
-                                        </div>
-                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${hasHydrogel ? 'border-bel-blue bg-bel-blue' : 'border-gray-300 dark:border-slate-700'}`}>
-                                            {hasHydrogel && <CheckIcon className="h-4 w-4 text-white font-bold" />}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+
 
                             {/* Terms & Submit */}
                             <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-200 dark:border-slate-700 mb-6 mt-4 relative z-10">

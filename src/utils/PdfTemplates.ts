@@ -227,6 +227,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
 
             // 3. Main Grid (Customer | Shop/Device) - Divider Lines
             {
+                unbreakable: true, // Keep customer and device details together
                 columns: [
                     // Left: Customer
                     {
@@ -290,6 +291,7 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
             // 4. Specs (Buyback) - Kept together
             ...(data.specs ? [
                 {
+                    unbreakable: true,
                     stack: [
                         {
                             stack: [
@@ -315,17 +317,17 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                             margin: [0, 2, 0, 4]
                         }
                     ],
-                    // Removed unbreakable to allow flow
                 }
             ] : []),
 
             // 5. Financials Table - Clean Borders - Keep Header with Table
             {
+                unbreakable: true, // Critical: Keep price breakdown and total on same page
                 stack: [
                     {
                         stack: [
-                            { text: data.labels.financials.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 2] },
-                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 535, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 10] }
+                            { text: data.labels.financials.toUpperCase(), style: 'sectionHeader', margin: [0, 8, 0, 2] },
+                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 535, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 8] }
                         ]
                     },
                     {
@@ -402,11 +404,11 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         }
                     ] : [])
                 ],
-                // Removed unbreakable to allow flow
             } as any,
 
             // 7. IBAN & Next Steps (Combined/Unbreakable if needed, but Steps can flow)
             {
+                unbreakable: true, // Keep steps together to avoid orphans
                 stack: [
                     // IBAN
                     ...(data.iban ? [
@@ -442,7 +444,6 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                         }
                     ] : [])
                 ],
-                // Removed unbreakable to allow flow
             } as any
         ],
 

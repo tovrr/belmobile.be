@@ -109,7 +109,7 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
     // Based on pricingLogic.ts: hydrogel is +25, courier is +15
     if (isRepair) {
         if (quote.hasHydrogel) {
-            basePrice -= 25;
+            basePrice -= 15;
         }
         if (quote.deliveryMethod === 'courier' && quote.courierTier === 'brussels') {
             basePrice -= 15;
@@ -120,7 +120,7 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
 
     if (isRepair) {
         if (quote.hasHydrogel) {
-            priceBreakdown.push({ label: t('Protection Hydrogel'), price: 25 });
+            priceBreakdown.push({ label: t('Protection Hydrogel'), price: 15 });
         }
         if (quote.deliveryMethod === 'courier' && quote.courierTier === 'brussels') {
             priceBreakdown.push({ label: t('Frais de Coursier'), price: 15 });
@@ -172,7 +172,7 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
         footerHelpText: helpText,
         trackingInfo: t('pdf_tracking_info'),
         trackingUrl: quote.orderId && email
-            ? `https://belmobile.be/track-order?id=${quote.orderId}&email=${encodeURIComponent(email)}`
+            ? `https://belmobile.be/${quote.language || 'fr'}/track-order?id=${quote.orderId}&email=${encodeURIComponent(email)}`
             : undefined,
         isCompany: quote.isCompany,
         companyName: quote.companyName,

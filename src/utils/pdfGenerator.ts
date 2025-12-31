@@ -58,6 +58,7 @@ export interface RepairBuybackData {
     labels?: any; // New
     iban?: string;
     deliveryMethod?: string;
+    hasHydrogel?: boolean;
     // Template fields
     priceBreakdown?: any[];
     totalLabel?: string;
@@ -188,9 +189,24 @@ export const generateRepairBuybackPDF = async (data: RepairBuybackData, t: TFunc
     };
 
     // Populate required fields for template
-    data.priceBreakdown = [
-        { label: data.type === 'buyback' ? t('Estimated Value') : t('Repair Cost'), price: data.financials.price }
-    ];
+    const breakdownItems: PriceBreakdownItem[] = [];
+    let remainingPrice = data.financials.price;
+
+    if (data.type === 'repair') {
+        if (data.hasHydrogel) {
+            remainingPrice -= 15;
+        }
+
+        breakdownItems.push({ label: t('Repair Cost'), price: remainingPrice });
+
+        if (data.hasHydrogel) {
+            breakdownItems.push({ label: 'Premium Hydrogel Protection', price: 15 });
+        }
+    } else {
+        breakdownItems.push({ label: t('Estimated Value'), price: data.financials.price });
+    }
+
+    data.priceBreakdown = breakdownItems;
     data.totalLabel = t('Total');
     data.totalPrice = data.financials.price;
 
