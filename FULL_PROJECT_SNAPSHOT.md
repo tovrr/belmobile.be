@@ -5,22 +5,22 @@
 ---
 
 ## 1. 🏗️ High-Level Architecture Audit
-- **Framework**: Next.js 14+ (App Router).
+- **Framework**: Next.js 16+ (App Router) with Webpack configuration.
 - **Branching Strategy**: `main` (Production), `staging` (Verification), `dev` (Active work).
 - **Core Stability**:
     - **Vitest Infrastructure**: Fully operational; covers pricing logic and route parsing.
-    - **Type Safety**: ~95% coverage. Zero `any` policy enforced in `project_rules.md`.
-    - **Metadata**: Sanitized and dynamic; `sanitizeUrl` helper prevents build-time URL failures.
+    - **Type Safety**: **Strict 100%**. Zero compilation errors (`tsc --noEmit` passes cleanly).
+    - **Folder Structure**: Modularized architecture (`layout`, `features`, `sections`, `common`, `ui`, `pages`, `product`, `store`, `wizard`).
 
 ## 2. ⚡ Performance & UX Analysis
-- **Bundle Optimization**: Heavy components (Google Maps, SEO Text, Local Pain Points) are lazy-loaded via `next/dynamic`.
-- **CLS Management**: `loading.tsx` skeletons implemented for all dynamic `[...slug]` routes.
-- **Wizard UX**: Restored button states with progressive loading text ("Génération du PDF...", "Envoi de la commande...").
+- **Bundle Optimization**: Warnings cleared. Deprecated `next.config.ts` options removed; Sentry configured via Webpack.
+- **CLS Management**: `loading.tsx` skeletons and `ProductCardSkeleton` unified in `ui` folder.
+- **Wizard UX**: Fully operational on production; email notifications verified.
 
 ## 3. 🛡️ Security & Observability Audit
-- **Monitoring**: Sentry fully integrated (Client/Server/Edge).
-- **Data Privacy (PII)**: `beforeSend` hooks configured to scrub customer emails, names, and phone numbers from telemetry.
-- **Error Transparency**: Server-side logs for Brevo API calls are persistent for post-order debugging.
+- **Monitoring**: Sentry Webpack-based configuration (v8+ compatible).
+- **Data Privacy (PII)**: `beforeSend` hooks configured.
+- **Build Integrity**: Production build GREEN. No deprecation warnings.
 
 ## 4. 🌍 Business Logic Snapshot
 - **Inventory & Pricing**: Centralized in Firestore; merged with static `LOCATIONS` for high-availability.

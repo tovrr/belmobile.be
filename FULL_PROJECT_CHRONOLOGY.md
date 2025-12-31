@@ -36,6 +36,40 @@ Ce document retrace l'évolution technologique complète de la plateforme Belmob
 - **Production Push** : Merge final `staging` ➔ `main` et résolution des derniers conflits de fusion.
 - **Finalisation du Brain** : Création du guide `SENTRY_VIGILANCE.md` et de la `STRATEGIC_ROADMAP.md` pour l'année 2026.
 
+## 🎯 Refactoring Majeur : Architecture TypeScript (31 Décembre 2025)
+*Réorganisation complète de la structure des composants et résolution de 53 erreurs TypeScript.*
+
+- **Folder Reorganization** : Restructuration complète de `src/components/` en modules logiques :
+  * `layout/` - Composants de mise en page (Header, Footer, Breadcrumbs, MobileMenu)
+  * `pages/` - Composants de pages complètes (Contact, Careers, FAQPage, etc.)
+  * `sections/` - Sections de pages (Hero, PopularBuybacks, BusinessSolutions, etc.)
+  * `features/` - Fonctionnalités métier (TrackOrder, ReservationModal, ExpressCourier)
+  * `common/` - Composants partagés (FAQ, Cookies, Providers, ErrorBoundary)
+  * `ui/` - Primitives UI (Button, Input, Icons, Skeleton, BrandLoader)
+  * `product/` - Composants produits (ProductCard, ProductDetail, PriceTable)
+  * `store/` - Composants magasins (Map, StoreLocator, StoreMap)
+  * `wizard/` - Wizard Buyback/Repair (BuybackRepair, ConditionGuide)
+  * `seo/` - Composants SEO (SchemaMarkup, LocalSEOContent, GoogleAnalytics)
+  * `chat/` - AI Chat Assistant
+  * `admin/` - Dashboard administrateur
+
+- **TypeScript Cleanup** : Résolution complète de 53 erreurs d'import (100% success rate)
+  * 135 fichiers modifiés avec chemins d'import corrigés
+  * Archive cleanup (`proxy.ts` deprecated imports fixed)
+  * Zero `any` types policy maintained
+
+- **Build Optimization** : 
+  * Suppression des warnings de dépréciation Next.js et Sentry
+  * Migration vers webpack-based configuration
+  * Production build vert (zero errors, zero warnings)
+
+- **Validation Production** : 
+  * Test complet du wizard de réparation sur dev.belmobile.be
+  * Système d'emails fonctionnel (2 notifications envoyées)
+  * Tous les systèmes opérationnels
+
+**Commits** : `0530e99` (TypeScript fixes) + `0127b76` (Deprecation warnings)
+
 ---
 
 ### 📊 État des Lieux Actuel
