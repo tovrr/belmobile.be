@@ -3,6 +3,7 @@
  * 
  * CRITICAL: This project uses 'belmobile-database' exclusively.
  * The '(default)' database is deprecated and should NOT be used for production data.
+ * REGION: europe-west1 (Belgium) - Optimized for Brussels-based customers.
  */
 
 import { initializeApp } from "firebase/app";

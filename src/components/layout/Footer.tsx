@@ -127,7 +127,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                         {t('Our Stores')}
                     </h4>
                     <ul className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {LOCATIONS.map((loc) => (
+                        {LOCATIONS.filter(loc => !loc.isHub && loc.status !== 'temporarily_closed').map((loc) => (
                             <li key={loc.id}>
                                 <Link
                                     href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${loc.slugs[language as 'en' | 'fr' | 'nl'] || loc.slugs.en}`}
