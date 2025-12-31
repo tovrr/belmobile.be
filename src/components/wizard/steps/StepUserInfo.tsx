@@ -116,7 +116,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
         termsAccepted,
         isCompany,
         companyName,
-        vatNumber
+        vatNumber,
+        notificationPreferences
     } = state;
 
     // Setters
@@ -140,6 +141,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     const setIsCompany = (val: boolean) => dispatch({ type: 'SET_WIZARD_DATA', payload: { isCompany: val } });
     const setCompanyName = (val: string) => dispatch({ type: 'SET_WIZARD_DATA', payload: { companyName: val } });
     const setVatNumber = (val: string) => dispatch({ type: 'SET_WIZARD_DATA', payload: { vatNumber: val } });
+    const setNotificationPreferences = (val: ('email' | 'whatsapp' | 'sms')[]) => dispatch({ type: 'SET_WIZARD_DATA', payload: { notificationPreferences: val } });
 
     const [validatingVat, setValidatingVat] = useState(false);
     const [vatValidationError, setVatValidationError] = useState<string | null>(null);
@@ -490,7 +492,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     // -------------------------------------------------------------------------
     if (step === 5 || (step === 4 && type === 'repair')) {
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-3 sm:p-6 lg:p-8 gap-6">
+            <div className={`flex flex-col lg:flex-row w-full mx-auto gap-6 ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : 'max-w-7xl pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-3 sm:p-6 lg:p-8'}`}>
                 {renderMobileSummary()}
                 <div className="flex-1 min-w-0">
                     <div className="mb-8">
@@ -788,6 +790,75 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 />
                             </div>
 
+                            {/* Notification Preferences */}
+                            <div className="mb-6 animate-fade-in">
+                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">{t('notification_preferences_title') || 'How should we update you?'}</label>
+                                <div className="flex flex-wrap gap-3">
+                                    {/* Email */}
+                                    <label className={`flex items-center gap-2 p-3 pr-4 rounded-xl border-2 cursor-pointer transition-all ${notificationPreferences?.includes('email') ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 hover:border-bel-blue/50'}`}>
+                                        <input
+                                            type="checkbox"
+                                            checked={notificationPreferences?.includes('email')}
+                                            onChange={() => {
+                                                const current = notificationPreferences || [];
+                                                const newPrefs = current.includes('email')
+                                                    ? current.filter(p => p !== 'email')
+                                                    : [...current, 'email'];
+                                                if (!newPrefs.includes('email')) newPrefs.push('email'); // Enforce email
+                                                setNotificationPreferences(newPrefs as ('email' | 'whatsapp' | 'sms')[]);
+                                            }}
+                                            className="hidden"
+                                        />
+                                        <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${notificationPreferences?.includes('email') ? 'bg-bel-blue border-bel-blue' : 'border-gray-300 dark:border-slate-600'}`}>
+                                            {notificationPreferences?.includes('email') && <CheckIcon className="h-3.5 w-3.5 text-white" />}
+                                        </div>
+                                        <span className="font-bold text-gray-900 dark:text-white text-sm">{t('Email')}</span>
+                                    </label>
+
+                                    {/* SMS */}
+                                    <label className={`flex items-center gap-2 p-3 pr-4 rounded-xl border-2 cursor-pointer transition-all ${notificationPreferences?.includes('sms') ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 hover:border-bel-blue/50'}`}>
+                                        <input
+                                            type="checkbox"
+                                            checked={notificationPreferences?.includes('sms')}
+                                            onChange={() => {
+                                                const current = notificationPreferences || [];
+                                                const newPrefs = current.includes('sms')
+                                                    ? current.filter(p => p !== 'sms')
+                                                    : [...current, 'sms'];
+                                                setNotificationPreferences(newPrefs as ('email' | 'whatsapp' | 'sms')[]);
+                                            }}
+                                            className="hidden"
+                                        />
+                                        <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${notificationPreferences?.includes('sms') ? 'bg-bel-blue border-bel-blue' : 'border-gray-300 dark:border-slate-600'}`}>
+                                            {notificationPreferences?.includes('sms') && <CheckIcon className="h-3.5 w-3.5 text-white" />}
+                                        </div>
+                                        <span className="font-bold text-gray-900 dark:text-white text-sm">{t('SMS')}</span>
+                                        <span className="text-[10px] bg-green-100 text-green-700 px-1.5 rounded uppercase font-bold">Free</span>
+                                    </label>
+
+                                    {/* WhatsApp */}
+                                    <label className={`flex items-center gap-2 p-3 pr-4 rounded-xl border-2 cursor-pointer transition-all ${notificationPreferences?.includes('whatsapp') ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 hover:border-bel-blue/50'}`}>
+                                        <input
+                                            type="checkbox"
+                                            checked={notificationPreferences?.includes('whatsapp')}
+                                            onChange={() => {
+                                                const current = notificationPreferences || [];
+                                                const newPrefs = current.includes('whatsapp')
+                                                    ? current.filter(p => p !== 'whatsapp')
+                                                    : [...current, 'whatsapp'];
+                                                setNotificationPreferences(newPrefs as ('email' | 'whatsapp' | 'sms')[]);
+                                            }}
+                                            className="hidden"
+                                        />
+                                        <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${notificationPreferences?.includes('whatsapp') ? 'bg-bel-blue border-bel-blue' : 'border-gray-300 dark:border-slate-600'}`}>
+                                            {notificationPreferences?.includes('whatsapp') && <CheckIcon className="h-3.5 w-3.5 text-white" />}
+                                        </div>
+                                        <span className="font-bold text-gray-900 dark:text-white text-sm">{t('WhatsApp')}</span>
+                                    </label>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">{t('notification_preferences_desc') || 'Choose how you want to receive updates about your order.'}</p>
+                            </div>
+
                             {/* Address Parser Logic */}
                             {(deliveryMethod === 'send' || deliveryMethod === 'courier') && (
                                 <div className="animate-fade-in-up space-y-4 border-t border-gray-100 dark:border-slate-700 pt-4 mb-8">
@@ -934,7 +1005,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 type="submit"
                                 disabled={!termsAccepted || state.isTransitioning}
                                 variant="cyber"
-                                className="w-full mt-6 lg:hidden"
+                                className={`w-full mt-6 ${state.isWidget ? 'block' : 'lg:hidden'}`}
                                 isLoading={state.isTransitioning}
                             >
                                 {t('confirm_request')}
@@ -987,29 +1058,31 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                         </div>
                     </form>
                 </div>
-                <Sidebar
-                    type={type}
-                    step={step}
-                    selectedBrand={selectedBrand}
-                    selectedModel={selectedModel}
-                    deviceType={deviceType}
-                    storage={storage}
-                    repairIssues={repairIssues}
-                    estimateDisplay={sidebarEstimate}
-                    onNext={onNext}
-                    handleBack={onBack}
-                    nextDisabled={false}
-                    nextLabel={t('Complete Request')}
-                    selectedScreenQuality={selectedScreenQuality}
-                    repairEstimates={repairEstimates}
-                    dynamicRepairPrices={dynamicRepairPrices}
-                    getSingleIssuePrice={getSingleIssuePrice}
-                    deliveryMethod={deliveryMethod}
-                    courierTier={courierTier}
-                    hasHydrogel={hasHydrogel}
-                    isProcessing={state.isTransitioning}
-                    processingText={getProcessingText()}
-                />
+                {!state.isWidget && (
+                    <Sidebar
+                        type={type}
+                        step={step}
+                        selectedBrand={selectedBrand}
+                        selectedModel={selectedModel}
+                        deviceType={deviceType}
+                        storage={storage}
+                        repairIssues={repairIssues}
+                        estimateDisplay={sidebarEstimate}
+                        onNext={onNext}
+                        handleBack={onBack}
+                        nextDisabled={false}
+                        nextLabel={t('Complete Request')}
+                        selectedScreenQuality={selectedScreenQuality}
+                        repairEstimates={repairEstimates}
+                        dynamicRepairPrices={dynamicRepairPrices}
+                        getSingleIssuePrice={getSingleIssuePrice}
+                        deliveryMethod={deliveryMethod}
+                        courierTier={courierTier}
+                        hasHydrogel={hasHydrogel}
+                        isProcessing={state.isTransitioning}
+                        processingText={getProcessingText()}
+                    />
+                )}
             </div>
         );
     }

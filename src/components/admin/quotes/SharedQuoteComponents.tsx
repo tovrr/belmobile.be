@@ -180,3 +180,43 @@ export const ActivityLogViewer: React.FC<{ log: ActivityLogEntry[] }> = ({ log }
         </div>
     );
 };
+// --- Magic Tracking Link ---
+export const MagicLinkCard: React.FC<{ quote: Quote }> = ({ quote }) => {
+    const [baseUrl, setBaseUrl] = React.useState('');
+
+    React.useEffect(() => {
+        setBaseUrl(window.location.origin);
+    }, []);
+
+    const copyLink = () => {
+        const url = `${baseUrl}/${quote.language || 'fr'}/track/${quote.trackingToken}`;
+        navigator.clipboard.writeText(url);
+        alert('Tracking link copied!');
+    };
+
+    if (!quote.trackingToken) return null;
+
+    return (
+        <SectionWrapper title="Customer Tracking (Magic Link)">
+            <div className="space-y-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Send this link to the customer. They can track their order status without logging in.
+                </p>
+                <div className="flex items-center gap-2">
+                    <code className="flex-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-[10px] font-mono text-gray-600 dark:text-gray-400 truncate">
+                        {`${baseUrl}/${quote.language || 'fr'}/track/${quote.trackingToken}`}
+                    </code>
+                    <button
+                        onClick={copyLink}
+                        className="p-2 bg-bel-blue text-white rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
+                        title="Copy Magic Link"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </SectionWrapper>
+    );
+};

@@ -9,56 +9,99 @@ import {
     CubeIcon,
     BuildingStorefrontIcon,
     CurrencyEuroIcon,
-    ArrowTrendingUpIcon
+    ArrowTrendingUpIcon,
+    PlusIcon
 } from '@heroicons/react/24/outline';
+import WalkInOrderModal from './WalkInOrderModal';
 
 const Dashboard: React.FC = () => {
     const { reservations, quotes, products, shops, loading } = useData();
+    const [isWalkInModalOpen, setIsWalkInModalOpen] = React.useState(false);
 
     // -- Financial Calculations --
     const financials = useMemo(() => {
-        // 1. Potential Revenue from Quotes (Buyback + Repair)
-        const quoteRevenue = quotes.reduce((sum: number, q: Quote) => {
-            return sum + (Number(q.price) || 0);
-        }, 0);
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-        // 2. Potential Revenue from Reservations (Sales)
-        // Note: We need 'estimatedPrice' on Reservation or lookup product price. 
-        // For now, we use the new 'estimatedPrice' field if available.
-        const reservationRevenue = reservations.reduce((sum: number, r: Reservation) => {
-            return sum + (Number(r.estimatedPrice) || 0);
-        }, 0);
+        const closedStatuses = ['repaired', 'shipped', 'closed', 'responded', 'completed', 'collected'];
+        const openRepairStatuses = ['received', 'in_repair', 'repaired', 'ready'];
 
-        const totalPotentialRevenue = quoteRevenue + reservationRevenue;
+        let todayRev = 0;
+        let monthRev = 0;
+        let openRepairValue = 0;
 
-        // 3. Conversion Rate (Quotes converted to 'repaired', 'shipped', 'closed')
-        const closedQuotes = quotes.filter((q: Quote) =>
-            ['repaired', 'shipped', 'closed', 'responded'].includes(q.status)
-        ).length;
-        const conversionRate = quotes.length > 0
-            ? Math.round((closedQuotes / quotes.length) * 100)
-            : 0;
+        const parseSafeDate = (d: any) => {
+            if (!d) return new Date(0);
+            if (d instanceof Date) return d;
+            if (typeof d === 'string') return new Date(d);
+            if (d.seconds) return new Date(d.seconds * 1000);
+            return new Date(d);
+        };
 
-        return { totalPotentialRevenue, conversionRate };
+        // 1. Process Quotes
+        quotes.forEach((q: Quote) => {
+            const qPrice = Number(q.price) || 0;
+            const qDate = parseSafeDate(q.date || q.createdAt);
+
+            // Revenue (Closed orders)
+            if (closedStatuses.includes(q.status)) {
+                if (qDate >= startOfToday) todayRev += qPrice;
+                if (qDate >= startOfMonth) monthRev += qPrice;
+            }
+
+            // Open repairs value
+            if (q.type === 'repair' && openRepairStatuses.includes(q.status)) {
+                openRepairValue += qPrice;
+            }
+        });
+
+        // 2. Process Reservations (Sales)
+        reservations.forEach((r: Reservation) => {
+            const rPrice = Number(r.estimatedPrice || r.productPrice) || 0;
+            const rDate = parseSafeDate(r.date || r.createdAt);
+
+            if (closedStatuses.includes(r.status)) {
+                if (rDate >= startOfToday) todayRev += rPrice;
+                if (rDate >= startOfMonth) monthRev += rPrice;
+            }
+        });
+
+        // Conversion Rate
+        const closedQuotes = quotes.filter((q: Quote) => closedStatuses.includes(q.status)).length;
+        const conversionRate = quotes.length > 0 ? Math.round((closedQuotes / quotes.length) * 100) : 0;
+
+        return { todayRev, monthRev, openRepairValue, conversionRate };
     }, [quotes, reservations]);
 
 
     const stats = [
         {
-            label: 'Potential Revenue',
-            value: `€${financials.totalPotentialRevenue.toLocaleString()}`,
+            label: "Today's Revenue",
+            value: `€${financials.todayRev.toLocaleString()}`,
             icon: CurrencyEuroIcon,
-            trend: '+12%', // Mock trend for now, or calc from prev month
-            color: 'text-green-600'
+            color: 'text-green-600',
+            trend: 'Live'
         },
         {
-            label: 'Conversion Rate',
-            value: `${financials.conversionRate}%`,
+            label: 'This Month',
+            value: `€${financials.monthRev.toLocaleString()}`,
             icon: ArrowTrendingUpIcon,
             color: 'text-blue-600'
         },
-        { label: 'Products in Stock', value: products.length.toString(), icon: CubeIcon },
-        { label: 'Managed Shops', value: shops.length.toString(), icon: BuildingStorefrontIcon },
+        {
+            label: 'Open Repairs Value',
+            value: `€${financials.openRepairValue.toLocaleString()}`,
+            icon: CubeIcon,
+            color: 'text-purple-600',
+            desc: 'Working Capital'
+        },
+        {
+            label: 'Conversion',
+            value: `${financials.conversionRate}%`,
+            icon: BuildingStorefrontIcon,
+            color: 'text-orange-600'
+        },
     ];
 
     const aggregateData = (items: (Quote | Reservation)[], valueKey: 'count' | 'price') => {
@@ -117,11 +160,23 @@ const Dashboard: React.FC = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-black text-gray-900 dark:text-white">Dashboard</h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-1">Real-time financial & operational overview</p>
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-2xl font-bold bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                            Business Overview
+                        </h1>
+
+                        <button
+                            onClick={() => setIsWalkInModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-bel-blue text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all hover:scale-105 active:scale-95"
+                        >
+                            <PlusIcon className="w-4 h-4" />
+                            New Walk-in
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {stats.map(stat => (
                     <StatCard key={stat.label} stat={stat} />
                 ))}
@@ -141,6 +196,14 @@ const Dashboard: React.FC = () => {
                     fillColor="#4338ca" // bel-blue
                 />
             </div>
+
+            <WalkInOrderModal
+                isOpen={isWalkInModalOpen}
+                onClose={() => setIsWalkInModalOpen(false)}
+                onSuccess={() => {
+                    // Refresh logic handled by real-time listener in OrderContext
+                }}
+            />
         </div>
     );
 };

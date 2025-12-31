@@ -1,16 +1,16 @@
 import React, { Suspense } from 'react';
-import Header from '../../components/Header';
-import Breadcrumbs from '../../components/Breadcrumbs';
-import { Providers } from '../../components/Providers';
+import Header from '../../components/layout/Header';
+import Breadcrumbs from '../../components/layout/Breadcrumbs';
+import { Providers } from '../../components/common/Providers';
 
-import Footer from '../../components/Footer';
-import AIChatAssistantWrapper from '../../components/AIChatAssistantWrapper';
-import CookieConsent from '../../components/CookieConsent';
-import GoogleAnalytics from '../../components/GoogleAnalytics';
+import Footer from '../../components/layout/Footer';
+import AIChatAssistantWrapper from '../../components/chat/AIChatAssistantWrapper';
+import CookieConsent from '../../components/common/CookieConsent';
+import GoogleAnalytics from '../../components/seo/GoogleAnalytics';
 import { TranslationDict } from '../../utils/translations';
 import path from 'path';
 import { promises as fs } from 'fs';
-import SchemaMarkup from '../../components/SchemaMarkup';
+import SchemaMarkup from '../../components/seo/SchemaMarkup';
 
 export async function generateStaticParams() {
     return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'nl' }];
@@ -31,7 +31,7 @@ async function getTranslations(lang: string): Promise<TranslationDict> {
     }
 }
 
-import LayoutWrapper from '../../components/LayoutWrapper';
+import LayoutWrapper from '../../components/layout/LayoutWrapper';
 
 // ... imports remain the same ...
 

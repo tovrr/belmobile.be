@@ -49,6 +49,12 @@ export interface WizardState {
     companyName: string;
     vatNumber: string;
 
+    // Partner Tracking
+    partnerId?: string;
+
+    // Notification Preferences
+    notificationPreferences: ('email' | 'whatsapp' | 'sms')[];
+
     // Dynamic Data
     modelsData: Record<string, Record<string, number>>;
     specsData: Record<string, string[]>;
@@ -69,6 +75,7 @@ export interface WizardState {
     showResumeBanner: boolean;
     shopSelectionError: boolean;
     isShopListOpen: boolean;
+    isWidget: boolean;
 }
 
 const initialState: WizardState = {
@@ -104,6 +111,7 @@ const initialState: WizardState = {
     isCompany: false,
     companyName: '',
     vatNumber: '',
+    notificationPreferences: ['email'],
     modelsData: {},
     specsData: {},
     pricingData: {
@@ -119,6 +127,7 @@ const initialState: WizardState = {
     showResumeBanner: false,
     shopSelectionError: false,
     isShopListOpen: false,
+    isWidget: false,
 };
 
 /**

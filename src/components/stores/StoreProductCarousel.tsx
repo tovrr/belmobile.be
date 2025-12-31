@@ -3,8 +3,8 @@
 import React from 'react';
 import { useInventory } from '../../context/InventoryContext';
 import { useLanguage } from '../../hooks/useLanguage';
-import ProductCard from '../ProductCard';
-import ProductCardSkeleton from '../ProductCardSkeleton';
+import ProductCard from '../product/ProductCard';
+import ProductCardSkeleton from '../product/ProductCardSkeleton';
 
 interface StoreProductCarouselProps {
     shopId: string | number;

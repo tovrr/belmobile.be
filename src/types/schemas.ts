@@ -19,7 +19,7 @@ export const ShopSchema = z.object({
     status: ShopStatusSchema.optional().default('open'),
     isHub: z.boolean().optional().default(false),
     isPrimary: z.boolean().optional().default(false),
-    slugs: z.record(z.string()).optional(),
+    slugs: z.record(z.string(), z.string()).optional(),
     badge: z.string().optional(),
     googleMapUrl: z.string().optional(),
     googlePlaceId: z.string().optional(),
@@ -59,6 +59,8 @@ export const OrderSubmissionSchema = z.object({
     shippingLabelUrl: z.string().optional(),
     trackingNumber: z.string().optional(),
     orderId: z.string().optional(),
+    trackingToken: z.string().optional(),
+    originPartnerId: z.string().optional(),
     status: z.string().optional(),
     date: z.string().optional()
 }).refine(

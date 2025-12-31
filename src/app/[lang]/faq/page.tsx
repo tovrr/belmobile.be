@@ -1,4 +1,4 @@
-import FAQPage from '../../../components/FAQPage';
+import FAQPage from '../../../components/pages/FAQPage';
 import { Metadata } from 'next';
 import { getFixedT } from '../../../utils/i18n-server';
 

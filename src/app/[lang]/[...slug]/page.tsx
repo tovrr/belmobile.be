@@ -10,14 +10,14 @@ import { Shop } from '@/types';
 import { parseRouteParams } from '@/utils/route-parser';
 import { generateSeoMetadata, getKeywordsForPage, generateMetaKeywords } from '@/utils/seo-templates';
 
-import BuybackRepair from '@/components/BuybackRepair';
+import BuybackRepair from '@/components/wizard/BuybackRepair';
 import Hreflang from '@/components/seo/Hreflang';
 import SchemaOrg from '@/components/seo/SchemaOrg';
 
 // --- DYNAMIC IMPORTS & SKELETONS ---
 
 // StoreLocator: Interactive Map (Heavy) -> Client Only (Wrapped)
-import StoreLocatorClient from '@/components/StoreLocatorClient';
+import StoreLocatorClient from '@/components/store/StoreLocatorClient';
 
 // DynamicSEOContent: Large text content, below fold -> Lazy
 const DynamicSEOContent = dynamic(() => import('@/components/seo/DynamicSEOContent'), {
@@ -25,7 +25,7 @@ const DynamicSEOContent = dynamic(() => import('@/components/seo/DynamicSEOConte
 });
 
 // LocalPainPoints: Static visually rich section, below fold -> Lazy
-const LocalPainPoints = dynamic(() => import('@/components/LocalPainPoints'), {
+const LocalPainPoints = dynamic(() => import('@/components/sections/LocalPainPoints'), {
     loading: () => <div className="h-[400px] w-full bg-transparent animate-pulse rounded-3xl" />
 });
 

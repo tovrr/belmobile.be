@@ -137,13 +137,13 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
         }
 
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8 gap-6">
+            <div className={`flex flex-col lg:flex-row w-full mx-auto gap-6 ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : 'max-w-7xl pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8'}`}>
                 <div className="flex-1 min-w-0 space-y-8">
                     <div className="flex items-center gap-2 mb-6">
                         <button
                             onClick={onBack}
                             type="button"
-                            className="lg:hidden p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors"
+                            className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors`}
                             aria-label={t('Back')}
                         >
                             <ChevronLeftIcon className="h-6 w-6" />
@@ -262,7 +262,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         </div>
                     )}
                     {/* Mobile Summary & Action Block (Buyback) */}
-                    <div className="lg:hidden mt-8 mb-8 p-6 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                    <div className={`${state.isWidget ? 'block' : 'lg:hidden'} mt-8 mb-8 p-6 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm`}>
                         <div className="flex flex-col gap-4">
                             <div className="flex justify-between items-end">
                                 <div>
@@ -293,25 +293,27 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                     />
                 </div>
 
-                <Sidebar
-                    type={type}
-                    step={step}
-                    selectedBrand={selectedBrand}
-                    selectedModel={selectedModel}
-                    deviceType={deviceType}
-                    storage={storage}
-                    repairIssues={repairIssues}
-                    estimateDisplay={sidebarEstimate}
-                    onNext={onNext}
-                    handleBack={onBack}
-                    nextDisabled={nextDisabled}
-                    nextLabel={t('Next')}
-                    selectedScreenQuality={selectedScreenQuality}
-                    repairEstimates={repairEstimates}
-                    dynamicRepairPrices={dynamicRepairPrices}
-                    getSingleIssuePrice={getSingleIssuePrice}
-                    loading={loading}
-                />
+                {!state.isWidget && (
+                    <Sidebar
+                        type={type}
+                        step={step}
+                        selectedBrand={selectedBrand}
+                        selectedModel={selectedModel}
+                        deviceType={deviceType}
+                        storage={storage}
+                        repairIssues={repairIssues}
+                        estimateDisplay={sidebarEstimate}
+                        onNext={onNext}
+                        handleBack={onBack}
+                        nextDisabled={nextDisabled}
+                        nextLabel={t('Next')}
+                        selectedScreenQuality={selectedScreenQuality}
+                        repairEstimates={repairEstimates}
+                        dynamicRepairPrices={dynamicRepairPrices}
+                        getSingleIssuePrice={getSingleIssuePrice}
+                        loading={loading}
+                    />
+                )}
             </div>
         );
     }
@@ -331,7 +333,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         <button
                             onClick={onBack}
                             type="button"
-                            className="lg:hidden p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors"
+                            className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors`}
                             aria-label={t('Back')}
                         >
                             <ChevronLeftIcon className="h-6 w-6" />
@@ -484,7 +486,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                     </div>
 
                     {/* Mobile Summary & Action Block (Replaces Sticky Footer) */}
-                    <div className="lg:hidden mt-8 mb-8 p-6 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                    <div className={`${state.isWidget ? 'block' : 'lg:hidden'} mt-8 mb-8 p-6 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm`}>
                         <div className="flex flex-col gap-4">
                             <div className="flex justify-between items-end">
                                 <div>
@@ -515,25 +517,27 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                     />
                 </div>
 
-                <Sidebar
-                    type={type}
-                    step={step}
-                    selectedBrand={selectedBrand}
-                    selectedModel={selectedModel}
-                    deviceType={deviceType}
-                    storage={storage}
-                    repairIssues={repairIssues}
-                    estimateDisplay={sidebarEstimate}
-                    onNext={onNext}
-                    handleBack={onBack}
-                    nextDisabled={nextDisabled}
-                    nextLabel={nextLabel}
-                    selectedScreenQuality={selectedScreenQuality}
-                    repairEstimates={repairEstimates}
-                    dynamicRepairPrices={dynamicRepairPrices}
-                    getSingleIssuePrice={getSingleIssuePrice}
-                    loading={loading}
-                />
+                {!state.isWidget && (
+                    <Sidebar
+                        type={type}
+                        step={step}
+                        selectedBrand={selectedBrand}
+                        selectedModel={selectedModel}
+                        deviceType={deviceType}
+                        storage={storage}
+                        repairIssues={repairIssues}
+                        estimateDisplay={sidebarEstimate}
+                        onNext={onNext}
+                        handleBack={onBack}
+                        nextDisabled={nextDisabled}
+                        nextLabel={nextLabel}
+                        selectedScreenQuality={selectedScreenQuality}
+                        repairEstimates={repairEstimates}
+                        dynamicRepairPrices={dynamicRepairPrices}
+                        getSingleIssuePrice={getSingleIssuePrice}
+                        loading={loading}
+                    />
+                )}
             </div>
         );
     }

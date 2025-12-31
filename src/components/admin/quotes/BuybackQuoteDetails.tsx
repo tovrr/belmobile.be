@@ -10,7 +10,7 @@ import {
 import { calculateBuybackPrice } from '../../../utils/pricingCalculator';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../firebase';
-import { QuoteHeader, CustomerInfoCard, DeviceBasicsCard, ActivityLogViewer, SectionWrapper } from './SharedQuoteComponents';
+import { QuoteHeader, CustomerInfoCard, DeviceBasicsCard, ActivityLogViewer, SectionWrapper, MagicLinkCard } from './SharedQuoteComponents';
 
 interface Props {
     quote: Quote;
@@ -235,6 +235,7 @@ const BuybackQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
                     {/* LEFT COLUMN: Metadata */}
                     <div className="space-y-6 lg:col-span-1">
                         <CustomerInfoCard quote={quote} />
+                        <MagicLinkCard quote={quote} />
 
                         <SectionWrapper title="Payout (Payment)">
                             {quote.iban ? (
@@ -264,6 +265,15 @@ const BuybackQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
 
                         {/* Status */}
                         <SectionWrapper title="Update Status">
+                            <div className="flex items-center gap-2 mb-4 p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800/30">
+                                <div className="relative">
+                                    <ArrowPathIcon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+                                    Gözün Kulağın: Active
+                                </span>
+                            </div>
                             <select
                                 value={currentStatus}
                                 onChange={handleStatusChange}

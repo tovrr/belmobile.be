@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { getFixedT } from '@/utils/i18n-server';
-import SupportHubPage from '@/components/SupportHubPage';
+import SupportHubPage from '@/components/pages/SupportHubPage';
 
 type Props = {
     params: Promise<{ lang: string }>;

@@ -1461,5 +1461,11 @@
     "cat_body": "Châssis & Boutons",
     "cat_technical": "Soudure & Système",
     "Download Invoice": "Télécharger la Facture",
-    "B2B Invoice": "Facture B2B"
+    "B2B Invoice": "Facture B2B",
+    "or_select_manually": "Ou sélectionnez manuellement",
+    "Evaluate My Device": "Évaluer mon appareil",
+    "Estimate Repair": "Estimer la réparation",
+    "trust_instant_cash": "Paiement Immédiat",
+    "trust_official_warranty": "Garantie Officielle",
+    "trust_best_price": "Meilleur Prix Garanti"
 }

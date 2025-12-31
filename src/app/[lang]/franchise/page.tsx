@@ -1,4 +1,4 @@
-import Franchise from '../../../components/Franchise';
+import Franchise from '../../../components/pages/Franchise';
 import { Metadata } from 'next';
 import { getFixedT } from '../../../utils/i18n-server';
 

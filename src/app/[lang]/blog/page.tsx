@@ -1,4 +1,4 @@
-import Blog from '../../../components/Blog';
+import Blog from '../../../components/sections/Blog';
 import { Metadata } from 'next';
 import { getFixedT } from '../../../utils/i18n-server';
 

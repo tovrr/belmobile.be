@@ -1,4 +1,4 @@
-import Cookies from '../../../components/Cookies';
+import Cookies from '../../../components/common/Cookies';
 import { Metadata } from 'next';
 import { getFixedT } from '../../../utils/i18n-server';
 

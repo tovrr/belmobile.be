@@ -30,6 +30,7 @@ export interface OrderSubmissionData {
     isCompany?: boolean;
     companyName?: string;
     vatNumber?: string;
+    partnerId?: string;
 }
 
 export const orderService = {
@@ -96,7 +97,8 @@ export const orderService = {
                 createdAt: serverTimestamp(),
                 status: 'new',
                 date: new Date().toISOString().split('T')[0],
-                isPriceValidated: true
+                isPriceValidated: true,
+                partnerId: orderData.partnerId
             };
 
             Sentry.addBreadcrumb({
@@ -259,6 +261,15 @@ export const orderService = {
     async getLeadByToken(token: string) {
         const { query, where, getDocs, limit } = await import('firebase/firestore');
         const q = query(collection(db, 'leads'), where('magicLinkToken', '==', token), limit(1));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) return null;
+        return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
+    },
+
+    async getOrderByToken(token: string) {
+        const { query, where, getDocs, limit } = await import('firebase/firestore');
+        const q = query(collection(db, 'quotes'), where('trackingToken', '==', token), limit(1));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) return null;

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import Contact from '../../../components/Contact';
+import Contact from '../../../components/pages/Contact';
 import { Metadata } from 'next';
 import { getFixedT } from '../../../utils/i18n-server';
 

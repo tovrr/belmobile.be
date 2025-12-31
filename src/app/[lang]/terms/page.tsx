@@ -1,4 +1,4 @@
-import Terms from '../../../components/Terms';
+import Terms from '../../../components/pages/Terms';
 import { Metadata } from 'next';
 import { getFixedT } from '../../../utils/i18n-server';
 

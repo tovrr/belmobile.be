@@ -1,6 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
-import ExpressCourierClient from '../../../components/ExpressCourierClient';
+import ExpressCourierClient from '../../../components/features/ExpressCourierClient';
 
 interface PageProps {
     params: Promise<{

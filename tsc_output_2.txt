@@ -1,3 +1,7 @@
-﻿src/components/wizard/steps/StepCategorySelection.tsx(49,29): error TS2349: This expression is not callable.
-  Type '{ brand: string; category: string; model: string; keywords?: string[] | undefined; }' has no call signatures.
-src/components/wizard/steps/StepCategorySelection.tsx(49,36): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/components/admin/WalkInOrderModal.tsx(117,22): error TS17008: JSX element 'form' has no corresponding closing tag.
+src/components/admin/WalkInOrderModal.tsx(284,11): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/components/admin/WalkInOrderModal.tsx(285,5): error TS1005: ')' expected.
+src/components/admin/WalkInOrderModal.tsx(286,1): error TS1109: Expression expected.
+src/components/admin/WalkInOrderModal.tsx(287,1): error TS1109: Expression expected.
+src/components/admin/WalkInOrderModal.tsx(288,1): error TS1109: Expression expected.
+src/components/admin/WalkInOrderModal.tsx(289,1): error TS1128: Declaration or statement expected.

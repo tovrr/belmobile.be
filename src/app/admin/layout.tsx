@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Providers } from '../../components/Providers';
+import { Providers } from '../../components/common/Providers';
 import AdminShell from '../../components/admin/AdminShell';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

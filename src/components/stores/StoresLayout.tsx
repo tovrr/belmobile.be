@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import BrandLoader from '../ui/BrandLoader';
 
 // Dynamically import StoreMap with no SSR because Leaflet requires window
-const StoreMap = dynamic(() => import('../StoreMap'), {
+const StoreMap = dynamic(() => import('../store/StoreMap'), {
     ssr: false,
     loading: () => (
         <div className="w-full h-full min-h-[400px] bg-transparent flex items-center justify-center">
@@ -16,7 +16,7 @@ const StoreMap = dynamic(() => import('../StoreMap'), {
     )
 });
 
-import { Shop } from '../../types';
+import { Shop } from '../../types/models';
 
 interface StoresLayoutProps {
     lang: string;

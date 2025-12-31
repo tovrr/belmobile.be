@@ -23,6 +23,7 @@ import {
 } from '../hooks/useFirestore';
 import { sendEmail } from '../services/emailService';
 import { getQuoteStatusEmail, getReservationStatusEmail } from '../utils/emailTemplates';
+import { notificationService } from '../services/notificationService';
 
 // These types are derived to ensure consistency
 type ReservationStatus = Reservation['status'];
@@ -189,9 +190,10 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 const snap = await getDoc(docRef);
                 if (snap.exists()) {
                     const data = snap.data() as Quote;
-                    const lang = (data.language || 'en') as 'en' | 'fr' | 'nl';
-                    const { subject, html } = getQuoteStatusEmail(data, String(id), lang);
-                    await sendEmail(data.customerEmail, subject, html);
+                    // Connect to Eyes & Ears Notification System (Gözün Kulağın)
+                    // If preferences exist, use them. Otherwise default to full suite (Eyes and Ears standard)
+                    const notifyMethods = data.notificationPreferences || ['email', 'whatsapp'];
+                    await notificationService.notifyStatusUpdate(data, String(id), notifyMethods);
                 }
             }
         } catch (error) {

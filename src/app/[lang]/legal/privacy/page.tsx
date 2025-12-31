@@ -1,4 +1,4 @@
-import LegalPage from '../../../../components/LegalPage';
+import LegalPage from '../../../../components/pages/LegalPage';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

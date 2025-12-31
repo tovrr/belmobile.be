@@ -1,6 +1,6 @@
 import React, { useState, useMemo, memo } from 'react';
 import Image from 'next/image';
-import { MagnifyingGlassIcon, DevicePhoneMobileIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, DevicePhoneMobileIcon, ChevronLeftIcon, ShieldCheckIcon, BanknotesIcon, BoltIcon, StarIcon } from '@heroicons/react/24/outline';
 import { DEVICE_TYPES } from '../../../constants';
 import TypewriterInput from '../../ui/TypewriterInput';
 import { SEARCH_INDEX } from '../../../data/search-index';
@@ -11,6 +11,8 @@ import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { POPULAR_REPAIR_KEYS, POPULAR_BUYBACK_KEYS } from '../../../data/popularDevices';
+import Select from '../../ui/Select';
+import Button from '../../ui/Button';
 
 interface SearchResult {
     brand: string;
@@ -48,6 +50,31 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
     const [isFocused, setIsFocused] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
 
+    // Local manual selection for compact widget
+    const [localBrand, setLocalBrand] = useState('');
+    const [localModel, setLocalModel] = useState('');
+
+    const allBrands = useMemo(() => {
+        const unique = new Set(Object.values(SEARCH_INDEX).map(i => i.brand));
+        return Array.from(unique).sort();
+    }, []);
+
+    const modelsForBrand = useMemo(() => {
+        if (!localBrand) return [];
+        return Object.values(SEARCH_INDEX)
+            .filter(i => i.brand === localBrand)
+            .map(i => i.model)
+            .sort();
+    }, [localBrand]);
+
+    const handleManualGo = () => {
+        if (!localBrand || !localModel) return;
+        const item = Object.values(SEARCH_INDEX).find(i => i.brand === localBrand && i.model === localModel);
+        if (item) {
+            onSearchSelect(item as SearchResult);
+        }
+    };
+
     // Filtered search results
     const debouncedSearchTerm = useDebounce(searchTerm, 150);
 
@@ -84,7 +111,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
     const showDropdown = isFocused && (isSearching || (searchTerm.length === 0 && popularSuggestions.length > 0));
 
     return (
-        <div className="animate-fade-in w-full max-w-4xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8">
+        <div className={`animate-fade-in w-full mx-auto ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : 'max-w-4xl pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8'}`}>
             {!hideStep1Title && (
                 <div className="text-center mb-12">
 
@@ -197,38 +224,115 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                 )}
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {DEVICE_TYPES.map((dt) => (
-                    <button
-                        key={dt.id}
-                        onClick={() => {
-                            if (handleCategorySelect) {
-                                handleCategorySelect(dt.id);
-                            } else {
-                                // Fallback if action not available (shouldn't happen)
-                                dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: dt.id } });
-                                onNext();
-                            }
-                        }}
-                        className={`group flex flex-col items-center justify-center p-4 lg:p-8 rounded-3xl border-2 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${state.deviceType === dt.id
-                            ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 shadow-blue-500/20'
-                            : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'
-                            }`}
-                    >
-                        <div className={`relative w-16 h-16 p-4 rounded-2xl mb-4 transition-all duration-300 ${state.deviceType === dt.id ? 'bg-bel-blue scale-110 shadow-lg shadow-blue-500/30' : 'bg-gray-50 dark:bg-slate-800 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/10'}`}>
-                            <Image
-                                src={dt.icon}
-                                alt={`${t(dt.label)} category icon`}
-                                fill
-                                priority
-                                sizes="64px"
-                                className={`object-contain p-2 transition-all duration-300 ${state.deviceType === dt.id ? 'brightness-0 invert' : 'opacity-60 dark:invert dark:opacity-80 group-hover:opacity-100 group-hover:scale-110'}`}
+            {state.isWidget ? (
+                <div className="flex flex-col gap-6 max-w-lg mx-auto">
+                    <div className="bg-white/40 dark:bg-slate-900/40 p-6 rounded-3xl border border-white/20 backdrop-blur-md shadow-2xl relative overflow-hidden group/card transition-all hover:bg-white/50 dark:hover:bg-slate-900/50">
+                        {/* Perfect Widget Conversion Badge */}
+                        <div className="absolute -top-1 -right-1 flex flex-col items-end">
+                            <div className="bg-bel-blue text-white text-[10px] font-black uppercase px-3 py-1.5 rounded-bl-2xl shadow-lg animate-pulse flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                                {type === 'buyback' ? t('trust_best_price') : t('trust_official_warranty')}
+                            </div>
+                        </div>
+
+                        <div className="text-xs font-black text-bel-blue uppercase tracking-widest text-center mb-6">
+                            {t('or_select_manually')}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                            <Select
+                                label={t('Brand')}
+                                value={localBrand}
+                                onChange={(e) => {
+                                    setLocalBrand(e.target.value);
+                                    setLocalModel('');
+                                }}
+                                options={[
+                                    { value: '', label: t('Select Brand') },
+                                    ...allBrands.map(b => ({ value: b, label: b }))
+                                ]}
+                                className="py-4! rounded-2xl! bg-white/80 dark:bg-slate-950/80"
+                            />
+                            <Select
+                                label={t('Model')}
+                                value={localModel}
+                                disabled={!localBrand}
+                                onChange={(e) => setLocalModel(e.target.value)}
+                                options={[
+                                    { value: '', label: t('Select Model') },
+                                    ...modelsForBrand.map(m => ({ value: m, label: m }))
+                                ]}
+                                className="py-4! rounded-2xl! bg-white/80 dark:bg-slate-950/80"
                             />
                         </div>
-                        <span className="font-bold text-gray-900 dark:text-white group-hover:text-bel-blue transition-colors">{t(dt.label)}</span>
-                    </button>
-                ))}
-            </div>
+
+                        <Button
+                            onClick={handleManualGo}
+                            disabled={!localBrand || !localModel}
+                            variant="cyber"
+                            className="w-full mt-2 py-6! text-lg! rounded-2xl! shadow-xl shadow-bel-blue/20 group/btn relative overflow-hidden"
+                            icon={<BoltIcon className="w-5 h-5 transition-transform group-hover/btn:translate-x-1" />}
+                        >
+                            <span className="relative z-10 font-black">{t(type === 'buyback' ? 'Evaluate My Device' : 'Estimate Repair')}</span>
+                        </Button>
+                    </div>
+
+                    {/* Trust Signals Row - The "Perfect Widget" Secret Sauce */}
+                    <div className="flex justify-between gap-2 px-2">
+                        <div className="flex flex-col items-center gap-1 flex-1 text-center">
+                            <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-bel-blue border border-blue-100 dark:border-blue-800">
+                                <ShieldCheckIcon className="w-5 h-5" />
+                            </div>
+                            <span className="text-[10px] font-bold text-gray-500 uppercase leading-tight">{t('trust_official_warranty')}</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1 flex-1 text-center">
+                            <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 border border-emerald-100 dark:border-emerald-800">
+                                <BanknotesIcon className="w-5 h-5" />
+                            </div>
+                            <span className="text-[10px] font-bold text-gray-500 uppercase leading-tight">{t('trust_instant_cash')}</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1 flex-1 text-center">
+                            <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 border border-amber-100 dark:border-amber-800">
+                                <StarIcon className="w-5 h-5" />
+                            </div>
+                            <span className="text-[10px] font-bold text-gray-500 uppercase leading-tight">4.9/5 Rating</span>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {DEVICE_TYPES.map((dt) => (
+                        <button
+                            key={dt.id}
+                            onClick={() => {
+                                if (handleCategorySelect) {
+                                    handleCategorySelect(dt.id);
+                                } else {
+                                    // Fallback if action not available (shouldn't happen)
+                                    dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: dt.id } });
+                                    onNext();
+                                }
+                            }}
+                            className={`group flex flex-col items-center justify-center p-4 lg:p-8 rounded-3xl border-2 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${state.deviceType === dt.id
+                                ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 shadow-blue-500/20'
+                                : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'
+                                }`}
+                        >
+                            <div className={`relative w-16 h-16 p-4 rounded-2xl mb-4 transition-all duration-300 ${state.deviceType === dt.id ? 'bg-bel-blue scale-110 shadow-lg shadow-blue-500/30' : 'bg-gray-50 dark:bg-slate-800 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/10'}`}>
+                                <Image
+                                    src={dt.icon}
+                                    alt={`${t(dt.label)} category icon`}
+                                    fill
+                                    priority
+                                    sizes="64px"
+                                    className={`object-contain p-2 transition-all duration-300 ${state.deviceType === dt.id ? 'brightness-0 invert' : 'opacity-60 dark:invert dark:opacity-80 group-hover:opacity-100 group-hover:scale-110'}`}
+                                />
+                            </div>
+                            <span className="font-bold text-gray-900 dark:text-white group-hover:text-bel-blue transition-colors">{t(dt.label)}</span>
+                        </button>
+                    ))}
+                </div>
+            )}
         </div>
     );
 });

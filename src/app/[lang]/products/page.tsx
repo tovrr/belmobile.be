@@ -1,4 +1,4 @@
-import Products from '../../../components/Products';
+import Products from '../../../components/product/Products';
 import { Metadata } from 'next';
 import { getProducts } from '../../../services/productService';
 

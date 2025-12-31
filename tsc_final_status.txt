@@ -1,0 +1,3 @@
+﻿src/archive/proxy.ts(3,22): error TS2307: Cannot find module './i18n-config' or its corresponding type declarations.
+src/archive/proxy.ts(4,32): error TS2307: Cannot find module './utils/legacyUrlMap' or its corresponding type declarations.
+src/archive/proxy.ts(97,10): error TS7006: Parameter 'locale' implicitly has an 'any' type.

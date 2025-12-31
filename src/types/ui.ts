@@ -30,4 +30,4 @@ export interface ChartData {
     value: number;
 }
 
-export type { MapProps } from '../components/Map';
+export type { MapProps } from '../components/store/Map';

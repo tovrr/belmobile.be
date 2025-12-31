@@ -223,7 +223,8 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                 model: state.selectedModel,
                 isCompany: state.isCompany,
                 companyName: state.companyName,
-                vatNumber: state.vatNumber
+                vatNumber: state.vatNumber,
+                partnerId: state.partnerId
             }, t);
 
             // 4. Redirect Immediately to Success Page

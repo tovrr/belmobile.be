@@ -1,4 +1,4 @@
-import Warranty from '../../../components/Warranty';
+import Warranty from '../../../components/pages/Warranty';
 import { Metadata } from 'next';
 
 type Props = {

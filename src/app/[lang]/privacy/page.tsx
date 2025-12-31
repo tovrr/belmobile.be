@@ -1,4 +1,4 @@
-import Privacy from '../../../components/Privacy';
+import Privacy from '../../../components/pages/Privacy';
 import { Metadata } from 'next';
 import { getFixedT } from '../../../utils/i18n-server';
 

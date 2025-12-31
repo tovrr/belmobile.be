@@ -7,9 +7,10 @@ interface StepIndicatorProps {
     type: 'buyback' | 'repair';
     step: number;
     t: (key: string) => string;
+    isWidget?: boolean;
 }
 
-const StepIndicator: React.FC<StepIndicatorProps> = ({ type, step, t }) => {
+const StepIndicator: React.FC<StepIndicatorProps> = ({ type, step, t, isWidget }) => {
     // Dynamic labels based on type
     const getLabel = (id: number) => {
         if (id === 1) return t('Device');
@@ -26,7 +27,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ type, step, t }) => {
     const safeIndex = currentStepIndex === -1 ? 0 : currentStepIndex;
 
     return (
-        <div className="flex flex-col w-full max-w-3xl mx-auto mb-8">
+        <div className={`flex flex-col w-full max-w-3xl mx-auto ${isWidget ? 'mb-4 mt-2 scale-90' : 'mb-8'}`}>
             <div className="flex justify-between items-center relative z-10">
                 {currentSteps.map((s, index) => {
                     // Check completion based on index, not just raw step value, 
@@ -42,7 +43,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ type, step, t }) => {
                                 }`}>
                                 {isCompleted ? <CheckCircleIcon className="w-5 h-5" /> : (index + 1)}
                             </div>
-                            <span className={`mt-2 text-xs font-medium transition-colors duration-300 ${isCurrent ? 'text-bel-blue' : isCompleted ? 'text-bel-blue' : 'text-gray-400'
+                            <span className={`mt-2 text-[10px] sm:text-xs font-bold transition-colors duration-300 ${isCurrent ? 'text-bel-blue' : isCompleted ? 'text-bel-blue' : 'text-gray-400'
                                 }`}>
                                 {getLabel(s)}
                             </span>

@@ -1,4 +1,4 @@
-import Careers from '../../../components/Careers';
+import Careers from '../../../components/pages/Careers';
 import { Metadata } from 'next';
 
 type Props = {

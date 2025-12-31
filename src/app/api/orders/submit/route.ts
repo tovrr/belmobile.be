@@ -73,13 +73,20 @@ export async function POST(req: NextRequest) {
             const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
             const preGeneratedId = `ORD-${new Date().getFullYear()}-${randomSuffix}`;
 
+            // Generate secure tracking token for login-free tracking
+            const { randomBytes } = await import('crypto');
+            const trackingToken = randomBytes(32).toString('hex');
+
             const docReference = await addDoc(collection(db, 'quotes'), {
                 ...body,
                 price: calculatedPrice, // Enforce server price
                 isVerified: true,
                 createdAt: serverTimestamp(),
                 source: 'web_wizard_secure',
-                orderId: preGeneratedId
+                orderId: preGeneratedId,
+                trackingToken,
+                trackingTokenCreatedAt: serverTimestamp(),
+                originPartnerId: body.partnerId || null
             });
 
             Sentry.setTag("order_id", preGeneratedId);

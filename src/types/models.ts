@@ -102,6 +102,7 @@ export interface Reservation {
     language?: string;
     paymentLink?: string;
     paymentReceiptUrl?: string;
+    orderId?: string;
 }
 
 export interface ActivityLogEntry {
@@ -158,6 +159,8 @@ export interface Quote {
     activityLog?: ActivityLogEntry[];
     hasHydrogel?: boolean;
     courierTier?: 'bridge' | 'brussels';
+    trackingToken?: string;
+    originPartnerId?: string;
     // Specs for buyback refinement
     turnsOn?: boolean | null;
     worksCorrectly?: boolean | null;
@@ -167,6 +170,7 @@ export interface Quote {
     isCompany?: boolean;
     companyName?: string;
     vatNumber?: string;
+    notificationPreferences?: ('email' | 'whatsapp' | 'sms')[];
 }
 
 export interface ContactMessage {

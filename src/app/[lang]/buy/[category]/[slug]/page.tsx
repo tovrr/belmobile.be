@@ -1,7 +1,7 @@
 import React, { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import ProductDetail from '../../../../../components/ProductDetail';
+import ProductDetail from '../../../../../components/product/ProductDetail';
 import { db } from '../../../../../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { Product } from '../../../../../types';

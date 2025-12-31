@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import ProductCard from '../ProductCard';
-import ProductCardSkeleton from '../ProductCardSkeleton';
+import ProductCard from '../product/ProductCard';
+import ProductCardSkeleton from '../product/ProductCardSkeleton';
 import { Product } from '@/types';
 import { useLanguage } from '@/hooks/useLanguage';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';

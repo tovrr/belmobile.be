@@ -1,6 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
-import HomeClient from '@/components/HomeClient';
+import HomeClient from '@/components/sections/HomeClient';
 import { getReviews } from '@/services/reviewService';
 
 export const revalidate = 3600; // Revalidate every hour

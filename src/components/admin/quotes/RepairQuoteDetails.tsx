@@ -7,7 +7,7 @@ import {
     PencilIcon, CheckIcon, XMarkIcon, PlusIcon,
     WrenchScrewdriverIcon, ArchiveBoxIcon
 } from '@heroicons/react/24/outline';
-import { QuoteHeader, CustomerInfoCard, DeviceBasicsCard, ActivityLogViewer, SectionWrapper } from './SharedQuoteComponents';
+import { QuoteHeader, CustomerInfoCard, DeviceBasicsCard, ActivityLogViewer, SectionWrapper, MagicLinkCard } from './SharedQuoteComponents';
 
 interface Props {
     quote: Quote;
@@ -152,8 +152,18 @@ const RepairQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
                     {/* LEFT COLUMN */}
                     <div className="space-y-6 lg:col-span-1">
                         <CustomerInfoCard quote={quote} />
+                        <MagicLinkCard quote={quote} />
 
                         <SectionWrapper title="Workflow Actions">
+                            <div className="flex items-center gap-2 mb-4 p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800/30">
+                                <div className="relative">
+                                    <WrenchScrewdriverIcon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+                                    Gözün Kulağın: Active
+                                </span>
+                            </div>
                             <div className="space-y-2">
                                 {/* Removed 'On Hold' button */}
 

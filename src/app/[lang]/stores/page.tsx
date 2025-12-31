@@ -1,7 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import StoresLayout from '../../../components/stores/StoresLayout';
-import SchemaMarkup from '../../../components/SchemaMarkup';
+import SchemaMarkup from '../../../components/seo/SchemaMarkup';
 
 interface PageProps {
     params: Promise<{

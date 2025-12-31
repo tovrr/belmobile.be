@@ -1,4 +1,4 @@
-import BusinessSolutions from '../../../components/BusinessSolutions';
+import BusinessSolutions from '../../../components/sections/BusinessSolutions';
 import { Metadata } from 'next';
 import { getFixedT } from '../../../utils/i18n-server';
 

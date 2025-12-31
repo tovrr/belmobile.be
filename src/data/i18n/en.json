@@ -1418,5 +1418,11 @@
     "cat_body": "Body & Buttons",
     "cat_technical": "Board & System",
     "Download Invoice": "Download Invoice",
-    "B2B Invoice": "B2B Invoice"
+    "B2B Invoice": "B2B Invoice",
+    "or_select_manually": "Or select manually",
+    "Evaluate My Device": "Evaluate my device",
+    "Estimate Repair": "Estimate repair",
+    "trust_instant_cash": "Instant Payment",
+    "trust_official_warranty": "Official Warranty",
+    "trust_best_price": "Best Price Guaranteed"
 }

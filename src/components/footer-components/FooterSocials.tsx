@@ -1,5 +1,5 @@
 import React from 'react';
-import { FacebookIcon, InstagramIcon, YouTubeIcon, TikTokIcon } from '../Icons';
+import { FacebookIcon, InstagramIcon, YouTubeIcon, TikTokIcon } from '../ui/Icons';
 
 const FooterSocials: React.FC = () => {
     return (

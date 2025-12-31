@@ -1,4 +1,4 @@
-import Terms from '../../../../components/Terms';
+import Terms from '../../../../components/pages/Terms';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

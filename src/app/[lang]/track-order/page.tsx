@@ -1,4 +1,4 @@
-import TrackOrder from '../../../components/TrackOrder';
+import TrackOrder from '../../../components/features/TrackOrder';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { getFixedT } from '../../../utils/i18n-server';

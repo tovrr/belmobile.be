@@ -1,7 +1,7 @@
 import React, { cache } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { Metadata } from 'next';
-import BlogPost from '../../../../components/BlogPost';
+import BlogPost from '../../../../components/pages/BlogPost';
 import { MOCK_BLOG_POSTS } from '../../../../constants';
 import { db } from '../../../../firebase';
 import { collection, getDocs } from 'firebase/firestore';
