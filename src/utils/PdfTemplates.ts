@@ -145,6 +145,7 @@ export interface PdfData {
         shopLabel: string;
     };
     legalDisclaimer?: string;
+    logo?: string; // Base64 logo
 }
 
 export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
@@ -160,13 +161,17 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     {
                         width: '*',
                         stack: [
-                            {
+                            data.logo ? {
+                                image: data.logo,
+                                width: 120, // Adjust width as needed
+                                margin: [0, 0, 0, 5]
+                            } : {
                                 text: [
                                     { text: 'BELMOBILE', style: 'headerTitle' },
                                     { text: '.BE', style: 'headerTitle', color: COLORS.Accent }
                                 ]
                             },
-                            { text: 'BUYBACK & REPAIR', style: 'headerSubtitle' }
+                            { text: 'BUYBACK & REPAIR', style: 'headerSubtitle', margin: [0, data.logo ? 0 : 1, 0, 0] }
                         ]
                     },
                     {

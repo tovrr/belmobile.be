@@ -266,7 +266,43 @@ export const generateRepairBuybackPDF = async (data: RepairBuybackData, t: TFunc
     });
 };
 
+// Helper to fetch image and convert to Base64
+const getBase64ImageFromURL = (url: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.src = url;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0);
+            const dataURL = canvas.toDataURL('image/png');
+            resolve(dataURL);
+        };
+        img.onerror = (error) => {
+            console.warn("Failed to load logo for PDF", error);
+            resolve(''); // graceful fallback (no logo)
+        };
+    });
+};
+
 export const generatePDFFromPdfData = async (pdfData: any, filenamePrefix: string) => {
+    // 1. Fetch Logo
+    let logoBase64 = '';
+    try {
+        // Ensure this path matches your public folder structure
+        logoBase64 = await getBase64ImageFromURL('/logo.png');
+    } catch (e) {
+        console.warn("Logo load error", e);
+    }
+
+    // 2. Inject into Data
+    if (logoBase64) {
+        pdfData.logo = logoBase64;
+    }
+
     // Dynamic import
     const pdfMakeModule = await import('pdfmake/build/pdfmake');
     const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
