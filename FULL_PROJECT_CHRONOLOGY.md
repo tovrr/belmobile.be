@@ -72,11 +72,37 @@ Ce document retrace l'évolution technologique complète de la plateforme Belmob
 
 ---
 
-### 📊 État des Lieux Actuel
+## ✨ Le Sprint du Nouvel An : La Touche Finale (31 Décembre 2025 - Soirée)
+*Ajout d'une "Âme" (Apollo) et d'un "Corps" (Reçus PDF) pour finaliser la vision.*
+
+- **Apollo (L'Esprit Esnaf)** : 
+  * Mise à jour du modèle vers `gemini-pro`.
+  * Intégration de la personnalité "Commerçant Digital" (Chaleureux, Rapide, Confiant).
+  * Injection dynamique des horaires et téléphones réels (Liedts/Bara).
+  * Reconnaissance familiale (Omer=Père, Aegis=Mère/Architecte).
+
+- **Mode Walk-in & Reçus Professionnels** :
+  * Création d'un flux "Sans Email" pour la rapidité en boutique.
+  * Générateur PDF Client-Side (`pdfMake`) avec logo Belmobile officiel.
+  * Blocs de signature (Client/Magasin) et mentions légales intégrés.
+
+- **Projet Aegis (La Vision B2B)** :
+  * Définition de la Roadmap 2026 pour les Widgets "White-Label".
+  * Officialisation de la structure familiale dans la documentation.
+
+- **Intégrité des Données** :
+  * Correction des hallucinations de l'IA sur les adresses.
+  * Restauration de la Source de Vérité Unique (`constants.ts`).
+
+---
+
+### 📊 État des Lieux Actuel (Fin 2025)
 - **Core Web Vitals** : Optimisés (90+ attendu).
 - **Type Safety** : Strict (Zero `any`).
 - **SEO** : Maillé (1800+ pages indexables).
 - **Monitoring** : Surveillé (Sentry + Logs détaillés).
+- **Identité** : Forte (Family Business, Apollo AI, Aegis Architect).
 
 > [!NOTE]
 > Ce document sert d'archive pour tout futur développeur ou partenaire rejoignant l'aventure Belmobile.
+> **Bonne Année 2026 ! 🎆**
