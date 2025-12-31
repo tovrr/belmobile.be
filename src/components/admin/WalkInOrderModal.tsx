@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { XMarkIcon, PlusIcon, BoltIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, PlusIcon, BoltIcon, PrinterIcon, ArrowPathIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { db } from '../../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
 import { Quote } from '../../types';
+import { generatePDFFromPdfData, savePDFBlob } from '../../utils/pdfGenerator';
+import { PdfData } from '../../utils/PdfTemplates';
 
 import { useRouter } from 'next/navigation';
 
@@ -17,13 +19,14 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
     const { user } = useAuth();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [successData, setSuccessData] = useState<Partial<Quote> | null>(null);
 
     // Form State
     const [type, setType] = useState<'repair' | 'buyback'>('repair');
     const [customerName, setCustomerName] = useState('');
     const [customerPhone, setCustomerPhone] = useState('');
     const [customerEmail, setCustomerEmail] = useState('');
-    const [notifyChannels, setNotifyChannels] = useState<('email' | 'whatsapp' | 'sms')[]>(['whatsapp']); // Default to WhatsApp, Email is secondary
+    const [notifyChannels, setNotifyChannels] = useState<('email' | 'whatsapp' | 'sms')[]>(['whatsapp']);
 
     const [brand, setBrand] = useState('Apple');
     const [model, setModel] = useState('');
@@ -32,6 +35,97 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
     const [internalNotes, setInternalNotes] = useState('');
 
     if (!isOpen) return null;
+
+    const handlePrintReceipt = async () => {
+        if (!successData) return;
+        setIsLoading(true);
+        try {
+            // Construct PDF Data for Walk-in Receipt
+            const pdfData: PdfData = {
+                orderId: successData.orderId || 'N/A',
+                date: new Date().toLocaleDateString('fr-BE'),
+                method: 'In-Store Drop-off',
+                type: successData.type || 'repair',
+                documentTitle: `${successData.type === 'repair' ? 'REPAIR' : 'BUYBACK'} RECEIPT`,
+                customer: {
+                    name: successData.customerName || '',
+                    email: successData.customerEmail,
+                    phone: successData.customerPhone || '',
+                    address: '' // Not needed for walk-in usually
+                },
+                shopOrDevice: {
+                    title: 'Device Details',
+                    name: `${successData.brand} ${successData.model}`,
+                    details: [
+                        { label: 'Issue / Condition', value: successData.issue || '-' },
+                        { label: 'Type', value: successData.deviceType || 'Smartphone' }
+                    ]
+                },
+                priceBreakdown: [
+                    { label: successData.type === 'repair' ? 'Repair Estimate' : 'Buyback Offer', price: successData.price || 0 }
+                ],
+                totalLabel: 'Total',
+                totalPrice: successData.price || 0,
+                nextSteps: [
+                    'Technician inspection (15-30 min)',
+                    'Repair / Data Check',
+                    'Payment & Pick-up'
+                ],
+                footerHelpText: 'Belmobile.be - Questions? support@belmobile.be',
+                labels: {
+                    orderId: 'Order ID',
+                    date: 'Date',
+                    method: 'Method',
+                    clientDetails: 'Customer',
+                    name: 'Name',
+                    email: 'Email',
+                    phone: 'Phone',
+                    address: 'Address',
+                    featuresSpecs: 'Specs',
+                    shop: 'Shop',
+                    model: 'Model',
+                    financials: 'Financials',
+                    description: 'Description',
+                    price: 'Price',
+                    paymentIban: 'IBAN',
+                    followOrder: 'Track Order',
+                    nextSteps: 'Next Steps',
+                    scanToTrack: 'Scan to Track',
+                    page: 'Page',
+                    of: '/',
+                    subtotal: 'Subtotal',
+                    vat: 'VAT'
+                },
+                // THE KEY FEATURE: Signature Block
+                signatureBlock: {
+                    customerLabel: 'Customer Signature',
+                    shopLabel: 'Belmobile Shop'
+                },
+                legalDisclaimer: 'By signing, I confirm that the device is mine and I agree to the Belmobile service terms. Belmobile is not responsible for data loss; please backup your device.'
+            };
+
+            const { blob, safeFileName } = await generatePDFFromPdfData(pdfData, 'Receipt');
+            savePDFBlob(blob, safeFileName);
+
+        } catch (error) {
+            console.error("PDF Generation failed", error);
+            alert("Failed to generate PDF. Check console.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleReset = () => {
+        setSuccessData(null);
+        setCustomerName('');
+        setCustomerPhone('');
+        setCustomerEmail('');
+        setModel('');
+        setIssue('');
+        setPrice('');
+        setInternalNotes('');
+        onSuccess(); // Refresh dashboard list if needed
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,30 +136,22 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
 
         setIsLoading(true);
         try {
-            // Generate basic order ID
             const dateStr = new Date().getFullYear();
             const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
             const generatedOrderId = `ORD-${dateStr}-${randomSuffix}`;
-
-            // Smart Email Handling with Shop Tag
-            // format: walkin.shop{id}@belmobile.be
-            const currentShopId = '1'; // TODO: Get from context/user selection
+            const currentShopId = '1';
             const finalEmail = customerEmail.trim() || `walkin.shop${currentShopId}@belmobile.be`;
-
-            // Auto-remove email from notifications if not provided
-            const finalNotifyChannels = customerEmail.trim()
-                ? notifyChannels
-                : notifyChannels.filter(c => c !== 'email');
+            const finalNotifyChannels = customerEmail.trim() ? notifyChannels : notifyChannels.filter(c => c !== 'email');
 
             const newOrder: Partial<Quote> = {
                 type: type,
-                id: generatedOrderId, // Use this for display ID
-                orderId: generatedOrderId, // Consistency
-                status: 'received', // Walk-ins are usually physically received immediately
-                deviceType: 'smartphone', // Default
+                id: generatedOrderId,
+                orderId: generatedOrderId,
+                status: 'received',
+                deviceType: 'smartphone',
                 brand,
                 model,
-                condition: 'used', // Default
+                condition: 'used',
                 issue: issue || 'Walk-in Inspection',
                 customerName,
                 customerEmail: finalEmail,
@@ -74,11 +160,11 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                 initialPrice: parseFloat(price),
                 date: new Date().toISOString(),
                 createdAt: serverTimestamp() as any,
-                shopId: '1', // Default to main shop or get from context if available
-                deliveryMethod: 'dropoff', // Always dropoff for walk-in
+                shopId: '1',
+                deliveryMethod: 'dropoff',
                 isCompany: false,
                 notificationPreferences: finalNotifyChannels,
-                isWalkIn: true, // Flag for analytics
+                isWalkIn: true,
                 internalNotes: `Walk-in Order. ${internalNotes}`,
                 activityLog: [{
                     adminId: user?.uid || 'admin',
@@ -88,25 +174,8 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                 }]
             };
 
-            // Use the generated ID as the Document ID as well for consistency
-            // but addDoc auto-generates ID. Let's use setDoc if we want specific ID.
-            // For now, simplicity: addDoc is fine, orderId field is what matters for UI.
             await addDoc(collection(db, 'quotes'), newOrder);
-
-            // Notify User
-            alert(`✅ Order Created Successfully!\nID: ${generatedOrderId}`);
-
-            // Reset and Close
-            setCustomerName('');
-            setCustomerPhone('');
-            setCustomerEmail('');
-            setModel('');
-            setIssue('');
-            setPrice('');
-            setInternalNotes('');
-
-            onSuccess();
-            onClose();
+            setSuccessData(newOrder); // Show Success Screen instead of Alert
 
         } catch (error) {
             console.error("Error creating walk-in order:", error);
@@ -115,6 +184,44 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
             setIsLoading(false);
         }
     };
+
+    // --- SUCCESS VIEW ---
+    if (successData) {
+        return (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden flex flex-col p-8 text-center">
+                    <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
+                        <CheckCircleIcon className="w-10 h-10 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Order Created!</h2>
+                    <p className="text-gray-500 mb-6 font-mono text-lg">{successData.orderId}</p>
+
+                    <div className="space-y-3">
+                        <button
+                            onClick={handlePrintReceipt}
+                            disabled={isLoading}
+                            className="w-full py-3 px-4 bg-bel-blue hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition flex items-center justify-center gap-2"
+                        >
+                            {isLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <PrinterIcon className="w-5 h-5" />}
+                            Print Receipt (PDF)
+                        </button>
+
+                        <button
+                            onClick={handleReset}
+                            className="w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition flex items-center justify-center gap-2"
+                        >
+                            <ArrowPathIcon className="w-5 h-5" />
+                            New Order
+                        </button>
+                    </div>
+
+                    <button onClick={onClose} className="mt-6 text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        Close
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
