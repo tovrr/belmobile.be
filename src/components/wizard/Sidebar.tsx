@@ -15,6 +15,7 @@ import { TRUST_SIGNALS, SignalContext } from '../../data/trustSignals';
 import Button from '../ui/Button';
 
 import { useWizard } from '../../context/WizardContext';
+import { PriceLockTimer } from '../ui/PriceLockTimer';
 
 // Map string icon names to components
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -272,6 +273,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 ) : estimateDisplay
                             )}
                         </div>
+                        {isBuyback && typeof estimateDisplay === 'number' && estimateDisplay > 0 && !loading && !isTransitioning && (
+                            <div className="flex justify-center mt-2 animate-fade-in">
+                                <PriceLockTimer />
+                            </div>
+                        )}
                         <p className="text-xs font-medium text-gray-500 mt-2">
                             {isBuyback ? t('Paid instantly via cash or bank transfer') : t('Includes labor and premium parts')}
                         </p>
