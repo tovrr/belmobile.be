@@ -145,10 +145,10 @@ export interface PdfData {
 export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
     return {
         pageSize: 'A4',
-        pageMargins: [25, 10, 25, 10], // Ultra-compact margins
+        pageMargins: [25, 15, 25, 15], // Standardized margins
 
         content: [
-            // 1. Header (Clean, Text Only)
+            // 1. Header (Logo Left, QR + Title Right)
             {
                 columns: [
                     {
@@ -165,23 +165,34 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                     },
                     {
                         width: 'auto',
-                        text: data.documentTitle.toUpperCase(),
-                        style: 'documentTitle',
-                        margin: [0, 6, 0, 0]
+                        stack: [
+                            // QR Code Priority
+                            ...(data.trackingUrl ? [{
+                                qr: data.trackingUrl,
+                                fit: 50,
+                                alignment: 'right',
+                                margin: [0, 0, 0, 4]
+                            }] : []),
+                            {
+                                text: data.documentTitle.toUpperCase(),
+                                style: 'documentTitle'
+                            }
+                        ]
                     }
-                ]
+                ],
+                margin: [0, 0, 0, 10]
             } as any,
 
-            // Single Minimal Divider
+            // Divider
             {
-                canvas: [{ type: 'line', x1: 0, y1: 3, x2: 545, y2: 3, lineWidth: 1, lineColor: COLORS.Primary }],
-                margin: [0, 2, 0, 4]
+                canvas: [{ type: 'line', x1: 0, y1: 0, x2: 545, y2: 0, lineWidth: 1, lineColor: COLORS.Primary }],
+                margin: [0, 0, 0, 10]
             } as any,
 
-            // 2. Info Box (Bordered Card, No Fill)
+            // 2. Info Box (3 Columns - Clean)
             {
                 table: {
-                    widths: ['30%', '25%', '25%', '20%'],
+                    widths: ['34%', '33%', '33%'], // Balanced widths
                     body: [[
                         {
                             stack: [
@@ -205,87 +216,86 @@ export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
                             ],
                             border: [true, false, false, false],
                             borderColor: [COLORS.Border, '#000', '#000', '#000']
-                        },
-                        // QR Code inside the box if exists
-                        (data.trackingUrl ? {
-                            stack: [
-                                { qr: data.trackingUrl, fit: 35, alignment: 'right' },
-                            ],
-                            border: [true, false, false, false],
-                            borderColor: [COLORS.Border, '#000', '#000', '#000']
-                        } : { text: '', border: [false, false, false, false] })
+                        }
                     ]]
                 },
                 layout: {
                     defaultBorder: false,
-                    paddingLeft: (i: number) => i === 0 ? 0 : 8,
-                    paddingRight: (i: number) => 8,
-                    paddingTop: () => 2,
-                    paddingBottom: () => 2
-                }
+                    paddingLeft: (i: number) => i === 0 ? 0 : 10,
+                    paddingRight: (i: number) => 10,
+                    paddingTop: () => 0,
+                    paddingBottom: () => 0
+                },
+                margin: [0, 0, 0, 15]
             } as any,
 
-            // 3. Main Grid (Customer | Shop/Device) - Divider Lines
+            // 3. Main Grid (Table Implementation for Strict Alignment)
             {
-                unbreakable: true, // Keep customer and device details together
-                columns: [
-                    // Left: Customer
-                    {
-                        width: '48%',
-                        stack: [
+                unbreakable: true,
+                table: {
+                    widths: ['48%', '4%', '48%'], // Left, Gutter, Right
+                    body: [
+                        [
+                            // Left Column: Customer
                             {
                                 stack: [
-                                    { text: data.labels.clientDetails.toUpperCase(), style: 'sectionHeader', margin: [0, 3, 0, 1] },
-                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 3] }
-                                ]
+                                    {
+                                        stack: [
+                                            { text: data.labels.clientDetails.toUpperCase(), style: 'sectionHeader', margin: [0, 0, 0, 2] },
+                                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 6] }
+                                        ]
+                                    },
+                                    { text: data.labels.name, style: 'label' },
+                                    { text: data.customer.name, style: 'value', margin: [0, 0, 0, 4] },
+
+                                    { text: data.labels.email, style: 'label' },
+                                    { text: data.customer.email || '-', style: 'value', margin: [0, 0, 0, 4] },
+
+                                    { text: data.labels.phone, style: 'label' },
+                                    { text: data.customer.phone, style: 'value', margin: [0, 0, 0, 4] },
+
+                                    ...(data.isCompany ? [
+                                        { text: data.labels.companyName, style: 'label' },
+                                        { text: data.companyName || '-', style: 'valueBold', margin: [0, 0, 0, 4] },
+                                        { text: data.labels.vatNumber, style: 'label' },
+                                        { text: data.vatNumber || '-', style: 'value', fontFeatures: ['tnum'], margin: [0, 0, 0, 4] }
+                                    ] : []),
+
+                                    ...(data.customer.address ? [
+                                        { text: data.labels.address, style: 'label' },
+                                        { text: data.customer.address, style: 'value', margin: [0, 0, 0, 4] }
+                                    ] : [])
+                                ],
+                                border: [false, false, false, false]
                             },
-                            { text: data.labels.name, style: 'label', margin: [0, 1, 0, 0] },
-                            { text: data.customer.name, style: 'value' },
-
-                            { text: data.labels.email, style: 'label', margin: [0, 1, 0, 0] },
-                            { text: data.customer.email || '-', style: 'value' },
-
-                            { text: data.labels.phone, style: 'label', margin: [0, 1, 0, 0] },
-                            { text: data.customer.phone, style: 'value' },
-
-                            ...(data.isCompany ? [
-                                { text: data.labels.companyName, style: 'label', margin: [0, 1, 0, 0] },
-                                { text: data.companyName || '-', style: 'valueBold' },
-                                { text: data.labels.vatNumber, style: 'label', margin: [0, 1, 0, 0] },
-                                { text: data.vatNumber || '-', style: 'value', fontFeatures: ['tnum'] }
-                            ] : []),
-
-                            ...(data.customer.address ? [
-                                { text: data.labels.address, style: 'label', margin: [0, 1, 0, 0] },
-                                { text: data.customer.address, style: 'value' }
-                            ] : [])
-                        ]
-                    },
-                    // Right: Shop or Device
-                    {
-                        width: '48%',
-                        stack: [
+                            // Gutter (Empty)
+                            { text: '', border: [false, false, false, false] },
+                            // Right Column: Shop/Device
                             {
                                 stack: [
-                                    { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader', margin: [0, 3, 0, 1] },
-                                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 3] }
-                                ]
-                            },
-                            // Name (Shop or Device)
-                            { text: data.type === 'reservation' ? (data.labels.shop || 'Magasin') : (data.labels.model || 'Modèle'), style: 'label', margin: [0, 1, 0, 0] },
-                            { text: data.shopOrDevice.name, style: 'valueBold' },
-                            // Dynamic Details List
-                            ...data.shopOrDevice.details.map(detail => ({
-                                stack: [
-                                    { text: detail.label, style: 'label', margin: [0, 1, 0, 0] },
-                                    { text: detail.value, style: 'value' }
-                                ]
-                            }))
+                                    {
+                                        stack: [
+                                            { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader', margin: [0, 0, 0, 2] },
+                                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 250, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 6] }
+                                        ]
+                                    },
+                                    { text: data.type === 'reservation' ? (data.labels.shop || 'Magasin') : (data.labels.model || 'Modèle'), style: 'label' },
+                                    { text: data.shopOrDevice.name, style: 'valueBold', margin: [0, 0, 0, 4] },
+
+                                    ...data.shopOrDevice.details.map(detail => ({
+                                        stack: [
+                                            { text: detail.label, style: 'label' },
+                                            { text: detail.value, style: 'value', margin: [0, 0, 0, 4] }
+                                        ]
+                                    }))
+                                ],
+                                border: [false, false, false, false]
+                            }
                         ]
-                    }
-                ],
-                columnGap: 8,
-                margin: [0, 2, 0, 2]
+                    ]
+                },
+                layout: 'noBorders',
+                margin: [0, 0, 0, 15]
             } as any,
 
             // 4. Specs (Buyback)

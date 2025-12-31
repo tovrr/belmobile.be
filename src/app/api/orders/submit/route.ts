@@ -161,15 +161,14 @@ export async function POST(req: NextRequest) {
                 const { base64, safeFileName } = await generatePDFFromPdfData(pdfData, type === 'buyback' ? 'Buyback' : 'Repair');
 
                 const emailHeader = `
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #4338ca; min-width: 100%;">
-                    <tr>
-                        <td align="center" style="padding: 24px;">
-                            <span style="font-family: sans-serif; font-size: 24px; font-weight: 900; color: #ffffff; letter-spacing: -1px;">BELMOBILE<span style="color: #eab308;">.BE</span></span>
-                            <br/>
-                            <span style="font-family: sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: #a5b4fc; display: inline-block; margin-top: 4px;">BUYBACK & REPAIR</span>
-                        </td>
-                    </tr>
-                </table>`;
+                <div style="padding: 20px 0; border-bottom: 1px solid #eaeaea; margin-bottom: 24px;">
+                    <h1 style="color: #111111; font-family: sans-serif; font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">
+                        BELMOBILE<span style="color: #4338ca;">.BE</span>
+                    </h1>
+                    <p style="color: #666666; font-family: sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin: 4px 0 0 0;">
+                        BUYBACK & REPAIR
+                    </p>
+                </div>`;
                 const emailFooter = `<div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;"><p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p><p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p><p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">&copy; ${new Date().getFullYear()} Belmobile. All rights reserved.</p></div>`;
 
                 const htmlContent = `
