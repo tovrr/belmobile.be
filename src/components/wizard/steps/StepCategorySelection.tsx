@@ -162,93 +162,95 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                 </div>
             )}
 
-            {/* Search Bar */}
-            <div className={`relative max-w-lg mx-auto ${hideStep1Title ? 'mb-8' : 'mb-12'}`}>
-                <div className="relative z-20 group">
-                    <MagnifyingGlassIcon
-                        className={`absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 transition-colors duration-300 ${isFocused ? 'text-bel-blue' : 'text-gray-400 group-hover:text-bel-blue/70'} ${!searchTerm && !isFocused ? 'animate-pulse' : ''}`}
-                        aria-hidden="true"
-                    />
-                    <input
-                        type="text"
-                        placeholder={currentPlaceholder}
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        onFocus={() => setIsFocused(true)}
-                        onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-                        className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-bel-blue focus:ring-4 focus:ring-blue-500/10 transition-all text-lg shadow-xl shadow-blue-500/5 hover:shadow-blue-500/10 hover:border-blue-200 dark:hover:border-blue-900"
-                        aria-expanded={showDropdown}
-                        aria-haspopup="listbox"
-                    />
-                </div>
+            {/* Search Bar (Hidden in Widget Mode - Aegis Optimization) */}
+            {!state.isWidget && (
+                <div className={`relative max-w-lg mx-auto ${hideStep1Title ? 'mb-8' : 'mb-12'}`}>
+                    <div className="relative z-20 group">
+                        <MagnifyingGlassIcon
+                            className={`absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 transition-colors duration-300 ${isFocused ? 'text-bel-blue' : 'text-gray-400 group-hover:text-bel-blue/70'} ${!searchTerm && !isFocused ? 'animate-pulse' : ''}`}
+                            aria-hidden="true"
+                        />
+                        <input
+                            type="text"
+                            placeholder={currentPlaceholder}
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                            className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-bel-blue focus:ring-4 focus:ring-blue-500/10 transition-all text-lg shadow-xl shadow-blue-500/5 hover:shadow-blue-500/10 hover:border-blue-200 dark:hover:border-blue-900"
+                            aria-expanded={showDropdown}
+                            aria-haspopup="listbox"
+                        />
+                    </div>
 
-                {/* Dropdown: Popular Suggestions or Search Results */}
-                {showDropdown && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 overflow-hidden z-20 animate-in fade-in slide-in-from-top-2 duration-200">
-                        {searchTerm.length === 0 ? (
-                            <div className="p-2">
-                                <div className="px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 dark:border-slate-800">
-                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('popular_devices')}</div>
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {type === 'repair' ? (
-                                            <>
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-100 dark:border-blue-800 uppercase">
-                                                    {t('screen')}
-                                                </span>
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-100 dark:border-green-800 uppercase">
-                                                    {t('battery')}
-                                                </span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 uppercase">
-                                                    {t('instant_cash')}
-                                                </span>
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-100 dark:border-purple-800 uppercase">
-                                                    {t('eco_friendly')}
-                                                </span>
-                                            </>
-                                        )}
+                    {/* Dropdown: Popular Suggestions or Search Results */}
+                    {showDropdown && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 overflow-hidden z-20 animate-in fade-in slide-in-from-top-2 duration-200">
+                            {searchTerm.length === 0 ? (
+                                <div className="p-2">
+                                    <div className="px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 dark:border-slate-800">
+                                        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('popular_devices')}</div>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {type === 'repair' ? (
+                                                <>
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-100 dark:border-blue-800 uppercase">
+                                                        {t('screen')}
+                                                    </span>
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-100 dark:border-green-800 uppercase">
+                                                        {t('battery')}
+                                                    </span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 uppercase">
+                                                        {t('instant_cash')}
+                                                    </span>
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-100 dark:border-purple-800 uppercase">
+                                                        {t('eco_friendly')}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                                {popularSuggestions.map((item, idx) => (
-                                    <SearchResultItem
-                                        key={`popular-${idx}`}
-                                        item={item}
-                                        onSelect={onSearchSelect}
-                                        type={type}
-                                        t={t}
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="p-2">
-                                {searchResults.length > 0 ? (
-                                    searchResults.map((item, idx) => (
+                                    {popularSuggestions.map((item, idx) => (
                                         <SearchResultItem
-                                            key={`result-${idx}`}
+                                            key={`popular-${idx}`}
                                             item={item}
                                             onSelect={onSearchSelect}
                                             type={type}
                                             t={t}
                                         />
-                                    ))
-                                ) : (
-                                    <div className="px-6 py-8 text-center text-gray-500">
-                                        <div className="mb-2">🔍</div>
-                                        {t('no_results_found')}{' '}
-                                        <span className="font-bold text-gray-900 dark:text-white">"{searchTerm}"</span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="p-2">
+                                    {searchResults.length > 0 ? (
+                                        searchResults.map((item, idx) => (
+                                            <SearchResultItem
+                                                key={`result-${idx}`}
+                                                item={item}
+                                                onSelect={onSearchSelect}
+                                                type={type}
+                                                t={t}
+                                            />
+                                        ))
+                                    ) : (
+                                        <div className="px-6 py-8 text-center text-gray-500">
+                                            <div className="mb-2">🔍</div>
+                                            {t('no_results_found')}{' '}
+                                            <span className="font-bold text-gray-900 dark:text-white">"{searchTerm}"</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {state.isWidget ? (
                 <div className="flex flex-col gap-6 max-w-lg mx-auto">
-                    <div className="bg-white/40 dark:bg-slate-900/40 p-6 rounded-3xl border border-white/20 backdrop-blur-md shadow-2xl relative overflow-hidden group/card transition-all hover:bg-white/50 dark:hover:bg-slate-900/50">
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-2xl relative overflow-hidden group/card transition-all">
                         {/* Perfect Widget Conversion Badge */}
                         <div className="absolute -top-1 -right-1 flex flex-col items-end">
                             <div className="bg-bel-blue text-white text-[10px] font-black uppercase px-3 py-1.5 rounded-bl-2xl shadow-lg animate-pulse flex items-center gap-1.5">
@@ -257,8 +259,11 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                             </div>
                         </div>
 
-                        <div className="text-xs font-black text-bel-blue uppercase tracking-widest text-center mb-6">
-                            {t('or_select_manually')}
+                        <div className="text-center mb-6">
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight leading-none mb-1">
+                                {type === 'buyback' ? t('Get Best Cash Offer') : t('Instant Repair Quote')}
+                            </h3>
+                            <p className="text-xs font-bold text-bel-blue uppercase tracking-widest mt-2">{t('Select Your Device')}</p>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -354,8 +359,9 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                         </button>
                     ))}
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 });
 
