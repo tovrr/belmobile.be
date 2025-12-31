@@ -5,6 +5,8 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
 import { Quote } from '../../types';
 
+import { useRouter } from 'next/navigation';
+
 interface Props {
     isOpen: boolean;
     onClose: () => void;
@@ -13,6 +15,7 @@ interface Props {
 
 const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
     const { user } = useAuth();
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
     // Form State
@@ -39,12 +42,16 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
 
         setIsLoading(true);
         try {
-            // Generate basic order ID locally or let cloud function handle it (we'll assume cloud function updates it or we use doc ID)
-            // Ideally we track a counter, but for speed, let's just make sure it's created.
+            // Generate basic order ID
+            const dateStr = new Date().getFullYear();
+            const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const generatedOrderId = `ORD-${dateStr}-${randomSuffix}`;
 
             const newOrder: Partial<Quote> = {
                 type: type,
-                status: 'new', // Start as New or Processing
+                id: generatedOrderId, // Use this for display ID
+                orderId: generatedOrderId, // Consistency
+                status: 'received', // Walk-ins are usually physically received immediately
                 deviceType: 'smartphone', // Default
                 brand,
                 model,
@@ -58,9 +65,10 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                 date: new Date().toISOString(),
                 createdAt: serverTimestamp() as any,
                 shopId: '1', // Default to main shop or get from context if available
-                deliveryMethod: 'dropoff',
+                deliveryMethod: 'dropoff', // Always dropoff for walk-in
                 isCompany: false,
                 notificationPreferences: notifyChannels,
+                isWalkIn: true, // Flag for analytics
                 internalNotes: `Walk-in Order. ${internalNotes}`,
                 activityLog: [{
                     adminId: user?.uid || 'admin',
@@ -70,7 +78,13 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                 }]
             };
 
+            // Use the generated ID as the Document ID as well for consistency
+            // but addDoc auto-generates ID. Let's use setDoc if we want specific ID.
+            // For now, simplicity: addDoc is fine, orderId field is what matters for UI.
             await addDoc(collection(db, 'quotes'), newOrder);
+
+            // Notify User
+            alert(`✅ Order Created Successfully!\nID: ${generatedOrderId}`);
 
             // Reset and Close
             setCustomerName('');

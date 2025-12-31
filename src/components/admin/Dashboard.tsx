@@ -157,23 +157,23 @@ const Dashboard: React.FC = () => {
 
     return (
         <div className="space-y-8 animate-fade-in pb-10">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-3xl font-black text-gray-900 dark:text-white">Dashboard</h1>
-                    <div className="flex justify-between items-center mb-6">
-                        <h1 className="text-2xl font-bold bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                            Business Overview
-                        </h1>
-
-                        <button
-                            onClick={() => setIsWalkInModalOpen(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-bel-blue text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all hover:scale-105 active:scale-95"
-                        >
-                            <PlusIcon className="w-4 h-4" />
-                            New Walk-in
-                        </button>
-                    </div>
+                    <p className="text-sm text-gray-500 mt-1 font-medium">Overview & Quick Actions</p>
                 </div>
+
+                <button
+                    onClick={() => setIsWalkInModalOpen(true)}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-bel-blue text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all hover:scale-105 active:scale-95"
+                >
+                    <PlusIcon className="w-5 h-5" />
+                    New Walk-in
+                </button>
+            </div>
+
+            <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">Business Overview</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
