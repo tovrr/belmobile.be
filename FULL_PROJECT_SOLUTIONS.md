@@ -1,6 +1,6 @@
 # 🛠️ FULL_PROJECT_SOLUTIONS: Engineering Redemption Path
 
-This document provides actionable engineering solutions to the structural weaknesses identified in `FULL_PROJECT_CRITIQUE.md`.
+This document provides actionable engineering solutions to the structural weaknesses identified in `FULL_PROJECT_CRITIQUE.md` and tracks the evolution of major architectural decisions.
 
 ---
 
@@ -57,6 +57,7 @@ This document provides actionable engineering solutions to the structural weakne
     - Track "Step Drop-off" rates to identify precisely which part of the UI is frustrating users.
 
 ---
+
 ## 7. 🏗️ The Great Component Refactoring (Dec 31, 2025)
 **Problem**: Disorganized `src/components` folder causing "Module not found" errors, circular dependencies, and a fragile Developer Experience (DX).
 **Solution**:
@@ -68,6 +69,25 @@ This document provides actionable engineering solutions to the structural weakne
     * Run `npx tsc --noEmit` iteratively after each batch move.
     * Use recursive grep to find all usages (`grep_search`).
     * Clean up archive/deprecated code (`proxy.ts`).
+
+---
+
+## 8. 🎯 Walk-in Optimization & SEO Migration (Dec 31, 2025)
+**Problem**:
+1. Walk-in customers reluctant to provide emails.
+2. Legacy Shopify URLs risking SEO value loss.
+3. Transactional emails blocked by spam filters due to heavy HTML.
+
+**Solution**:
+- **Anonymous Walk-in Flow**:
+    - **Logic**: If no email is provided, default to `walkin.shop{ID}@belmobile.be`.
+    - **UX**: Prioritize **WhatsApp** notifications over Email.
+    - **ID**: Client-side generation of `ORD-YYYY-XXXX` for instant feedback.
+- **SEO 301 Strategy**:
+    - **Map**: Comprehensive `next.config.ts` regex map redirecting legacy URLs (e.g., `/pages/reparation-iphone-*`) to new localized routes (`/fr/reparation/apple/iphone-*`).
+    - **Protection**: `robots` meta tag dynamically set to `noindex` for staging environments.
+- **Email Delivery**:
+    - **Redesign**: Switched to **Text-Only HTML Headers** (tables) to bypass Gmail's "Show Images" warning and improve deliverability.
 
 ---
 
