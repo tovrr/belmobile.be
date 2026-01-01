@@ -1,5 +1,5 @@
 
-export type Language = 'en' | 'fr' | 'nl';
+export type Language = 'en' | 'fr' | 'nl' | 'tr';
 
 export type TranslationDict = {
     [key: string]: string;

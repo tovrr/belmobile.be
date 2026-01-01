@@ -11,9 +11,10 @@ import { TranslationDict } from '../../utils/translations';
 import path from 'path';
 import { promises as fs } from 'fs';
 import SchemaMarkup from '../../components/seo/SchemaMarkup';
+import FaviconHeartbeat from '../../components/ui/FaviconHeartbeat';
 
 export async function generateStaticParams() {
-    return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'nl' }];
+    return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'nl' }, { lang: 'tr' }];
 }
 
 async function getTranslations(lang: string): Promise<TranslationDict> {
@@ -67,6 +68,7 @@ export default async function LangLayout({
                     </Suspense>
                     <CookieConsent />
                     <AIChatAssistantWrapper />
+                    <FaviconHeartbeat />
                 </LayoutWrapper>
 
                 <GoogleAnalytics />

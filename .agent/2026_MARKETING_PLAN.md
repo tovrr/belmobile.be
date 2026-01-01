@@ -15,9 +15,11 @@ Google'ın bizi sevmesi için dükkan bilgilerinin her yerde (Facebook, Instagra
 
 ## 3. SOCIAL MEDIA & CONTENT (İçerik Fabrikası)
 Akademi bizim en büyük içerik kaynağımız.
-- **"The Micro-Soldering Surgeon":** Instagram ve TikTok'ta mikroskop altındaki karmaşık tamirleri (Anakart tamiri) "estetik ve rahatlatıcı" videolar olarak paylaşacağız.
-- **Eğitim Hikayeleri:** Akademiye gelen öğrencilerin "önce-sonra" başarılarını paylaşarak "Uzmanların Uzmanı" olduğumuzu kanıtlayacağız.
-- **Community:** 10 dükkanın teknisyenlerini bir "Elite Tech Crew" olarak konumlandırıp, sosyal medyada bir komünite kuracağız.
+- **TikTok Conquest:** 
+    - **Repair ASMR:** Mikroskop altındaki lehimleme sesleri ve görüntüleriyle "Tatmin edici" videolar.
+    - **Anatomy of a Device:** "İçinde ne var?" serisi ile cihazları parçalarına ayırıp her dükkandaki uzmanlığı göstermek.
+    - **Academy Vlogs:** Öğrencilerin heyecanını ve zorlu tamirleri başardıkları anları (Victory moments) paylaşmak.
+- **TikTok Ads:** Genç kitleye (Oyuncular, Üniversite öğrencileri) yönelik "Kırık ekranını 30 dakikada hayata döndür" kampanyaları.
 
 ## 4. MARKETING & PAID ADS
 - **Bölgesel Hedefleme:** Sadece dükkanlarımızın olduğu 5-10km yarıçapındaki insanlara "30 Dakikada iPhone Ekran Tamiri" reklamları çıkacağız.

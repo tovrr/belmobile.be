@@ -19,7 +19,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode; initialLanguage?:
 
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('belmobile_language');
-            if (saved && ['en', 'fr', 'nl'].includes(saved)) {
+            if (saved && ['en', 'fr', 'nl', 'tr'].includes(saved)) {
                 return saved as Language;
             }
 
@@ -54,6 +54,8 @@ export const LanguageProvider: React.FC<{ children: ReactNode; initialLanguage?:
                     dict = await import('../data/i18n/fr.json');
                 } else if (language === 'nl') {
                     dict = await import('../data/i18n/nl.json');
+                } else if (language === 'tr') {
+                    dict = await import('../data/i18n/tr.json');
                 }
 
                 if (isMounted && dict) {

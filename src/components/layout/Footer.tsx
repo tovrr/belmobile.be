@@ -5,7 +5,7 @@ import { LOCATIONS } from '../../data/locations';
 import { PaperAirplaneIcon, SparklesIcon } from '../ui/BrandIcons';
 import { Bike } from 'lucide-react';
 import Input from '../ui/Input';
-import Logo from '../ui/Logo';
+import FooterLogo from '../ui/FooterLogo';
 
 import FooterSocials from '../footer-components/FooterSocials';
 import FooterNewsletter from '../footer-components/FooterNewsletter';
@@ -72,7 +72,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                             <meta itemProp="url" content="https://belmobile.be" />
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 text-cyber-citron" itemProp="logo" itemScope itemType="https://schema.org/ImageObject">
-                                    <Logo className="w-full h-full" />
+                                    <FooterLogo className="w-full h-full" />
                                     <meta itemProp="url" content="https://belmobile.be/logo.png" />
                                 </div>
                                 <div className="flex flex-col">
@@ -90,7 +90,9 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                                 ? "Redéfinir l'expérience mobile à Bruxelles. Appareils premium, réparations certifiées et solutions de rachat durables."
                                 : language === 'nl'
                                     ? "De mobiele ervaring in Brussel herdefiniëren. Premium toestellen, gecertificeerde herstellingen en duurzame overname-oplossingen."
-                                    : "Redefining the mobile experience in Brussels. Premium devices, certified repairs, and sustainable buyback solutions powered by technology."
+                                    : language === 'tr'
+                                        ? t('footer_desc')
+                                        : "Redefining the mobile experience in Brussels. Premium devices, certified repairs, and sustainable buyback solutions powered by technology."
                             }
                         </p>
 
@@ -110,7 +112,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                         {POPULAR_REPAIRS.map((item, index) => (
                             <li key={index}>
                                 <Link
-                                    href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}/${createSlug(item.brand)}/${createSlug(item.model)}?category=${item.category}`}
+                                    href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : language === 'tr' ? 'tamir' : 'repair'}/${createSlug(item.brand)}/${createSlug(item.model)}?category=${item.category}`}
                                     className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
                                 >
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
@@ -127,10 +129,10 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                         {t('Our Stores')}
                     </h4>
                     <ul className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {LOCATIONS.filter(loc => !loc.isHub && loc.status !== 'temporarily_closed').map((loc) => (
+                        {LOCATIONS.map((loc) => (
                             <li key={loc.id}>
                                 <Link
-                                    href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}/${loc.slugs[language as 'en' | 'fr' | 'nl'] || loc.slugs.en}`}
+                                    href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : language === 'tr' ? 'magazalar' : 'stores'}/${loc.slugs[language as 'en' | 'fr' | 'nl' | 'tr'] || loc.slugs.en}`}
                                     className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
                                 >
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>
@@ -139,6 +141,14 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                             </li>
                         ))}
                     </ul>
+
+                    {/* Proximity Booster: Nearby Areas (SEO Goldmine) */}
+                    <h4 className="text-sm font-bold text-cyber-citron uppercase tracking-widest mb-4 mt-8 text-center md:text-left">
+                        {language === 'fr' ? 'Zones Desservies' : language === 'nl' ? 'Servicegebieden' : language === 'tr' ? 'Hizmet Bölgeleri' : 'Service Areas'}
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed max-w-4xl">
+                        Saint-Josse-ten-Noode • Evere • Laeken • Etterbeek • Ixelles • Saint-Gilles • Forest • Uccle • Woluwe-Saint-Lambert • Koekelberg • Jette
+                    </p>
                 </nav>
 
                 {/* Bottom Bar: Copyright + Controls */}

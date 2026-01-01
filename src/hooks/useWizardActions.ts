@@ -10,6 +10,7 @@ import { orderService } from '../services/orderService';
 import { useData } from './useData';
 import { calculateBuybackPriceShared, calculateRepairPriceShared } from '../utils/pricingLogic';
 import * as Sentry from "@sentry/nextjs";
+import { sendGAEvent } from '../utils/analytics';
 
 const BRAND_DATA_CACHE = new Set<string>();
 
@@ -45,6 +46,15 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                 data: { fromStep: state.step, toStep: state.step + 1 }
             });
             dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: true } });
+
+            // AEGIS: Track step progression for marketing funnel
+            sendGAEvent({
+                action: 'wizard_step_advance',
+                category: 'Wizard',
+                label: `${type} - Step ${state.step + 1}`,
+                value: state.step + 1
+            });
+
             setTimeout(() => {
                 dispatch({ type: 'SET_STEP', payload: state.step + 1 });
                 dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: false } });
@@ -100,6 +110,14 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
             message: `User selected category: ${category}`,
             level: "info",
         });
+
+        // AEGIS: Analytics - Category selection
+        sendGAEvent({
+            action: 'select_category',
+            category: 'Wizard',
+            label: `${type} - ${category}`
+        });
+
         dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: category } });
         dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: true } });
 
@@ -115,6 +133,14 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
             message: `User selected brand: ${brand}`,
             level: "info",
         });
+
+        // AEGIS: Analytics - Brand selection
+        sendGAEvent({
+            action: 'select_brand',
+            category: 'Wizard',
+            label: `${type} - ${brand}`
+        });
+
         const category = categoryOverride || state.deviceType;
         dispatch({ type: 'SET_DEVICE_INFO', payload: { selectedBrand: brand, selectedModel: '' } });
 
@@ -140,6 +166,13 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
             message: `User selected model: ${model}`,
             level: "info",
             data: { modelName: model },
+        });
+
+        // AEGIS: Analytics - Model selection
+        sendGAEvent({
+            action: 'select_model',
+            category: 'Wizard',
+            label: `${type} - ${state.selectedBrand} ${model}`
         });
 
         // IMMEDIATE: Set transitioning to hide sidebar price update glitch
@@ -215,6 +248,14 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
             const price = type === 'buyback'
                 ? calculateBuybackPriceShared(pricingParams, state.pricingData)
                 : calculateRepairPriceShared(pricingParams, state.pricingData);
+
+            // AEGIS: Analytics - Track conversion (Lead Generation)
+            const { trackRepairRequest, trackBuybackRequest } = await import('../utils/analytics');
+            if (type === 'repair') {
+                trackRepairRequest(`${state.selectedBrand} ${state.selectedModel}`, state.repairIssues.join(', '), price);
+            } else {
+                trackBuybackRequest(`${state.selectedBrand} ${state.selectedModel}`, state.screenState || 'unknown', price);
+            }
 
             const { readableId, firestoreData } = await orderService.submitOrder({
                 ...state,

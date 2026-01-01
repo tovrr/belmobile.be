@@ -9,6 +9,7 @@ import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { slugToDisplayName } from '../../../utils/slugs';
 import { WizardFAQ } from '../WizardFAQ';
+import { BoltIcon, BanknotesIcon, ShieldCheckIcon } from '../../ui/BrandIcons';
 
 interface StepConditionProps {
     type: 'buyback' | 'repair';
@@ -338,30 +339,54 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
         const isNintendo = selectedBrand?.toLowerCase() === 'nintendo';
 
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8 gap-6">
+            <div className={`flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-10 gap-8`}>
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                        <button
-                            onClick={onBack}
-                            type="button"
-                            className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors`}
-                            aria-label={t('Back')}
-                        >
-                            <ChevronLeftIcon className="h-6 w-6" />
-                        </button>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('What needs fixing?')}</h2>
+                    <div className="mb-10">
+                        <div className="flex items-center gap-4 mb-4">
+                            <button
+                                onClick={onBack}
+                                type="button"
+                                className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors`}
+                                aria-label={t('Back')}
+                            >
+                                <ChevronLeftIcon className="h-6 w-6" />
+                            </button>
+                            <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-none">{t('What needs fixing?')}</h2>
+                        </div>
+                        <p className="text-gray-500 font-medium mb-8 flex items-center gap-2">
+                            <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded text-[10px] font-bold uppercase tracking-widest">{selectedBrand}</span>
+                            <span className="text-slate-400 dark:text-slate-600">/</span>
+                            <span>{slugToDisplayName(selectedModel || '')}</span>
+                            <span className="text-slate-400 dark:text-slate-600 ml-2">•</span>
+                            <span className="text-slate-400 dark:text-slate-500 italic ml-1">{t('repair_header_subtitle')}</span>
+                        </p>
+
+                        {/* Trust Bar - Cheap, Fast, Guaranteed */}
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {[
+                                { icon: BoltIcon, label: 'repair_trust_fast', color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-100 dark:border-amber-800/30' },
+                                { icon: BanknotesIcon, label: 'repair_trust_cheap', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-100 dark:border-emerald-800/30' },
+                                { icon: ShieldCheckIcon, label: 'repair_trust_warranty', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-100 dark:border-blue-800/30', className: 'hidden md:flex' }
+                            ].map((item, idx) => (
+                                <div key={idx} className={`flex items-center gap-3 p-3.5 rounded-2xl ${item.bg} ${item.border} ${item.className || ''} border transition-transform hover:scale-[1.02] duration-300`}>
+                                    <div className={`p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm ${item.color}`}>
+                                        <item.icon className="h-4 w-4" />
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase tracking-wider text-gray-700 dark:text-gray-300 antialiased leading-tight">{t(item.label)}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                    <p className="text-gray-500 mb-6">{selectedBrand} {slugToDisplayName(selectedModel || '')}</p>
 
                     {/* Category Selector */}
-                    <div className="flex overflow-x-auto pb-4 mb-4 gap-2 no-scrollbar scroll-smooth snap-x">
+                    <div className="flex overflow-x-auto pb-4 mb-6 gap-2 no-scrollbar scroll-smooth snap-x">
                         {['all', 'display', 'power', 'camera', 'body', 'technical'].map((cat) => (
                             <button
                                 key={cat}
                                 onClick={() => setActiveCategory(cat)}
-                                className={`px-5 py-2.5 rounded-full whitespace-nowrap font-bold transition-all snap-start ${activeCategory === cat
-                                    ? 'bg-bel-blue text-white shadow-lg shadow-blue-500/30 ring-2 ring-blue-500/20'
-                                    : 'bg-white/50 dark:bg-slate-800/50 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800'
+                                className={`px-6 py-3 rounded-2xl whitespace-nowrap font-black text-xs uppercase tracking-widest transition-all snap-start ${activeCategory === cat
+                                    ? 'bg-bel-blue text-white shadow-xl shadow-blue-500/40 ring-4 ring-blue-500/10'
+                                    : 'bg-white/50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:scale-105'
                                     }`}
                             >
                                 {t('cat_' + cat)}
@@ -416,23 +441,41 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             const showScreenOptionsForIssue = isScreenIssue && isSelected && (deviceType === 'smartphone' || selectedBrand?.toLowerCase() === 'nintendo');
 
                             return (
-                                <div key={issue.id} className={`flex flex-col p-4 rounded-2xl border-2 transition-all ${isSelected ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900'} ${showScreenOptionsForIssue ? 'md:col-span-2' : ''}`}>
-                                    <div className="flex items-center cursor-pointer" onClick={() => toggleRepairIssue(issue.id)}>
-                                        <div className={`p-3 rounded-xl mr-4 ${isSelected ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-800 text-gray-500'}`}><issue.icon className="h-6 w-6" /></div>
-                                        <div className="flex-1">
-                                            <div className="flex justify-between items-center">
-                                                <span className={`font-bold ${isSelected ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t(issue.id)}</span>
-                                                {/* pricesLoading check if needed, but we don't have it in context, assume fast */}
-                                                {!showScreenOptionsForIssue && (
-                                                    <span className="text-sm font-bold bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded text-gray-600 dark:text-gray-300 animate-fade-in">
-                                                        {isScreenIssue && displayPrice !== null && displayPrice > 0 && <span className="mr-1 text-xs font-normal opacity-70">{t('À partir de')}</span>}
-                                                        {issue.id === 'other' ? <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span> : (displayPrice !== null && displayPrice > 0 ? <>&euro;{displayPrice}</> : <span className="text-blue-600 dark:text-blue-400 font-bold text-xs uppercase">{t('contact_for_price')}</span>)}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <p className="text-xs text-gray-500 mt-1">{t(issue.id + '_desc')}</p>
+                                <div key={issue.id} className={`group relative flex flex-col p-4 rounded-[1.5rem] border-2 transition-all duration-300 ${isSelected ? 'border-bel-blue bg-blue-50/50 dark:bg-blue-900/10 shadow-xl shadow-blue-500/5' : 'border-slate-100 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-900'} ${showScreenOptionsForIssue ? 'md:col-span-2 shadow-2xl shadow-blue-500/10' : ''}`}>
+                                    <div className="flex items-start h-full cursor-pointer" onClick={() => toggleRepairIssue(issue.id)}>
+                                        <div className={`p-4 rounded-2xl mr-4 flex-shrink-0 transition-all duration-500 ${isSelected ? 'bg-bel-blue text-white shadow-lg shadow-blue-500/30 scale-110' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 group-hover:scale-110 group-hover:bg-slate-200 group-hover:text-slate-600'} `}>
+                                            <issue.icon className="h-6 w-6" />
                                         </div>
-                                        {isSelected && !showScreenOptionsForIssue && <CheckCircleIcon className="h-6 w-6 text-bel-blue ml-2" />}
+
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex flex-col">
+                                                <div className="flex justify-between items-start mb-1 gap-2">
+                                                    <span className={`font-black text-sm md:text-base leading-tight transition-colors ${isSelected ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>
+                                                        {t(issue.id)}
+                                                    </span>
+
+                                                    {!showScreenOptionsForIssue && (
+                                                        <div className="flex flex-col items-end shrink-0">
+                                                            <span className={`text-[11px] font-black px-2 py-1 rounded-lg transition-colors ${isSelected ? 'bg-bel-blue text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400'}`}>
+                                                                {isScreenIssue && displayPrice !== null && displayPrice > 0 && <span className="mr-1 text-[9px] font-normal opacity-70 uppercase tracking-tighter">{t('À partir de')}</span>}
+                                                                {issue.id === 'other' ? <span className="font-black uppercase tracking-widest">{t('free')}</span> : (displayPrice !== null && displayPrice > 0 ? <>&euro;{displayPrice}</> : <span className="text-[9px] font-bold uppercase tracking-tight whitespace-nowrap">{t('on_request')}</span>)}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <p className={`text-[11px] leading-relaxed transition-colors line-clamp-2 ${isSelected ? 'text-blue-700/70 dark:text-blue-300/60' : 'text-slate-500'}`}>
+                                                    {t(issue.id + '_desc')}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {isSelected && !showScreenOptionsForIssue && (
+                                            <div className="absolute top-2 right-2 animate-in fade-in zoom-in duration-300">
+                                                <div className="bg-bel-blue text-white rounded-full p-1 shadow-lg shadow-blue-500/40">
+                                                    <CheckCircleIcon className="h-3 w-3 stroke-[3]" />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Screen Quality Options */}

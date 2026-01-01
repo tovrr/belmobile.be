@@ -5,16 +5,19 @@ export interface Service {
         fr: string;
         nl: string;
         en: string;
+        tr: string;
     };
     slugs: {
         fr: string;
         nl: string;
         en: string;
+        tr: string;
     };
     description: {
         fr: string;
         nl: string;
         en: string;
+        tr: string;
     };
 }
 
@@ -25,17 +28,20 @@ export const SERVICES: Service[] = [
         name: {
             fr: 'Réparation',
             nl: 'Reparatie',
-            en: 'Repair'
+            en: 'Repair',
+            tr: 'Onarım'
         },
         slugs: {
             fr: 'reparation',
             nl: 'reparatie',
-            en: 'repair'
+            en: 'repair',
+            tr: 'tamir'
         },
         description: {
             fr: 'Réparation rapide de smartphones, tablettes et consoles.',
             nl: 'Snelle reparatie van smartphones, tablets en consoles.',
-            en: 'Fast repair of smartphones, tablets, and consoles.'
+            en: 'Fast repair of smartphones, tablets, and consoles.',
+            tr: 'Akıllı telefon, tablet ve konsolların hızlı onarımı.'
         }
     },
     {
@@ -44,17 +50,20 @@ export const SERVICES: Service[] = [
         name: {
             fr: 'Rachat',
             nl: 'Inkoop',
-            en: 'Buyback'
+            en: 'Buyback',
+            tr: 'Geri Alım'
         },
         slugs: {
             fr: 'rachat',
             nl: 'inkoop',
-            en: 'buyback'
+            en: 'buyback',
+            tr: 'sat'
         },
         description: {
             fr: 'Vendez votre appareil au meilleur prix.',
             nl: 'Verkoop uw apparaat voor de beste prijs.',
-            en: 'Sell your device for the best price.'
+            en: 'Sell your device for the best price.',
+            tr: 'Cihazınızı en iyi fiyata satın.'
         }
     },
     {
@@ -73,17 +82,20 @@ export const SERVICES: Service[] = [
         name: {
             fr: 'Produits',
             nl: 'Producten',
-            en: 'Products'
+            en: 'Products',
+            tr: 'Ürünler'
         },
         slugs: {
             fr: 'produits',
             nl: 'producten',
-            en: 'products'
+            en: 'products',
+            tr: 'urunler'
         },
         description: {
             fr: 'Smartphones reconditionnés et accessoires.',
             nl: 'Refurbished smartphones en accessoires.',
-            en: 'Refurbished smartphones and accessories.'
+            en: 'Refurbished smartphones and accessories.',
+            tr: 'Yenilenmiş akıllı telefonlar ve aksesuarlar.'
         }
     }
 ];

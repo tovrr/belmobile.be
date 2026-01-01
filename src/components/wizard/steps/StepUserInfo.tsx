@@ -24,6 +24,7 @@ import { useRouter } from 'next/navigation';
 import { TrustBar } from '../TrustBar';
 import { WizardFAQ } from '../WizardFAQ';
 import { orderService } from '../../../services/orderService';
+import { sendGAEvent } from '../../../utils/analytics';
 
 interface StepUserInfoProps {
     type: 'buyback' | 'repair';
@@ -131,7 +132,10 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     // Setters
     const setScreenState = (val: any) => dispatch({ type: 'SET_WIZARD_DATA', payload: { screenState: val } });
     const setBodyState = (val: any) => dispatch({ type: 'SET_WIZARD_DATA', payload: { bodyState: val } });
-    const setDeliveryMethod = (val: any) => dispatch({ type: 'SET_WIZARD_DATA', payload: { deliveryMethod: val } });
+    const setDeliveryMethod = (val: any) => {
+        dispatch({ type: 'SET_WIZARD_DATA', payload: { deliveryMethod: val } });
+        if (val) sendGAEvent({ action: 'select_delivery', category: 'Wizard', label: val });
+    };
     const setShopSelectionError = (val: boolean) => dispatch({ type: 'SET_WIZARD_DATA', payload: { shopSelectionError: val } });
     const setIsShopListOpen = (val: boolean) => dispatch({ type: 'SET_WIZARD_DATA', payload: { isShopListOpen: val } });
     const setServicePoint = (val: any) => dispatch({ type: 'SET_WIZARD_DATA', payload: { servicePoint: val } });
@@ -144,9 +148,15 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     const setCustomerCity = (val: string) => dispatch({ type: 'SET_WIZARD_DATA', payload: { customerCity: val } });
     const setIban = (val: string) => dispatch({ type: 'SET_WIZARD_DATA', payload: { iban: val } });
     const setIdFile = (val: File | null) => dispatch({ type: 'SET_WIZARD_DATA', payload: { idFile: val } });
-    const setHasHydrogel = (val: boolean) => dispatch({ type: 'SET_WIZARD_DATA', payload: { hasHydrogel: val } });
+    const setHasHydrogel = (val: boolean) => {
+        dispatch({ type: 'SET_WIZARD_DATA', payload: { hasHydrogel: val } });
+        if (val) sendGAEvent({ action: 'add_upsell', category: 'Wizard', label: 'Hydrogel' });
+    };
     const setHoneypot = (val: string) => dispatch({ type: 'SET_WIZARD_DATA', payload: { honeypot: val } });
-    const setIsCompany = (val: boolean) => dispatch({ type: 'SET_WIZARD_DATA', payload: { isCompany: val } });
+    const setIsCompany = (val: boolean) => {
+        dispatch({ type: 'SET_WIZARD_DATA', payload: { isCompany: val } });
+        sendGAEvent({ action: 'toggle_b2b', category: 'Wizard', label: val ? 'Enabled' : 'Disabled' });
+    };
     const setCompanyName = (val: string) => dispatch({ type: 'SET_WIZARD_DATA', payload: { companyName: val } });
     const setVatNumber = (val: string) => dispatch({ type: 'SET_WIZARD_DATA', payload: { vatNumber: val } });
     const setNotificationPreferences = (val: ('email' | 'whatsapp' | 'sms')[]) => dispatch({ type: 'SET_WIZARD_DATA', payload: { notificationPreferences: val } });
@@ -764,9 +774,9 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 <button
                                     type="button"
                                     onClick={() => setIsCompany(!isCompany)}
-                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all border-2 ${isCompany ? 'bg-bel-blue border-bel-blue text-white' : 'bg-transparent border-gray-200 dark:border-slate-700 text-gray-500 dark:text-gray-400'}`}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black transition-all border-2 ${isCompany ? 'bg-cyber-citron border-cyber-citron text-midnight shadow-lg shadow-cyber-citron/20' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/30 hover:text-white'}`}
                                 >
-                                    {isCompany ? <CheckIcon className="h-3 w-3" /> : <div className="h-3 w-3 rounded-full border border-current" />}
+                                    {isCompany ? <CheckIcon className="h-4 w-4 stroke-3" /> : <div className="h-4 w-4 rounded-full border-2 border-current" />}
                                     {t('is_company')}
                                 </button>
                             </div>
@@ -845,7 +855,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">{t('notification_preferences_title') || 'How should we update you?'}</label>
                                 <div className="flex flex-wrap gap-3">
                                     {/* Email */}
-                                    <label className={`flex items-center gap-2 p-3 pr-4 rounded-xl border-2 cursor-pointer transition-all ${notificationPreferences?.includes('email') ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 hover:border-bel-blue/50'}`}>
+                                    <label className={`flex items-center gap-3 p-4 pr-5 rounded-2xl border-2 transition-all cursor-pointer ${notificationPreferences?.includes('email') ? 'border-cyber-citron bg-cyber-citron/10 shadow-lg shadow-cyber-citron/5' : 'border-white/10 bg-white/5 dark:bg-slate-900/50 hover:border-white/30'}`}>
                                         <input
                                             type="checkbox"
                                             checked={notificationPreferences?.includes('email')}
@@ -859,36 +869,36 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                             }}
                                             className="hidden"
                                         />
-                                        <div className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${notificationPreferences?.includes('email') ? 'bg-bel-blue border-bel-blue' : 'border-gray-300 dark:border-slate-600'}`}>
-                                            {notificationPreferences?.includes('email') && <CheckIcon className="h-3.5 w-3.5 text-white" />}
+                                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all ${notificationPreferences?.includes('email') ? 'bg-cyber-citron border-cyber-citron' : 'border-white/20'}`}>
+                                            {notificationPreferences?.includes('email') && <CheckIcon className="h-4 w-4 text-midnight stroke-3" />}
                                         </div>
-                                        <span className="font-bold text-gray-900 dark:text-white text-sm">{t('Email')}</span>
+                                        <span className={`font-black uppercase tracking-wide text-xs ${notificationPreferences?.includes('email') ? 'text-cyber-citron' : 'text-gray-400'}`}>{t('Email')}</span>
                                     </label>
 
                                     {/* SMS (Coming Soon) */}
-                                    <label className="flex items-center gap-2 p-3 pr-4 rounded-xl border-2 border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 opacity-60 cursor-not-allowed">
+                                    <label className="flex items-center gap-3 p-4 pr-5 rounded-2xl border-2 border-white/5 bg-white/5 opacity-40 cursor-not-allowed">
                                         <input
                                             type="checkbox"
                                             disabled
                                             className="hidden"
                                         />
-                                        <div className="w-5 h-5 rounded flex items-center justify-center border border-gray-300 dark:border-slate-600">
+                                        <div className="w-6 h-6 rounded-lg border-2 border-white/10 flex items-center justify-center">
                                         </div>
-                                        <span className="font-bold text-gray-400 dark:text-gray-500 text-sm">{t('SMS')}</span>
-                                        <span className="text-[10px] bg-gray-200 text-gray-500 px-1.5 rounded uppercase font-bold text-xs whitespace-nowrap">{t('coming_soon') || 'Soon'}</span>
+                                        <span className="font-black uppercase tracking-wide text-xs text-gray-500">{t('SMS')}</span>
+                                        <span className="text-[10px] bg-white/10 text-gray-400 px-2 py-0.5 rounded-full font-black uppercase tracking-tighter">{t('coming_soon') || 'Soon'}</span>
                                     </label>
 
                                     {/* WhatsApp (Coming Soon) */}
-                                    <label className="flex items-center gap-2 p-3 pr-4 rounded-xl border-2 border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-900/50 opacity-60 cursor-not-allowed">
+                                    <label className="flex items-center gap-3 p-4 pr-5 rounded-2xl border-2 border-white/5 bg-white/5 opacity-40 cursor-not-allowed">
                                         <input
                                             type="checkbox"
                                             disabled
                                             className="hidden"
                                         />
-                                        <div className="w-5 h-5 rounded flex items-center justify-center border border-gray-300 dark:border-slate-600">
+                                        <div className="w-6 h-6 rounded-lg border-2 border-white/10 flex items-center justify-center">
                                         </div>
-                                        <span className="font-bold text-gray-400 dark:text-gray-500 text-sm">{t('WhatsApp')}</span>
-                                        <span className="text-[10px] bg-gray-200 text-gray-500 px-1.5 rounded uppercase font-bold text-xs whitespace-nowrap">{t('coming_soon') || 'Soon'}</span>
+                                        <span className="font-black uppercase tracking-wide text-xs text-gray-500">{t('WhatsApp')}</span>
+                                        <span className="text-[10px] bg-white/10 text-gray-400 px-2 py-0.5 rounded-full font-black uppercase tracking-tighter">{t('coming_soon') || 'Soon'}</span>
                                     </label>
                                 </div>
                                 <p className="text-xs text-gray-500 mt-2">{t('notification_preferences_desc') || 'Choose how you want to receive updates about your order.'}</p>
@@ -995,7 +1005,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
 
 
                             {/* Terms & Submit */}
-                            <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-200 dark:border-slate-700 mb-6 mt-4 relative z-10">
+                            <div className="bg-white/5 dark:bg-slate-800/50 p-6 rounded-2xl border border-white/10 mb-6 mt-4 relative z-10 transition-all hover:bg-white/10">
                                 <div style={{ display: 'none' }} aria-hidden="true">
                                     <input
                                         type="text"
@@ -1006,16 +1016,34 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         onChange={(e) => setHoneypot(e.target.value)}
                                     />
                                 </div>
-                                <label className="flex items-start cursor-pointer">
-                                    <input type="checkbox" required checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="mt-1 w-5 h-5 text-bel-blue rounded border-gray-300 focus:ring-bel-blue" />
-                                    <div className="ml-3"><p className="font-bold text-gray-900 dark:text-white text-sm">{type === 'buyback' ? (selectedBrand?.toLowerCase() === 'apple' ? t('terms_icloud') : t('terms_android')) : t('terms_repair_backup')}</p><p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{t('terms_and_privacy')}</p></div>
+                                <label className="flex items-start cursor-pointer group">
+                                    <div className="relative mt-1">
+                                        <input
+                                            type="checkbox"
+                                            required
+                                            checked={termsAccepted}
+                                            onChange={(e) => setTermsAccepted(e.target.checked)}
+                                            className="sr-only"
+                                        />
+                                        <div className={`w-6 h-6 rounded-lg border-2 transition-all flex items-center justify-center ${termsAccepted ? 'bg-cyber-citron border-cyber-citron' : 'border-white/20 group-hover:border-white/40'}`}>
+                                            {termsAccepted && <CheckIcon className="h-4 w-4 text-midnight stroke-3" />}
+                                        </div>
+                                    </div>
+                                    <div className="ml-4">
+                                        <p className="font-black uppercase tracking-tight text-xs text-gray-900 dark:text-white leading-tight">
+                                            {type === 'buyback' ? (selectedBrand?.toLowerCase() === 'apple' ? t('terms_icloud') : t('terms_android')) : t('terms_repair_backup')}
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1 font-medium italic group-hover:text-gray-400 transition-colors">
+                                            {t('terms_and_privacy')}
+                                        </p>
+                                    </div>
                                 </label>
                             </div>
                             <Button
                                 type="submit"
                                 disabled={!termsAccepted || state.isTransitioning}
                                 variant="cyber"
-                                className={`w-full mt-6 ${state.isWidget ? 'block' : 'lg:hidden'}`}
+                                className={`w-full h-16 text-lg shadow-xl shadow-cyber-citron/20 mt-6 ${state.isWidget ? 'block' : 'lg:hidden'}`}
                                 isLoading={state.isTransitioning}
                             >
                                 {t('confirm_request')}

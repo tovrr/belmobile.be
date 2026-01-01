@@ -16,6 +16,16 @@ const BentoServices = dynamic(() => import('./BentoServices'), {
 
 
 
+import Link from 'next/link';
+
+const SEOContentBlock = dynamic(() => import('./SEOContentBlock'), {
+    loading: () => <div className="h-40" />
+});
+
+const BrandVideo = dynamic(() => import('./BrandVideo'), {
+    loading: () => <div className="h-96 animate-pulse bg-gray-100 dark:bg-slate-800" />
+});
+
 import { FormattedReview } from '../../services/reviewService';
 
 const ReviewsSection = dynamic(() => import('./ReviewsSection'), {
@@ -36,6 +46,8 @@ const HomeClient: React.FC<HomeClientProps> = ({ initialReviews = [] }) => {
             <h2 className="sr-only">{t('home_trust_section_title')}</h2>
             <TrustSignals />
             <BentoServices />
+            <BrandVideo />
+            <SEOContentBlock />
             <ReviewsSection initialReviews={initialReviews} />
         </div>
     );

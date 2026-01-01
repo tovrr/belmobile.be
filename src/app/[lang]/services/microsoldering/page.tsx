@@ -43,7 +43,7 @@ export default async function MicrosolderingPage({ params }: PageProps) {
                 <div className="absolute inset-0 bg-slate-900 z-0">
                     <div className="absolute inset-0 bg-linear-to-b from-indigo-900/50 to-slate-900/90 z-10" />
                     <Image
-                        src="/images/microsoldering_hero_bespoke.webp"
+                        src="/images/microsoldering-lab-motherboard-repair-brussels.webp"
                         alt={t('microsoldering_hero_alt')}
                         fill
                         sizes="100vw"

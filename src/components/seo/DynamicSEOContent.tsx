@@ -11,7 +11,7 @@ import { getSEOTitle, getSEODescription } from '../../utils/seoHelpers';
 
 interface DynamicSEOContentProps {
     type: 'store' | 'repair' | 'buyback';
-    lang: 'fr' | 'nl' | 'en';
+    lang: 'fr' | 'nl' | 'en' | 'tr';
     shop?: Shop; // For specific store pages
     location?: Location; // For location-based pages (hub or shop)
     service?: Service;
@@ -31,7 +31,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     deviceType
 }) => {
     // Helper to get location name
-    const locationName = shop?.city || location?.city || (lang === 'fr' ? 'Bruxelles' : lang === 'nl' ? 'Brussel' : 'Brussels');
+    const locationName = shop?.city || location?.city || (lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : (lang === 'tr' ? 'Brüksel' : 'Brussels')));
 
     // Helper to get device name
     const getDeviceName = () => {
@@ -57,12 +57,16 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
             if (lang === 'nl') {
                 return `${formattedBrand} ${formattedCategory || 'toestel'}`;
             }
+            // TR: Brand Type
+            if (lang === 'tr') {
+                return `${formattedBrand} ${formattedCategory || 'cihazı'}`;
+            }
             // EN: Brand Type (e.g., Apple Smartphone)
             return `${formattedBrand} ${formattedCategory || 'device'}`;
         }
 
         if (deviceType === 'smartphone') return 'Smartphone';
-        return lang === 'fr' ? 'appareil' : lang === 'nl' ? 'toestel' : 'device';
+        return lang === 'fr' ? 'appareil' : (lang === 'nl' ? 'toestel' : (lang === 'tr' ? 'cihazı' : 'device'));
     };
 
     const deviceName = getDeviceName();
@@ -74,12 +78,12 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     const isHub = !!shop?.isHub || !!location?.isHub;
 
     const issuesText = isHomeConsole
-        ? (lang === 'fr' ? 'port HDMI ou surchauffe' : lang === 'nl' ? 'HDMI-poort of oververhitting' : 'HDMI port or overheating')
-        : (lang === 'fr' ? 'écran ou batterie' : lang === 'nl' ? 'scherm of batterij' : 'screen or battery');
+        ? (lang === 'fr' ? 'port HDMI ou surchauffe' : (lang === 'nl' ? 'HDMI-poort of oververhitting' : (lang === 'tr' ? 'HDMI portu veya aşırı ısınma' : 'HDMI port or overheating')))
+        : (lang === 'fr' ? 'écran ou batterie' : (lang === 'nl' ? 'scherm of batterij' : (lang === 'tr' ? 'ekran veya batarya' : 'screen or battery')));
 
     const durationText = isHomeConsole
-        ? (lang === 'fr' ? '3h à 4h' : lang === 'nl' ? '3u tot 4u' : '3h to 4h')
-        : (lang === 'fr' ? '30 minutes' : lang === 'nl' ? '30 minuten' : '30 minutes');
+        ? (lang === 'fr' ? '3h à 4h' : (lang === 'nl' ? '3u tot 4u' : (lang === 'tr' ? '3-4 saat' : '3h to 4h')))
+        : (lang === 'fr' ? '30 minutes' : (lang === 'nl' ? '30 minuten' : (lang === 'tr' ? '30 dakika' : '30 minutes')));
 
     // Find pricing data if model is provided
     const pricingSlug = model ? createSlug(`${brand} ${model}`) : '';
@@ -93,15 +97,15 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     });
 
     const getCard1 = () => {
-        const title = lang === 'fr' ? 'Pourquoi Nous Choisir ?' : lang === 'nl' ? 'Waarom Ons Kiezen?' : 'Why Choose Us?';
+        const title = lang === 'fr' ? 'Pourquoi Nous Choisir ?' : (lang === 'nl' ? 'Waarom Ons Kiezen?' : (lang === 'tr' ? 'Neden Biz?' : 'Why Choose Us?'));
         const text = isRepair
-            ? (lang === 'fr' ? `Garantie de 1 an sur toutes les réparations ${deviceName}. Nos experts à Schaerbeek, Molenbeek et Anderlecht réparent votre appareil en 30 minutes.` : lang === 'nl' ? `1 jaar garantie op alle ${deviceName} reparaties. Schermvervanging in 30 minuten ter plaatse.` : `1-year warranty on all ${deviceName} repairs. Screen replacement in 30 minutes on site.`)
-            : (lang === 'fr' ? 'Paiement immédiat en Cash. Nous offrons les meilleurs taux de reprise de Bruxelles pour vos anciens appareils.' : lang === 'nl' ? 'Directe betaling in contanten of per overschrijving. Beste prijsgarantie op de markt.' : 'Instant payment in cash or bank transfer. Best price guaranteed on the market.');
+            ? (lang === 'fr' ? `Garantie de 1 an sur toutes les réparations ${deviceName}. Réparation en 30 minutes dans nos laboratoires de Schaerbeek et Anderlecht. Pièces d'origine certifiées.` : (lang === 'nl' ? `1 jaar garantie op alle ${deviceName} reparaties. Schermvervanging in 30 minuten in onze laboratoria (Schaerbeek/Anderlecht).` : (lang === 'tr' ? `Tüm ${deviceName} onarımlarında 1 yıl garanti. Schaerbeek ve Anderlecht laboratuvarlarımızda 30 dakikada orijinal parça ile onarım.` : `1-year warranty on all ${deviceName} repairs. 30-minute express repair in our Schaerbeek & Anderlecht labs using certified parts.`)))
+            : (lang === 'fr' ? 'Paiement immédiat en Cash. Nous offrons les meilleurs taux de reprise de Bruxelles pour vos anciens appareils.' : (lang === 'nl' ? 'Directe betaling in contanten of per overschrijving. Beste prijsgarantie op de markt.' : (lang === 'tr' ? 'Anında nakit ödeme. Eski cihazlarınız için Brüksel\'deki en iyi geri alım oranlarını sunuyoruz.' : 'Instant payment in cash or bank transfer. Best price guaranteed on the market.')));
         return { title, text };
     };
 
     const getCard2 = () => {
-        const title = lang === 'fr' ? 'Nos Adresses à Bruxelles' : lang === 'nl' ? 'Onze Expertise' : 'Our Expertise';
+        const title = lang === 'fr' ? 'Nos Adresses à Bruxelles' : (lang === 'nl' ? 'Onze Expertise' : (lang === 'tr' ? 'Uzmanlığımız' : 'Our Expertise'));
 
         // Generate dynamic address string from real shops
         const activeShops = SHOPS.filter(s => s.status === 'open');
@@ -113,8 +117,8 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
         }).join(', ');
 
         const text = isRepair
-            ? (lang === 'fr' ? `Retrouvez nos ateliers au cœur de Bruxelles à ${cityNames}. Sans rendez-vous.` : lang === 'nl' ? `Gebroken scherm, zwakke batterij? Wij kennen ${brand || 'apparaten'} door en door. Bezoek onze winkels in ${cityNames}.` : `Broken screen, weak battery? We know ${brand || 'devices'} inside out. Visit our stores in ${cityNames}.`)
-            : (lang === 'fr' ? `Estimation gratuite en 2 minutes dans nos magasins de ${cityNames}.` : lang === 'nl' ? `Gratis schatting in onze winkels in ${cityNames}.` : `Free estimate in our stores in ${cityNames}.`);
+            ? (lang === 'fr' ? `Retrouvez nos ateliers au cœur de Bruxelles à ${cityNames}. Sans rendez-vous.` : (lang === 'nl' ? `Gebroken scherm, zwakke batterij? Wij kennen ${brand || 'apparaten'} door en door. Bezoek onze winkels in ${cityNames}.` : (lang === 'tr' ? `Ekranınız mı kırıldı? ${brand || 'Cihazları'} en iyi biz tanıyoruz. ${cityNames} mağazalarımıza bekleriz.` : `Broken screen, weak battery? We know ${brand || 'devices'} inside out. Visit our stores in ${cityNames}.`)))
+            : (lang === 'fr' ? `Estimation gratuite en 2 minutes dans nos magasins de ${cityNames}.` : (lang === 'nl' ? `Gratis schatting in onze winkels in ${cityNames}.` : (lang === 'tr' ? `${cityNames} mağazalarımızda 2 dakikada ücretsiz fiyat tahmini.` : `Free estimate in our stores in ${cityNames}.`)));
         return { title, text };
     };
 
@@ -143,9 +147,11 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
         if (isRepair) {
             const dynamicQ = lang === 'fr'
                 ? { question: `Réparez-vous les ${deviceName} ?`, answer: `Oui, nous sommes spécialisés en réparation de ${deviceName}. Pièces en stock à ${locationName}.` }
-                : lang === 'nl'
+                : (lang === 'nl'
                     ? { question: `Repareren jullie ${deviceName}?`, answer: `Ja, wij zijn gespecialiseerd in ${deviceName} reparaties. Onderdelen op voorraad in ${locationName}.` }
-                    : { question: `Do you fix ${deviceName}?`, answer: `Yes, we specialize in ${deviceName} repair. Parts in stock at ${locationName}.` };
+                    : (lang === 'tr'
+                        ? { question: `${deviceName} onarımı yapıyor musunuz?`, answer: `Evet, ${deviceName} onarımı konusunda uzmanız. Parçalar ${locationName} mağazamızda stokta.` }
+                        : { question: `Do you fix ${deviceName}?`, answer: `Yes, we specialize in ${deviceName} repair. Parts in stock at ${locationName}.` }));
             faqs.unshift(dynamicQ);
         }
 
@@ -203,22 +209,26 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                     {
                         id: 'screen',
                         icon: DevicePhoneMobileIcon,
-                        title: lang === 'fr' ? `Changement d'Écran ${deviceName}` : lang === 'nl' ? `Schermvervanging ${deviceName}` : `Screen Replacement ${deviceName}`,
+                        title: lang === 'fr' ? `Changement d'Écran ${deviceName}` : (lang === 'nl' ? `Schermvervanging ${deviceName}` : (lang === 'tr' ? `${deviceName} Ekran Değişimi` : `Screen Replacement ${deviceName}`)),
                         text: lang === 'fr'
                             ? `Écran cassé ou tactile défaillant ? Nous remplaçons votre dalle par des pièces d'origine ou premium en 30 minutes.`
-                            : lang === 'nl'
+                            : (lang === 'nl'
                                 ? `Gebroken scherm of defecte touch? Wij vervangen uw scherm door originele of premium onderdelen in 30 minuten.`
-                                : `Broken screen or touch failure? We replace your display with original or premium parts in 30 minutes.`
+                                : (lang === 'tr'
+                                    ? `Ekran mı kırıldı? Orijinal veya premium parçalarla cihazınızın ekranını 30 dakikada değiştiriyoruz.`
+                                    : `Broken screen or touch failure? We replace your display with original or premium parts in 30 minutes.`))
                     },
                     {
                         id: 'battery',
                         icon: BoltIcon,
-                        title: lang === 'fr' ? `Remplacement de Batterie ${deviceName}` : lang === 'nl' ? `Batterij Vervangen ${deviceName}` : `Battery Replacement ${deviceName}`,
+                        title: lang === 'fr' ? `Remplacement de Batterie ${deviceName}` : (lang === 'nl' ? `Batterij Vervangen ${deviceName}` : (lang === 'tr' ? `${deviceName} Batarya Değişimi` : `Battery Replacement ${deviceName}`)),
                         text: lang === 'fr'
                             ? `Votre ${deviceName} se décharge trop vite ? Retrouvez une autonomie optimale avec une batterie neuve certifiée.`
-                            : lang === 'nl'
-                                ? `Loopt uw ${deviceName} te snel leeg? Krijg de optimale batterijduur terug met een nieuwe gecertificeerde batterij.`
-                                : `Is your ${deviceName} draining too fast? Get back optimal battery life with a new certified battery.`
+                            : (lang === 'nl'
+                                ? `Loopt uw ${deviceName} te snel leeg? Krijg de optimale batterijduur terug met een yeni gecertificeerde batterij.`
+                                : (lang === 'tr'
+                                    ? `${deviceName} cihazınızın şarjı çabuk mu bitiyor? Yeni sertifikalı bataryalarla tam performans geri kazanın.`
+                                    : `Is your ${deviceName} draining too fast? Get back optimal battery life with a new certified battery.`))
                     }
                 );
             }
@@ -228,22 +238,26 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                 {
                     id: 'cash',
                     icon: BanknotesIcon,
-                    title: lang === 'fr' ? `Paiement Cash pour votre ${deviceName}` : lang === 'nl' ? `Contante betaling voor uw ${deviceName}` : `Cash Payment for your ${deviceName}`,
+                    title: lang === 'fr' ? `Paiement Cash pour votre ${deviceName}` : (lang === 'nl' ? `Contante betaling voor uw ${deviceName}` : (lang === 'tr' ? `${deviceName} için Nakit Ödeme` : `Cash Payment for your ${deviceName}`)),
                     text: lang === 'fr'
                         ? `Obtenez le meilleur prix du marché à Bruxelles. Estimation gratuite et paiement immédiat en espèces ou virement.`
-                        : lang === 'nl'
+                        : (lang === 'nl'
                             ? `Krijg de beste marktprijs in Brussel. Gratis schatting en onmiddellijke betaling in contanten of via overschrijving.`
-                            : `Get the best market price in Brussels. Free estimate and immediate payment in cash or bank transfer.`
+                            : (lang === 'tr'
+                                ? `Brüksel'deki en iyi piyasa fiyatını alın. Ücretsiz fiyat tahmini ve anında nakit veya havale ile ödeme.`
+                                : `Get the best market price in Brussels. Free estimate and immediate payment in cash or bank transfer.`))
                 },
                 {
                     id: 'broken',
                     icon: WrenchScrewdriverIcon,
-                    title: lang === 'fr' ? `Rachat ${deviceName} même cassé` : lang === 'nl' ? `Inkoop ${deviceName} zelfs defect` : `Buyback ${deviceName} even broken`,
+                    title: lang === 'fr' ? `Rachat ${deviceName} même cassé` : (lang === 'nl' ? `Inkoop ${deviceName} zelfs defect` : (lang === 'tr' ? `Kırık ${deviceName} Cihazları Alıyoruz` : `Buyback ${deviceName} even broken`)),
                     text: lang === 'fr'
                         ? `Ne jetez pas votre appareil abîmé ! Nous rachetons les ${deviceName} avec écran fissuré ou batterie HS pour pièces.`
-                        : lang === 'nl'
+                        : (lang === 'nl'
                             ? `Gooi uw beschadigde apparaat niet weg! Wij kopen ${deviceName} toestellen met gebarsten schermen voor onderdelen.`
-                            : `Don't throw away your damaged device! We buy back ${deviceName} units with cracked screens or dead batteries for parts.`
+                            : (lang === 'tr'
+                                ? `Hasarlı cihazınızı atmayın! Ekranı kırık veya bataryası bitik ${deviceName} cihazlarını parça amaçlı alıyoruz.`
+                                : `Don't throw away your damaged device! We buy back ${deviceName} units with cracked screens or dead batteries for parts.`))
                 }
             );
         }
@@ -270,9 +284,9 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
         if (!isRepair || !pricingData) return null;
 
         const tableRows = [
-            { id: 'screen', label: lang === 'fr' ? 'Écran' : lang === 'nl' ? 'Scherm' : 'Screen', price: pricingData.screen || pricingData.standard },
-            { id: 'battery', label: lang === 'fr' ? 'Batterie' : lang === 'nl' ? 'Batterij' : 'Battery', price: pricingData.battery },
-            { id: 'charging', label: lang === 'fr' ? 'Connecteur de Charge' : lang === 'nl' ? 'Oplaadpoort' : 'Charging', price: pricingData.charging },
+            { id: 'screen', label: lang === 'fr' ? 'Écran' : (lang === 'nl' ? 'Scherm' : (lang === 'tr' ? 'Ekran' : 'Screen')), price: pricingData.screen || pricingData.standard },
+            { id: 'battery', label: lang === 'fr' ? 'Batterie' : (lang === 'nl' ? 'Batterij' : (lang === 'tr' ? 'Batarya' : 'Battery')), price: pricingData.battery },
+            { id: 'charging', label: lang === 'fr' ? 'Connecteur de Charge' : (lang === 'nl' ? 'Oplaadpoort' : (lang === 'tr' ? 'Şarj Soketi' : 'Charging')), price: pricingData.charging },
         ].filter(r => typeof r.price === 'number' && r.price > 0);
 
         if (tableRows.length === 0) return null;
@@ -283,8 +297,8 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                     <caption className="sr-only">{lang === 'fr' ? `Tarifs de réparation pour ${deviceName}` : lang === 'nl' ? `Reparatieprijzen voor ${deviceName}` : `Repair pricing for ${deviceName}`}</caption>
                     <thead className="bg-gray-50 dark:bg-slate-800">
                         <tr>
-                            <th className="px-6 py-4 text-sm font-bold text-gray-500 uppercase tracking-wider">{lang === 'fr' ? 'Service de Réparation' : lang === 'nl' ? 'Reparatiedienst' : 'Repair Service'}</th>
-                            <th className="px-6 py-4 text-sm font-bold text-gray-500 uppercase tracking-wider text-right">{lang === 'fr' ? 'Prix Estimation' : lang === 'nl' ? 'Schatting Prijs' : 'Estimated Price'}</th>
+                            <th className="px-6 py-4 text-sm font-bold text-gray-500 uppercase tracking-wider">{lang === 'fr' ? 'Service de Réparation' : (lang === 'nl' ? 'Reparatiedienst' : (lang === 'tr' ? 'Onarım Hizmeti' : 'Repair Service'))}</th>
+                            <th className="px-6 py-4 text-sm font-bold text-gray-500 uppercase tracking-wider text-right">{lang === 'fr' ? 'Prix Estimation' : (lang === 'nl' ? 'Schatting Prijs' : (lang === 'tr' ? 'Tahmini Fiyat' : 'Estimated Price'))}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-slate-800">
@@ -323,7 +337,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                     {(locationName.toLowerCase().includes('brussel') || location?.isHub) && (
                         <div className="mb-12">
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                                {lang === 'fr' ? 'Zones d\'intervention à Bruxelles' : lang === 'nl' ? 'Interventiezones in Brussel' : 'Service Areas in Brussels'}
+                                {lang === 'fr' ? 'Zones d\'intervention à Bruxelles' : (lang === 'nl' ? 'Interventiezones in Brussel' : (lang === 'tr' ? 'Brüksel\'de Servis Bölgeleri' : 'Service Areas in Brussels'))}
                             </h3>
                             <div className="flex flex-wrap gap-4">
                                 {SHOPS.filter(s => ['schaerbeek', 'molenbeek', 'anderlecht'].includes(String(s.id).toLowerCase())).map(shop => {

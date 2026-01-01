@@ -22,7 +22,9 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                         href={
                             language === 'nl'
                                 ? '/nl/diensten'
-                                : `/${language}/services`
+                                : language === 'tr'
+                                    ? '/tr/hizmetler'
+                                    : `/${language}/services`
                         }
                         className="hover:text-white transition-colors duration-200"
                     >
@@ -30,15 +32,17 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                     </Link>
                 </h4>
                 <ul className="space-y-4 text-sm text-slate-400">
-                    <li><Link href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Repair')}</Link></li>
-                    <li><Link href={`/${language}/${language === 'fr' ? 'rachat' : language === 'nl' ? 'inkoop' : 'buyback'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Buyback')}</Link></li>
-                    <li><Link href={`/${language}${language === 'fr' ? '/produits' : language === 'nl' ? '/producten' : '/products'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Products')}</Link></li>
+                    <li><Link href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : language === 'tr' ? 'tamir' : 'repair'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Repair')}</Link></li>
+                    <li><Link href={`/${language}/${language === 'fr' ? 'rachat' : language === 'nl' ? 'inkoop' : language === 'tr' ? 'sat' : 'buyback'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Buyback')}</Link></li>
+                    <li><Link href={`/${language}/${language === 'fr' ? 'produits' : language === 'nl' ? 'producten' : language === 'tr' ? 'urunler' : 'products'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Products')}</Link></li>
                     <li>
                         <Link
                             href={
                                 language === 'nl'
                                     ? '/nl/zakelijk'
-                                    : `/${language}/business`
+                                    : language === 'tr'
+                                        ? '/tr/kurumsal'
+                                        : `/${language}/business`
                             }
                             className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
                         >
@@ -52,7 +56,9 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                                     ? '/fr/services/recuperation-donnees'
                                     : language === 'nl'
                                         ? '/nl/services/data-recovery'
-                                        : `/${language}/services/data-recovery`
+                                        : language === 'tr'
+                                            ? '/tr/hizmetler/veri-kurtarma'
+                                            : `/${language}/services/data-recovery`
                             }
                             className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
                         >
@@ -66,7 +72,9 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                                     ? '/fr/services/microsoudure'
                                     : language === 'nl'
                                         ? '/nl/services/microsolderen'
-                                        : `/${language}/services/microsoldering`
+                                        : language === 'tr'
+                                            ? '/tr/hizmetler/mikrosoldering'
+                                            : `/${language}/services/microsoldering`
                             }
                             className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
                         >
@@ -94,14 +102,16 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                                     ? '/fr/devenir-partenaire'
                                     : language === 'nl'
                                         ? '/nl/word-partner'
-                                        : `/${language}/franchise`
+                                        : language === 'tr'
+                                            ? '/tr/franchise'
+                                            : `/${language}/franchise`
                             }
                             className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
                         >
                             {t('Become a Partner')}
                         </Link>
                     </li>
-                    <li><Link href={`/${language}/${language === 'fr' ? 'carrieres' : language === 'nl' ? 'vacatures' : 'jobs'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Careers')}</Link></li>
+                    <li><Link href={`/${language}/${language === 'fr' ? 'carrieres' : language === 'nl' ? 'vacatures' : language === 'tr' ? 'kariyer' : 'jobs'}`} className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200">{t('Careers')}</Link></li>
                 </ul>
             </div>
 
@@ -145,7 +155,9 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                                     ? '/fr/a-propos'
                                     : language === 'nl'
                                         ? '/nl/over-ons'
-                                        : `/${language}/about`
+                                        : language === 'tr'
+                                            ? '/tr/hakkimizda'
+                                            : `/${language}/about`
                             }
                             className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
                         >
@@ -180,7 +192,9 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                                     ? '/fr/conditions-generales'
                                     : language === 'nl'
                                         ? '/nl/algemene-voorwaarden'
-                                        : `/${language}/terms`
+                                        : language === 'tr'
+                                            ? '/tr/kosullar'
+                                            : `/${language}/terms`
                             }
                             className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
                         >
@@ -194,7 +208,9 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                                     ? '/fr/vie-privee'
                                     : language === 'nl'
                                         ? '/nl/privacy'
-                                        : `/${language}/privacy`
+                                        : language === 'tr'
+                                            ? '/tr/gizlilik'
+                                            : `/${language}/privacy`
                             }
                             className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
                         >
@@ -209,7 +225,9 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                                     ? '/fr/garantie'
                                     : language === 'nl'
                                         ? '/nl/garantie'
-                                        : `/${language}/warranty`
+                                        : language === 'tr'
+                                            ? '/tr/garanti'
+                                            : `/${language}/warranty`
                             }
                             className="hover:text-white transition-colors hover:translate-x-1 inline-block duration-200"
                         >

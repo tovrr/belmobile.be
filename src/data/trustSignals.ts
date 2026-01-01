@@ -54,6 +54,20 @@ export const TRUST_SIGNALS: TrustSignal[] = [
     },
     // --- GENERAL REPAIR ---
     {
+        id: 'repair_express',
+        icon: 'BoltIcon',
+        titleKey: 'repair_trust_fast',
+        descriptionKey: 'trust_fast_desc',
+        condition: (ctx) => ctx.type === 'repair'
+    },
+    {
+        id: 'repair_best_price',
+        icon: 'BanknotesIcon',
+        titleKey: 'repair_trust_cheap',
+        descriptionKey: 'trust_cheap_desc',
+        condition: (ctx) => ctx.type === 'repair'
+    },
+    {
         id: 'repair_warranty',
         icon: 'CheckBadgeIcon',
         titleKey: 'trust_warranty_title',

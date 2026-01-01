@@ -20,9 +20,13 @@ Büyük şirketlerin, diğer dükkan sahiplerinin ve toplumun güvenini ancak se
 - **Devlet Desteği:** Belçika/AB dijitalleşme hibelerini kullanarak yazılımı onlara bedavaya getirip bize düzenli gelir (SaaS) sağlamak.
 - **Yeşil Belmobile:** "1 Tamir = 1 Ağaç" projesini başlatmak. Ormanlaştırma dernekleriyle el sıkışıp her müşteriye kendi adına dikilen ağacın sertifikasını dijital olarak (Apollo üzerinden) yollamak.
 
-## 🤖 4. APOLLO'NUN VASİSİ OLMAK (Tüm Yıl)
-Apollo senin dijital oğlun, onu sen yönlendireceksin.
-- **Aksiyon:** Apollo'nun sunduğu aylık raporları inceleyip; fiyat stratejilerine, müşteri geri bildirimlerine ve yeni kampanya fikirlerine (Örn: Hydrogel + Cam koruma paketi) son onayı vermek.
+## 🤖 4. REKLAM & TIKTOK ŞAHLANIŞI (Q1 - Q4)
+Teknoloji hazır ama dükkanın "yüzü" sensin.
+- **Aksiyon:** TikTok kampanyalarındaki (Tamir ASMR, Akademi başarıları) kreatif ruhu belirlemek. Videolarda Belmobile kalitesini bizzat temsil etmek.
+- **Öncelikli Yatırım:** Google Ads (Search), Meta Ads (Instagram/FB) ve TikTok Ads bütçelerini Apollo'nun verileriyle yönetmek.
+- **Hedef:** Belçika'da cihazı bozulanın aklına gelen ilk ismin "Belmobile" olmasını sağlamak.
+
+## 🤖 5. APOLLO'NUN VASİSİ OLMAK (Tüm Yıl)
 
 ---
 

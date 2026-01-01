@@ -289,12 +289,13 @@ const StoreLocator: React.FC<StoreLocatorProps> = ({ shops: propShops, className
 
                                             <div className="flex gap-3">
                                                 <a
-                                                    href={shop.googleMapUrl || `https://www.google.com/maps?q=${shop.coords.lat},${shop.coords.lng}`}
+                                                    href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(shop.address + ', ' + shop.city)}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     onClick={(e) => e.stopPropagation()}
-                                                    className="flex-1 flex items-center justify-center py-2 rounded-lg border border-gray-200 dark:border-slate-600 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+                                                    className="flex-1 flex items-center justify-center py-2 rounded-lg border-2 border-bel-blue/10 bg-bel-blue/5 text-sm font-bold text-bel-blue dark:text-blue-400 hover:bg-bel-blue hover:text-white transition-all shadow-xs hover:shadow-md"
                                                 >
+                                                    <MapPinIcon className="w-4 h-4 mr-1.5" />
                                                     {t('Directions')}
                                                 </a>
                                                 <a

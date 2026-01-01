@@ -13,7 +13,7 @@ const FooterLanguageSwitcher: React.FC<FooterLanguageSwitcherProps> = ({ current
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const handleLanguageChange = (newLang: 'en' | 'fr' | 'nl') => {
+    const handleLanguageChange = (newLang: 'en' | 'fr' | 'nl' | 'tr') => {
         if (newLang === currentLang) return;
         const search = searchParams.toString() ? `?${searchParams.toString()}` : '';
         const newPath = getLocalizedPath(pathname, newLang, search);
@@ -22,7 +22,7 @@ const FooterLanguageSwitcher: React.FC<FooterLanguageSwitcherProps> = ({ current
 
     return (
         <div className="flex items-center space-x-1 bg-white/5 rounded-lg p-1">
-            {(['en', 'fr', 'nl'] as const).map((lang) => (
+            {(['en', 'fr', 'nl', 'tr'] as const).map((lang) => (
                 <button
                     key={lang}
                     onClick={() => handleLanguageChange(lang)}

@@ -18,7 +18,7 @@ interface MobileMenuProps {
 const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t }) => {
     const pathname = usePathname();
 
-    const handleLanguageChange = (newLang: 'en' | 'fr' | 'nl') => {
+    const handleLanguageChange = (newLang: 'en' | 'fr' | 'nl' | 'tr') => {
         const currentPath = pathname;
         // Search params are tricky to access here without hook, but Header can pass handleLanguageChange callback
         // For now, let's keep it simple or accept a callback.
@@ -39,18 +39,22 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
                     if (path === '/products') {
                         if (language === 'fr') path = '/produits';
                         if (language === 'nl') path = '/producten';
+                        if (language === 'tr') path = '/urunler';
                     }
                     if (path === '/repair') {
                         if (language === 'fr') path = '/reparation';
                         if (language === 'nl') path = '/reparatie';
+                        if (language === 'tr') path = '/tamir';
                     }
                     if (path === '/buyback') {
                         if (language === 'fr') path = '/rachat';
                         if (language === 'nl') path = '/inkoop';
+                        if (language === 'tr') path = '/sat';
                     }
                     if (path === '/stores') {
                         if (language === 'fr') path = '/magasins';
                         if (language === 'nl') path = '/winkels';
+                        if (language === 'tr') path = '/magazalar';
                     }
 
                     const href = `/${language}${path}`;
@@ -77,7 +81,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
 
             {/* Mobile Language Selector */}
             <div className="flex justify-center gap-4 p-4 border-t border-gray-100 dark:border-slate-800 mt-2">
-                {(['en', 'fr', 'nl'] as const).map(l => (
+                {(['en', 'fr', 'nl', 'tr'] as const).map(l => (
                     <button
                         key={l}
                         onClick={() => { handleLanguageChange(l); onClose(); }}

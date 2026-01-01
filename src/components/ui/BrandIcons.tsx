@@ -172,9 +172,8 @@ export const ClockIcon = (props: IconProps) => (
 
 export const LeafIcon = (props: IconProps) => (
     <BaseIcon {...props}>
-        <path d="M11 20a7 7 0 01-7-7c0-3.87 3.13-7 7-7s7 3.13 7 7a7 7 0 01-7 7z" />
-        <path d="M11 13V6" />
-        <path d="M11 13H4" />
+        <path d="M2 22s4.5-4.5 5-9a10 10 0 0 1 10-10l5 1-1 5a10 10 0 0 1-10 10c-4.5.5-9 5-9 5Z" />
+        <path d="M12 12 2 22" />
     </BaseIcon>
 );
 
@@ -397,3 +396,33 @@ export const IdentificationIcon = (props: IconProps) => (
     </BaseIcon>
 );
 
+export const ComputerDesktopIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+        <line x1="8" y1="21" x2="16" y2="21" />
+        <line x1="12" y1="17" x2="12" y2="21" />
+    </BaseIcon>
+);
+
+export const GlobeAltIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <circle cx="12" cy="12" r="10" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+    </BaseIcon>
+);
+
+export const RocketLaunchIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z" />
+        <path d="M12 15l-3.5 3.5M22 2l-6.5 6.5M9 18l1.5 1.5M16 8l1.5 1.5M15 12l.01-.01" />
+        <path d="M9 11l-3 3M13 7l-3-3M18 6l-3 3" />
+    </BaseIcon>
+);
+export const InformationCircleIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
+    </BaseIcon>
+);

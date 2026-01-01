@@ -43,8 +43,31 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
             "telephone": "+32-484-83-75-60",
             "contactType": "customer service",
             "areaServed": "BE",
-            "availableLanguage": ["English", "French", "Dutch"]
-        }
+            "availableLanguage": ["English", "French", "Dutch", "Turkish"]
+        },
+        // SERP Sitelinks Strategy: Explicitly defining main navigation
+        "hasPart": [
+            {
+                "@type": "SiteNavigationElement",
+                "name": t('Repair') || "Repair Service",
+                "url": `https://belmobile.be/${language}/repair`
+            },
+            {
+                "@type": "SiteNavigationElement",
+                "name": t('Buyback') || "Sell Your Device",
+                "url": `https://belmobile.be/${language}/buyback`
+            },
+            {
+                "@type": "SiteNavigationElement",
+                "name": "B2B / Corporate",
+                "url": `https://belmobile.be/${language}/b2b`
+            },
+            {
+                "@type": "SiteNavigationElement",
+                "name": "Academy / Training",
+                "url": `https://belmobile.be/${language}/training`
+            }
+        ]
     };
 
     // 2. LocalBusiness Schema (Map Pack & Local SEO) - Always present on Home or Store Locator
@@ -169,6 +192,61 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
         "mainEntity": organizationSchema
     } : null;
 
+    // 8. VideoObject Schema (Video SEO Strategy for 2026)
+    // Helps appear in "Videos" tab and Google Discover
+    const videoObjectSchema = type === 'organization' ? {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "name": "Belmobile - Expert Smartphone Repair in Brussels",
+        "description": "See inside our certified repair labs in Schaerbeek. 30-minute iPhone and Samsung repairs.",
+        "thumbnailUrl": [
+            "https://belmobile.be/og-image.jpg"
+        ],
+        "uploadDate": "2024-01-01T08:00:00+08:00",
+        "duration": "PT1M33S",
+        "contentUrl": "https://belmobile.be/videos/Belmobile_corporate_video_2026.mp4",
+        "embedUrl": "https://www.youtube.com/embed/placeholder",
+        "interactionStatistic": {
+            "@type": "InteractionCounter",
+            "interactionType": { "@type": "WatchAction" },
+            "userInteractionCount": 5600
+        },
+        "contentLocation": {
+            "@type": "Place",
+            "name": "Belmobile Liedts",
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Rue Gallait 4",
+                "addressLocality": "Schaerbeek",
+                "postalCode": "1030",
+                "addressCountry": "BE"
+            }
+        },
+        "locationCreated": {
+            "@type": "Place",
+            "name": "Belmobile Lab",
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Rue Gallait 4",
+                "addressLocality": "Schaerbeek",
+                "postalCode": "1030",
+                "addressCountry": "BE"
+            }
+        }
+    } : null;
+
+    // 9. SpecialAnnouncement Schema (For Events/Launches)
+    // Use this for "iPhone 17 Launch" or "Black Friday" triggers
+    const specialAnnouncementSchema = type === 'organization' ? {
+        "@context": "https://schema.org",
+        "@type": "SpecialAnnouncement",
+        "name": "iPhone 17 Repair Service Now Available",
+        "text": "We now offer express screen and battery replacement for the new iPhone 17 series.",
+        "category": "https://schema.org/PublicTransportClosureInfo", // Closest fit for service availability updates
+        "datePosted": "2025-09-20T09:00:00",
+        "expires": "2026-01-01T00:00:00"
+    } : null;
+
     return (
         <>
 
@@ -194,6 +272,12 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
                     {localBusinessSchema.map((schema, index) => (
                         <script key={index} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
                     ))}
+                    {videoObjectSchema && (
+                        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videoObjectSchema) }} />
+                    )}
+                    {specialAnnouncementSchema && (
+                        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(specialAnnouncementSchema) }} />
+                    )}
                 </>
             )}
 

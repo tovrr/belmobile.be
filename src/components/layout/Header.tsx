@@ -49,7 +49,7 @@ const Header: React.FC = () => {
         window.dispatchEvent(event);
     }, [isMenuOpen]);
 
-    const handleLanguageChange = (newLang: 'en' | 'fr' | 'nl') => {
+    const handleLanguageChange = (newLang: 'en' | 'fr' | 'nl' | 'tr') => {
         const currentPath = pathname;
         const search = searchParams.toString() ? `?${searchParams.toString()}` : '';
         const newPath = getLocalizedPath(currentPath, newLang, search);
@@ -101,22 +101,27 @@ const Header: React.FC = () => {
                                 if (path === '/products') {
                                     if (language === 'fr') path = '/produits';
                                     if (language === 'nl') path = '/producten';
+                                    if (language === 'tr') path = '/urunler';
                                 }
                                 if (path === '/repair') {
                                     if (language === 'fr') path = '/reparation';
                                     if (language === 'nl') path = '/reparatie';
+                                    if (language === 'tr') path = '/tamir';
                                 }
                                 if (path === '/buyback') {
                                     if (language === 'fr') path = '/rachat';
                                     if (language === 'nl') path = '/inkoop';
+                                    if (language === 'tr') path = '/sat';
                                 }
                                 if (path === '/formation') {
                                     if (language === 'fr') path = '/formation';
                                     if (language === 'nl') path = '/opleiding';
+                                    if (language === 'tr') path = '/egitim';
                                 }
                                 if (path === '/stores') {
                                     if (language === 'fr') path = '/magasins';
                                     if (language === 'nl') path = '/winkels';
+                                    if (language === 'tr') path = '/magazalar';
                                 }
 
                                 const href = `/${language}${path}`;

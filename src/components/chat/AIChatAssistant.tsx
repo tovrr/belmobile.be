@@ -270,9 +270,117 @@ const AIChatAssistant: React.FC = () => {
             setIsLoading(false);
         }
     };
+    // --- PROACTIVE ENGAGEMENT LOGIC ---
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+    const [showProactiveBubble, setShowProactiveBubble] = useState(false);
+    const [proactiveMessageText, setProactiveMessageText] = useState('');
+    const proactiveTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Track triggered paths to avoid spamming
+    const [triggeredPaths, setTriggeredPaths] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        // Don't trigger if:
+        // 1. Path is empty (SSR)
+        // 2. Chat is already open
+        // 3. User has already interacted (messages > 1 means more than just welcome msg)
+        // 4. Bubble is already showing
+        if (!pathname || isOpen || messages.length > 1 || showProactiveBubble) return;
+
+        // Clear existing timer on path change
+        if (proactiveTimerRef.current) {
+            clearTimeout(proactiveTimerRef.current);
+        }
+
+        const currentPath = pathname;
+        if (triggeredPaths.has(currentPath)) return; // Already triggered here
+
+        // Define Triggers
+        let messageKey = '';
+        let delay = 10000; // Default 10s wait
+
+        // 1. Repair Context
+        if (currentPath.includes('/repair') || currentPath.includes('/reparation') || currentPath.includes('/herstelling')) {
+            if (currentPath.split('/').length > 3) {
+                // Deep link (e.g. /repair/smartphone/apple/iphone-13)
+                messageKey = 'proactive_repair_specific';
+                delay = 8000; // 8s
+            } else {
+                messageKey = 'proactive_repair_general';
+                delay = 5000; // 5s faster on main repair page
+            }
+        }
+        // 2. Buyback Context
+        else if (currentPath.includes('/buyback') || currentPath.includes('/vendre') || currentPath.includes('/verkopen')) {
+            messageKey = 'proactive_buyback';
+            delay = 8000;
+        }
+        // 3. Contact Page (High Intent)
+        else if (currentPath.includes('/contact')) {
+            messageKey = 'proactive_contact';
+            delay = 12000;
+        }
+
+        if (messageKey) {
+            proactiveTimerRef.current = setTimeout(() => {
+                // Double check interaction state
+                if (isOpen) return;
+
+                const txt = t(messageKey);
+                if (txt) {
+                    setProactiveMessageText(txt);
+                    setShowProactiveBubble(true);
+                    setTriggeredPaths(prev => new Set(prev).add(currentPath));
+                }
+            }, delay);
+        }
+
+        return () => {
+            if (proactiveTimerRef.current) clearTimeout(proactiveTimerRef.current);
+        };
+    }, [pathname, isOpen, messages.length, triggeredPaths, t, showProactiveBubble]);
+
+    // Handle clicking the bubble
+    const handleBubbleClick = () => {
+        setIsOpen(true);
+        setShowProactiveBubble(false);
+    };
+
+    const handleDismissBubble = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setShowProactiveBubble(false);
+    };
 
     return (
         <div className={`fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans transition-all ${isMobileMenuOpen ? 'hidden' : ''}`}>
+            {/* Proactive Bubble - Outside main chat */}
+            {!isOpen && showProactiveBubble && (
+                <div
+                    onClick={handleBubbleClick}
+                    className="mb-4 mr-2 max-w-[280px] bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-br-none shadow-xl border border-gray-100 dark:border-slate-700 animate-fade-in-up cursor-pointer relative group hover:-translate-y-1 transition-transform duration-300"
+                >
+                    <button
+                        onClick={handleDismissBubble}
+                        className="absolute -top-2 -left-2 bg-gray-200 dark:bg-slate-700 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                        <XMarkIcon className="w-3 h-3 text-gray-500 dark:text-gray-300" />
+                    </button>
+                    <div className="flex items-start space-x-3">
+                        <div className="shrink-0 p-2 bg-bel-blue/10 rounded-full">
+                            <SparklesIcon className="w-5 h-5 text-bel-blue" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-snug">
+                                {proactiveMessageText}
+                            </p>
+                            <span className="text-xs text-bel-blue mt-1 inline-block font-semibold">
+                                Chat with Apollo &rarr;
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {isOpen && (
                 <div className="bg-white w-80 sm:w-96 h-[500px] max-h-[calc(100vh-140px)] rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-4 border border-gray-100 animate-fade-in-up ring-1 ring-black/5">
                     <div className="bg-white p-4 border-b border-gray-100 flex justify-between items-center bg-linear-to-r from-bel-blue to-blue-700">
@@ -411,7 +519,10 @@ const AIChatAssistant: React.FC = () => {
             )}
 
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => {
+                    setIsOpen(!isOpen);
+                    setShowProactiveBubble(false);
+                }}
                 className={`group p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-105 border-4 border-white ${isOpen ? 'bg-gray-100 text-gray-600' : 'bg-linear-to-br from-bel-blue to-blue-600 text-white'
                     }`}
             >

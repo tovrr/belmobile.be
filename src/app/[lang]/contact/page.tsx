@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
                 'en': `https://belmobile.be/en/contact`,
                 'fr': `https://belmobile.be/fr/contact`,
                 'nl': `https://belmobile.be/nl/contact`,
+                'tr': `https://belmobile.be/tr/iletisim`,
             }
         },
     };

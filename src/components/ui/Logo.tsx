@@ -17,8 +17,8 @@ export default function Logo({ className = "w-10 h-10", variant }: LogoProps) {
                 role="img"
                 aria-labelledby="logo-ui-title logo-ui-desc"
             >
-                <title id="logo-ui-title">Belmobile Logo</title>
-                <desc id="logo-ui-desc">Belmobile - Smartphone Repair & Buyback Specialist</desc>
+                <title id="logo-ui-title">Belmobile - Smartphone Repair & Buyback</title>
+                <desc id="logo-ui-desc">Expert phone repair and device buyback services in Brussels. iPhone, Samsung, and more.</desc>
                 {/* 
                    Concept: 'b' letter + Phone chassis + Doctor Cross
                    Style: Minimalist, thick rounded strokes, flat 2D

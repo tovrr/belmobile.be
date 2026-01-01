@@ -47,7 +47,7 @@ const MODEL_DATA: Record<string, Record<string, Record<string, number>>> = {
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const sitemap: MetadataRoute.Sitemap = [];
-    const languages = ['fr', 'nl', 'en'];
+    const languages = ['fr', 'nl', 'en', 'tr'];
 
     // 1. Static Pages & Home
     languages.forEach(lang => {
@@ -63,91 +63,91 @@ export default function sitemap(): MetadataRoute.Sitemap {
             // Services
             {
                 id: 'microsoldering',
-                slugs: { en: 'services/microsoldering', fr: 'services/microsoudure', nl: 'services/microsolderen' }
+                slugs: { en: 'services/microsoldering', fr: 'services/microsoudure', nl: 'services/microsolderen', tr: 'hizmetler/mikrosoldering' }
             },
             {
                 id: 'data-recovery',
-                slugs: { en: 'services/data-recovery', fr: 'services/recuperation-donnees', nl: 'services/data-recovery' }
+                slugs: { en: 'services/data-recovery', fr: 'services/recuperation-donnees', nl: 'services/data-recovery', tr: 'hizmetler/veri-kurtarma' }
             },
             {
                 id: 'services',
-                slugs: { en: 'services', fr: 'services', nl: 'diensten' }
+                slugs: { en: 'services', fr: 'services', nl: 'diensten', tr: 'hizmetler' }
             },
             // Business & Corporate
             {
                 id: 'business',
-                slugs: { en: 'business', fr: 'business', nl: 'zakelijk' }
+                slugs: { en: 'business', fr: 'business', nl: 'zakelijk', tr: 'kurumsal' }
             },
             {
                 id: 'franchise',
-                slugs: { en: 'franchise', fr: 'franchise', nl: 'franchise' }
+                slugs: { en: 'franchise', fr: 'franchise', nl: 'franchise', tr: 'franchise' }
             },
             {
                 id: 'careers',
-                slugs: { en: 'careers', fr: 'carrieres', nl: 'vacatures' }
+                slugs: { en: 'careers', fr: 'carrieres', nl: 'vacatures', tr: 'kariyer' }
             },
             {
                 id: 'express-courier',
-                slugs: { en: 'express-courier', fr: 'coursier-express', nl: 'express-koerier' }
+                slugs: { en: 'express-courier', fr: 'coursier-express', nl: 'express-koerier', tr: 'kurye' }
             },
             {
                 id: 'students',
-                slugs: { en: 'students', fr: 'etudiants', nl: 'studenten' }
+                slugs: { en: 'students', fr: 'etudiants', nl: 'studenten', tr: 'ogrenci' }
             },
             // Company Info
             {
                 id: 'about',
-                slugs: { en: 'about', fr: 'a-propos', nl: 'over-ons' }
+                slugs: { en: 'about', fr: 'a-propos', nl: 'over-ons', tr: 'hakkimizda' }
             },
             {
                 id: 'training',
-                slugs: { en: 'training', fr: 'formation', nl: 'opleiding' }
+                slugs: { en: 'training', fr: 'formation', nl: 'opleiding', tr: 'egitim' }
             },
             {
                 id: 'sustainability',
-                slugs: { en: 'about/sustainability', fr: 'about/durabilite', nl: 'about/duurzaamheid' }
+                slugs: { en: 'about/sustainability', fr: 'about/durabilite', nl: 'about/duurzaamheid', tr: 'hakkimizda/surdurulebilirlik' }
             },
             // Support & Tools
             {
                 id: 'support',
-                slugs: { en: 'support', fr: 'support', nl: 'ondersteuning' }
+                slugs: { en: 'support', fr: 'support', nl: 'ondersteuning', tr: 'destek' }
             },
             {
                 id: 'track-order',
-                slugs: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen' }
+                slugs: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen', tr: 'takip' }
             },
             {
                 id: 'stores',
-                slugs: { en: 'stores', fr: 'magasins', nl: 'winkels' }
+                slugs: { en: 'stores', fr: 'magasins', nl: 'winkels', tr: 'magazalar' }
             },
             {
                 id: 'comp-products',
-                slugs: { en: 'products', fr: 'produits', nl: 'producten' }
+                slugs: { en: 'products', fr: 'produits', nl: 'producten', tr: 'urunler' }
             },
             // Legal Pages
             {
                 id: 'warranty',
-                slugs: { en: 'warranty', fr: 'garantie', nl: 'garantie' }
+                slugs: { en: 'warranty', fr: 'garantie', nl: 'garantie', tr: 'garanti' }
             },
             {
                 id: 'terms',
-                slugs: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden' }
+                slugs: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden', tr: 'kosullar' }
             },
             {
                 id: 'privacy',
-                slugs: { en: 'privacy', fr: 'vie-privee', nl: 'privacy' }
+                slugs: { en: 'privacy', fr: 'vie-privee', nl: 'privacy', tr: 'gizlilik' }
             },
             {
                 id: 'cookies',
-                slugs: { en: 'cookies', fr: 'cookies', nl: 'cookies' }
+                slugs: { en: 'cookies', fr: 'cookies', nl: 'cookies', tr: 'cerezler' }
             },
             {
                 id: 'contact',
-                slugs: { en: 'contact', fr: 'contact', nl: 'contact' }
+                slugs: { en: 'contact', fr: 'contact', nl: 'contact', tr: 'iletisim' }
             },
             {
                 id: 'faq',
-                slugs: { en: 'faq', fr: 'faq', nl: 'faq' }
+                slugs: { en: 'faq', fr: 'faq', nl: 'faq', tr: 'sss' }
             }
         ];
 
@@ -268,7 +268,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // 3.5 Individual Products (Refurbished/Sales)
     languages.forEach(lang => {
-        const basePath = lang === 'fr' ? 'acheter' : lang === 'nl' ? 'kopen' : 'buy';
+        const basePath = lang === 'fr' ? 'acheter' : (lang === 'nl' ? 'kopen' : (lang === 'tr' ? 'urunler' : 'buy'));
         MOCK_PRODUCTS.forEach(product => {
             if (product.slug) {
                 sitemap.push({

@@ -34,11 +34,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                         w-full py-3 
                         ${leftIcon ? 'pl-10' : 'px-4'}
                         ${rightIcon || rightElement ? 'pr-12' : 'px-4'}
-                        bg-gray-50 dark:bg-surface-dark/50 
+                        bg-white dark:bg-slate-900/50 
                         border rounded-xl 
                         focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent 
                         transition-all 
-                        dark:text-white placeholder-gray-400
+                        text-gray-900 dark:text-white placeholder-gray-400
                         ${error
                                 ? 'border-red-500 focus:ring-red-500'
                                 : 'border-gray-200 dark:border-white/10'

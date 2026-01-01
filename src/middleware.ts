@@ -28,15 +28,14 @@ export function middleware(req: NextRequest) {
 
     if (pathnameHasLocale) return;
 
-    // 3. PROXY/REWRITE STRATEGY:
-    // Instead of redirecting (changing the URL in the browser), 
-    // we internally REWRITE to the default locale. 
-    // This acts as a transparent proxy.
+    // 3. REDIRECT STRATEGY:
+    // We explicitly redirect to the default locale to ensure SEO consistency
+    // and avoid duplicate content issues at the root path.
     const locale = i18n.defaultLocale;
     const url = req.nextUrl.clone();
     url.pathname = `/${locale}${pathname}`;
 
-    return NextResponse.rewrite(url);
+    return NextResponse.redirect(url);
 }
 
 export const config = {

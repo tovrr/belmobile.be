@@ -34,6 +34,9 @@ const FAQ: React.FC = () => {
 
     const faqs = [
         { q: t('faq_contact_how_q'), a: t('faq_contact_how_a') },
+        { q: t('faq_question_repair_time') || "How long does a repair take?", a: t('faq_answer_repair_time') || "Most repairs, like screen or battery replacements for iPhone and Samsung, are done in 30 minutes in our Schaerbeek and Anderlecht labs." },
+        { q: t('faq_question_warranty') || "Do you offer a warranty?", a: t('faq_answer_warranty') || "Yes, we offer a 1-year warranty on all our repairs and parts." },
+        { q: t('faq_question_location') || "Where is the nearest Belmobile shop?", a: t('faq_answer_location') || "We have stores in Schaerbeek (Rue Gallait 4) and Anderlecht (Wayez). You can come without an appointment." },
         { q: t('faq_contact_response_q'), a: t('faq_contact_response_a') },
         { q: t('faq_contact_support_q'), a: t('faq_contact_support_a') },
         { q: t('faq_contact_tracking_q'), a: t('faq_contact_tracking_a') },

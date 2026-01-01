@@ -6,6 +6,7 @@ interface HreflangProps {
         fr: string;
         nl: string;
         en: string;
+        tr: string;
     };
     baseUrl: string; // e.g., https://belmobile.be
 }

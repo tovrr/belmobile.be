@@ -13,23 +13,23 @@ export function sanitizeUrl(url: string | undefined, defaultUrl: string = 'https
 }
 
 export const SLUG_MAPPINGS: Record<string, Record<string, string>> = {
-    products: { en: 'products', fr: 'produits', nl: 'producten' },
-    repair: { en: 'repair', fr: 'reparation', nl: 'reparatie' },
-    buyback: { en: 'buyback', fr: 'rachat', nl: 'inkoop' },
-    stores: { en: 'stores', fr: 'magasins', nl: 'winkels' },
-    services: { en: 'services', fr: 'services', nl: 'diensten' },
-    about: { en: 'about', fr: 'a-propos', nl: 'over-ons' },
-    sustainability: { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' },
-    students: { en: 'students', fr: 'etudiants', nl: 'studenten' },
-    courier: { en: 'express-courier', fr: 'coursier-express', nl: 'express-koerier' },
-    careers: { en: 'careers', fr: 'carrieres', nl: 'vacatures' },
-    warranty: { en: 'warranty', fr: 'garantie', nl: 'garantie' },
-    privacy: { en: 'privacy', fr: 'vie-privee', nl: 'privacy' },
-    terms: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden' },
-    track: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen' },
-    business: { en: 'business', fr: 'business', nl: 'zakelijk' },
-    support: { en: 'support', fr: 'support', nl: 'ondersteuning' },
-    franchise: { en: 'franchise', fr: 'devenir-partenaire', nl: 'word-partner' },
+    products: { en: 'products', fr: 'produits', nl: 'producten', tr: 'urunler' },
+    repair: { en: 'repair', fr: 'reparation', nl: 'reparatie', tr: 'tamir' },
+    buyback: { en: 'buyback', fr: 'rachat', nl: 'inkoop', tr: 'sat' },
+    stores: { en: 'stores', fr: 'magasins', nl: 'winkels', tr: 'magazalar' },
+    services: { en: 'services', fr: 'services', nl: 'diensten', tr: 'hizmetler' },
+    about: { en: 'about', fr: 'a-propos', nl: 'over-ons', tr: 'hakkimizda' },
+    sustainability: { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid', tr: 'surdurulebilirlik' },
+    students: { en: 'students', fr: 'etudiants', nl: 'studenten', tr: 'ogrenci' },
+    courier: { en: 'express-courier', fr: 'coursier-express', nl: 'express-koerier', tr: 'kurye' },
+    careers: { en: 'careers', fr: 'carrieres', nl: 'vacatures', tr: 'kariyer' },
+    warranty: { en: 'warranty', fr: 'garantie', nl: 'garantie', tr: 'garanti' },
+    privacy: { en: 'privacy', fr: 'vie-privee', nl: 'privacy', tr: 'gizlilik' },
+    terms: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden', tr: 'kosullar' },
+    track: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen', tr: 'takip' },
+    business: { en: 'business', fr: 'business', nl: 'zakelijk', tr: 'kurumsal' },
+    support: { en: 'support', fr: 'support', nl: 'destek', tr: 'destek' },
+    franchise: { en: 'franchise', fr: 'devenir-partenaire', nl: 'word-partner', tr: 'franchise' },
     // Redundant keys for direct lookup from localized slugs if needed
     'a-propos': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
     'over-ons': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
@@ -37,12 +37,12 @@ export const SLUG_MAPPINGS: Record<string, Record<string, string>> = {
     'duurzaamheid': { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' }
 };
 
-export function getLocalizedPath(currentPath: string, newLang: 'en' | 'fr' | 'nl', searchParams: string = ''): string {
+export function getLocalizedPath(currentPath: string, newLang: 'en' | 'fr' | 'nl' | 'tr', searchParams: string = ''): string {
     // Split path into segments
     const segments = currentPath.split('/').filter(Boolean);
 
     // Check if first segment is a language code
-    if (['en', 'fr', 'nl'].includes(segments[0])) {
+    if (['en', 'fr', 'nl', 'tr'].includes(segments[0])) {
         segments[0] = newLang;
     } else {
         // Safe fallback if language is missing

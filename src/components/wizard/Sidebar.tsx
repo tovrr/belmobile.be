@@ -16,6 +16,7 @@ import Button from '../ui/Button';
 
 import { useWizard } from '../../context/WizardContext';
 import { PriceLockTimer } from '../ui/PriceLockTimer';
+import { BoltIcon } from '../ui/BrandIcons';
 
 // Map string icon names to components
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -23,7 +24,8 @@ const ICON_MAP: Record<string, React.ElementType> = {
     ShieldCheckIcon,
     CheckBadgeIcon,
     BanknotesIcon,
-    InformationCircleIcon
+    InformationCircleIcon,
+    BoltIcon
 };
 
 interface SidebarProps {

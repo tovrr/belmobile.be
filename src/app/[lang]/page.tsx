@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                 'fr': `${baseUrl}/fr`,
                 'nl': `${baseUrl}/nl`,
                 'en': `${baseUrl}/en`,
+                'tr': `${baseUrl}/tr`,
             },
         },
         openGraph: {

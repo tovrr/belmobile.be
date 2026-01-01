@@ -21,6 +21,7 @@ export interface Location {
         fr: string;
         nl: string;
         en: string;
+        tr: string;
     };
 }
 
@@ -45,7 +46,8 @@ export const LOCATIONS: Location[] = [
         slugs: {
             fr: 'schaerbeek',
             nl: 'schaarbeek',
-            en: 'schaerbeek'
+            en: 'schaerbeek',
+            tr: 'schaarbeek'
         }
     },
     {
@@ -66,7 +68,8 @@ export const LOCATIONS: Location[] = [
         slugs: {
             fr: 'anderlecht',
             nl: 'anderlecht',
-            en: 'anderlecht'
+            en: 'anderlecht',
+            tr: 'anderlecht'
         }
     },
     {
@@ -88,7 +91,8 @@ export const LOCATIONS: Location[] = [
         slugs: {
             fr: 'molenbeek',
             nl: 'molenbeek',
-            en: 'molenbeek'
+            en: 'molenbeek',
+            tr: 'molenbeek'
         }
     },
     {
@@ -106,7 +110,8 @@ export const LOCATIONS: Location[] = [
         slugs: {
             fr: 'bruxelles',
             nl: 'brussel',
-            en: 'brussels'
+            en: 'brussels',
+            tr: 'bruksel'
         }
     }
 ];

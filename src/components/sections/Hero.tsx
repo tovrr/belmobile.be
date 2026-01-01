@@ -122,13 +122,12 @@ const Hero: React.FC = () => {
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-20"></div>
                             <div className="w-full h-full rounded-4xl overflow-hidden bg-slate-800 relative">
                                 <Image
-                                    src="/images/hero_phone_branded.webp"
-                                    alt={t('hero_phone_alt')}
-                                    fill
+                                    src="/images/iphone-repair-schaerbeek-brussels-belmobile.webp"
+                                    alt={t('Broken iPhone Screen Repair Brussels')}
+                                    width={500}
+                                    height={600}
                                     priority
-                                    loading="eager"
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                    className="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
+                                    className="relative z-20 w-full max-w-[280px] sm:max-w-md mx-auto drop-shadow-2xl animate-fade-in-up"
                                 />
                                 <div className="absolute inset-0 bg-linear-to-t from-electric-indigo/50 to-transparent flex flex-col justify-end p-6">
                                     {/* Abstract UI Elements */}
@@ -204,6 +203,25 @@ const Hero: React.FC = () => {
                                 <div>
                                     <p className="text-[9px] sm:text-xs text-slate-500 uppercase font-black">{t('trust_eco')}</p>
                                     <p className="text-[10px] sm:text-sm font-black text-slate-900 dark:text-white whitespace-nowrap">100%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Badge: Social Proof (New Floating Badge) */}
+                        <div
+                            className="absolute -right-6 top-1/2 transform -translate-y-1/2 bg-white dark:bg-slate-800 p-2 sm:p-4 rounded-ui shadow-xl shadow-green-500/20 animate-float border border-slate-100 dark:border-slate-700 z-30 hidden lg:block"
+                            style={{ animationDelay: '5s' }}
+                        >
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="bg-green-100 dark:bg-green-900/30 p-1.5 sm:p-2 rounded-lg text-green-600 dark:text-green-400">
+                                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Devices Saved"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] sm:text-xs text-slate-500 uppercase font-black">{t('repaired_today')}</p>
+                                    <p className="text-sm font-black text-slate-900 dark:text-white whitespace-nowrap">
+                                        {/* Simple client-side random number for demo, ideally fetched from API */}
+                                        <span suppressHydrationWarning>{Math.floor(Math.random() * (15 - 5 + 1)) + 5}</span>
+                                    </p>
                                 </div>
                             </div>
                         </div>

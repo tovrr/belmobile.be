@@ -21,9 +21,18 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
     ],
+    shortcut: '/favicon.svg',
     apple: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      {
+        rel: 'apple-touch-icon-precomposed',
+        url: '/apple-icon.png',
+      },
     ],
   },
   manifest: '/manifest.json',
@@ -34,6 +43,7 @@ export const metadata: Metadata = {
       'fr-BE': '/fr',
       'nl-BE': '/nl',
       'en-BE': '/en',
+      'tr-BE': '/tr',
     },
   },
   openGraph: {
