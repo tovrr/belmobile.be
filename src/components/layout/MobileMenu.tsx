@@ -97,12 +97,12 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
                                             {t('Franchise')}
                                         </Link>
                                         <Link
-                                            href={`/${language}/formation`}
+                                            href={`/${language}${language === 'nl' ? '/opleiding' : language === 'tr' ? '/egitim' : language === 'fr' ? '/formation' : '/training'}`}
                                             onClick={onClose}
                                             className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2"
                                         >
                                             <div className="w-1.5 h-1.5 rounded-full bg-electric-indigo/40" />
-                                            {t('Formation')}
+                                            {t('formation')}
                                         </Link>
                                     </div>
                                 </div>

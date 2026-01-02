@@ -30,6 +30,7 @@ export const SLUG_MAPPINGS: Record<string, Record<string, string>> = {
     business: { en: 'business', fr: 'business', nl: 'zakelijk', tr: 'kurumsal' },
     support: { en: 'support', fr: 'support', nl: 'destek', tr: 'destek' },
     franchise: { en: 'franchise', fr: 'devenir-partenaire', nl: 'word-partner', tr: 'franchise' },
+    training: { en: 'training', fr: 'formation', nl: 'opleiding', tr: 'egitim' },
     // Redundant keys for direct lookup from localized slugs if needed
     'a-propos': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
     'over-ons': { en: 'about', fr: 'a-propos', nl: 'over-ons' },

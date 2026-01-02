@@ -79,6 +79,16 @@ Ce document retrace l'évolution technologique complète de la plateforme Belmob
 - **SOP Déploiement** : Mise en place du protocole strict "Staging First" (Golden Rule #6) pour éviter les régressions en production.
 - **Support Turc & UX Finish** : Activation complète du routing `/tr` (Onarim/Geri Alim) et polissage de l'interface Wizard pour le public turcophone.
 - **Adaptive Header** : Implémentation d'une logique responsive avancée pour le header (Icon-only sur mobile/desktop standard, Texte sur Tablette/Grand écran).
+- **Lead Recovery Engine** : Déploiement du système de récupération des leads abandonnés via Magic Links et intégration Brevo.
+- **i18n Parity & File Hygiene** : Finalisation des traductions FR/TR, résolution de tous les avertissements de clés en double, et internationalisation complète du Wizard (Détails Utilisateurs) et des formulaires de contact.
+- **UI Polishing** : Ajustement de la section Témoignages pour afficher exactement 6 avis (2 rangées) sur Desktop/Tablette pour une esthétique optimale.
+- **Sitemap Localization** : Ajout des traductions manquantes (`start_selling`, `view_all_repairs`, `other_services_title`) dans le plan du site visuel pour une couverture i18n à 100%.
+- **FAQ Translations** : Ajout de toutes les traductions manquantes dans `tr.json` (Général, Réparation, Rachat) et des 3 FAQs manquantes dans `fr.json` pour une parité totale.
+- **Formation & Business Pages i18n** : Internationalisation complète des pages Formation et Business.
+    - Remplacement de tous les textes codés en dur dans `TrainingAcademy.tsx` et `BusinessSolutions.tsx` par des clés de traduction.
+    - Ajout de toutes les clés manquantes dans `en.json`, `fr.json`, `nl.json` et `tr.json`.
+    - Nettoyage des clés en double dans tous les fichiers de langue.
+    - Mise à jour des métadonnées et des paramètres statiques pour inclure le support complet du turc (`tr`) et les slugs localisés corrects.
 
 ---
 

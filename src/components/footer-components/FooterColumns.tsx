@@ -43,6 +43,12 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                         </Link>
                     </li>
                     <li><Link href={`/${language}/franchise`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Become a Partner')}</Link></li>
+                    <li>
+                        <Link href={`/${language}/${language === 'nl' ? 'opleiding' : language === 'tr' ? 'egitim' : language === 'fr' ? 'formation' : 'training'}`} className="hover:text-white transition-all hover:translate-x-1 inline-flex items-center gap-1.5 duration-200">
+                            <GraduationCap className="w-3.5 h-3.5 text-cyber-citron" />
+                            {t('formation')}
+                        </Link>
+                    </li>
                     <li><Link href={`/${language}/#careers`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Careers')}</Link></li>
                 </ul>
             </div>
@@ -61,7 +67,7 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                     <li><Link href={`/${language}/track-order`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Track Order')}</Link></li>
                     <li><Link href={`/${language}/blog`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Blog')}</Link></li>
                     <li><Link href={`/${language}/about`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('About Us')}</Link></li>
-                    <li><Link href={`/${language}/sustainability`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">Sustainability</Link></li>
+                    <li><Link href={`/${language}/${language === 'nl' ? 'duurzaamheid' : language === 'tr' ? 'surdurulebilirlik' : language === 'fr' ? 'durabilite' : 'sustainability'}`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">Sustainability</Link></li>
                 </ul>
             </div>
 

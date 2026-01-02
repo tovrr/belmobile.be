@@ -125,12 +125,21 @@ This document provides actionable engineering solutions to the structural weakne
 - **Point-of-Squeeze Logic**: Implemented Tailwind classes (`hidden sm:block lg:hidden xl:block`) to hide non-essential text in tight zones while keeping it visible on large screens and tabs.
 - **Icon-Only Fallback**: Call button switches to a circular icon on mobile and small desktops to preserve horizontal space.
 
-## 12. 🧹 Workspace Hygiene Consolidation (Jan 2, 2026)
-**Problem**: Root directory cluttered with 50+ logs, drafts, and legacy MD files.
+## 13. 🔄 Lead Recovery Engine (Jan 2, 2026)
+**Problem**: Abandoned wizard sessions leading to lost revenue opportunities and lack of visibility on customer intent.
 **Solution**:
-- **Structural Reorg**: Moved all operational docs to `/docs/brain`, guides to `/docs/guides`, and reports to `/docs/reports`.
-- **Log Purge**: Automated deletion of `tsc_*.log`, `build_*.txt`, and various debug dumps.
-- **Result**: Drastic reduction in cognitive load for new developers and AI agents.
+- **Persistence**: Implemented `orderService.saveLead` to capture emails and full wizard states into a `leads` Firestore collection on blur.
+- **Magic Link Logic**: Created a recovery route `/[lang]/recovery/[token]` that hydrates `sessionStorage` and restores the user's exact position in the funnel.
+- **Admin Workflow**: Built a Lead Management dashboard with manual "Rescue" capability via Brevo SMTP integration.
+- **Result**: Immediate visibility into high-intent customers who didn't finalize, enabling manual or systematic follow-ups.
+
+## 14. 🌍 Full i18n Parity & File Hygiene (Jan 2, 2026)
+**Problem**: Recurring "Duplicate object key" warnings in translation files, inconsistent promo keys across languages, and hardcoded strings in the Wizard and Contact forms.
+**Solution**:
+- **Key Consolidation**: Systematically audited `en.json`, `fr.json`, `nl.json`, and `tr.json` to remove 15+ duplicate keys. 
+- **Universal Keys**: Unified promo keys (e.g., `Black Friday Offer` instead of multiple local variants) and established `Reserve` as the standard key for `ProductCard.tsx`.
+- **Wizard Internationalization**: Wrapped remaining hardcoded strings in `StepUserInfo.tsx` and `Contact.tsx` using the `t()` hook.
+- **Parity**: Achieved 100% translation sync for the ReservationModal and Contact page across all four languages, including full Turkish and Dutch coverage for shipping/pickup flows.
 
 ---
 

@@ -28,15 +28,18 @@ export function middleware(req: NextRequest) {
 
     // 3. REWRITE STRATEGY (Localization Fixes):
     // Map localized paths (e.g. /tr/magazalar) to internal folder structures (e.g. /tr/stores)
+    // 3. REWRITE STRATEGY (Localization Fixes):
+    // Map localized paths (e.g. /tr/magazalar) to internal folder structures (e.g. /tr/stores)
+
+    // TURKISH REWRITES
     if (pathname.startsWith('/tr/')) {
         const trRewrites: Record<string, string> = {
             '/tr/magazalar': '/tr/stores',
             '/tr/hakkimizda': '/tr/about',
             '/tr/iletisim': '/tr/contact',
-            '/tr/blog': '/tr/blog', // No change needed but good for completeness
             '/tr/hizmetler': '/tr/services',
             '/tr/urunler': '/tr/products',
-            '/tr/kariyer': '/tr/jobs', // 'careers' folder is 'jobs' or 'careers'? List says 'jobs' and 'careers' both exist in directory list. Footer uses #careers usually or /careers. Directory list has 'careers' AND 'jobs'.
+            '/tr/kariyer': '/tr/careers',
             '/tr/gizlilik-politikasi': '/tr/privacy',
             '/tr/kullanim-sartlari': '/tr/terms',
             '/tr/cerez-politikasi': '/tr/cookies',
@@ -46,22 +49,101 @@ export function middleware(req: NextRequest) {
             '/tr/siparis-takip': '/tr/track-order',
             '/tr/bayilik': '/tr/franchise',
             '/tr/kurumsal': '/tr/business',
+            '/tr/is-ortakligi': '/tr/business',
             '/tr/geri-alim': '/tr/buyback',
             '/tr/onarim': '/tr/repair',
+            '/tr/egitim': '/tr/training',
+            '/tr/surdurulebilirlik': '/tr/sustainability',
         };
 
-        // Check for exact matches first
         if (trRewrites[pathname]) {
             const url = req.nextUrl.clone();
             url.pathname = trRewrites[pathname];
             return NextResponse.rewrite(url);
         }
 
-        // Check for sub-path matches (e.g. /tr/magazalar/schaerbeek)
         for (const [trPath, enPath] of Object.entries(trRewrites)) {
             if (pathname.startsWith(`${trPath}/`)) {
                 const url = req.nextUrl.clone();
                 url.pathname = pathname.replace(trPath, enPath);
+                return NextResponse.rewrite(url);
+            }
+        }
+    }
+
+    // DUTCH REWRITES
+    if (pathname.startsWith('/nl/')) {
+        const nlRewrites: Record<string, string> = {
+            '/nl/winkels': '/nl/stores',
+            '/nl/over-ons': '/nl/about',
+            '/nl/contact': '/nl/contact',
+            '/nl/diensten': '/nl/services',
+            '/nl/producten': '/nl/products',
+            '/nl/vacatures': '/nl/careers',
+            '/nl/privacybeleid': '/nl/privacy',
+            '/nl/algemene-voorwaarden': '/nl/terms',
+            '/nl/cookiebeleid': '/nl/cookies',
+            '/nl/garantie': '/nl/warranty',
+            '/nl/ondersteuning': '/nl/support',
+            '/nl/veelgestelde-vragen': '/nl/faq',
+            '/nl/volg-bestelling': '/nl/track-order',
+            '/nl/franchise': '/nl/franchise',
+            '/nl/zakelijk': '/nl/business',
+            '/nl/inkoop': '/nl/buyback',
+            '/nl/reparatie': '/nl/repair',
+            '/nl/opleiding': '/nl/training',
+            '/nl/duurzaamheid': '/nl/sustainability',
+        };
+
+        if (nlRewrites[pathname]) {
+            const url = req.nextUrl.clone();
+            url.pathname = nlRewrites[pathname];
+            return NextResponse.rewrite(url);
+        }
+
+        for (const [nlPath, enPath] of Object.entries(nlRewrites)) {
+            if (pathname.startsWith(`${nlPath}/`)) {
+                const url = req.nextUrl.clone();
+                url.pathname = pathname.replace(nlPath, enPath);
+                return NextResponse.rewrite(url);
+            }
+        }
+    }
+
+    // FRENCH REWRITES
+    if (pathname.startsWith('/fr/')) {
+        const frRewrites: Record<string, string> = {
+            '/fr/magasins': '/fr/stores',
+            '/fr/a-propos': '/fr/about',
+            '/fr/contact': '/fr/contact',
+            '/fr/services': '/fr/services',
+            '/fr/produits': '/fr/products',
+            '/fr/carrieres': '/fr/careers',
+            '/fr/politique-de-confidentialite': '/fr/privacy',
+            '/fr/conditions-generales': '/fr/terms',
+            '/fr/politique-cookies': '/fr/cookies',
+            '/fr/garantie': '/fr/warranty',
+            '/fr/support': '/fr/support',
+            '/fr/faq': '/fr/faq',
+            '/fr/suivre-commande': '/fr/track-order',
+            '/fr/franchise': '/fr/franchise',
+            '/fr/business': '/fr/business', // same
+            '/fr/rachat': '/fr/buyback',
+            '/fr/reparation': '/fr/repair',
+            '/fr/formation': '/fr/training',
+            '/fr/durabilite': '/fr/sustainability',
+        };
+
+        if (frRewrites[pathname]) {
+            const url = req.nextUrl.clone();
+            url.pathname = frRewrites[pathname];
+            return NextResponse.rewrite(url);
+        }
+
+        for (const [frPath, enPath] of Object.entries(frRewrites)) {
+            if (pathname.startsWith(`${frPath}/`)) {
+                const url = req.nextUrl.clone();
+                url.pathname = pathname.replace(frPath, enPath);
                 return NextResponse.rewrite(url);
             }
         }

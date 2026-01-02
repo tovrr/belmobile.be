@@ -7,10 +7,10 @@
 
 ## 1. 🚀 Major Recent Features (Last 2h)
 
-### A. Turkish Localization Phase 2 (Parity) 🇹🇷⚙️
-- **Slug Consistency**: Corrected `services.ts` to align Turkish slugs (`onarim` / `geri-alim`) with middleware and navigation. Fixed routing mismatch that caused 404s.
-- **Wizard Translation Coverage**: 100% i18n coverage for wizard functional steps (Battery Health, Screen Quality, Trust Signals). Fixed raw keys (`NEED_HELP_TITLE`) appearing on TR site.
-- **Safety Fallback**: Implemented content-level fallbacks in `LocalPainPoints` to prevent application crash if a language key is missing.
+### A. FR/TR i18n Parity & File Hygiene 🌍🧹
+- **Consolidated i18n**: Systematically resolved 15+ "Duplicate object key" warnings across all JSON files. Unified promo keys (e.g., `Black Friday Offer`) and standardized `Reserve` key in `ProductCard.tsx`.
+- **Full Parity**: Achieved 100% translation coverage for Turkish and French in the Wizard (StepUserInfo), ReservationModal, and Contact forms. No more hardcoded strings found.
+- **Slug Consistency**: Corrected `services.ts` to align Turkish slugs (`onarim` / `geri-alim`) with middleware.
 
 ### B. Adaptive Responsive Header 📱💻
 - **Dynamic Awareness**: Implemented an "Expanding Header" logic using Tailwind breakpoints.
@@ -24,6 +24,7 @@
 - **Root Cleanup**: Removed 20+ temporary logs, build outputs, and tsc audits from root.
 - **Docs Reorg**: Consolidated all critical MDs into `docs/brain`, `docs/guides`, and `docs/reports`.
 - **Roadmap Merge**: Combined technical strategy with the master `ROADMAP.md` for a single source of truth.
+- **Lead Recovery Engine (LRE)**: Implemented "Magic Link" system with Firestore persistence, Brevo email automation (via Admin), and session restoration logic. Foundational work completed and verified.
 
 ### D. The Hero Overhaul (Mobile-First) - Optimized 📱✨
 - **Adaptive Typography**: Implemented `text-[16vw]` headlines to ensure 100% screen fill on any mobile device.
@@ -43,9 +44,9 @@
 - **Revenue Protection**: High-margin Buyback/Repair flows prioritized in UI.
 
 ## 4. ⚠️ Immediate Next Steps (To-Do)
-1. **Lead Recovery Engine (LRE)**: Implement the "Magic Link" logic for abandoned wizard sessions.
-2. **Context Partitioning**: Refactor `WizardContext` to reduce re-renders.
-3. **B2B Analytics**: Set up tracking for wholesale partner inquiries.
+1. **Context Partitioning**: Refactor `WizardContext` to reduce re-renders.
+2. **B2B Analytics**: Set up tracking for wholesale partner inquiries.
+3. **Admin UI Polish**: Improve lead table filtering and search capabilities.
 
 ---
 

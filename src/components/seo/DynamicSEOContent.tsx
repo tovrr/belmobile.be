@@ -65,7 +65,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
             return `${formattedBrand} ${formattedCategory || 'device'}`;
         }
 
-        if (deviceType === 'smartphone') return 'Smartphone';
+        if (deviceType === 'smartphone') return lang === 'nl' ? 'GSM' : 'Smartphone'; // NL-BE uses GSM often, or Smartphone
         return lang === 'fr' ? 'appareil' : (lang === 'nl' ? 'toestel' : (lang === 'tr' ? 'cihazı' : 'device'));
     };
 
@@ -97,15 +97,15 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     });
 
     const getCard1 = () => {
-        const title = lang === 'fr' ? 'Pourquoi Nous Choisir ?' : (lang === 'nl' ? 'Waarom Ons Kiezen?' : (lang === 'tr' ? 'Neden Biz?' : 'Why Choose Us?'));
+        const title = lang === 'fr' ? 'Pourquoi choisir Belmobile ?' : (lang === 'nl' ? 'Waarom Belmobile kiezen?' : 'Why Choose Belmobile?');
         const text = isRepair
-            ? (lang === 'fr' ? `Garantie de 1 an sur toutes les réparations ${deviceName}. Réparation en 30 minutes dans nos laboratoires de Schaerbeek et Anderlecht. Pièces d'origine certifiées.` : (lang === 'nl' ? `1 jaar garantie op alle ${deviceName} reparaties. Schermvervanging in 30 minuten in onze laboratoria (Schaerbeek/Anderlecht).` : (lang === 'tr' ? `Tüm ${deviceName} onarımlarında 1 yıl garanti. Schaerbeek ve Anderlecht laboratuvarlarımızda 30 dakikada orijinal parça ile onarım.` : `1-year warranty on all ${deviceName} repairs. 30-minute express repair in our Schaerbeek & Anderlecht labs using certified parts.`)))
-            : (lang === 'fr' ? 'Paiement immédiat en Cash. Nous offrons les meilleurs taux de reprise de Bruxelles pour vos anciens appareils.' : (lang === 'nl' ? 'Directe betaling in contanten of per overschrijving. Beste prijsgarantie op de markt.' : (lang === 'tr' ? 'Anında nakit ödeme. Eski cihazlarınız için Brüksel\'deki en iyi geri alım oranlarını sunuyoruz.' : 'Instant payment in cash or bank transfer. Best price guaranteed on the market.')));
+            ? (lang === 'fr' ? `Service Premium pour Particuliers & Pros (B2B). Réparation en 30 min avec Facture TVA et Garantie 1 an. Plus de 50.000 appareils réparés dans nos laboratoires.` : (lang === 'nl' ? `Premium Service voor Particulieren & Bedrijven. Reparatie in 30 min met BTW-factuur en 1 jaar garantie. Meer dan 50.000 tevreden klanten.` : `Premium Service for B2C & B2B. 30 min repair with VAT Invoice and 1-year warranty. Trusted by 50k+ customers.`))
+            : (lang === 'fr' ? 'Leader du Rachat à Bruxelles. Nous offrons le meilleur prix garanti, avec paiement immédiat (Cash/Virement). Effacement complet de vos données (GDPR) certifié.' : (lang === 'nl' ? 'Marktleider in Inkoop. Beste prijsgarantie met directe betaling. Gecertificeerde dataverwijdering (GDPR) voor uw privacy.' : 'Brussels Buyback Leader. Best price guaranteed with instant payment. Certified GDPR data wipe for your security.'));
         return { title, text };
     };
 
     const getCard2 = () => {
-        const title = lang === 'fr' ? 'Nos Adresses à Bruxelles' : (lang === 'nl' ? 'Onze Expertise' : (lang === 'tr' ? 'Uzmanlığımız' : 'Our Expertise'));
+        const title = lang === 'fr' ? 'Nos Centres d\'Expertise' : (lang === 'nl' ? 'Onze Expertisecentra' : 'Our Expertise Centers');
 
         // Generate dynamic address string from real shops
         const activeShops = SHOPS.filter(s => s.status === 'open');
@@ -117,8 +117,8 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
         }).join(', ');
 
         const text = isRepair
-            ? (lang === 'fr' ? `Retrouvez nos ateliers au cœur de Bruxelles à ${cityNames}. Sans rendez-vous.` : (lang === 'nl' ? `Gebroken scherm, zwakke batterij? Wij kennen ${brand || 'apparaten'} door en door. Bezoek onze winkels in ${cityNames}.` : (lang === 'tr' ? `Ekranınız mı kırıldı? ${brand || 'Cihazları'} en iyi biz tanıyoruz. ${cityNames} mağazalarımıza bekleriz.` : `Broken screen, weak battery? We know ${brand || 'devices'} inside out. Visit our stores in ${cityNames}.`)))
-            : (lang === 'fr' ? `Estimation gratuite en 2 minutes dans nos magasins de ${cityNames}.` : (lang === 'nl' ? `Gratis schatting in onze winkels in ${cityNames}.` : (lang === 'tr' ? `${cityNames} mağazalarımızda 2 dakikada ücretsiz fiyat tahmini.` : `Free estimate in our stores in ${cityNames}.`)));
+            ? (lang === 'fr' ? `Nos laboratoires à ${cityNames} sont équipés pour tout type d'intervention (Microsoudure, FaceID, Data Recovery). Sans rendez-vous, 6j/7.` : (lang === 'nl' ? `Onze laboratoria in ${cityNames} zijn uitgerust voor elke interventie. Zonder afspraak, 6d/7.` : `Our labs in ${cityNames} serve the entire Brussels region. Open 6 days a week, no appointment needed.`))
+            : (lang === 'fr' ? `Passez dans nos centres à ${cityNames} pour une estimation gratuite. Nos experts évaluent votre appareil en 2 minutes.` : (lang === 'nl' ? `Bezoek onze centra in ${cityNames} voor een gratis schatting. Klaar in 2 minuten.` : `Visit our centers in ${cityNames} for a free 2-minute appraisal.`));
         return { title, text };
     };
 
@@ -329,6 +329,56 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                     <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-4xl leading-relaxed">
                         {getDescription()}
                     </p>
+
+                    {/* Pain Points Generator SEO Block */}
+                    {(() => {
+                        const painPoints = isRepair ? (
+                            lang === 'fr' ? [
+                                { emoji: '💥', q: 'Écran Cassé ?', a: 'Fissures, taches noires ou tactile en panne.' },
+                                { emoji: '🔋', q: 'Batterie Faible ?', a: 'Se décharge vite ou s\'éteint tout seul.' },
+                                { emoji: '💧', q: 'Oxydation ?', a: 'Tombé dans l\'eau ? Agissez vite !' }
+                            ] : lang === 'nl' ? [
+                                { emoji: '💥', q: 'Scherm Kapot?', a: 'Barsten, vlekken of touch werkt niet.' },
+                                { emoji: '🔋', q: 'Zwakke Batterij?', a: 'Loopt snel leeg of valt uit.' },
+                                { emoji: '💧', q: 'Waterschade?', a: 'In water gevallen? Kom direct langs!' }
+                            ] : [
+                                { emoji: '💥', q: 'Broken Screen?', a: 'Cracks, black spots or touch issues.' },
+                                { emoji: '🔋', q: 'Weak Battery?', a: 'Drains fast or unexpected shutdowns.' },
+                                { emoji: '💧', q: 'Water Damage?', a: 'Dropped in water? Act fast!' }
+                            ]
+                        ) : (
+                            lang === 'fr' ? [
+                                { emoji: '💶', q: 'Besoin de Cash ?', a: 'Recevez de l\'argent immédiatement.' },
+                                { emoji: '📱', q: 'Nouveau GSM ?', a: 'Financez votre nouvel appareil.' },
+                                { emoji: '♻️', q: 'Ecolo ?', a: 'Donnez une seconde vie à votre mobile.' }
+                            ] : lang === 'nl' ? [
+                                { emoji: '💶', q: 'Geld Nodig?', a: 'Ontvang direct contant geld.' },
+                                { emoji: '📱', q: 'Nieuwe GSM?', a: 'Financier uw nieuwe toestel.' },
+                                { emoji: '♻️', q: 'Ecologisch?', a: 'Geef uw mobiel een tweede leven.' }
+                            ] : [
+                                { emoji: '💶', q: 'Need Cash?', a: 'Get money immediately.' },
+                                { emoji: '📱', q: 'Upgrade?', a: 'Fund your new device.' },
+                                { emoji: '♻️', q: 'Eco-friendly?', a: 'Give your mobile a second life.' }
+                            ]
+                        );
+
+                        return (
+                            <div className="mb-12">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+                                    {lang === 'fr' ? 'Problèmes fréquents' : (lang === 'nl' ? 'Veelvoorkomende problemen' : 'Common Issues')}
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    {painPoints.map((p, i) => (
+                                        <div key={i} className="bg-gray-50/50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-700">
+                                            <div className="text-4xl mb-2">{p.emoji}</div>
+                                            <div className="font-bold text-gray-900 dark:text-white mb-1">{p.q}</div>
+                                            <div className="text-sm text-gray-600 dark:text-gray-400">{p.a}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })()}
 
                     {renderServiceBlocks()}
                     {renderPriceTable()}

@@ -15,19 +15,19 @@ const TrainingAcademy: React.FC = () => {
             icon: BoltIcon,
             title: t('acad_level_beginner_title'),
             desc: t('acad_level_beginner_desc'),
-            badge: "Week 1-2"
+            badge: t('acad_badge_week12')
         },
         {
             icon: MicroscopeIcon,
             title: t('acad_level_advanced_title'),
             desc: t('acad_level_advanced_desc'),
-            badge: "Week 3-4"
+            badge: t('acad_badge_week34')
         },
         {
             icon: IdentificationIcon,
             title: t('acad_level_master_title'),
             desc: t('acad_level_master_desc'),
-            badge: "Expert only"
+            badge: t('acad_badge_expert')
         }
     ];
 
@@ -107,11 +107,11 @@ const TrainingAcademy: React.FC = () => {
                                 <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 space-y-3">
                                     <div className="flex items-center gap-2 text-sm font-bold text-slate-500">
                                         <CheckCircleIcon className="w-4 h-4 text-green-500" />
-                                        <span>Pro equipment access</span>
+                                        <span>{t('acad_feat_equipment')}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm font-bold text-slate-500">
                                         <CheckCircleIcon className="w-4 h-4 text-green-500" />
-                                        <span>Personal workbench</span>
+                                        <span>{t('acad_feat_workbench')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -147,12 +147,11 @@ const TrainingAcademy: React.FC = () => {
 
                         <div className="mt-16 pt-8 border-t border-white/5 max-w-2xl mx-auto">
                             <p className="text-slate-400 italic text-lg leading-relaxed">
-                                "Our mission is to pass on the high-level expertise of motherboard repair to the next generation of technicians.
-                                In a world that throws away electronics, we teach you how to give them a heart transplant."
+                                "{t('acad_manifesto')}"
                             </p>
                             <div className="mt-6 flex flex-col items-center">
-                                <span className="text-white font-black text-xl uppercase tracking-widest">Belmobile Senior Team</span>
-                                <span className="text-cyber-citron font-bold text-sm">Master Technicians</span>
+                                <span className="text-white font-black text-xl uppercase tracking-widest">{t('acad_team_header')}</span>
+                                <span className="text-cyber-citron font-bold text-sm">{t('acad_team_sub')}</span>
                             </div>
                         </div>
                     </div>

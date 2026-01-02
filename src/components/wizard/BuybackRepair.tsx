@@ -107,8 +107,17 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     useEffect(() => {
         if (initialCategory && initialCategory !== state.deviceType) {
             dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: initialCategory } });
+        } else if (!initialCategory && !state.deviceType && state.selectedBrand) {
+            // INFERENCE LOGIC: If we have a brand but no category (e.g. /repair/apple),
+            // infer the default category (e.g. smartphone) so models load correctly.
+            const { findDefaultBrandCategory } = require('../../utils/deviceLogic');
+            const defaultMatch = findDefaultBrandCategory(createSlug(state.selectedBrand));
+            if (defaultMatch) {
+                console.log(`[BuybackRepair] Inferred category '${defaultMatch.deviceType}' for brand '${state.selectedBrand}'`);
+                dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: defaultMatch.deviceType } });
+            }
         }
-    }, [initialCategory, dispatch, state.deviceType]);
+    }, [initialCategory, dispatch, state.deviceType, state.selectedBrand]);
 
     // Data Loading
     useEffect(() => {
@@ -165,7 +174,11 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         }
 
         // If we have a brand and model selected on mount, but no pricing data loaded for it, trigger the selection logic.
+        // NOTE: With SSR pages, this might be redundant or cause double-fetching if the parent page handles it.
+        // But for client-side navigation it's safe.
         if (selectedBrand && selectedModel && state.pricingData.loadedForModel !== createSlug(`${selectedBrand} ${selectedModel}`)) {
+            // Only trigger if we are NOT on a server-rendered page that might already satisfy this?
+            // Actually, handleModelSelect triggers a fetch. It's safe to keep for now.
             handleModelSelect(selectedModel);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

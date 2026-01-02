@@ -1053,7 +1053,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-bel-blue/20 mt-8">
                                 <h4 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
                                     <CheckCircleIcon className="h-4 w-4 text-bel-blue" />
-                                    Brussels Local Choice
+                                    {t('Brussels Local Choice')}
                                 </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div className="flex items-start gap-3">
@@ -1076,7 +1076,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                             <p className="font-bold text-gray-900 dark:text-white text-xs">
                                                 {t('transit_nearby')}
                                             </p>
-                                            <p className="text-[10px] text-gray-500 uppercase font-black">STIB/MIVB Network</p>
+                                            <p className="text-[10px] text-gray-500 uppercase font-black">{t('STIB/MIVB Network')}</p>
                                         </div>
                                     </div>
 
@@ -1088,7 +1088,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                             <p className="font-bold text-gray-900 dark:text-white text-xs">
                                                 {t('insurance_invoice')}
                                             </p>
-                                            <p className="text-[10px] text-gray-500 uppercase font-black">Official VAT Proof</p>
+                                            <p className="text-[10px] text-gray-500 uppercase font-black">{t('Official VAT Proof')}</p>
                                         </div>
                                     </div>
                                 </div>

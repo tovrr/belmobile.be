@@ -20,13 +20,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
                 'en': `${baseUrl}/en/business`,
                 'fr': `${baseUrl}/fr/business`,
                 'nl': `${baseUrl}/nl/business`,
+                'tr': `${baseUrl}/tr/is-ortakligi`,
             }
         },
     };
 }
 
 export function generateStaticParams() {
-    return [];
+    return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'nl' }, { lang: 'tr' }];
 }
 
 export default function BusinessPage() {

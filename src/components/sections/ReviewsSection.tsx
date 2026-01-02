@@ -62,7 +62,8 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) 
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    const displayReviews = isLoading ? [] : (isMobile && !showAll ? reviews.slice(0, 3) : reviews);
+    const limit = isMobile ? 3 : 6;
+    const displayReviews = isLoading ? [] : (showAll ? reviews : reviews.slice(0, limit));
 
     return (
         <section className="py-20 relative">
@@ -134,7 +135,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) 
                     )}
                 </div>
 
-                {isMobile && reviews.length > 3 && (
+                {reviews.length > limit && (
                     <div className="mt-8 text-center">
                         <button
                             onClick={() => setShowAll(!showAll)}

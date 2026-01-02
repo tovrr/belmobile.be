@@ -193,11 +193,11 @@ const Header: React.FC = () => {
                                                         {t('Franchise')}
                                                     </Link>
                                                     <Link
-                                                        href={`/${language}${language === 'fr' ? '/formation' : '/formation'}`}
+                                                        href={`/${language}${language === 'nl' ? '/opleiding' : language === 'tr' ? '/egitim' : language === 'fr' ? '/formation' : '/training'}`}
                                                         title={t('seo_nav_training') || 'Become a Certified Technician'}
                                                         className="flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-electric-indigo transition-all"
                                                     >
-                                                        {t('Formation')}
+                                                        {t('formation')}
                                                     </Link>
                                                 </div>
                                             </div>

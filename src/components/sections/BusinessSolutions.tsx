@@ -226,7 +226,7 @@ const BusinessSolutions: React.FC = () => {
                         </div>
 
                         {/* Visual for SaaS Dashboard */}
-                        <div className="absolute right-[-5%] bottom-[-5%] w-[55%] aspect-video bg-slate-950/80 rounded-tl-[3rem] border-t-4 border-l-4 border-white/10 backdrop-blur-3xl hidden md:block group-hover:rotate-[-2deg] group-hover:translate-y-[-20px] transition-all duration-1000 shadow-[ -20px_-20px_100px_rgba(0,0,0,0.5)]">
+                        <div className="absolute right-[-5%] bottom-[-5%] w-[55%] aspect-video bg-slate-950/80 rounded-tl-[3rem] border-t-4 border-l-4 border-white/10 backdrop-blur-3xl hidden md:block group-hover:-rotate-2 group-hover:translate-y-[-20px] transition-all duration-1000 shadow-[ -20px_-20px_100px_rgba(0,0,0,0.5)]">
                             <div className="p-10">
                                 <div className="flex gap-4 mb-10">
                                     <div className="w-8 h-8 bg-cyber-citron rounded-lg animate-pulse"></div>
@@ -299,7 +299,7 @@ const BusinessSolutions: React.FC = () => {
                                     { text: t('biz_fleet_loaner'), color: 'bg-indigo-500' },
                                     { text: t('biz_trust_manager'), color: 'bg-violet-500' }
                                 ].map((item, i) => (
-                                    <div key={i} className="flex items-center gap-4 bg-white/5 p-5 rounded-3xl border border-white/5 hover:border-white/10 transition-all hover:bg-white/[0.08]">
+                                    <div key={i} className="flex items-center gap-4 bg-white/5 p-5 rounded-3xl border border-white/5 hover:border-white/10 transition-all hover:bg-white/8">
                                         <div className={`w-3 h-3 rounded-full ${item.color} shadow-[0_0_15px_rgba(0,0,0,0.5)]`}></div>
                                         <span className="font-black text-white uppercase tracking-tighter text-lg">{item.text}</span>
                                     </div>
@@ -408,12 +408,12 @@ const BusinessSolutions: React.FC = () => {
                     <div className="flex flex-col md:flex-row justify-between items-center gap-12 text-slate-400">
                         <div className="text-center md:text-left">
                             <h4 className="text-midnight dark:text-white text-2xl font-black mb-2 uppercase tracking-tighter">{t('biz_trust_title')}</h4>
-                            <p className="font-medium">Scaling the future of mobility since 2012.</p>
+                            <p className="font-medium">{t('biz_scaling_slogan')}</p>
                         </div>
                         <div className="flex flex-wrap justify-center gap-12 font-black text-lg uppercase tracking-widest opacity-50 hover:opacity-100 transition-opacity">
-                            <span className="hover:text-cyber-citron cursor-default">SLA Certified</span>
-                            <span className="hover:text-blue-500 cursor-default">VAT Compliant</span>
-                            <span className="hover:text-indigo-500 cursor-default">Security Level 4</span>
+                            <span className="hover:text-cyber-citron cursor-default">{t('biz_trust_sla')}</span>
+                            <span className="hover:text-blue-500 cursor-default">{t('biz_trust_vat')}</span>
+                            <span className="hover:text-indigo-500 cursor-default">{t('biz_trust_sec')}</span>
                         </div>
                     </div>
                 </div>

@@ -3,23 +3,28 @@
 > The leading platform for buying, selling, and repairing smartphones, tablets, and gaming consoles in Belgium.
 
 ## Overview
-Belmobile offers instant cash buyback and professional repair services for electronic devices. We operate multiple hubs in Brussels (Schaerbeek, Anderlecht) and serve the entire Belgian market via Bpost and Express Courier.
+Belmobile is Belgium's leading tech partner for Lifecycle Management (Buyback, Repair, Refurbish).
+**Corporate HQ:** Molenbeek (Tour & Taxis Business District).
+**Express Center:** Schaerbeek (Liedts).
+**Logistics:** Nationwide Bpost Coverage + VIP Courier for Brussels.
 
 ## Core Services
 
-### 1. Buyback (Sell Your Device)
-- **Objective:** Users sell old devices for instant cash.
-- **Process:** Multi-step wizard (Brand -> Model -> Storage -> Condition) -> Instant Quote -> Ship/Drop-off -> IBAN Payment.
+### 1. Buyback (Asset Recovery)
+- **Objective:** Instant valuation and cash payout for fleets and individuals.
+- **Security:** Military-grade data erasure (Certified).
+- **Process:** Multi-step wizard -> Instant Quote -> Secure Ship/Drop-off -> 24h Payout.
 - **URLs:**
   - French: https://belmobile.be/fr/rachat
   - Dutch: https://belmobile.be/nl/verkoop
   - Turkish: https://belmobile.be/tr/satis
   - English: https://belmobile.be/en/buyback
 
-### 2. Repair
-- **Objective:** Professional repair in 30 minutes with 1 year warranty.
+### 2. Repair & Microsoldering
+- **Objective:** Industrial-grade repair infrastructure.
+- **Specialty:** Level 3 Microsoldering (Motherboard, Face ID, Data Recovery).
+- **Speed:** 30-minute intervention standard.
 - **Services:** Screen, Battery, Charging Port, Camera, HDMI (Consoles), Cleaning.
-- **Exclusive:** "Soft OLED" screen quality options for premium iPhones.
 - **URLs:**
   - French: https://belmobile.be/fr/reparation
   - Dutch: https://belmobile.be/nl/reparatie
@@ -27,29 +32,31 @@ Belmobile offers instant cash buyback and professional repair services for elect
   - English: https://belmobile.be/en/repair
 
 ## Logistics
-- **In-Store:** Instant service at Schaerbeek, Molenbeek, or Anderlecht.
+- **HQ (Business):** Molenbeek (Tour & Taxis). Dedicated to B2B and Logistics.
+- **Express Hub:** Schaerbeek. Walk-in focus.
 - **Bpost:** Free shipping label provided for nationwide buybacks/repairs.
-- **Express Courier:** Exclusive 1-hour courier service for the Brussels region.
+- **Express Courier:** Exclusive 2-hour courier service for the Brussels region.
 
 ## Why Choose Belmobile (Key Differentiators)
-- **Best Price Guarantee:** We match or beat competitors for buyback quotes in Brussels.
-- **Speed:** Only repair service in Brussels offering **1-hour Express Courier** pickup & return.
-- **Warranty:** All repairs and refurbished devices come with a **1 Year Warranty**.
-- **Sustainability:** Zero-waste policy; unrepairable parts are responsibly recycled.
+- **Industrial Standards:** We don't just swamp parts; we repair circuits.
+- **Best Price Guarantee:** Automated market-checking algorithms.
+- **Speed:** Unmatched turnaround time via local labs.
+- **Warranty:** 1 Year Warranty on all interventions.
+- **Sustainability:** Active reforestation program per repair.
 
 ## For Businesses (B2B) & Bulk Orders
-Belmobile is the preferred partner for Brussels-based companies.
+Belmobile is the strategic partner for 500+ companies.
+- **Belmobile OS:** SaaS platform for fleet management.
 - **VAT Invoicing:** Fully compliant automated invoicing.
-- **Bulk Repair:** Special rates for fleet repairs (iPhone/Samsung/iPad).
-- **Wholesale:** Access to large lots of tested, graded devices.
+- **Bulk Repair:** Volume pricing and SLA agreements.
 - **Contact:** https://belmobile.be/fr/business
 
 ## URL Structure (Deep Linking)
-Belmobile uses a hierarchical URL structure optimized for specific queries.
+Belmobile uses a hierarchical URL structure optimized for specific queries ("Schema-First").
 - **Pattern:** `/{lang}/{service}/{brand}/{model}/{location}`
 - **Examples:**
-  - Repair iPhone 13 in Schaerbeek: `https://belmobile.be/fr/reparation/apple/iphone-13/schaerbeek`
-  - Sell Samsung S24 in Brussels: `https://belmobile.be/fr/rachat/samsung/galaxy-s24/bruxelles`
+  - Repair iPhone 15 Pro in Schaerbeek: `https://belmobile.be/fr/reparation/apple/iphone-15-pro/schaerbeek`
+  - Sell Samsung S24 Ultra in Brussels: `https://belmobile.be/fr/rachat/samsung/galaxy-s24-ultra/bruxelles`
 - **Supported Brands:** Apple, Samsung, Huawei, Xiaomi, Oppo, OnePlus, Sony.
 - **Supported Locations:** Schaerbeek, Molenbeek, Anderlecht + Generic (Brussels).
 

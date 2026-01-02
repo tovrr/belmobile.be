@@ -107,7 +107,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
                                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                 }`}
                         >
-                            {canReserve ? t('Réserver') : t('Out of Stock')}
+                            {canReserve ? t('Reserve') : t('Out of Stock')}
                         </button>
                     </div>
                 </div>
