@@ -13,7 +13,7 @@ const Hero: React.FC = () => {
     const { language, t } = useLanguage();
 
     return (
-        <div className="relative overflow-hidden bg-gray-50 dark:bg-deep-space pt-10 pb-20 lg:pt-20 lg:pb-32">
+        <div className="relative overflow-hidden bg-gray-50 dark:bg-deep-space pt-12 pb-16 lg:pt-20 lg:pb-32">
             {/* Ambient Background Glows */}
             <motion.div
                 initial={{ opacity: 0 }}
@@ -29,7 +29,7 @@ const Hero: React.FC = () => {
             />
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-8 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
 
                     {/* Left: Content */}
                     <div className="text-center lg:text-left z-10">
@@ -44,12 +44,40 @@ const Hero: React.FC = () => {
                         </motion.div>
 
                         <h1
-                            className="text-5xl sm:text-6xl lg:text-8xl font-black tracking-tight leading-[0.95] text-slate-900 dark:text-white mb-8 font-heading"
+                            className="text-[16vw] lg:text-[7vw] font-black tracking-tight leading-[0.9] text-slate-900 dark:text-white mb-8 font-heading w-full"
                         >
-                            {t('Your One-Stop')} <br />
-                            <span className="bg-clip-text text-transparent bg-linear-to-r from-electric-indigo via-electric-violet to-cyan-400">
-                                {t('Mobile Shop')}
-                            </span>
+                            {language === 'fr' && (
+                                <>
+                                    Votre <br /> Expert <br />
+                                    <span className="bg-clip-text text-transparent bg-linear-to-r from-electric-indigo via-electric-violet to-cyan-400">
+                                        Mobile
+                                    </span>
+                                </>
+                            )}
+                            {language === 'nl' && (
+                                <>
+                                    Uw <br /> Mobiele <br />
+                                    <span className="bg-clip-text text-transparent bg-linear-to-r from-electric-indigo via-electric-violet to-cyan-400">
+                                        Expert
+                                    </span>
+                                </>
+                            )}
+                            {language === 'tr' && (
+                                <>
+                                    Brüksel'in <br /> Telefon <br />
+                                    <span className="bg-clip-text text-transparent bg-linear-to-r from-electric-indigo via-electric-violet to-cyan-400">
+                                        Uzmanı
+                                    </span>
+                                </>
+                            )}
+                            {(language === 'en' || !['fr', 'nl', 'tr'].includes(language)) && (
+                                <>
+                                    Your <br /> One-Stop <br />
+                                    <span className="bg-clip-text text-transparent bg-linear-to-r from-electric-indigo via-electric-violet to-cyan-400">
+                                        Mobile Shop
+                                    </span>
+                                </>
+                            )}
                         </h1>
 
                         <p
@@ -117,9 +145,11 @@ const Hero: React.FC = () => {
                     </div>
 
                     {/* Right Column: Hero Image / Visuals */}
-                    <FadeIn delay={0} direction="left" className="w-full flex justify-center lg:justify-end relative h-[600px] lg:h-auto items-center">
-                        <HeroPhone />
-                    </FadeIn>
+                    <div className="hidden lg:flex w-full justify-center lg:justify-end relative h-auto items-center">
+                        <FadeIn delay={0} direction="left" className="w-full h-full flex justify-end">
+                            <HeroPhone />
+                        </FadeIn>
+                    </div>
                 </div>
             </div>
         </div>

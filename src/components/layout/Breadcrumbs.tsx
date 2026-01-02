@@ -49,7 +49,7 @@ const Breadcrumbs: React.FC = () => {
     const { language, t } = useLanguage();
     const { products } = useData();
 
-    const pathnames = pathname.split('/').filter(x => x && !['en', 'fr', 'nl'].includes(x));
+    const pathnames = pathname.split('/').filter(x => x && !['en', 'fr', 'nl', 'tr'].includes(x));
 
     if (pathnames.length === 0 && !pathname.endsWith('/')) { // Only show on sub-pages
         return null;

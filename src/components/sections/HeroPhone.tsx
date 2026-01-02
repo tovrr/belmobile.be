@@ -22,12 +22,12 @@ const HeroPhone = () => {
     }, []);
 
     return (
-        <div className="relative w-full flex items-center justify-center lg:justify-end pt-20 pb-12 lg:py-0 lg:pr-12">
+        <div className="relative w-full flex items-center justify-center lg:justify-center pt-12 pb-12 lg:py-0">
 
             <div className="relative">
                 {/* 1. The Ultimate CSS Phone Mockup - Static & Interactive */}
                 <motion.div
-                    className="relative z-10 w-[280px] sm:w-[340px] lg:w-auto lg:h-[75vh] lg:max-h-[700px] aspect-9/18 transform-gpu perspective-1000"
+                    className="relative z-10 w-full max-w-[320px] sm:max-w-[480px] lg:max-w-none lg:w-auto lg:h-[75vh] lg:max-h-[750px] aspect-9/18 transform-gpu perspective-1000 mx-auto lg:mx-0"
                     initial={{ y: 0, rotateY: 10 }}
                     whileHover={{
                         rotateY: 0,
@@ -112,7 +112,7 @@ const HeroPhone = () => {
                 {/* 3. The Ecosystem (Orbiting Badges) - Static & Overlapping */}
 
                 {/* Top Right: Best Price */}
-                <div className="absolute top-[15%] -right-12 sm:-right-20 z-20">
+                <div className="absolute top-[8%] -right-6 md:top-[15%] md:-right-20 z-20 scale-[0.7] sm:scale-75 md:scale-100 origin-bottom-left">
                     <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-white/50 dark:border-slate-700 flex items-center gap-3 transform hover:scale-105 transition-transform">
                         <div className="bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded-xl text-yellow-600 dark:text-yellow-400 font-bold">€</div>
                         <div>
@@ -123,7 +123,7 @@ const HeroPhone = () => {
                 </div>
 
                 {/* Bottom Right: Eco Friendly */}
-                <div className="absolute bottom-[26%] -right-12 sm:-right-20 z-20">
+                <div className="absolute bottom-[18%] -right-6 md:bottom-[26%] md:-right-20 z-20 scale-[0.7] sm:scale-75 md:scale-100 origin-top-left">
                     <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-white/50 dark:border-slate-700 flex items-center gap-3 transform hover:scale-105 transition-transform">
                         <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-xl text-emerald-600 dark:text-emerald-400">
                             <Leaf size={18} />
@@ -136,7 +136,7 @@ const HeroPhone = () => {
                 </div>
 
                 {/* Top Left: Warranty */}
-                <div className="absolute top-[25%] -left-12 sm:-left-20 z-20">
+                <div className="absolute top-[12%] -left-6 md:top-[25%] md:-left-20 z-20 scale-[0.7] sm:scale-75 md:scale-100 origin-bottom-right">
                     <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-white/50 dark:border-slate-700 flex items-center gap-3 transform hover:scale-105 transition-transform">
                         <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-xl text-purple-600 dark:text-purple-400">
                             <ShieldCheck size={18} />
@@ -149,7 +149,7 @@ const HeroPhone = () => {
                 </div>
 
                 {/* Bottom Left: Repair Time */}
-                <div className="absolute bottom-[35%] -left-12 sm:-left-20 z-20">
+                <div className="absolute bottom-[22%] -left-6 md:bottom-[35%] md:-left-20 z-20 scale-[0.7] sm:scale-75 md:scale-100 origin-top-right">
                     <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-white/50 dark:border-slate-700 flex items-center gap-3 transform hover:scale-105 transition-transform">
                         <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-xl text-blue-600 dark:text-blue-400">
                             <Clock size={18} />

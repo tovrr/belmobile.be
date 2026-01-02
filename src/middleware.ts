@@ -26,9 +26,48 @@ export function middleware(req: NextRequest) {
         (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
     );
 
+    // 3. REWRITE STRATEGY (Localization Fixes):
+    // Map localized paths (e.g. /tr/magazalar) to internal folder structures (e.g. /tr/stores)
+    if (pathname.startsWith('/tr/')) {
+        const trRewrites: Record<string, string> = {
+            '/tr/magazalar': '/tr/stores',
+            '/tr/hakkimizda': '/tr/about',
+            '/tr/iletisim': '/tr/contact',
+            '/tr/blog': '/tr/blog', // No change needed but good for completeness
+            '/tr/hizmetler': '/tr/services',
+            '/tr/urunler': '/tr/products',
+            '/tr/kariyer': '/tr/jobs', // 'careers' folder is 'jobs' or 'careers'? List says 'jobs' and 'careers' both exist in directory list. Footer uses #careers usually or /careers. Directory list has 'careers' AND 'jobs'.
+            '/tr/gizlilik-politikasi': '/tr/privacy',
+            '/tr/kullanim-sartlari': '/tr/terms',
+            '/tr/cerez-politikasi': '/tr/cookies',
+            '/tr/garanti': '/tr/warranty',
+            '/tr/destek': '/tr/support',
+            '/tr/sss': '/tr/faq',
+            '/tr/siparis-takip': '/tr/track-order',
+            '/tr/bayilik': '/tr/franchise',
+            '/tr/kurumsal': '/tr/business',
+        };
+
+        // Check for exact matches first
+        if (trRewrites[pathname]) {
+            const url = req.nextUrl.clone();
+            url.pathname = trRewrites[pathname];
+            return NextResponse.rewrite(url);
+        }
+
+        // Check for sub-path matches (e.g. /tr/magazalar/schaerbeek)
+        for (const [trPath, enPath] of Object.entries(trRewrites)) {
+            if (pathname.startsWith(`${trPath}/`)) {
+                const url = req.nextUrl.clone();
+                url.pathname = pathname.replace(trPath, enPath);
+                return NextResponse.rewrite(url);
+            }
+        }
+    }
+
     if (pathnameHasLocale) return;
 
-    // 3. REDIRECT STRATEGY:
+    // 4. REDIRECT STRATEGY:
     // We explicitly redirect to the default locale to ensure SEO consistency
     // and avoid duplicate content issues at the root path.
     const locale = i18n.defaultLocale;
