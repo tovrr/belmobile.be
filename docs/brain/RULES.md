@@ -16,6 +16,7 @@
     - `src/components/widgets`: **Project Aegis** (B2B external widgets).
 4.  **RSC-First Hybrid**: Public pages are Server Components. Client Logic lives in "Islands".
 5.  **Receipt Integrity**: PDF generation (`pdfGenerator.ts`) must always include the **Logo** and **Signature Blocks**.
+6.  **SOP Deployment Protocol**: **NEVER** push directly to `main`. Always flow: `Local` -> `Staging` -> `Verify` -> `Production`. See `.agent/workflows/workflow_sop.md`.
 
 ---
 

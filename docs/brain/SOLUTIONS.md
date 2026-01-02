@@ -1,6 +1,6 @@
 # 🛠️ FULL_PROJECT_SOLUTIONS: Engineering Redemption Path
 
-This document provides actionable engineering solutions to the structural weaknesses identified in `FULL_PROJECT_CRITIQUE.md`.
+This document provides actionable engineering solutions to the structural weaknesses identified in `FULL_PROJECT_CRITIQUE.md` and tracks the evolution of major architectural decisions.
 
 ---
 
@@ -57,6 +57,7 @@ This document provides actionable engineering solutions to the structural weakne
     - Track "Step Drop-off" rates to identify precisely which part of the UI is frustrating users.
 
 ---
+
 ## 7. 🏗️ The Great Component Refactoring (Dec 31, 2025)
 **Problem**: Disorganized `src/components` folder causing "Module not found" errors, circular dependencies, and a fragile Developer Experience (DX).
 **Solution**:
@@ -68,6 +69,68 @@ This document provides actionable engineering solutions to the structural weakne
     * Run `npx tsc --noEmit` iteratively after each batch move.
     * Use recursive grep to find all usages (`grep_search`).
     * Clean up archive/deprecated code (`proxy.ts`).
+
+---
+
+## 8. 🎯 Walk-in Optimization & SEO Migration (Dec 31, 2025)
+**Problem**:
+1. Walk-in customers reluctant to provide emails.
+2. Legacy Shopify URLs risking SEO value loss.
+3. Transactional emails blocked by spam filters due to heavy HTML.
+
+**Solution**:
+- **Anonymous Walk-in Flow**:
+    - **Logic**: If no email is provided, default to `walkin.shop{ID}@belmobile.be`.
+    - **UX**: Prioritize **WhatsApp** notifications over Email.
+    - **ID**: Client-side generation of `ORD-YYYY-XXXX` for instant feedback.
+- **SEO 301 Strategy**:
+    - **Map**: Comprehensive `next.config.ts` regex map redirecting legacy URLs (e.g., `/pages/reparation-iphone-*`) to new localized routes (`/fr/reparation/apple/iphone-*`).
+    - **Protection**: `robots` meta tag dynamically set to `noindex` for staging environments.
+- **Email Delivery**:
+    - **Redesign**: Switched to **Text-Only HTML Headers** (tables) to bypass Gmail's "Show Images" warning and improve deliverability.
+
+---
+
+## 9. 🧠 Apollo Upgrade & B2B Foundation (New Year's Eve 2025)
+**Problem**:
+1. AI Assistant (`gemini-1.5-flash`) hallucinating addresses and behaving robotically.
+2. No physical proof of purchase for Walk-in customers.
+3. Lack of infrastructure for B2B partners.
+
+**Solution**:
+- **"Digital Esnaf" Protocol**:
+    - **Model**: Upgraded to **Gemini Pro** (Stable) for reliable reasoning.
+    - **Instruction Set**: Injected "Merchant Psychology" (Warmth, localized knowledge of Liedts/Bara).
+    - **Context**: Dynamically injected Opening Hours and Phone Numbers into the AI prompt.
+- **Professional Receipts**:
+    - **Engine**: Implemented **pdfMake** for client-side generation.
+    - **Features**: Embedded Base64 Logo, Signature Blocks (Customer/Shop), and Legal Disclaimers.
+    - **Flow**: Modal -> Success Screen -> Print/Download PDF.
+- **Project Aegis (B2B)**:
+    - **Vision**: Defined the roadmap for White-label Widgets (Q2 2026).
+    - **Architecture**: Established the "Family Business" governance model (Omer/Anti/Apollo).
+
+---
+
+## 10. 🎯 Turkish Localization Parity (Jan 2, 2026)
+**Problem**: Inconsistent slugs between middleware and data, missing i18n keys in the wizard, and crashes due to lack of TR content fallbacks.
+**Solution**:
+- **Slug Alignment**: Updated `src/data/services.ts` to use `onarim` and `geri-alim`.
+- **i18n Sync**: Added 15+ missing Turkish keys in `tr.json` covering Help Desk and Trust Signals.
+- **Robust Fallbacks**: Updated `LocalPainPoints.tsx` to automatically fall back to English if Turkish translations are missing, preventing "undefined" crashes.
+
+## 11. 📱 Adaptive Header Layout (Jan 2, 2026)
+**Problem**: Header layout crowding on small desktops (1024-1280px) and hamburger menu cut-off on mobile.
+**Solution**:
+- **Point-of-Squeeze Logic**: Implemented Tailwind classes (`hidden sm:block lg:hidden xl:block`) to hide non-essential text in tight zones while keeping it visible on large screens and tabs.
+- **Icon-Only Fallback**: Call button switches to a circular icon on mobile and small desktops to preserve horizontal space.
+
+## 12. 🧹 Workspace Hygiene Consolidation (Jan 2, 2026)
+**Problem**: Root directory cluttered with 50+ logs, drafts, and legacy MD files.
+**Solution**:
+- **Structural Reorg**: Moved all operational docs to `/docs/brain`, guides to `/docs/guides`, and reports to `/docs/reports`.
+- **Log Purge**: Automated deletion of `tsc_*.log`, `build_*.txt`, and various debug dumps.
+- **Result**: Drastic reduction in cognitive load for new developers and AI agents.
 
 ---
 

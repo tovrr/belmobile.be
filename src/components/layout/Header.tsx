@@ -139,12 +139,12 @@ const Header: React.FC = () => {
                                 if (path === '/repair') {
                                     if (language === 'fr') path = '/reparation';
                                     if (language === 'nl') path = '/reparatie';
-                                    if (language === 'tr') path = '/tamir';
+                                    if (language === 'tr') path = '/onarim';
                                 }
                                 if (path === '/buyback') {
                                     if (language === 'fr') path = '/rachat';
                                     if (language === 'nl') path = '/inkoop';
-                                    if (language === 'tr') path = '/sat';
+                                    if (language === 'tr') path = '/geri-alim';
                                 }
                                 if (path === '/formation') {
                                     if (language === 'fr') path = '/formation';
@@ -256,13 +256,13 @@ const Header: React.FC = () => {
 
                             {/* Call Support CTA - Visible on All Devices */}
                             <div className="flex items-center gap-2 sm:gap-3">
-                                <span className="hidden sm:block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                <span className="hidden sm:block lg:hidden xl:block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                                     {t('need_help_short')}
                                 </span>
                                 <a
                                     href="tel:+3222759867"
                                     aria-label={t('call_expert')}
-                                    className="relative flex items-center gap-2 bg-cyber-citron hover:bg-cyber-citron/90 text-midnight rounded-full px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-2.5 transition-all shadow-lg hover:shadow-cyber-citron/30 font-black text-xs sm:text-sm tracking-wide group whitespace-nowrap"
+                                    className="relative flex items-center gap-2 bg-cyber-citron hover:bg-cyber-citron/90 text-midnight rounded-full p-2 sm:px-4 sm:py-2.5 lg:p-2.5 xl:px-5 xl:py-2.5 transition-all shadow-lg hover:shadow-cyber-citron/30 font-black text-xs sm:text-sm tracking-wide group whitespace-nowrap"
                                 >
                                     {/* Online Indicator Dot */}
                                     <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -272,8 +272,8 @@ const Header: React.FC = () => {
                                         <span className={`relative inline-flex rounded-full h-3 w-3 ${isExpertOnline ? 'bg-emerald-500' : 'bg-slate-400 dark:bg-slate-600'} border-2 border-white dark:border-slate-900`}></span>
                                     </span>
 
-                                    <PhoneIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover:animate-medical-pulse" aria-hidden="true" />
-                                    <span className="inline-flex">
+                                    <PhoneIcon className="h-5 w-5 sm:h-4 sm:w-4 group-hover:animate-medical-pulse" aria-hidden="true" />
+                                    <span className="hidden sm:inline-flex lg:hidden xl:inline-flex">
                                         {t('call_action_short')}
                                     </span>
                                 </a>

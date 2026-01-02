@@ -46,6 +46,8 @@ export function middleware(req: NextRequest) {
             '/tr/siparis-takip': '/tr/track-order',
             '/tr/bayilik': '/tr/franchise',
             '/tr/kurumsal': '/tr/business',
+            '/tr/geri-alim': '/tr/buyback',
+            '/tr/onarim': '/tr/repair',
         };
 
         // Check for exact matches first

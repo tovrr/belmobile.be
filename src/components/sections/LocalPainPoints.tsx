@@ -178,10 +178,66 @@ export default function LocalPainPoints({ lang, locationName, deviceType: rawDev
                     }
                 ]
             }
+        },
+        tr: {
+            repair: {
+                title: `Neden ${deviceType || 'cihazınızı'} ${locationName} konumunda tamir ettirmelisiniz?`,
+                points: [
+                    {
+                        icon: ClockIcon,
+                        title: "Vaktiniz mi yok?",
+                        text: "30 dakikada tamir. Biz cihazınızı yenilerken siz kahvenizi için veya işlerinizi halledin."
+                    },
+                    {
+                        icon: MapPinIcon,
+                        title: isBrussels ? "Park sorunu mu?" : "Kolay Ulaşım",
+                        text: isBrussels
+                            ? "Schaerbeek, Molenbeek ve Anderlecht mağazalarımız ana caddelerdedir. Kolay park veya metro yakını."
+                            : "Kolay ulaşım ve mağaza önünde park imkanı."
+                    },
+                    {
+                        icon: ShieldCheckIcon,
+                        title: "Kalite endişesi?",
+                        text: "Premium parçalar kullanıyor ve 1 yıl garanti sunuyoruz. Cihazınız uzman ellerde."
+                    },
+                    {
+                        icon: CurrencyEuroIcon,
+                        title: "Bütçe dostu?",
+                        text: "Tam şeffaflık. Fiyat önceden bellidir, sürpriz yok. Tamir edilemezse ücret ödemezsiniz."
+                    }
+                ]
+            },
+            buyback: {
+                title: `Neden ${deviceType || 'cihazınızı'} ${locationName} konumunda satmalısınız?`,
+                points: [
+                    {
+                        icon: ClockIcon,
+                        title: "Anında Fiyat",
+                        text: "2 dakikadan kısa sürede kesin teklif alın. Beklemek yok, prosedür yok."
+                    },
+                    {
+                        icon: MapPinIcon,
+                        title: "Kolay Ulaşım",
+                        text: isBrussels
+                            ? "Cihazınızı Schaerbeek, Molenbeek veya Anderlecht mağazalarımıza hızlıca bırakın."
+                            : `${locationName} mağazamıza cihazınızı hızlıca bırakın.`
+                    },
+                    {
+                        icon: ShieldCheckIcon,
+                        title: "Güvenli Ödeme",
+                        text: "Banka havalesi veya elden nakit ödeme ile anında paranızı alın. Güvenli ve garantili."
+                    },
+                    {
+                        icon: CurrencyEuroIcon,
+                        title: "En İyi Fiyat",
+                        text: `${locationName} bölgesinde cihazınız için en iyi geri alım fiyatını garanti ediyoruz.`
+                    }
+                ]
+            }
         }
     };
 
-    const t = content[lang][type];
+    const t = content[lang] ? content[lang][type] : content['en'][type];
 
     return (
         <section className="py-12 bg-transparent">

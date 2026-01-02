@@ -11,16 +11,20 @@ Production deployment is fully automated via Vercel integration with the GitHub 
 - Ensure strict `npm run build` passes locally.
 
 ### 2. Triggering Deployment
-To deploy to production, simply merge your changes to the `main` branch and push:
+> **STOP**: Have you verified the changes on Staging (`dev.belmobile.be`) on a real device in accordance with the SOP?
 
+Please refer to `.agent/workflows/workflow_sop.md` for the official protocol.
+
+If verification is complete:
 ```bash
 git checkout main
 git merge staging
 git push origin main
 ```
+> **Critical**: If Vercel has an active **Rollback** (Red Banner), you must manually **"Undo Rollback"** in the Vercel Dashboard before new deployments will go live.
 
 ### 3. Verification
-- **URL**: [https://belmobile-next-st7t42wyo-tovrrs-projects.vercel.app](https://belmobile-next-st7t42wyo-tovrrs-projects.vercel.app)
+- **URL**: [https://belmobile.be](https://belmobile.be)
 - **Dashboard**: Check deployment status in the Vercel Dashboard.
 - **Security Rules**: If you modified `firestore.rules`, run:
   ```bash

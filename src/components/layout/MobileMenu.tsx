@@ -46,12 +46,12 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
                     if (path === '/repair') {
                         if (language === 'fr') path = '/reparation';
                         if (language === 'nl') path = '/reparatie';
-                        if (language === 'tr') path = '/tamir';
+                        if (language === 'tr') path = '/onarim';
                     }
                     if (path === '/buyback') {
                         if (language === 'fr') path = '/rachat';
                         if (language === 'nl') path = '/inkoop';
-                        if (language === 'tr') path = '/sat';
+                        if (language === 'tr') path = '/geri-alim';
                     }
                     if (path === '/stores') {
                         if (language === 'fr') path = '/magasins';

@@ -122,7 +122,12 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         // --- CLIENT-SIDE REDIRECT FIX (PlayStation 5) ---
         // Force redirect from generic PS5 to "Disc" edition to bypass browser cache issues
         if (selectedBrand === 'Sony' && selectedModel === 'Playstation 5') {
-            const newPath = `/${language}/reparation/sony/playstation-5-disc`;
+            let slug = 'repair';
+            if (language === 'fr') slug = 'reparation';
+            if (language === 'nl') slug = 'reparatie';
+            if (language === 'tr') slug = 'onarim';
+
+            const newPath = `/${language}/${slug}/sony/playstation-5-disc`;
             router.replace(newPath);
             return;
         }
@@ -149,7 +154,12 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         // I will add a window check here to be 100% nuclear.
 
         if (typeof window !== 'undefined' && window.location.pathname.includes('reparation-3ds-2ds-xl-bruxelles')) {
-            const newPath = `/${language}/reparation/nintendo/new-3ds-xl`;
+            let slug = 'repair';
+            if (language === 'fr') slug = 'reparation';
+            if (language === 'nl') slug = 'reparatie';
+            if (language === 'tr') slug = 'onarim';
+
+            const newPath = `/${language}/${slug}/nintendo/new-3ds-xl`;
             router.replace(newPath);
             return;
         }

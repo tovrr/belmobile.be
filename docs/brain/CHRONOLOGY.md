@@ -72,10 +72,21 @@ Ce document retrace l'évolution technologique complète de la plateforme Belmob
 
 ---
 
+## 🌟 Janvier 2026 : Excellence Opérationnelle & Mobile-First
+- **Hero Overhaul (Mobile-First)** : Refonte majeure de la section Hero.
+    - Typographie "Goldilocks" (`text-[16vw]`) pour un impact maximal sur mobile.
+    - Phone 3D masqué sur mobile pour prioriser le message.
+- **SOP Déploiement** : Mise en place du protocole strict "Staging First" (Golden Rule #6) pour éviter les régressions en production.
+- **Support Turc & UX Finish** : Activation complète du routing `/tr` (Onarim/Geri Alim) et polissage de l'interface Wizard pour le public turcophone.
+- **Adaptive Header** : Implémentation d'une logique responsive avancée pour le header (Icon-only sur mobile/desktop standard, Texte sur Tablette/Grand écran).
+
+---
+
 ### 📊 État des Lieux Actuel
 - **Core Web Vitals** : Optimisés (90+ attendu).
+- **Mobile Experience** : 100% Responsive & "Thumb-Friendly".
 - **Type Safety** : Strict (Zero `any`).
-- **SEO** : Maillé (1800+ pages indexables).
+- **SEO** : Maillé (1800+ pages indexables) + Support TR.
 - **Monitoring** : Surveillé (Sentry + Logs détaillés).
 
 > [!NOTE]

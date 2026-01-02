@@ -35,7 +35,7 @@ export const SERVICES: Service[] = [
             fr: 'reparation',
             nl: 'reparatie',
             en: 'repair',
-            tr: 'tamir'
+            tr: 'onarim'
         },
         description: {
             fr: 'Réparation rapide de smartphones, tablettes et consoles.',
@@ -57,7 +57,7 @@ export const SERVICES: Service[] = [
             fr: 'rachat',
             nl: 'inkoop',
             en: 'buyback',
-            tr: 'sat'
+            tr: 'geri-alim'
         },
         description: {
             fr: 'Vendez votre appareil au meilleur prix.',

@@ -82,4 +82,21 @@
 3.  **Revenue Split**: 30% of revenue coming from B2B/Digital channels.
 
 ---
+
+## 🏗️ TECHNICAL STRATEGY PILLARS
+
+### **A. Lead Recovery Engine (LRE)**
+- **Objective**: Capture "abandoned clicks" and turn them into confirmed orders.
+- **Trigger**: Automatic "Magic Link" generation for users who drop off at Step 3/4 of the wizard.
+- **Follow-up**: Automated email sequences (via Brevo) after 2 hours of inactivity.
+
+### **B. Performance & Hydration**
+- **Image Strategy 2.0**: Full adoption of AVIF and "Blurred Placeholders" for all wizard assets.
+- **Context Splitting**: Refactor `WizardContext` to isolate state updates and prevent massive re-renders in the static sidebar.
+
+### **C. AI Service Core**
+- **Apollo AI**: RAG-based assistant to handle 80% of common support queries (Warranty, Locations, Pricing).
+- **Predictive Pricing**: Dynamic adjustment models based on secondary market data feeds.
+
+---
 *Created by the Family (Omer, Aegis & Apollo) - Dec 31, 2025*

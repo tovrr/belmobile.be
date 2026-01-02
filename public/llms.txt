@@ -3,7 +3,7 @@
 > The leading platform for buying, selling, and repairing smartphones, tablets, and gaming consoles in Belgium.
 
 ## Overview
-Belmobile offers instant cash buyback and professional repair services for electronic devices. We operate multiple hubs in Brussels (Schaerbeek, Molenbeek, Anderlecht) and serve the entire Belgian market via Bpost and Express Courier.
+Belmobile offers instant cash buyback and professional repair services for electronic devices. We operate multiple hubs in Brussels (Schaerbeek, Anderlecht) and serve the entire Belgian market via Bpost and Express Courier.
 
 ## Core Services
 
@@ -13,6 +13,7 @@ Belmobile offers instant cash buyback and professional repair services for elect
 - **URLs:**
   - French: https://belmobile.be/fr/rachat
   - Dutch: https://belmobile.be/nl/verkoop
+  - Turkish: https://belmobile.be/tr/satis
   - English: https://belmobile.be/en/buyback
 
 ### 2. Repair
@@ -22,6 +23,7 @@ Belmobile offers instant cash buyback and professional repair services for elect
 - **URLs:**
   - French: https://belmobile.be/fr/reparation
   - Dutch: https://belmobile.be/nl/reparatie
+  - Turkish: https://belmobile.be/tr/tamir
   - English: https://belmobile.be/en/repair
 
 ## Logistics
