@@ -418,6 +418,68 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                         </div>
                     )}
 
+                    {/* Internal Linking: Cross-Funnel (Repair <-> Buyback) */}
+                    {(() => {
+                        if (!brand || !model) return null;
+                        const targetType = isRepair ? 'buyback' : 'repair';
+                        // Map the correct URL slug for the target service
+                        const targetServiceSlug = isRepair
+                            ? (lang === 'fr' ? 'rachat' : (lang === 'nl' ? 'verkopen' : (lang === 'tr' ? 'sat' : 'buyback')))
+                            : (lang === 'fr' ? 'reparation' : (lang === 'nl' ? 'reparatie' : (lang === 'tr' ? 'tamir' : 'repair')));
+
+                        const href = `/${lang}/${targetServiceSlug}/${createSlug(brand)}/${createSlug(model)}`;
+
+                        const title = isRepair
+                            ? (lang === 'fr' ? `Ou vendez votre ${deviceName}` : (lang === 'nl' ? `Of verkoop uw ${deviceName}` : `Or sell your ${deviceName}`))
+                            : (lang === 'fr' ? `Ou réparez votre ${deviceName}` : (lang === 'nl' ? `Of repareer uw ${deviceName}` : `Or repair your ${deviceName}`));
+
+                        const desc = isRepair
+                            ? (lang === 'fr' ? "La réparation est trop chère ? Nous rachetons votre appareil cash, même cassé !" : (lang === 'nl' ? "Is de reparatie te duur? Wij kopen uw toestel contant, zelfs defect!" : "Repair too expensive? We buy your device for cash, even broken!"))
+                            : (lang === 'fr' ? "Vous préférez le garder ? Nous le réparons en 30 minutes." : (lang === 'nl' ? "Houdt u het liever? Wij repareren het in 30 minuten." : "Prefer to keep it? We repair it in 30 minutes."));
+
+                        const cta = isRepair
+                            ? (lang === 'fr' ? 'Obtenir une offre de rachat' : (lang === 'nl' ? 'Krijg een inkoopbod' : 'Get Buyback Offer'))
+                            : (lang === 'fr' ? 'Voir les tarifs de réparation' : (lang === 'nl' ? 'Bekijk reparatietarieven' : 'See Repair Prices'));
+
+                        return (
+                            <div className="mb-12 bg-white dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 hover:border-cyber-citron transition-colors group/crosslink">
+                                <div>
+                                    <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2 group-hover/crosslink:text-cyber-citron transition-colors">{title}</h3>
+                                    <p className="text-gray-600 dark:text-gray-300 font-medium">{desc}</p>
+                                </div>
+                                <a href={href} className="px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black rounded-xl hover:scale-105 transition-transform whitespace-nowrap shadow-lg">
+                                    {cta}
+                                </a>
+                            </div>
+                        );
+                    })()}
+
+                    {/* Internal Linking: B2B Promo (Only on Repair Pages) */}
+                    {isRepair && (
+                        <div className="mb-12 bg-linear-to-r from-slate-900 to-bel-blue rounded-2xl p-8 lg:p-10 text-white relative overflow-hidden shadow-2xl">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                                <div>
+                                    <span className="inline-block px-3 py-1 bg-cyber-citron text-midnight text-[10px] font-black uppercase tracking-widest rounded-full mb-4">
+                                        {lang === 'fr' ? 'Pour les Pros' : (lang === 'nl' ? 'Voor Bedrijven' : 'For Business')}
+                                    </span>
+                                    <h3 className="text-2xl lg:text-3xl font-black mb-2">
+                                        {lang === 'fr' ? 'Vous gérez une flotte mobile ?' : (lang === 'nl' ? 'Beheert u een mobiele vloot?' : 'Managing a mobile fleet?')}
+                                    </h3>
+                                    <p className="text-slate-200 text-lg max-w-xl">
+                                        {lang === 'fr' ? 'Profitez de tarifs dégressifs, de la facturation mensuelle et d\'un service prioritaire.' : (lang === 'nl' ? 'Geniet van staffelprijzen, maandelijkse facturatie en prioritaire service.' : 'Enjoy volume discounts, monthly billing, and priority service.')}
+                                    </p>
+                                </div>
+                                <a
+                                    href={`/${lang}/business`}
+                                    className="px-8 py-4 bg-white text-midnight font-black rounded-xl hover:bg-cyber-citron transition-colors whitespace-nowrap shadow-lg"
+                                >
+                                    {lang === 'fr' ? 'Découvrir Belmobile Pro' : (lang === 'nl' ? 'Ontdek Belmobile Pro' : 'Discover Belmobile Pro')}
+                                </a>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Card 1 */}
                         <div className="bg-gray-50 dark:bg-slate-950/50 p-8 rounded-2xl border border-gray-200 dark:border-slate-800 hover:border-bel-blue/30 transition-colors group">
