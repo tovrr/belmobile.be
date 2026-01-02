@@ -6,11 +6,13 @@ import DynamicSEOContent from '@/components/seo/DynamicSEOContent';
 import { Metadata } from 'next';
 import { getSEOTitle, getSEODescription } from '@/utils/seoHelpers';
 
-export const dynamic = 'force-dynamic';
+// CACHING STRATEGY: ISR (1 Hour)
+export const revalidate = 3600;
+export const dynamicParams = true;
 
 type Props = {
     params: Promise<{ lang: string; brand: string }>,
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -46,12 +48,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function RepairBrandOrCategoryPage({
-    params,
-    searchParams
+    params
 }: Props) {
     const { lang, brand } = await params;
-    const resolvedSearchParams = await searchParams;
-    const partnerId = typeof resolvedSearchParams?.partnerId === 'string' ? resolvedSearchParams.partnerId : undefined;
+    // Client components handle query params (e.g. partnerId).
 
     if (!brand) return notFound();
 
@@ -93,7 +93,6 @@ export default async function RepairBrandOrCategoryPage({
                         isWidget={false}
                         hideStep1Title={false}
                         initialWizardProps={{
-                            partnerId: partnerId,
                             step: startStep
                         }}
                     />

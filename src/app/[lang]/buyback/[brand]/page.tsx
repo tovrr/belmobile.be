@@ -6,11 +6,14 @@ import DynamicSEOContent from '@/components/seo/DynamicSEOContent';
 import { Metadata } from 'next';
 import { getSEOTitle, getSEODescription } from '@/utils/seoHelpers';
 
-export const dynamic = 'force-dynamic';
+// CACHING STRATEGY: ISR (1 Hour)
+// This avoids Vercel Hobby "US East" latency by caching pages at the Edge (Paris).
+export const revalidate = 3600;
+export const dynamicParams = true;
 
 type Props = {
     params: Promise<{ lang: string; brand: string }>,
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -44,12 +47,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BuybackBrandOrCategoryPage({
-    params,
-    searchParams
+    params
 }: Props) {
     const { lang, brand } = await params;
-    const resolvedSearchParams = await searchParams;
-    const partnerId = typeof resolvedSearchParams?.partnerId === 'string' ? resolvedSearchParams.partnerId : undefined;
+
+    // NOTE: We do NOT await searchParams here to avoid aggressive dynamic opt-in on Hobby.
+    // Client components handle query params (e.g. partnerId).
 
     if (!brand) return notFound();
 
@@ -67,7 +70,7 @@ export default async function BuybackBrandOrCategoryPage({
     } else {
         initialDevice = {
             brand: decodedParam.replace(/-/g, ' '),
-            model: ''
+            model: '' // Let the client wizard handle model selection if present in generic brand page logic
         };
     }
 
@@ -90,8 +93,8 @@ export default async function BuybackBrandOrCategoryPage({
                         isWidget={false}
                         hideStep1Title={false}
                         initialWizardProps={{
-                            partnerId: partnerId,
                             step: startStep
+                            // partnerId read client-side
                         }}
                     />
                 </Suspense>

@@ -5,7 +5,8 @@ import dynamic from 'next/dynamic';
 import { useShop } from '../../hooks/useShop';
 import { useData } from '../../hooks/useData';
 import { useLanguage } from '../../hooks/useLanguage';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+
 import { AnimatePresence } from 'framer-motion';
 import { createSlug } from '../../utils/slugs';
 import { WizardProvider, useWizard } from '../../context/WizardContext';
@@ -246,13 +247,16 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
 };
 
 const BuybackRepair: React.FC<BuybackRepairProps> = (props) => {
+    const searchParams = useSearchParams();
+    const partnerId = searchParams.get('partnerId') || props.initialWizardProps?.partnerId || '';
+
     return (
         <WizardProvider initialProps={{
             deviceType: props.initialWizardProps?.deviceType || props.initialCategory || '',
             selectedBrand: props.initialWizardProps?.selectedBrand || props.initialDevice?.brand || '',
             selectedModel: props.initialWizardProps?.selectedModel || props.initialDevice?.model || '',
             customerEmail: props.initialWizardProps?.customerEmail || '',
-            partnerId: props.initialWizardProps?.partnerId || '',
+            partnerId: partnerId,
             isWidget: props.isWidget || false,
             isKiosk: props.isKiosk || false,
             isInitialized: false,
