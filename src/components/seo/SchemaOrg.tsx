@@ -26,7 +26,7 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, shops, service, device, dev
         "@type": "Organization",
         "name": "Belmobile",
         "url": baseUrl,
-        "logo": `${baseUrl}/logo.png`,
+        "logo": `${baseUrl}/belmobile-logo.png`,
         "sameAs": [
             "https://www.facebook.com/belmobile",
             "https://www.instagram.com/belmobile",
@@ -49,7 +49,7 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, shops, service, device, dev
             "@context": "https://schema.org",
             "@type": "MobilePhoneStore",
             "name": s.name,
-            "image": s.photos && s.photos.length > 0 ? s.photos[0] : `${baseUrl}/logo.png`,
+            "image": s.photos && s.photos.length > 0 ? s.photos[0] : `${baseUrl}/belmobile-logo.png`,
             "@id": `${baseUrl}/${language}/stores/${s.id}`,
             "url": `${baseUrl}/${language}/stores/${s.id}`,
             "telephone": s.phone,

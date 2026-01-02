@@ -33,7 +33,7 @@ const TrustSignals: React.FC = () => {
     ];
 
     return (
-        <section className="relative z-20 pb-16">
+        <section className="relative z-20 pt-12 md:pt-24 pb-16">
             <div className="container mx-auto px-4 max-w-7xl">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {signals.map((item, i) => (

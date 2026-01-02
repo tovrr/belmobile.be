@@ -159,6 +159,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
                 priority: 0.85,
             });
         });
+
+        // 1.6 Service Areas (Virtual Location Pages)
+        const brusselsCommunes = [
+            'Auderghem', 'Berchem-Sainte-Agathe', 'Bruxelles-Ville', 'Etterbeek', 'Evere',
+            'Forest', 'Ganshoren', 'Ixelles', 'Jette', 'Koekelberg',
+            'Saint-Gilles', 'Saint-Josse-ten-Noode', 'Uccle', 'Watermael-Boitsfort',
+            'Woluwe-Saint-Lambert', 'Woluwe-Saint-Pierre'
+        ];
+
+        const storeSlugMap = {
+            fr: 'magasins',
+            nl: 'winkels',
+            en: 'stores',
+            tr: 'magazalar'
+        };
+
+        brusselsCommunes.forEach(commune => {
+            const citySlug = commune.toLowerCase().replace(/\s+/g, '-');
+            const storePath = storeSlugMap[lang as keyof typeof storeSlugMap] || 'stores';
+
+            sitemap.push({
+                url: `${BASE_URL}/${lang}/${storePath}?city=${citySlug}`,
+                lastModified: new Date(),
+                changeFrequency: 'weekly',
+                priority: 0.8, // Slightly lower than physical stores
+            });
+        });
     });
 
     // 2. Services

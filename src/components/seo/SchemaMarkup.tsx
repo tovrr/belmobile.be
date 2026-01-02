@@ -32,7 +32,7 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
         "@type": "Organization",
         "name": "Belmobile.be",
         "url": "https://belmobile.be",
-        "logo": "https://belmobile.be/logo.png",
+        "logo": "https://belmobile.be/belmobile-logo.png",
         "sameAs": [
             "https://www.facebook.com/belmobile",
             "https://www.instagram.com/belmobile",
@@ -170,7 +170,7 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
             "name": "Belmobile.be",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://belmobile.be/logo.png"
+                "url": "https://belmobile.be/belmobile-logo.png"
             }
         },
         "datePublished": props.article?.datePublished || (product as any)?.date || new Date().toISOString(),

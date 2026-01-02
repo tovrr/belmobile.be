@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import FadeIn from '../ui/FadeIn';
 import Button from '../ui/Button';
+import HeroPhone from './HeroPhone';
 
 const Hero: React.FC = () => {
     const { language, t } = useLanguage();
@@ -28,7 +29,7 @@ const Hero: React.FC = () => {
             />
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-8 items-center">
 
                     {/* Left: Content */}
                     <div className="text-center lg:text-left z-10">
@@ -115,116 +116,9 @@ const Hero: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Right: 3D Visual */}
-                    <FadeIn direction="right" duration={0.8} delay={0.4} className="relative lg:h-[600px] flex items-center justify-center perspective-1000 mt-12 lg:mt-0">
-                        {/* Phone Container - Aspect 9/16 */}
-                        <div className="relative w-full max-w-[280px] sm:max-w-[300px] aspect-9/16 rounded-[2.5rem] bg-linear-to-br from-slate-900 to-black p-3 shadow-2xl transform rotate-y-12 hover:rotate-y-0 transition-transform duration-700 ease-out border-4 border-slate-800">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-20"></div>
-                            <div className="w-full h-full rounded-4xl overflow-hidden bg-slate-800 relative">
-                                <Image
-                                    src="/images/iphone-repair-schaerbeek-brussels-belmobile.webp"
-                                    alt={t('Broken iPhone Screen Repair Brussels')}
-                                    width={500}
-                                    height={600}
-                                    priority
-                                    className="relative z-20 w-full max-w-[280px] sm:max-w-md mx-auto drop-shadow-2xl animate-fade-in-up"
-                                />
-                                <div className="absolute inset-0 bg-linear-to-t from-electric-indigo/50 to-transparent flex flex-col justify-end p-6">
-                                    {/* Abstract UI Elements */}
-                                    <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl mb-4 transform translate-y-4 animate-float">
-                                        <div className="justify-between items-center mb-2 hidden md:flex">
-                                            <div className="h-2 w-16 bg-white/50 rounded-full"></div>
-                                            <div className="h-2 w-8 bg-green-400 rounded-full"></div>
-                                        </div>
-                                        <div className="h-4 w-24 bg-white rounded-full mb-2"></div>
-                                        <div className="h-3 w-16 bg-white/50 rounded-full"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Badge: Best Price (Top Right) */}
-                        <div
-                            className="absolute -right-2 sm:-right-8 top-16 bg-white dark:bg-slate-800 p-2 sm:p-4 rounded-ui shadow-xl shadow-cyber-citron/20 animate-float border border-slate-100 dark:border-slate-700 z-30"
-                            style={{ animationDelay: '1s' }}
-                        >
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <div className="bg-cyber-citron/10 p-1.5 sm:p-2 rounded-lg text-cyber-citron">
-                                    <span className="font-black text-base sm:text-x">€</span>
-                                </div>
-                                <div>
-                                    <p className="text-[9px] sm:text-xs text-slate-500 uppercase font-black">{t('Best Price')}</p>
-                                    <p className="text-[10px] sm:text-sm font-black text-slate-900 dark:text-white whitespace-nowrap">{t('Guaranteed')}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Badge: Repair Time (Bottom Left) */}
-                        <div
-                            className="absolute -left-2 sm:-left-8 bottom-24 bg-white dark:bg-slate-800 p-2 sm:p-4 rounded-ui shadow-xl shadow-electric-indigo/20 animate-float border border-slate-100 dark:border-slate-700 z-30"
-                            style={{ animationDelay: '2s' }}
-                        >
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <div className="bg-electric-indigo/10 p-1.5 sm:p-2 rounded-lg text-electric-indigo">
-                                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label={t('Repair Time')}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                </div>
-                                <div>
-                                    <p className="text-[9px] sm:text-xs text-slate-500 uppercase font-black">{t('Repair Time')}</p>
-                                    <p className="text-[10px] sm:text-sm font-black text-slate-900 dark:text-white whitespace-nowrap">{t('< 30 Mins')}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Badge: Warranty (Top Left) */}
-                        <div
-                            className="absolute -left-4 sm:-left-12 top-40 bg-white dark:bg-slate-800 p-2 sm:p-4 rounded-ui shadow-xl shadow-electric-indigo/20 animate-float border border-slate-100 dark:border-slate-700 z-20"
-                            style={{ animationDelay: '3s' }}
-                        >
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <div className="bg-electric-indigo/10 p-1.5 sm:p-2 rounded-lg text-electric-indigo">
-                                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label={t('trust_warranty')}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                </div>
-                                <div>
-                                    <p className="text-[9px] sm:text-xs text-slate-500 uppercase font-black">{t('trust_warranty')}</p>
-                                    <p className="text-[10px] sm:text-sm font-black text-slate-900 dark:text-white whitespace-nowrap">{t('badge_warranty_time')}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Badge: Eco (Bottom Right) */}
-                        <div
-                            className="absolute -right-4 sm:-right-10 bottom-40 bg-white dark:bg-slate-800 p-2 sm:p-4 rounded-ui shadow-xl shadow-cyber-citron/20 animate-float border border-slate-100 dark:border-slate-700 z-20"
-                            style={{ animationDelay: '4s' }}
-                        >
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <div className="bg-cyber-citron/10 p-1.5 sm:p-2 rounded-lg text-cyber-citron">
-                                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label={t('trust_eco')}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                </div>
-                                <div>
-                                    <p className="text-[9px] sm:text-xs text-slate-500 uppercase font-black">{t('trust_eco')}</p>
-                                    <p className="text-[10px] sm:text-sm font-black text-slate-900 dark:text-white whitespace-nowrap">100%</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Badge: Social Proof (New Floating Badge) */}
-                        <div
-                            className="absolute -right-6 top-1/2 transform -translate-y-1/2 bg-white dark:bg-slate-800 p-2 sm:p-4 rounded-ui shadow-xl shadow-green-500/20 animate-float border border-slate-100 dark:border-slate-700 z-30 hidden lg:block"
-                            style={{ animationDelay: '5s' }}
-                        >
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <div className="bg-green-100 dark:bg-green-900/30 p-1.5 sm:p-2 rounded-lg text-green-600 dark:text-green-400">
-                                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Devices Saved"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] sm:text-xs text-slate-500 uppercase font-black">{t('repaired_today')}</p>
-                                    <p className="text-sm font-black text-slate-900 dark:text-white whitespace-nowrap">
-                                        {/* Simple client-side random number for demo, ideally fetched from API */}
-                                        <span suppressHydrationWarning>{Math.floor(Math.random() * (15 - 5 + 1)) + 5}</span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                    {/* Right Column: Hero Image / Visuals */}
+                    <FadeIn delay={0} direction="left" className="w-full flex justify-center lg:justify-end relative h-[600px] lg:h-auto items-center">
+                        <HeroPhone />
                     </FadeIn>
                 </div>
             </div>

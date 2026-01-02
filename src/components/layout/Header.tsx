@@ -13,7 +13,7 @@ import dynamic from 'next/dynamic';
 
 const MobileMenu = dynamic(() => import('./MobileMenu'), {
     ssr: false,
-    loading: () => <div className="absolute top-full left-0 right-0 mt-4 mx-4 h-96 rounded-3xl bg-white/50 backdrop-blur-sm animate-pulse z-40"></div>
+    loading: () => <div className="absolute top-full right-4 left-4 sm:left-auto sm:right-8 sm:w-full sm:max-w-sm mt-4 h-96 rounded-3xl bg-white/50 backdrop-blur-sm animate-pulse z-40"></div>
 });
 
 const Header: React.FC = () => {
@@ -24,6 +24,39 @@ const Header: React.FC = () => {
     const pathname = usePathname();
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    const [isExpertOnline, setIsExpertOnline] = useState(false);
+
+    useEffect(() => {
+        const checkOnlineStatus = () => {
+            try {
+                const now = new Date();
+                const formatter = new Intl.DateTimeFormat('en-US', {
+                    timeZone: 'Europe/Brussels',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: false
+                });
+                const parts = formatter.formatToParts(now);
+                const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0');
+                const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0');
+                const timeInMinutes = hour * 60 + minute;
+
+                // Working hours: 10:30 - 19:00 (Every day as Schaerbeek is 7/7)
+                const openingTime = 10 * 60 + 30;
+                const closingTime = 19 * 60;
+
+                setIsExpertOnline(timeInMinutes >= openingTime && timeInMinutes < closingTime);
+            } catch (e) {
+                // Fallback to true if timezone check fails
+                setIsExpertOnline(true);
+            }
+        };
+
+        checkOnlineStatus();
+        const interval = setInterval(checkOnlineStatus, 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -82,7 +115,7 @@ const Header: React.FC = () => {
                             <meta itemProp="url" content="https://belmobile.be" />
                             <div className="w-10 h-10 group-hover:scale-110 transition-transform duration-300 text-gray-900 dark:text-cyber-citron" itemProp="logo" itemScope itemType="https://schema.org/ImageObject">
                                 <Logo className="w-full h-full" />
-                                <meta itemProp="url" content="https://belmobile.be/logo.png" />
+                                <meta itemProp="url" content="https://belmobile.be/belmobile-logo.png" />
                             </div>
                             <div className="flex flex-col">
                                 <span className="font-black text-2xl tracking-tighter text-gray-900 dark:text-white leading-none">
@@ -95,7 +128,7 @@ const Header: React.FC = () => {
                         </Link>
 
                         {/* Desktop Nav */}
-                        <nav className="hidden md:flex items-center space-x-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-full p-1 border border-white/10 backdrop-blur-sm">
+                        <nav className="hidden lg:flex items-center space-x-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-full p-1 border border-white/10 backdrop-blur-sm">
                             {NAV_LINKS.map(link => {
                                 let path = link.path;
                                 if (path === '/products') {
@@ -127,11 +160,63 @@ const Header: React.FC = () => {
                                 const href = `/${language}${path}`;
                                 const isActive = pathname === href || pathname.startsWith(href + '/');
 
+                                if (link.name === 'Business') {
+                                    return (
+                                        <div key={link.name} className="relative group/dropdown">
+                                            <button
+                                                className={`px-3.5 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1 ${isActive
+                                                    ? 'bg-white dark:bg-slate-700 text-electric-indigo dark:text-indigo-300 shadow-sm'
+                                                    : 'text-slate-600 dark:text-slate-300 hover:text-electric-indigo dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-700/50'
+                                                    }`}
+                                            >
+                                                {t(link.name)}
+                                                <svg className="w-4 h-4 transition-transform duration-300 group-hover/dropdown:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+
+                                            {/* Dropdown Menu */}
+                                            <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover/dropdown:opacity-100 group-hover/dropdown:translate-y-0 group-hover/dropdown:pointer-events-auto transition-all duration-300 z-50">
+                                                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 p-2 min-w-[180px]">
+                                                    <Link
+                                                        href={`/${language}${language === 'fr' ? '/business' : '/business'}`}
+                                                        title={t('seo_nav_b2b') || 'Corporate Mobile Solutions'}
+                                                        className="flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-electric-indigo transition-all"
+                                                    >
+                                                        {t('B2B')}
+                                                    </Link>
+                                                    <Link
+                                                        href={`/${language}${language === 'fr' ? '/franchise' : '/franchise'}`}
+                                                        title={t('seo_nav_franchise') || 'Open Your Own Repair Shop'}
+                                                        className="flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-electric-indigo transition-all"
+                                                    >
+                                                        {t('Franchise')}
+                                                    </Link>
+                                                    <Link
+                                                        href={`/${language}${language === 'fr' ? '/formation' : '/formation'}`}
+                                                        title={t('seo_nav_training') || 'Become a Certified Technician'}
+                                                        className="flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-electric-indigo transition-all"
+                                                    >
+                                                        {t('Formation')}
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+
                                 return (
                                     <Link
                                         key={link.name}
                                         href={href}
                                         aria-label={t(link.name)}
+                                        title={
+                                            link.name === 'Products' ? t('seo_nav_products') || 'Buy Refurbished Devices' :
+                                                link.name === 'Repair' ? t('seo_nav_repair') || 'Professional Repair Service' :
+                                                    link.name === 'Buyback' ? t('seo_nav_buyback') || 'Sell Your Device' :
+                                                        link.name === 'Stores' ? t('seo_nav_stores') || 'Our Service Locations' :
+                                                            t(link.name)
+                                        }
                                         className={`px-3.5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${isActive
                                             ? 'bg-white dark:bg-slate-700 text-electric-indigo dark:text-indigo-300 shadow-sm scale-105'
                                             : 'text-slate-600 dark:text-slate-300 hover:text-electric-indigo dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-700/50 hover:scale-105'
@@ -145,18 +230,52 @@ const Header: React.FC = () => {
                         </nav>
 
                         {/* Actions */}
-                        <div className="flex items-center space-x-3">
-                            {/* Call Support CTA - Desktop & Tablet */}
-                            <div className="hidden md:flex items-center gap-3">
-                                <span className="hidden xl:block text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('need_help')}</span>
+                        <div className="flex items-center space-x-2 sm:space-x-3">
+                            {/* Language Switcher - Desktop Only (Hidden when hamburger is visible) */}
+                            <div className="hidden lg:flex items-center mr-1">
+                                <div className="relative group/lang">
+                                    <button className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors uppercase">
+                                        {language}
+                                        <span className="text-[9px] opacity-70">▼</span>
+                                    </button>
+                                    <div className="absolute top-full right-0 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover/lang:opacity-100 group-hover/lang:translate-y-0 group-hover/lang:pointer-events-auto transition-all duration-300 z-50">
+                                        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 p-1 min-w-[60px]">
+                                            {(['en', 'fr', 'nl', 'tr'] as const).map(l => (
+                                                <button
+                                                    key={l}
+                                                    onClick={() => handleLanguageChange(l)}
+                                                    className={`w-full text-center px-3 py-2 rounded-lg text-xs font-bold uppercase transition-colors ${language === l ? 'bg-electric-indigo/10 text-electric-indigo' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}
+                                                >
+                                                    {l}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Call Support CTA - Visible on All Devices */}
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <span className="hidden sm:block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                    {t('need_help_short')}
+                                </span>
                                 <a
                                     href="tel:+3222759867"
                                     aria-label={t('call_expert')}
-                                    className="flex items-center gap-2 bg-cyber-citron hover:bg-cyber-citron/90 text-midnight rounded-full px-3 py-2 lg:px-5 lg:py-2.5 transition-all shadow-lg hover:shadow-cyber-citron/30 font-black text-sm tracking-wide group whitespace-nowrap"
+                                    className="relative flex items-center gap-2 bg-cyber-citron hover:bg-cyber-citron/90 text-midnight rounded-full px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-2.5 transition-all shadow-lg hover:shadow-cyber-citron/30 font-black text-xs sm:text-sm tracking-wide group whitespace-nowrap"
                                 >
-                                    <PhoneIcon className="h-4 w-4 group-hover:animate-medical-pulse" aria-hidden="true" />
-                                    <span className="hidden lg:inline">{t('call_expert')}</span>
-                                    <span className="lg:hidden">{t('call_action_short')}</span>
+                                    {/* Online Indicator Dot */}
+                                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                                        {isExpertOnline && (
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                        )}
+                                        <span className={`relative inline-flex rounded-full h-3 w-3 ${isExpertOnline ? 'bg-emerald-500' : 'bg-slate-400 dark:bg-slate-600'} border-2 border-white dark:border-slate-900`}></span>
+                                    </span>
+
+                                    <PhoneIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover:animate-medical-pulse" aria-hidden="true" />
+                                    <span className="inline-flex">
+                                        {t('call_action_short')}
+                                    </span>
                                 </a>
                             </div>
 
@@ -164,7 +283,7 @@ const Header: React.FC = () => {
                             <button
                                 onClick={toggleMenu}
                                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-                                className="md:hidden p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-700 dark:text-white backdrop-blur-sm transition-colors"
+                                className="lg:hidden p-2 rounded-full bg-white/10 hover:bg-white/20 text-slate-700 dark:text-white backdrop-blur-sm transition-colors"
                             >
                                 {isMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
                             </button>

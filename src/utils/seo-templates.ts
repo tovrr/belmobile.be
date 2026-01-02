@@ -132,13 +132,15 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
             if (isPhoneContext) {
                 templates.push(
                     `Réparation GSM & Téléphone à ${loc} - Belmobile`,
-                    `Magasin de Réparation GSM ${loc} : ${deviceName}`
+                    `Magasin de Réparation GSM ${loc} : ${deviceName}`,
+                    `Expert Réparation iPhone & Smartphone ${loc}`
                 );
             } else if (!deviceCategory) {
                 // If it's pure root /repair, add broad electronic repair
                 templates.push(
                     `Réparation Multimédia & Électronique à ${loc}`,
-                    `Atelier de Réparation ${loc} : Smartphone, PC, Console`
+                    `Atelier de Réparation ${loc} : Smartphone, PC, Console`,
+                    `Belmobile ${loc} : Magasin de Réparation High-Tech`
                 );
             } else if (deviceCategory === 'tablet') {
                 templates.push(

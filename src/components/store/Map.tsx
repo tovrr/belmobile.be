@@ -47,7 +47,16 @@ const Map: React.FC<MapProps> = ({
             // Add Zoom Control to bottom right
             L.control.zoom({ position: 'bottomright' }).addTo(mapRef.current);
         }
-    }, [center, zoom]); // Run twice
+    }, []); // Only run once on mount
+
+    // Update View when center/zoom changes
+    useEffect(() => {
+        if (mapRef.current) {
+            mapRef.current.flyTo(center, zoom, {
+                duration: 1.5
+            });
+        }
+    }, [center, zoom]);
 
     // Handle User Location
     const handleUseLocation = () => {

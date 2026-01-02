@@ -96,12 +96,11 @@ export const POPULAR_BUYBACKS = [
 
 // Reordered: Repair > Buyback > Products > Stores.
 export const NAV_LINKS: NavLink[] = [
-    { name: 'Repair', path: '/repair' },
     { name: 'Buyback', path: '/buyback' },
-    { name: 'Training', path: '/formation' },
-    { name: 'Products', path: '/products' },
-    { name: 'Business', path: '/business' },
+    { name: 'Repair', path: '/repair' },
+    { name: 'Catalogue', path: '/products' },
     { name: 'Store Locator', path: '/stores' },
+    { name: 'Business', path: '/business' },
 ];
 
 export const ADMIN_STATS: AdminStat[] = [

@@ -293,7 +293,7 @@ export const generatePDFFromPdfData = async (pdfData: any, filenamePrefix: strin
     let logoBase64 = '';
     try {
         // Ensure this path matches your public folder structure
-        logoBase64 = await getBase64ImageFromURL('/logo.png');
+        logoBase64 = await getBase64ImageFromURL('/belmobile-logo.png');
     } catch (e) {
         console.warn("Logo load error", e);
     }

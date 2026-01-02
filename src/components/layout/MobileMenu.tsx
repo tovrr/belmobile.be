@@ -29,10 +29,12 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
         window.location.href = newPath; // Simple client navigation for language switch in mobile menu
     };
 
+    const [isProExpanded, setIsProExpanded] = React.useState(false);
+
     if (!isOpen) return null;
 
     return (
-        <div className="absolute top-full left-0 right-0 mt-4 mx-4 rounded-3xl p-2 shadow-2xl animate-fade-in md:hidden bg-white dark:bg-slate-900 border border-white/20 z-40">
+        <div className="absolute top-full right-4 left-4 sm:left-auto sm:right-8 sm:w-full sm:max-w-sm mt-4 rounded-3xl p-2 shadow-2xl animate-fade-in xl:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-white/20 z-40 ring-1 ring-black/5">
             <div className="flex flex-col space-y-1">
                 {NAV_LINKS.map(link => {
                     let path = link.path;
@@ -59,6 +61,54 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
 
                     const href = `/${language}${path}`;
                     const isActive = pathname === href || pathname.startsWith(href + '/');
+
+                    if (link.name === 'Business') {
+                        return (
+                            <div key={link.name} className="flex flex-col">
+                                <button
+                                    onClick={() => setIsProExpanded(!isProExpanded)}
+                                    className={`w-full px-6 py-4 rounded-2xl text-lg font-bold transition-all flex items-center justify-between text-left ${isProExpanded
+                                        ? 'bg-slate-50 dark:bg-slate-800/50 text-electric-indigo dark:text-indigo-400'
+                                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                                        }`}
+                                >
+                                    {t(link.name)}
+                                    <span className={`transition-transform duration-300 text-slate-300 dark:text-slate-600 font-bold ${isProExpanded ? 'rotate-90' : ''}`}>
+                                        →
+                                    </span>
+                                </button>
+
+                                <div className={`overflow-hidden transition-all duration-300 ${isProExpanded ? 'max-h-64 mt-1 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    <div className="grid grid-cols-1 gap-1 px-4 mb-2">
+                                        <Link
+                                            href={`/${language}/business`}
+                                            onClick={onClose}
+                                            className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2"
+                                        >
+                                            <div className="w-1.5 h-1.5 rounded-full bg-electric-indigo/40" />
+                                            B2B
+                                        </Link>
+                                        <Link
+                                            href={`/${language}/franchise`}
+                                            onClick={onClose}
+                                            className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2"
+                                        >
+                                            <div className="w-1.5 h-1.5 rounded-full bg-electric-indigo/40" />
+                                            {t('Franchise')}
+                                        </Link>
+                                        <Link
+                                            href={`/${language}/formation`}
+                                            onClick={onClose}
+                                            className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2"
+                                        >
+                                            <div className="w-1.5 h-1.5 rounded-full bg-electric-indigo/40" />
+                                            {t('Formation')}
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    }
 
                     return (
                         <Link
@@ -96,13 +146,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
                 ))}
             </div>
 
-            <div className="mt-2 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl text-center">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">{t('need_help')}</p>
-                <a href="tel:+3222759867" className="flex items-center justify-center gap-2 w-full py-3 bg-electric-indigo text-white rounded-xl font-bold shadow-lg shadow-indigo-500/30 group">
-                    <PhoneIcon className="h-5 w-5 group-hover:animate-pulse" aria-hidden="true" />
-                    <span>{t('call_support')}</span>
-                </a>
-            </div>
+
         </div>
     );
 };

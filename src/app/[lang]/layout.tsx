@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import Link from 'next/link';
 import Header from '../../components/layout/Header';
 import Breadcrumbs from '../../components/layout/Breadcrumbs';
 import { Providers } from '../../components/common/Providers';
@@ -49,6 +50,13 @@ export default async function LangLayout({
     return (
         <Providers lang={lang} translations={translations}>
             <div className="min-h-screen flex flex-col font-sans text-slate-900 dark:text-white bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
+                <Link
+                    href="#main-content"
+                    className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:p-4 focus:bg-white focus:text-black focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    {translations['Skip to content'] || 'Skip to content'}
+                </Link>
+
                 <LayoutWrapper>
                     <Suspense fallback={<div className="h-20" />}>
                         <Header />
@@ -58,7 +66,7 @@ export default async function LangLayout({
                     </Suspense>
                 </LayoutWrapper>
 
-                <main className="grow">
+                <main id="main-content" className="grow">
                     {children}
                 </main>
 

@@ -40,8 +40,66 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
 
     const createSlug = (text: string) => text.toLowerCase().replace(/\s+/g, '-');
 
+    const schemaData = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Organization",
+                "@id": "https://belmobile.be/#organization",
+                "name": "Belmobile.be",
+                "url": "https://belmobile.be",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://belmobile.be/belmobile-logo.png",
+                    "width": 112,
+                    "height": 112
+                },
+                "description": "Premium buyback, repair, and refurbished devices in Brussels.",
+                "email": "info@belmobile.be",
+                "sameAs": [
+                    "https://www.facebook.com/Belmobile.be",
+                    "https://www.instagram.com/belmobile.be",
+                    "https://www.youtube.com/@belmobile-rachatreparation3659",
+                    "https://www.tiktok.com/@belmobile.be"
+                ],
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": "Brussels",
+                    "addressCountry": "BE"
+                }
+            },
+            ...LOCATIONS.filter(l => !l.isHub).map(loc => ({
+                "@type": "MobilePhoneStore",
+                "parentOrganization": { "@id": "https://belmobile.be/#organization" },
+                "name": loc.name,
+                "image": loc.photos?.[0] ? `https://belmobile.be${loc.photos[0]}` : "https://belmobile.be/store-placeholder.jpg",
+                "telephone": loc.phone,
+                "email": loc.email,
+                "url": `https://belmobile.be/${language}/stores/${loc.slugs[language as 'en' | 'fr' | 'nl' | 'tr'] || loc.slugs.en}`,
+                "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": loc.address,
+                    "addressLocality": loc.city,
+                    "postalCode": loc.zip,
+                    "addressCountry": "BE"
+                },
+                "geo": {
+                    "@type": "GeoCoordinates",
+                    "latitude": loc.coords.lat,
+                    "longitude": loc.coords.lng
+                },
+                "priceRange": "€€",
+                "openingHours": loc.openingHours.join(', ')
+            }))
+        ]
+    };
+
     return (
         <footer className="relative bg-slate-950 text-white pt-16 pb-8 overflow-hidden">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+            />
             {/* Modern Electronic Circuit Background Pattern */}
             <div
                 className="absolute inset-0 z-0 opacity-[0.07] pointer-events-none"
@@ -73,7 +131,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 text-cyber-citron" itemProp="logo" itemScope itemType="https://schema.org/ImageObject">
                                     <FooterLogo className="w-full h-full" />
-                                    <meta itemProp="url" content="https://belmobile.be/logo.png" />
+                                    <meta itemProp="url" content="https://belmobile.be/belmobile-logo.png" />
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="font-black text-3xl tracking-tighter text-white leading-none">
@@ -105,7 +163,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
 
                 {/* Popular Repairs (Integrated with Spacing) */}
                 <nav aria-label={t('Popular Repairs')} className="border-t border-white/10 pt-8 mb-8">
-                    <h4 className="text-sm font-bold text-cyber-citron uppercase tracking-widest mb-6 text-center md:text-left">
+                    <h4 className="text-xs font-bold text-cyber-citron uppercase tracking-wider mb-6 text-center md:text-left">
                         {t('Popular Repairs')}
                     </h4>
                     <ul className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -125,7 +183,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
 
                 {/* Locations */}
                 <nav aria-label={t('Our Stores')} className="border-t border-white/10 pt-8 mb-12">
-                    <h4 className="text-sm font-bold text-cyber-citron uppercase tracking-widest mb-6 text-center md:text-left">
+                    <h4 className="text-xs font-bold text-cyber-citron uppercase tracking-wider mb-6 text-center md:text-left">
                         {t('Our Stores')}
                     </h4>
                     <ul className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -143,12 +201,27 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                     </ul>
 
                     {/* Proximity Booster: Nearby Areas (SEO Goldmine) */}
-                    <h4 className="text-sm font-bold text-cyber-citron uppercase tracking-widest mb-4 mt-8 text-center md:text-left">
-                        {language === 'fr' ? 'Zones Desservies' : language === 'nl' ? 'Servicegebieden' : language === 'tr' ? 'Hizmet Bölgeleri' : 'Service Areas'}
+                    <h4 className="text-xs font-bold text-cyber-citron uppercase tracking-wider mb-4 mt-8 text-center md:text-left">
+                        {language === 'fr' ? 'Zones Desservies (Bruxelles)' : language === 'nl' ? 'Servicegebieden (Brussel)' : language === 'tr' ? 'Hizmet Bölgeleri (Brüksel)' : 'Service Areas (Brussels)'}
                     </h4>
-                    <p className="text-xs text-slate-600 leading-relaxed max-w-4xl">
-                        Saint-Josse-ten-Noode • Evere • Laeken • Etterbeek • Ixelles • Saint-Gilles • Forest • Uccle • Woluwe-Saint-Lambert • Koekelberg • Jette
-                    </p>
+                    <div className="flex flex-wrap gap-x-1.5 gap-y-1 justify-center md:justify-start text-xs text-slate-600 leading-relaxed max-w-4xl">
+                        {[
+                            'Auderghem', 'Berchem-Sainte-Agathe', 'Bruxelles-Ville', 'Etterbeek', 'Evere',
+                            'Forest', 'Ganshoren', 'Ixelles', 'Jette', 'Koekelberg',
+                            'Saint-Gilles', 'Saint-Josse-ten-Noode', 'Uccle', 'Watermael-Boitsfort',
+                            'Woluwe-Saint-Lambert', 'Woluwe-Saint-Pierre'
+                        ].map((commune, index, array) => (
+                            <React.Fragment key={commune}>
+                                <Link
+                                    href={`/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : language === 'tr' ? 'magazalar' : 'stores'}?city=${commune.toLowerCase().replace(/\s+/g, '-')}`}
+                                    className="hover:text-cyber-citron transition-colors"
+                                >
+                                    {commune}
+                                </Link>
+                                {index < array.length - 1 && <span className="text-slate-800">•</span>}
+                            </React.Fragment>
+                        ))}
+                    </div>
                 </nav>
 
                 {/* Bottom Bar: Copyright + Controls */}

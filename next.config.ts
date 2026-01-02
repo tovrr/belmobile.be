@@ -8,27 +8,15 @@ const nextConfig = {
   async redirects() {
     return [
       // --- CRITICAL FIXES ---
-      // 1. Products: Redirect deep links to main catalog (Prevent Buyback Wizard hijack)
+      // Generic product redirects removed to let [lang]/products/[...slug] handle smart matching
       {
-        source: '/:lang/products/:slug+',
-        destination: '/:lang/products',
+        source: '/products/:slug+',
+        destination: '/fr/products/:slug+',
         permanent: true,
       },
-      // 2. Legacy Shopify Products (Unlocalized)
-      {
-        source: '/products/:slug*',
-        destination: '/fr/products',
-        permanent: true, // Legacy URLs should permanently move
-      },
-      // 3. Collections
       {
         source: '/collections/:slug*',
-        destination: '/fr/products',
-        permanent: true,
-      },
-      {
-        source: '/:lang/collections/:slug*',
-        destination: '/:lang/products',
+        destination: '/fr/collections/:slug*',
         permanent: true,
       },
 
@@ -95,58 +83,56 @@ const nextConfig = {
         destination: '/:lang/rachat/samsung/:slug',
         permanent: true,
       },
-      {
-        source: '/pages/revendre-:slug',
-        destination: '/fr/rachat',
-        permanent: true,
-      },
-      {
-        source: '/:lang/pages/revendre-:slug',
-        destination: '/:lang/rachat',
-        permanent: true,
-      },
-      {
-        source: '/pages/rachat-:slug',
-        destination: '/fr/rachat',
-        permanent: true,
-      },
-      {
-        source: '/:lang/pages/rachat-:slug',
-        destination: '/:lang/rachat',
-        permanent: true,
-      },
-      {
-        source: '/pages/recyclage-:slug',
-        destination: '/fr/rachat',
-        permanent: true,
-      },
-      {
-        source: '/:lang/pages/recyclage-:slug',
-        destination: '/:lang/rachat',
-        permanent: true,
-      },
 
       // --- MASS LEGACY MAPPING (High Traffic) ---
+      // Generic /revendre-, /rachat-, /recyclage- rules removed to let Smart Redirector handle specific model matching
+
+      // --- TOP PRIORITY LEGACY FIXES ---
+      {
+        source: '/pages/reparation-playstation-5',
+        destination: '/fr/reparation/sony/playstation-5-disc',
+        permanent: true,
+      },
+      {
+        source: '/pages/reparation-playstation-:slug',
+        destination: '/fr/reparation/sony/playstation-:slug',
+        permanent: true,
+      },
+      {
+        source: '/pages/reparation-xbox-:slug',
+        destination: '/fr/reparation/microsoft/xbox-:slug',
+        permanent: true,
+      },
+      {
+        source: '/pages/reparation-nintendo-:slug',
+        destination: '/fr/reparation/nintendo/:slug',
+        permanent: true,
+      },
 
       // 1. General Lead Gen / City Landing Pages
       {
         source: '/pages/rachat-gsm-bruxelles',
-        destination: '/fr/rachat',
-        permanent: true,
-      },
-      {
-        source: '/pages/rachat-iphone-bruxelles',
-        destination: '/fr/rachat/apple/iphone',
+        destination: '/fr/rachat/bruxelles',
         permanent: true,
       },
       {
         source: '/pages/rachat-reprise-revendre-cash-appareils-high-tech-bruxelles',
-        destination: '/fr/rachat',
+        destination: '/fr/rachat/bruxelles',
+        permanent: true,
+      },
+      {
+        source: '/pages/reparation-iphone-13-prix',
+        destination: '/fr/reparation/apple/iphone-13',
         permanent: true,
       },
       {
         source: '/pages/reparation-smartphone-bruxelles',
-        destination: '/fr/reparation',
+        destination: '/fr/reparation/bruxelles',
+        permanent: true,
+      },
+      {
+        source: '/pages/reparation-iphone-bruxelles',
+        destination: '/fr/reparation/apple/iphone-bruxelles',
         permanent: true,
       },
       {
@@ -239,9 +225,10 @@ const nextConfig = {
         destination: '/fr/reparation/xiaomi/poco-:slug',
         permanent: true,
       },
-      // Huawei Series
+
+      // 7. Huawei Series
       {
-        source: '/pages/reparation-p:series-:slug', // Simplified regex
+        source: '/pages/reparation-p:series(\\d+)-:slug', // Match P20, P30, etc
         destination: '/fr/reparation/huawei/p:series-:slug',
         permanent: true,
       },
@@ -324,53 +311,8 @@ const nextConfig = {
         destination: '/:lang/reparation/samsung/:slug',
         permanent: true,
       },
-      // Sony / PlayStation
-      {
-        source: '/pages/reparation-playstation-5',
-        destination: '/fr/reparation/sony/playstation-5-disc',
-        permanent: true,
-      },
-      {
-        source: '/:lang/pages/reparation-playstation-5',
-        destination: '/:lang/reparation/sony/playstation-5-disc',
-        permanent: true,
-      },
-      {
-        source: '/pages/reparation-playstation-:slug',
-        destination: '/fr/reparation/sony/playstation-:slug',
-        permanent: true,
-      },
-      {
-        source: '/:lang/pages/reparation-playstation-:slug',
-        destination: '/:lang/reparation/sony/playstation-:slug',
-        permanent: true,
-      },
-      {
-        source: '/pages/reparation-ps4-:slug', // Legacy short variant
-        destination: '/fr/reparation/sony/playstation-4-:slug', // Guessing PS4 intent
-        permanent: true,
-      },
-      // Nintendo
-      {
-        source: '/pages/reparation-3ds-2ds-xl-bruxelles',
-        destination: '/fr/reparation/nintendo/new-3ds-xl',
-        permanent: true,
-      },
-      {
-        source: '/:lang/pages/reparation-3ds-2ds-xl-bruxelles',
-        destination: '/:lang/reparation/nintendo/new-3ds-xl',
-        permanent: true,
-      },
-      {
-        source: '/pages/reparation-nintendo-:slug',
-        destination: '/fr/reparation/nintendo/:slug',
-        permanent: true,
-      },
-      {
-        source: '/pages/reparation-switch-:slug',
-        destination: '/fr/reparation/nintendo/switch-:slug',
-        permanent: true,
-      },
+      // Sony / PlayStation (Moved to top, removing duplicates)
+      // Nintendo (Moved to top, removing duplicates)
       {
         source: '/pages/reparation-huawei-:slug',
         destination: '/fr/reparation/huawei/:slug',

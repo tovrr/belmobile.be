@@ -225,18 +225,53 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
 
             <div className="container mx-auto px-1 sm:px-4 py-8">
 
-                {/* Hub Map (Only for Hub pages) */}
+                {/* Hub Map & Store Grid (Only for Hub pages like Brussels) */}
                 {isHub && (
-                    <div className="mb-8">
-                        <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white text-center">
-                            {lang === 'fr' ? 'Nos magasins à Bruxelles' : lang === 'nl' ? 'Onze winkels in Brussel' : 'Our Stores in Brussels'}
-                        </h2>
+                    <div className="mb-12">
+                        <div className="max-w-4xl mx-auto text-center mb-8">
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+                                {lang === 'fr' ? 'Nos magasins à Bruxelles' : lang === 'nl' ? 'Onze winkels in Brussel' : 'Our Stores in Brussels'}
+                            </h2>
+                            <p className="text-gray-600 dark:text-slate-400">
+                                {lang === 'fr'
+                                    ? 'Trouvez l\'expert Belmobile le plus proche de chez vous pour une réparation rapide.'
+                                    : lang === 'nl'
+                                        ? 'Vind de dichtstbijzijnde Belmobile expert voor een snelle reparatie.'
+                                        : 'Find the nearest Belmobile expert for a fast repair.'}
+                            </p>
+                        </div>
+
                         <StoreLocatorClient
                             shops={hubShops}
-                            className="h-[500px] rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700"
-                            zoom={12}
+                            className="h-[400px] md:h-[500px] rounded-3xl shadow-2xl border border-gray-200 dark:border-slate-700/50 mb-8"
+                            zoom={11}
                             center={[50.8503, 4.3517]}
                         />
+
+                        {/* Store Grid for Hubs - Making it feel like a real store page */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {hubShops.map((shop) => (
+                                <div key={shop.id} className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-gray-200 dark:border-slate-700/50 p-6 rounded-3xl hover:border-bel-blue/50 transition-all group">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-bel-blue transition-colors">
+                                            {shop.name.replace('Belmobile ', '')}
+                                        </h3>
+                                        <span className="text-[10px] font-bold px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-lg uppercase">
+                                            {lang === 'fr' ? 'Ouvert' : 'Open'}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm text-gray-600 dark:text-slate-400 mb-6 line-clamp-2">
+                                        {shop.address}
+                                    </p>
+                                    <a
+                                        href={`/${lang}/stores/${shop.slugs?.[lang as 'fr' | 'nl' | 'en'] || shop.id}`}
+                                        className="inline-flex items-center text-sm font-bold text-bel-blue hover:gap-2 transition-all"
+                                    >
+                                        {lang === 'fr' ? 'Voir le magasin' : 'Winkel bekijken'} <span className="ml-1">→</span>
+                                    </a>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
 
