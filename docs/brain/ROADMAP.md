@@ -12,9 +12,10 @@
 
 ### **January: The Stability Month**
 *Objective: Flawless migration and shop floor adoption.*
-- [ ] **Launch**: Production deploy of Next.js platform.
+- [x] **Launch**: Production deploy of Next.js platform (v1.0.0 "Belmobile Core").
 - [ ] **Walk-in Adoption**: 100% of shop orders processed via Apollo's Walk-in Modal.
-- [ ] **Data Integrity**: Verify all analytics and SEO redirects (Zero traffic loss).
+- [x] **Data Integrity**: Verified Sitemap/SEO (442+ entries) and Redirects.
+- [x] **Performance**: Implemented ISR (Edge Caching) to bypass Vercel Hobby Latency.
 - [ ] **Feedback Loop**: "Digital Esnaf" tuning based on real customer chats.
 
 ### **February: Operation "Notion Killer"**
