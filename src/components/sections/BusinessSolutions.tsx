@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../../hooks/useLanguage';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -24,6 +24,15 @@ import TrustedPartnersCloud from './TrustedPartnersCloud';
 
 const BusinessSolutions: React.FC = () => {
     const { t, language } = useLanguage();
+    const [fleetSize, setFleetSize] = useState(50);
+    const [email, setEmail] = useState('');
+    const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+
+    const calculateSavings = (size: number) => {
+        // Average saving: €120 per repair vs replacement + Time saved (€50)
+        return (size * 0.3 * 170).toLocaleString('fr-BE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+        // Assuming 30% break rate per year
+    };
 
     const benefits = [
         {
@@ -272,63 +281,96 @@ const BusinessSolutions: React.FC = () => {
                 </div>
 
                 {/* Fleet Management Showcase */}
+                {/* Interactive Fleet Simulator & Lead Capture */}
                 <motion.div
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="relative bg-slate-950 p-12 md:p-24 rounded-[5rem] mb-32 overflow-hidden shadow-4xl"
+                    className="relative bg-slate-950 p-8 md:p-24 rounded-[5rem] mb-32 overflow-hidden shadow-4xl group/simulator"
                 >
-                    <div className="absolute inset-0 bg-linear-to-br from-midnight via-slate-900 to-midnight opacity-50"></div>
-                    <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-cyber-citron/50 to-transparent"></div>
+                    <div className="absolute inset-0 bg-linear-to-br from-midnight via-slate-900 to-midnight opacity-90"></div>
+                    <div className="absolute top-0 right-0 w-2/3 h-full bg-cyber-citron/5 skew-x-12 blur-3xl rounded-full"></div>
 
-                    <div className="relative z-20 flex flex-col lg:flex-row items-center gap-20">
-                        <div className="flex-1 text-center lg:text-left">
-                            <div className="inline-flex items-center gap-3 px-4 py-2 bg-cyber-citron/10 border border-cyber-citron/30 rounded-full text-[10px] font-black uppercase tracking-widest mb-10 text-cyber-citron">
-                                <span className="w-2 h-2 rounded-full bg-cyber-citron"></span>
+                    <div className="relative z-20 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                        <div>
+                            <span className="inline-block px-4 py-1 bg-cyber-citron text-midnight font-black uppercase text-[10px] tracking-widest rounded-full mb-8">
                                 {t('biz_fleet_badge')}
-                            </div>
-                            <h2 className="text-5xl md:text-8xl font-black text-white mb-10 tracking-[ -0.05em] leading-[0.85]" dangerouslySetInnerHTML={{ __html: t('biz_fleet_title') }} />
-                            <p className="text-2xl text-slate-400 mb-12 max-w-2xl leading-tight font-medium">
-                                {t('biz_fleet_desc')}
+                            </span>
+                            <h2 className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-none">
+                                {t('Calculate Your Impact')}
+                            </h2>
+                            <p className="text-xl text-slate-400 mb-12 font-medium">
+                                See how much your company could save by switching to Belmobile Fleet Management (vs. buying new).
                             </p>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {[
-                                    { text: t('biz_fleet_sla'), color: 'bg-emerald-500' },
-                                    { text: t('biz_fleet_invoice'), color: 'bg-blue-500' },
-                                    { text: t('biz_fleet_loaner'), color: 'bg-indigo-500' },
-                                    { text: t('biz_trust_manager'), color: 'bg-violet-500' }
-                                ].map((item, i) => (
-                                    <div key={i} className="flex items-center gap-4 bg-white/5 p-5 rounded-3xl border border-white/5 hover:border-white/10 transition-all hover:bg-white/8">
-                                        <div className={`w-3 h-3 rounded-full ${item.color} shadow-[0_0_15px_rgba(0,0,0,0.5)]`}></div>
-                                        <span className="font-black text-white uppercase tracking-tighter text-lg">{item.text}</span>
+                            <div className="space-y-12">
+                                <div>
+                                    <label className="flex justify-between text-white font-bold mb-4 text-lg">
+                                        <span>Fleet Size: {fleetSize} devices</span>
+                                        <span className="text-cyber-citron">Avg. 30% break rate</span>
+                                    </label>
+                                    <input
+                                        type="range"
+                                        min="10"
+                                        max="500"
+                                        step="10"
+                                        value={fleetSize}
+                                        onChange={(e) => setFleetSize(parseInt(e.target.value))}
+                                        className="w-full h-3 bg-white/10 rounded-full appearance-none cursor-pointer hover:bg-white/20 transition-all accent-cyber-citron"
+                                    />
+                                    <div className="flex justify-between text-xs text-slate-500 mt-2 font-mono uppercase">
+                                        <span>10 Devices</span>
+                                        <span>500+ Devices</span>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
 
-                            <div className="mt-16">
-                                <Link
-                                    href={`/${language}/contact?subject=business`}
-                                    className="inline-flex items-center gap-4 px-10 py-5 bg-cyber-citron text-midnight font-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-2xl text-xl uppercase tracking-tighter"
-                                >
-                                    {t('biz_fleet_cta')}
-                                    <ArrowRightIcon className="w-6 h-6" />
-                                </Link>
+                                <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-md">
+                                    <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-2">Estimated Annual Savings</p>
+                                    <div className="text-6xl font-black text-white tracking-tighter">
+                                        {calculateSavings(fleetSize)} <span className="text-2xl text-cyber-citron">/ yr</span>
+                                    </div>
+                                    <p className="text-xs text-slate-500 mt-4">*Based on repair vs. replacement costs & productivity uptime.</p>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Stat Badges */}
-                        <div className="w-full lg:w-96 flex flex-col gap-8">
-                            <div className="bg-cyber-citron p-12 rounded-[4rem] text-midnight transform rotate-3 hover:rotate-0 transition-all duration-700 shadow-2xl relative group/stat">
-                                <div className="absolute top-8 right-10 opacity-20 group-hover/stat:rotate-45 transition-transform"><RocketLaunchIcon className="w-16 h-16" /></div>
-                                <div className="text-7xl font-black mb-2 tracking-tighter leading-none">24H</div>
-                                <div className="text-lg font-black uppercase tracking-widest opacity-80 leading-none">SLA Resolution</div>
-                            </div>
-                            <div className="bg-white/10 backdrop-blur-3xl p-12 rounded-[4rem] text-white border border-white/10 transform -rotate-3 hover:rotate-0 transition-all duration-700 shadow-2xl relative">
-                                <div className="text-xs font-black uppercase tracking-[0.3em] opacity-60 mb-4">{t('biz_green_badge')}</div>
-                                <div className="text-3xl font-black leading-tight mb-4">{t('biz_green_title')}</div>
-                                <p className="text-slate-400 text-sm font-bold leading-relaxed">{t('biz_green_desc')}</p>
-                            </div>
+                        {/* Quick Lead Form */}
+                        <div className={`bg-white text-midnight p-10 rounded-[3rem] shadow-2xl transition-all duration-500 ${isFormSubmitted ? 'bg-emerald-500 text-white' : ''}`}>
+                            {!isFormSubmitted ? (
+                                <>
+                                    <h3 className="text-3xl font-black mb-2 uppercase tracking-tight">Unlock Corporate Rates</h3>
+                                    <p className="text-slate-500 font-medium mb-8">Get the full "Pro" price list sent to your inbox.</p>
+
+                                    <form onSubmit={(e) => { e.preventDefault(); setIsFormSubmitted(true); }} className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-slate-400">Company Email</label>
+                                            <input
+                                                type="email"
+                                                required
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                className="w-full bg-slate-100 border-2 border-slate-200 focus:border-midnight rounded-xl px-4 py-4 font-bold text-lg outline-none transition-colors"
+                                                placeholder="procurement@company.com"
+                                            />
+                                        </div>
+                                        <button type="submit" className="w-full bg-midnight text-white font-black text-xl py-5 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all flex justify-center items-center gap-3">
+                                            <span>Get Price List</span>
+                                            <ArrowRightIcon className="w-6 h-6" />
+                                        </button>
+                                        <p className="text-xs text-center text-slate-400 font-medium mt-4">
+                                            No spam. Direct B2B contact only.
+                                        </p>
+                                    </form>
+                                </>
+                            ) : (
+                                <div className="text-center py-12 animate-fade-in">
+                                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <CheckCircleIcon className="w-10 h-10 text-white" />
+                                    </div>
+                                    <h3 className="text-3xl font-black mb-4">You're on the list.</h3>
+                                    <p className="text-lg opacity-90">One of our Fleet Managers (likely Omer) will email you shortly.</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </motion.div>
