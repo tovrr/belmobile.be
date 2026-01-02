@@ -26,6 +26,14 @@ This release marks the transition from MVP (`next-platform`) to a scalable enter
     *   Verified Sitemap Strategy (Dynamic 1800+ URLs).
     *   Confirmed `sitemap.xml` builds correctly for iPhone 17 readiness.
 
+## 💼 B2B & Growth Features
+*   **Business Page ("Pro"):**
+    *   **Interactive Savings Calculator:** Real-time simulation of savings based on Fleet Size.
+    *   **Lead Magnet:** "Unlock Corporate Rates" form capturing high-intent B2B leads directly.
+*   **Maillage Interne (Internal Linking):**
+    *   **Cross-Funnel Loops:** Users on Repair pages are nudged to Buyback ("Too expensive? Sell it") and vice versa ("Want to keep it? Fix it").
+    *   **B2B Upsell:** Fleet Management promo injected into consumer Repair pages.
+
 ## 🛠 Technical Fixes
 *   **Fixed:** `fr.json` trailing comma syntax error.
 *   **Fixed:** `npm run dev` naming confusion.

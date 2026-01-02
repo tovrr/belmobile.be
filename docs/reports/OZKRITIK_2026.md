@@ -39,3 +39,4 @@
 - **[RESOLVED] Technical Translation Debt:** `tr.json`, `nl.json`, `en.json` updated with "Power" B2B keys (Jan 2).
 - **[RESOLVED] Performance Overhead:** Switched from SSR to ISR (Edge Caching) to eliminate US-BE latency on Vercel Hobby plan.
 - **[RESOLVED] JSON Integrity:** Fixed duplicate keys in `fr.json` ensuring stable build.
+- **[RESOLVED] Pathing Logic:** Implemented dedicated "Lead Capture" form with Fleet Size calculator on B2B page (Jan 2).
