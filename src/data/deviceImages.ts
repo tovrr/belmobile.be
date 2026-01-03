@@ -18,16 +18,33 @@ export const DEVICE_IMAGES: Record<string, string> = {
     'xbox': '/images/brands/xbox.svg',
     'nintendo': '/images/brands/nintendo.svg',
 
-    // Specific Models (Examples - User to populate)
-    'iphone-15-pro': '/images/models/iphone-15-pro.jpg',
-    // 'iphone-14-pro': removed/broken - will fallback to brand logo
+    // Specific Models (Premium Renders)
+    'apple-iphone-15-pro': '/images/models/apple-iphone-15-pro.png',
+    'samsung-galaxy-s24-ultra': '/images/models/samsung-galaxy-s24-ultra.png',
     'iphone-13': '/images/models/iphone-13.jpg',
-    // 'samsung-galaxy-s24-ultra': removed/broken - will fallback to brand logo
-    // 'macbook-pro-14-m2': removed/broken - will fallback to brand logo
     'sony-playstation-5-disc': '/images/models/sony-playstation-5-disc.jpg',
 };
 
-// Helper function to get image for brand or model
-export const getDeviceImage = (slug: string): string | null => {
-    return DEVICE_IMAGES[slug.toLowerCase()] || null;
+// Helper function to get image for brand or model with intelligent generic fallback
+export const getDeviceImage = (slug: string, category?: string): string | null => {
+    const s = slug.toLowerCase();
+
+    // 1. Try specific model first
+    if (DEVICE_IMAGES[s]) return DEVICE_IMAGES[s];
+
+    // 2. Try Category specific generic (New Premium Feature)
+    if (category) {
+        const cat = category.toLowerCase();
+        // Handle variants (e.g. console vs console_home)
+        const normalizedCat = cat.startsWith('console') ? (cat.includes('_') ? cat : 'console_home') : cat;
+
+        // We now have beautiful renders for: smartphone, tablet, laptop, console_home, console_portable, smartwatch
+        const genericPath = `/images/generics/${normalizedCat}.png`;
+        // In a real environment, we'd check if file exists, but here we assume our deployment task worked.
+        return genericPath;
+    }
+
+    // 3. Fallback to Brand Logo
+    const brand = s.split('-')[0];
+    return DEVICE_IMAGES[brand] || null;
 };

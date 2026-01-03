@@ -55,7 +55,7 @@ const MobileSummary: React.FC<MobileSummaryProps> = ({
                 <div className="relative w-full h-48 mb-4 bg-gray-50 dark:bg-slate-950 rounded-xl p-4">
                     <Image
                         src={deviceImageUrl}
-                        alt={`${selectedBrand} ${selectedModel}`}
+                        alt={`${selectedBrand} ${selectedModel} ${t(isBuyback ? 'Buyback' : 'Repair')}`}
                         fill
                         className="object-contain"
                     />

@@ -90,8 +90,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     const loadingText = processingText || t('Processing...');
 
     // Image Logic
-    const specificImage = selectedModel ? getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`)) : null;
-    const brandImage = selectedBrand ? getDeviceImage(createSlug(selectedBrand)) : null;
+    const specificImage = selectedModel ? getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`), deviceType) : null;
+    const brandImage = selectedBrand ? getDeviceImage(createSlug(selectedBrand), deviceType) : null;
     const displayImage = specificImage || brandImage;
     const isFallback = !specificImage;
 
@@ -124,7 +124,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 >
                                     <Image
                                         src={displayImage}
-                                        alt={`${selectedBrand} ${selectedModel} ${t(type === 'buyback' ? 'Buyback' : 'Repair')} service`}
+                                        alt={`${selectedBrand} ${selectedModel} - ${t(isBuyback ? 'wizard_action_sell' : 'wizard_action_repair')} Belmobile`}
                                         fill
                                         sizes="128px"
                                         className={`object-contain transition-all ${isFallback ? 'brightness-0 invert p-4 opacity-90' : 'hover:scale-105'}`}

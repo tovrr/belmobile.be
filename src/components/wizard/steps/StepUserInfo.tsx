@@ -296,11 +296,11 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                     </button>
                     <h3 className="font-bold text-xl text-gray-900 dark:text-white">{t('Summary')}</h3>
                 </div>
-                {(selectedModel && getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`))) && (
+                {(selectedModel && getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`), deviceType)) && (
                     <div className="relative w-full h-48 mb-4 bg-gray-50 dark:bg-slate-950 rounded-xl p-4">
                         <Image
-                            src={getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`))!}
-                            alt={`${selectedBrand} ${selectedModel}`}
+                            src={getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`), deviceType)!}
+                            alt={`${selectedBrand} ${selectedModel} ${t(type === 'buyback' ? 'Buyback' : 'Repair')}`}
                             fill
                             className="object-contain"
                         />

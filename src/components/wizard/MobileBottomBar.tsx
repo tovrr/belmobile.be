@@ -118,10 +118,10 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
                                 <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-2xl flex items-center gap-4">
                                     {/* Brand Logo */}
                                     <div className="relative w-12 h-12 shrink-0 bg-white dark:bg-white/10 rounded-xl p-2 flex items-center justify-center">
-                                        {getDeviceImage(createSlug(selectedBrand || '')) ? (
+                                        {getDeviceImage(createSlug(selectedBrand || ''), deviceType) ? (
                                             <Image
-                                                src={getDeviceImage(createSlug(selectedBrand || ''))!}
-                                                alt={selectedBrand || 'Brand'}
+                                                src={getDeviceImage(createSlug(selectedBrand || ''), deviceType)!}
+                                                alt={`${selectedBrand || 'Device'} ${t(type === 'buyback' ? 'Buyback' : 'Repair')}`}
                                                 width={40}
                                                 height={40}
                                                 className="object-contain w-full h-full dark:invert"

@@ -119,10 +119,10 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                                     } dark:hover:bg-slate-800`
                                     }`}
                             >
-                                {getDeviceImage(createSlug(brand)) && (
+                                {getDeviceImage(createSlug(brand), deviceType) && (
                                     <div className="relative w-12 h-12">
                                         <Image
-                                            src={getDeviceImage(createSlug(brand))!}
+                                            src={getDeviceImage(createSlug(brand), deviceType)!}
                                             alt={`${brand} ${t(type === 'buyback' ? 'Buyback' : 'Repair')} options`}
                                             fill
                                             sizes="(max-width: 640px) 48px, 48px"

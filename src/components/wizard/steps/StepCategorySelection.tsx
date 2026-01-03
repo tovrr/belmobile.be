@@ -374,7 +374,7 @@ interface SearchResultItemProps {
 
 const SearchResultItem: React.FC<SearchResultItemProps> = ({ item, onSelect, type, t }) => {
     const slug = createSlug(`${item.brand} ${item.model}`);
-    const deviceImg = getDeviceImage(slug) || getDeviceImage(createSlug(item.brand));
+    const deviceImg = getDeviceImage(slug, item.category);
 
     return (
         <button
