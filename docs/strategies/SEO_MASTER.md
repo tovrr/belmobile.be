@@ -92,7 +92,7 @@ Create a powerful navigation hub that enhances SEO through internal linking and 
 ### Phase 1: Immediate Hygiene (Jan 2026)
 - [x] **Footer Optimization**: Support column reordered (Contact -> Track -> Help -> Store).
 - [x] **Mobile Strategy**: Hybrid Engine Deployed (Apollo for Mobile, Aegis for Desktop).
-- [ ] **Hreflang Audit**: Verify `tr` tags are generated correctly for all dynamic slugs.
+- [x] **Hreflang Audit**: Verified `tr` tags and trilingual parity for core flows.
 - [ ] **Alt-Text**: specific alt-text for generated device images.
 
 ### Phase 2: Content Expansion (Q1 2026)

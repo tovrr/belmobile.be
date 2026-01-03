@@ -1,12 +1,90 @@
 import { Quote, Reservation } from '../types';
 
+// Helper to format simplified slugs
+const formatDeviceName = (name: string) => name ? name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : '';
+
+/**
+ * AEGIS MASTER EMAIL LAYOUT
+ * Professional, modern, and aligned with Belmobile Core visual identity.
+ */
+const LAYOUT = (content: string, lang: string, trackingUrl: string, trackButton: string, orderId: string, accentColor = '#4338ca') => `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belmobile.be Update</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="padding: 48px 40px; background-color: #1e1b4b; background-image: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);">
+                            <div style="font-size: 32px; font-weight: 900; color: #ffffff; letter-spacing: -1px; margin-bottom: 4px;">BELMOBILE<span style="color: ${accentColor}">.BE</span></div>
+                            <div style="font-size: 12px; font-weight: 700; color: #a5b4fc; letter-spacing: 2px; text-transform: uppercase;">Repair & Buyback Center</div>
+                        </td>
+                    </tr>
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 48px 48px 40px 48px;">
+                            ${content}
+                            
+                            <!-- Tracking Button -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 40px;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="${trackingUrl}" style="background-color: ${accentColor}; color: #ffffff; padding: 18px 36px; text-decoration: none; border-radius: 16px; font-weight: 800; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px -1px rgba(67, 56, 202, 0.4);">
+                                            ${trackButton}
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- Quote Details -->
+                    <tr>
+                        <td align="center" style="padding: 0 48px 40px 48px;">
+                            <div style="height: 1px; background-color: #f1f5f9; width: 100%; margin-bottom: 24px;"></div>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td align="center" style="color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">
+                                        Order Reference: <strong style="color: #475569;">${orderId}</strong>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="padding: 32px; background-color: #f8fafc; color: #94a3b8; font-size: 12px; border-top: 1px solid #f1f5f9;">
+                            <p style="margin: 0 0 8px 0;">© ${new Date().getFullYear()} Belmobile Official. All rights reserved.</p>
+                            <p style="margin: 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+`;
+
 export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' | 'nl') => {
     const trackingUrl = `https://belmobile.be/${lang}/track-order?id=${id}&email=${encodeURIComponent(quote.customerEmail)}`;
 
     const subjects: Record<string, string> = {
-        en: `📦 Update on your order #${id.substring(0, 6).toUpperCase()} - Belmobile`,
-        fr: `📦 Mise à jour de votre commande #${id.substring(0, 6).toUpperCase()} - Belmobile`,
-        nl: `📦 Update over uw bestelling #${id.substring(0, 6).toUpperCase()} - Belmobile`
+        en: `📦 Update: Order #${id.substring(0, 8).toUpperCase()}`,
+        fr: `📦 Suivi : Commande #${id.substring(0, 8).toUpperCase()}`,
+        nl: `📦 Status : Bestelling #${id.substring(0, 8).toUpperCase()}`
+    };
+
+    const titles: Record<string, string> = {
+        en: 'Order Status Update',
+        fr: 'Mise à jour de votre commande',
+        nl: 'Status van uw bestelling'
     };
 
     const statusMessages: Record<string, Record<string, string>> = {
@@ -49,101 +127,52 @@ export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' 
     };
 
     const message = statusMessages[lang]?.[quote.status] || statusMessages['en'][quote.status] || `Status updated to: ${quote.status}`;
-    const subject = subjects[lang] || subjects['en'];
     const trackButton = lang === 'fr' ? 'Suivre ma commande' : lang === 'nl' ? 'Volg mijn bestelling' : 'Track My Order';
 
-    const html = `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <div style="background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%); padding: 32px; text-align: center;">
-                <div style="color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">BELMOBILE.BE</div>
-                <div style="color: #a5b4fc; font-size: 14px; margin-top: 4px;">Expert Repair & Buyback</div>
-            </div>
-            <div style="padding: 40px 32px; background-color: #ffffff;">
-                <h2 style="color: #1e293b; margin-top: 0; font-size: 22px;">${lang === 'fr' ? 'Mise à jour de votre commande' : lang === 'nl' ? 'Update van uw bestelling' : 'Order Status Update'}</h2>
-                <p style="font-size: 16px; line-height: 1.6; color: #475569; margin: 24px 0;">${message}</p>
-                
-                <div style="text-align: center; margin: 36px 0;">
-                    <a href="${trackingUrl}" style="background-color: #4338ca; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(67, 56, 202, 0.3); transition: transform 0.2s;">
-                        ${trackButton}
-                    </a>
-                </div>
-                
-                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0;">
-                
-                <div style="text-align: center; color: #94a3b8; font-size: 13px;">
-                    <p style="margin: 4px 0;">Order Reference: <strong>${id}</strong></p>
-                    <p style="margin: 4px 0;">Product: <strong>${formatDeviceName(quote.brand)} ${formatDeviceName(quote.model)}</strong></p>
-                </div>
-            </div>
-            <div style="background-color: #f8fafc; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
-                &copy; ${new Date().getFullYear()} Belmobile. All rights reserved.
-            </div>
-        </div>
+    const content = `
+        <h1 style="color: #1e1b4b; font-size: 24px; font-weight: 800; margin: 0 0 24px 0;">${titles[lang] || titles['en']}</h1>
+        <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin: 0;">${message}</p>
+        <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin: 24px 0 0 0;">
+            ${lang === 'fr' ? 'Appareil :' : lang === 'nl' ? 'Apparaat :' : 'Device :'} 
+            <strong style="color: #1e1b4b;">${formatDeviceName(quote.brand)} ${formatDeviceName(quote.model)}</strong>
+        </p>
     `;
 
-    return { subject, html };
+    return { subject: subjects[lang] || subjects['en'], html: LAYOUT(content, lang, trackingUrl, trackButton, id) };
 };
 
 export const getPaymentReceivedEmail = (reservation: Reservation, lang: 'en' | 'fr' | 'nl') => {
     const trackingUrl = `https://belmobile.be/${lang}/track-order?id=${reservation.id}&email=${encodeURIComponent(reservation.customerEmail)}`;
 
     const subjects: Record<string, string> = {
-        en: "✅ Payment Received - Your Order is Confirmed!",
-        fr: "✅ Paiement Reçu - Votre commande est confirmée !",
-        nl: "✅ Betaling Ontvangen - Uw bestelling is bevestigd!"
+        en: "✅ Payment Received - Order Confirmed!",
+        fr: "✅ Paiement Reçu - Commande Confirmée !",
+        nl: "✅ Betaling Ontvangen - Bestelling Bevestigd!"
     };
 
-    const content: Record<string, { title: string, body: string, status: string }> = {
-        en: {
-            title: "Payment Received!",
-            body: `Great news! We have successfully received your payment for <strong>${reservation.productName}</strong>.`,
-            status: "We will now proceed with your order immediately. You will receive another update as soon as it's shipped or ready."
-        },
-        fr: {
-            title: "Paiement Reçu !",
-            body: `Excellente nouvelle ! Nous avons bien reçu votre paiement pour <strong>${reservation.productName}</strong>.`,
-            status: "Nous allons maintenant traiter votre commande immédiatement. Vous recevrez une nouvelle mise à jour dès qu'elle sera expédiée ou prête."
-        },
-        nl: {
-            title: "Betaling Ontvangen!",
-            body: `Goed nieuws! We hebben uw betaling voor <strong>${reservation.productName}</strong> succesvol ontvangen.`,
-            status: "We gaan nu direct aan de slag met uw bestelling. U ontvangt een nieuwe update zodra deze verzonden is of klaarstaat."
-        }
+    const titles: Record<string, string> = {
+        en: "Payment Received!",
+        fr: "Paiement Reçu !",
+        nl: "Betaling Ontvangen !"
     };
 
-    const t = content[lang] || content['en'];
+    const body: Record<string, string> = {
+        en: `Great news! We have successfully received your payment for <strong>${reservation.productName}</strong>. We will now proceed with your order immediately.`,
+        fr: `Excellente nouvelle ! Nous avons bien reçu votre paiement pour <strong>${reservation.productName}</strong>. Nous allons maintenant traiter votre commande immédiatement.`,
+        nl: `Goed nieuws! We hebben uw betaling voor <strong>${reservation.productName}</strong> succesvol ontvangen. We gaan nu direct aan de slag met uw bestelling.`
+    };
+
     const trackButton = lang === 'fr' ? 'Suivre ma commande' : lang === 'nl' ? 'Volg mijn bestelling' : 'Track My Order';
 
-    const html = `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <div style="background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 32px; text-align: center;">
-                <div style="color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">BELMOBILE.BE</div>
-                <div style="color: #a7f3d0; font-size: 14px; margin-top: 4px;">Order Confirmed</div>
-            </div>
-            <div style="padding: 40px 32px; background-color: #ffffff;">
-                <h2 style="color: #047857; margin-top: 0; font-size: 24px; text-align: center;">${t.title}</h2>
-                <div style="background-color: #ecfdf5; border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
-                     <div style="font-size: 48px; line-height: 1;">✅</div>
-                </div>
-                <p style="font-size: 16px; line-height: 1.6; color: #475569; margin: 0 0 16px 0;">${t.body}</p>
-                <p style="font-size: 16px; line-height: 1.6; color: #475569; margin: 0;">${t.status}</p>
-                
-                <div style="text-align: center; margin: 36px 0;">
-                    <a href="${trackingUrl}" style="background-color: #059669; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3); transition: transform 0.2s;">
-                        ${trackButton}
-                    </a>
-                </div>
-                
-                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0;">
-                
-                <div style="text-align: center; color: #94a3b8; font-size: 13px;">
-                    <p style="margin: 4px 0;">Order Reference: <strong>${reservation.id}</strong></p>
-                </div>
-            </div>
+    const content = `
+        <h1 style="color: #059669; font-size: 24px; font-weight: 800; margin: 0 0 24px 0;">${titles[lang] || titles['en']}</h1>
+        <div style="background-color: #ecfdf5; border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 32px;">
+            <div style="font-size: 40px; line-height: 1;">✅</div>
         </div>
+        <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin: 0;">${body[lang] || body['en']}</p>
     `;
 
-    return { subject: subjects[lang] || subjects['en'], html };
+    return { subject: subjects[lang] || subjects['en'], html: LAYOUT(content, lang, trackingUrl, trackButton, String(reservation.id || ''), '#059669') };
 };
 
 export const getReservationStatusEmail = (reservation: Reservation, id: string, lang: 'en' | 'fr' | 'nl', paymentLink?: string) => {
@@ -152,81 +181,32 @@ export const getReservationStatusEmail = (reservation: Reservation, id: string, 
     const finalPaymentLink = paymentLink || reservation.paymentLink || '#';
 
     const subjects: Record<string, string> = {
-        en: isShipping ? "🚨 Action Required: Payment for your Order - Belmobile" : "🎉 Your Belmobile Quote is Ready!", // Note: Assuming reservation logic implies 'Ready' means ready for pickup/next step
-        fr: isShipping ? "🚨 Action Requise : Paiement de votre commande - Belmobile" : "🎉 Votre réservation Belmobile est prête !",
-        nl: isShipping ? "🚨 Actie vereist: Betaling voor uw bestelling - Belmobile" : "🎉 Uw Belmobile reservering ligt klaar!"
+        en: isShipping ? "🚨 Action Required: Payment Needed" : "🎉 Your Device is Ready!",
+        fr: isShipping ? "🚨 Action Requise : Paiement Requis" : "🎉 Votre Appareil est Prêt !",
+        nl: isShipping ? "🚨 Actie vereist : Betaling vereist" : "🎉 Uw Apparaat ligt Klaar !"
     };
 
     const trackButton = lang === 'fr' ? 'Suivre ma commande' : lang === 'nl' ? 'Volg mijn bestelling' : 'Track My Order';
-    const subject = subjects[lang] || subjects['en'];
+    const accent = isShipping ? '#10b981' : '#4338ca';
 
-    const content = isShipping ? {
-        en: {
-            title: "Good news! Order Confirmed.",
-            body: `We have verified your order for <strong>${reservation.productName}</strong>. To finalize shipping to <strong>${reservation.shippingCity}</strong>, please complete payment securely below.`,
-            cta: "Pay Now Securely"
-        },
-        fr: {
-            title: "Bonne nouvelle ! Commande confirmée.",
-            body: `Nous avons vérifié votre commande pour <strong>${reservation.productName}</strong>. Pour finaliser l'expédition vers <strong>${reservation.shippingCity}</strong>, veuillez régler via le lien sécurisé ci-dessous.`,
-            cta: "Payer en toute sécurité"
-        },
-        nl: {
-            title: "Goed nieuws! Bestelling bevestigd.",
-            body: `We hebben uw bestelling voor <strong>${reservation.productName}</strong> geverifieerd. Om de verzending naar <strong>${reservation.shippingCity}</strong> te voltooien, betaal veilig via onderstaande link.`,
-            cta: "Nu veilig betalen"
-        }
+    const contentDetails = isShipping ? {
+        en: { title: "Order Confirmed", body: `Your order for <strong>${reservation.productName}</strong> is verified. To finalize shipping to <strong>${reservation.shippingCity}</strong>, please complete payment below.` },
+        fr: { title: "Commande Confirmée", body: `Votre commande pour <strong>${reservation.productName}</strong> est vérifiée. Pour finaliser l'expédition vers <strong>${reservation.shippingCity}</strong>, veuillez régler ci-dessous.` },
+        nl: { title: "Bestelling Bevestigd", body: `Uw bestelling voor <strong>${reservation.productName}</strong> is geverifieerd. Om de verzending naar <strong>${reservation.shippingCity}</strong> te voltooien, betaal dan hieronder.` }
     } : {
-        en: {
-            title: "Your device is ready!",
-            body: `Your reservation for <strong>${reservation.productName}</strong> has been approved. You can pick it up at our shop whenever you're ready!`,
-            cta: "Track My Order"
-        },
-        fr: {
-            title: "Votre appareil est prêt !",
-            body: `Votre réservation pour <strong>${reservation.productName}</strong> a été approuvée. Vous pouvez passer la récupérer en magasin quand vous le souhaitez !`,
-            cta: "Suivre ma commande"
-        },
-        nl: {
-            title: "Uw apparaat ligt klaar!",
-            body: `Uw reservering voor <strong>${reservation.productName}</strong> is goedgekeurd. U kunt deze ophalen in de winkel wanneer u wilt!`,
-            cta: "Volg mijn bestelling"
-        }
+        en: { title: "Ready for Pickup!", body: `Your reservation for <strong>${reservation.productName}</strong> has been approved. You can pick it up at our shop whenever you're ready!` },
+        fr: { title: "Prêt pour retrait !", body: `Votre réservation pour <strong>${reservation.productName}</strong> a été approuvée. Vous pouvez passer la récupérer en magasin quand vous le souhaitez !` },
+        nl: { title: "Klaar om op te halen!", body: `Uw reservering voor <strong>${reservation.productName}</strong> is goedgekeurd. U kunt deze ophalen in de winkel wanneer u wilt!` }
     };
 
-    // Select correct lang content
-    const t = (isShipping ? (content as any)[lang] : (content as any)[lang]) || (isShipping ? (content as any)['en'] : (content as any)['en']);
+    const t = (contentDetails as any)[lang] || (contentDetails as any)['en'];
 
-    const html = `
-       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <div style="background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%); padding: 32px; text-align: center;">
-                <div style="color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">BELMOBILE.BE</div>
-                <div style="color: #a5b4fc; font-size: 14px; margin-top: 4px;">Status Update</div>
-            </div>
-            <div style="padding: 40px 32px; background-color: #ffffff;">
-                <h2 style="color: #4338ca; margin-top: 0; font-size: 24px; text-align: center;">${t.title}</h2>
-                <p style="font-size: 16px; line-height: 1.6; color: #475569; margin: 24px 0;">${t.body}</p>
-                
-                <div style="text-align: center; margin: 36px 0;">
-                    ${isShipping ?
-            `<a href="${finalPaymentLink}" style="background-color: #10b981; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); transition: transform 0.2s;">${t.cta}</a>`
-            :
-            `<a href="${trackingUrl}" style="background-color: #4338ca; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(67, 56, 202, 0.3); transition: transform 0.2s;">${t.cta}</a>`
-        }
-                </div>
-                
-                ${isShipping ? `<div style="text-align: center; margin-bottom: 20px;"><a href="${trackingUrl}" style="color: #4338ca; font-weight: bold; text-decoration: underline;">${trackButton}</a></div>` : ''}
-                
-                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0;">
-                
-                <div style="text-align: center; color: #94a3b8; font-size: 13px;">
-                    <p style="margin: 4px 0;">Order Reference: <strong>${id}</strong></p>
-                </div>
-            </div>
-       </div>
+    const content = `
+        <h1 style="color: ${accent}; font-size: 24px; font-weight: 800; margin: 0 0 24px 0;">${t.title}</h1>
+        <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin: 0;">${t.body}</p>
     `;
 
-    return { subject, html };
+    return { subject: subjects[lang] || subjects['en'], html: LAYOUT(content, lang, isShipping ? finalPaymentLink : trackingUrl, isShipping ? (lang === 'fr' ? 'Payer maintenant' : 'Pay Now') : trackButton, id, accent) };
 };
 
 export const generateReviewEmailHtml = (lang: string, name: string, shopId: string, orderId: string, shopName: string) => {
@@ -256,40 +236,18 @@ export const generateReviewEmailHtml = (lang: string, name: string, shopId: stri
         nl: {
             title: "Uw mening telt",
             greeting: `Beste ${name},`,
-            body: `Bedankt voor uw bezoek aan Belmobile ${shopName}. We horen graag wat u van onze diensten vond. Het duurt maar een minuutje!`,
+            body: `Bedankt voor uw bezoek aan Belmobile ${shopName}. We horen graag what u van onze diensten vond. Het duurt maar een minuutje!`,
             cta: "Beoordeling achterlaten"
         }
     };
 
     const t = content[lang] || content['en'];
 
-    const html = `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <div style="background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); padding: 32px; text-align: center;">
-                <div style="color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">BELMOBILE.BE</div>
-                <div style="color: #fffbeb; font-size: 14px; margin-top: 4px;">Service Feedback</div>
-            </div>
-            <div style="padding: 40px 32px; background-color: #ffffff;">
-                <h2 style="color: #d97706; margin-top: 0; font-size: 24px; text-align: center;">${t.title}</h2>
-                <p style="font-size: 16px; line-height: 1.6; color: #475569; margin: 24px 0;">${t.greeting}</p>
-                <p style="font-size: 16px; line-height: 1.6; color: #475569; margin: 24px 0;">${t.body}</p>
-                
-                <div style="text-align: center; margin: 36px 0;">
-                    <a href="${reviewUrl}" style="background-color: #d97706; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.3); transition: transform 0.2s;">
-                        ${t.cta}
-                    </a>
-                </div>
-                
-                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0;">
-                
-                <div style="text-align: center; color: #94a3b8; font-size: 13px;">
-                    <p style="margin: 4px 0;">Order Reference: <strong>${orderId}</strong></p>
-                </div>
-            </div>
-        </div>
+    const htmlContent = `
+        <h1 style="color: #d97706; font-size: 24px; font-weight: 800; margin: 0 0 24px 0;">${t.title}</h1>
+        <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin: 0 0 16px 0;">${t.greeting}</p>
+        <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin: 0;">${t.body}</p>
     `;
 
-    return { subject, htmlContent: html };
+    return { subject, html: LAYOUT(htmlContent, lang, reviewUrl, t.cta, orderId, '#d97706') };
 };
-
-const formatDeviceName = (name: string) => name ? name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : '';

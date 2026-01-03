@@ -3,6 +3,7 @@ import { Quote, Shop, ActivityLogEntry } from '../../../types';
 import { useData } from '../../../hooks/useData';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { slugToDisplayName } from '../../../utils/slugs';
+import StatusBadge from '../../ui/StatusBadge';
 
 // --- Types ---
 interface WrapperProps {
@@ -33,13 +34,7 @@ export const QuoteHeader: React.FC<QuoteHeaderProps> = ({ quote, onClose, onDown
                 <h2 className="text-2xl font-black text-gray-900 dark:text-white capitalize">
                     {quote.type} Quote
                 </h2>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${quote.status === 'new' ? 'bg-blue-100 text-blue-700' :
-                    quote.status === 'closed' ? 'bg-gray-100 text-gray-600' :
-                        quote.status === 'repaired' ? 'bg-green-100 text-green-700' :
-                            'bg-yellow-100 text-yellow-700'
-                    }`}>
-                    {quote.status}
-                </span>
+                <StatusBadge status={quote.status} className="px-3 py-1" />
             </div>
             <div className="flex items-center gap-4 mt-1 text-sm text-gray-500 dark:text-gray-400">
                 <p>ID: <span className="font-mono font-bold text-gray-700 dark:text-gray-300 select-all">{quote.orderId || quote.id}</span></p>

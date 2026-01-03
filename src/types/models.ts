@@ -81,6 +81,26 @@ export interface Review {
 
 // -- Orders & Quotes --
 
+export type OrderStatus =
+    | 'draft'               // User is filling wizard
+    | 'new'                 // (Legacy) Initial state
+    | 'pending_drop'        // Wizard complete, waiting for drop-off/shipping
+    | 'received'            // Device scanned at Shop or Courier Hub
+    | 'in_diagnostic'       // Technician verifying device
+    | 'waiting_parts'       // Repair paused for parts
+    | 'verified'            // Quote confirmed / Repair diagnosed
+    | 'payment_queued'      // (Buyback) Payment approved, pending transfer
+    | 'invoiced'            // (Repair) Invoice sent to customer
+    | 'paid'                // (Repair) Customer paid / (Buyback) Money sent
+    | 'in_repair'           // (Repair) Active work
+    | 'ready'               // Ready for pickup / shipping
+    | 'shipped'             // Handed to courier
+    | 'completed'           // Customer has device / Money received
+    | 'cancelled'           // Order killed
+    | 'issue'               // Problem (blocked)
+    // Legacy support (to be migrated)
+    | 'processing' | 'holding' | 'repaired' | 'responded' | 'inspected' | 'payment_sent' | 'closed';
+
 export interface Reservation {
     id: number | string;
     productId: number | string;
@@ -103,6 +123,9 @@ export interface Reservation {
     paymentLink?: string;
     paymentReceiptUrl?: string;
     orderId?: string;
+    isCompany?: boolean;
+    companyName?: string;
+    vatNumber?: string;
 }
 
 export interface ActivityLogEntry {
@@ -141,7 +164,7 @@ export interface Quote {
     iban?: string;
     idUrl?: string;
     shopId: number | string;
-    status: 'new' | 'processing' | 'waiting_parts' | 'holding' | 'in_repair' | 'repaired' | 'ready' | 'shipped' | 'responded' | 'received' | 'inspected' | 'payment_sent' | 'closed' | 'completed' | 'cancelled';
+    status: OrderStatus;
     date: string;
     createdAt?: { seconds: number; nanoseconds: number }; // Firestore Timestamp
     orderId?: string; // Readable ID (ORD-...)

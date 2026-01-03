@@ -16,7 +16,7 @@ export async function POST(request: Request) {
         const shopName = shop ? shop.name : shopId;
 
         // Generate Content
-        const { subject, htmlContent } = generateReviewEmailHtml(
+        const { subject, html: htmlContent } = generateReviewEmailHtml(
             language || 'en',
             name || 'Customer',
             shopId,

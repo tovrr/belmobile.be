@@ -133,21 +133,31 @@ export const orderService = {
                         success: true,
                         docId: result.id,
                         readableId: finalOrderId,
+                        trackingToken: result.trackingToken,
                         firestoreData: { ...firestoreData, orderId: finalOrderId }
                     };
                 }
 
                 if (result.success && result.verified) {
+                    // Fallback: Client-side write
+                    // Generate a token client-side for consistency
+                    const trackingToken = Array.from(window.crypto.getRandomValues(new Uint8Array(32)))
+                        .map(b => b.toString(16).padStart(2, '0'))
+                        .join('');
+
                     const docRef = await addDoc(collection(db, 'quotes'), {
                         ...firestoreData,
                         price: result.price,
-                        isVerified: true
+                        isVerified: true,
+                        trackingToken,
+                        trackingTokenCreatedAt: serverTimestamp(),
+                        source: 'web_wizard_fallback'
                     });
                     const readableId = `ORD-${new Date().getFullYear()}-${docRef.id.substring(0, 6).toUpperCase()}`;
                     await updateDoc(docRef, { orderId: readableId });
                     await this.markLeadAsConverted(orderData.customerEmail);
 
-                    return { success: true, docId: docRef.id, readableId, firestoreData: { ...firestoreData, orderId: readableId } };
+                    return { success: true, docId: docRef.id, readableId, trackingToken, firestoreData: { ...firestoreData, orderId: readableId } };
                 }
 
                 throw new Error("Unexpected server response");

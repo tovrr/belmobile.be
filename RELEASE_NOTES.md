@@ -33,6 +33,11 @@ This release marks the transition from MVP (`next-platform`) to a scalable enter
 *   **Maillage Interne (Internal Linking):**
     *   **Cross-Funnel Loops:** Users on Repair pages are nudged to Buyback ("Too expensive? Sell it") and vice versa ("Want to keep it? Fix it").
     *   **B2B Upsell:** Fleet Management promo injected into consumer Repair pages.
+*   **AEGIS PDF V2:**
+    *   **Modular Architecture:** Entire PDF engine refactored into Atomic Render Blocks for 100% layout stability.
+    *   **1-Page Optimization:** Strategic space management ensures all documents (Forms, Orders, Reservations) fit on a single A4 page.
+    *   **SVG Branding:** Switched to institutional ink-saver SVG logos for crystal-clear printing.
+    *   **TR Support:** Full Turkish language support integrated into the PDF generation pipeline.
 
 ## 🛠 Technical Fixes
 *   **Fixed:** `fr.json` trailing comma syntax error.

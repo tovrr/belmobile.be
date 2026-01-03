@@ -19,7 +19,8 @@ import {
     GlobeAltIcon,
     NewspaperIcon,
     UsersIcon,
-    ArrowTrendingUpIcon
+    ArrowTrendingUpIcon,
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
 
 const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -82,6 +83,7 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         { name: 'Blog Posts', href: '/admin/blog', icon: NewspaperIcon },
         { name: 'Franchise', href: '/admin/franchise', icon: GlobeAltIcon },
         { name: 'Global SEO', href: '/admin/seo', icon: GlobeAltIcon },
+        { name: 'Templates', href: '/admin/templates', icon: DocumentTextIcon },
         { name: 'Settings', href: '/admin/settings', icon: Cog6ToothIcon },
     ];
 

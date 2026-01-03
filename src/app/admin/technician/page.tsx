@@ -3,7 +3,8 @@
 import React, { useState, useMemo } from 'react';
 import { useOrders } from '@/context/OrderContext';
 import { useAuth } from '@/context/AuthContext';
-import { Quote } from '@/types';
+import { Quote, OrderStatus } from '@/types';
+import StatusBadge from '@/components/ui/StatusBadge';
 import {
     WrenchScrewdriverIcon,
     CheckCircleIcon,
@@ -41,7 +42,7 @@ export default function TechnicianPortal() {
             }
 
             // Default: Show active repairs (including 'new' and 'ready' for collection/processing)
-            return ['new', 'received', 'processing', 'in_repair', 'waiting_parts', 'repaired', 'ready'].includes(q.status);
+            return ['new', 'pending_drop', 'received', 'in_diagnostic', 'verified', 'in_repair', 'waiting_parts', 'repaired', 'ready', 'processing'].includes(q.status);
         });
     }, [quotes, profile, searchQuery]);
 
@@ -161,17 +162,27 @@ function RepairCard({ quote, updateQuoteStatus, updateQuoteFields }: {
         }
     };
 
-    const statusConfig = {
-        new: { color: 'bg-blue-500', label: 'New', action: 'received', actionLabel: 'Mark Received' },
-        received: { color: 'bg-indigo-500', label: 'Received', action: 'processing', actionLabel: 'Process' },
-        processing: { color: 'bg-amber-500', label: 'In Queue', action: 'in_repair', actionLabel: 'Start Repair' },
-        in_repair: { color: 'bg-orange-500', label: 'In Repair', action: 'repaired', actionLabel: 'Repaired' },
-        waiting_parts: { color: 'bg-red-500', label: 'Waiting Parts', action: 'in_repair', actionLabel: 'Resume' },
-        repaired: { color: 'bg-green-500', label: 'Repaired', action: 'ready', actionLabel: 'Make Ready' },
-        ready: { color: 'bg-purple-500', label: 'Ready for Collection', action: 'completed', actionLabel: 'Collected' },
+    const statusConfig: Record<string, { color: string; label: string; action?: OrderStatus; actionLabel?: string }> = {
+        // Intake
+        new: { color: 'bg-blue-500', label: 'New', action: 'in_diagnostic', actionLabel: 'Start Diag' },
+        pending_drop: { color: 'bg-orange-500', label: 'Pending Drop', action: 'received', actionLabel: 'Receive Unit' },
+        received: { color: 'bg-purple-500', label: 'Received', action: 'in_diagnostic', actionLabel: 'Start Diag' },
+
+        // Diagnosis
+        in_diagnostic: { color: 'bg-indigo-500', label: 'In Diagnostic', action: 'verified', actionLabel: 'Confirm Quote' },
+        verified: { color: 'bg-sky-500', label: 'Verified', action: 'in_repair', actionLabel: 'Start Repair' },
+
+        // Repair
+        waiting_parts: { color: 'bg-yellow-500', label: 'Waiting Parts', action: 'in_repair', actionLabel: 'Resume Repair' },
+        in_repair: { color: 'bg-pink-500', label: 'In Repair', action: 'ready', actionLabel: 'Finish Repair' },
+
+        // Completion
+        ready: { color: 'bg-teal-500', label: 'Ready for Collection', action: 'completed', actionLabel: 'Complete' },
+        repaired: { color: 'bg-green-500', label: 'Repaired (Legacy)', action: 'ready', actionLabel: 'Make Ready' },
+        processing: { color: 'bg-gray-500', label: 'Processing (Legacy)', action: 'in_diagnostic', actionLabel: 'Migrate' },
     };
 
-    const config = (statusConfig as any)[quote.status] || { color: 'bg-gray-500', label: quote.status };
+    const config = statusConfig[quote.status] || { color: 'bg-gray-500', label: quote.status };
 
     return (
         <div className={`
@@ -187,10 +198,7 @@ function RepairCard({ quote, updateQuoteStatus, updateQuoteFields }: {
                         <span className="px-2 py-0.5 rounded-lg bg-gray-100 dark:bg-slate-700 text-[10px] font-black text-gray-500 tracking-tighter">
                             {quote.orderId}
                         </span>
-                        <div className={`h-2 w-2 rounded-full ${config.color} animate-pulse`}></div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                            {config.label}
-                        </span>
+                        <StatusBadge status={quote.status} className="text-[10px] px-1.5 py-0.5" />
                     </div>
                     <h3 className="text-lg font-black text-gray-900 dark:text-white truncate">
                         {quote.brand} {quote.model}
@@ -229,7 +237,7 @@ function RepairCard({ quote, updateQuoteStatus, updateQuoteFields }: {
             <div className="flex items-center gap-2">
                 {config.action && (
                     <button
-                        onClick={() => handleStatusUpdate(config.action)}
+                        onClick={() => handleStatusUpdate(config.action!)}
                         className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl ${config.color} text-white text-sm font-black shadow-lg transition-all hover:scale-[1.02] active:scale-95`}
                     >
                         {quote.status === 'in_repair' ? <CheckCircleIcon className="h-5 w-5" /> : <ArrowPathIcon className="h-5 w-5" />}

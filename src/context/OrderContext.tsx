@@ -85,7 +85,9 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             await addDoc(collection(db, 'reservations'), {
                 ...newReservationData,
                 date: new Date().toISOString(),
-                status: 'pending'
+                status: 'pending',
+                trackingToken: Array.from(window.crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join(''),
+                trackingTokenCreatedAt: new Date().toISOString()
             });
         } catch (error) {
             console.error("Error adding reservation: ", error);
@@ -97,7 +99,9 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             await addDoc(collection(db, 'quotes'), {
                 ...newQuoteData,
                 date: new Date().toISOString(),
-                status: 'new'
+                status: 'new',
+                trackingToken: Array.from(window.crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join(''),
+                trackingTokenCreatedAt: new Date().toISOString()
             });
         } catch (error) {
             console.error("Error adding quote: ", error);

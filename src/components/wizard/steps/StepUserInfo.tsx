@@ -177,6 +177,13 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
             const data = await res.json();
             if (!data.isValid) {
                 setVatValidationError(data.message || 'Invalid VAT number');
+            } else if (data.name) {
+                // AEGIS: Auto-populate company name and address from VIES
+                setCompanyName(data.name);
+                if (data.address && !customerAddress) {
+                    // Simple parse attempt for the address if empty
+                    setCustomerAddress(data.address);
+                }
             }
         } catch (err) {
             console.error('VAT validation failed', err);

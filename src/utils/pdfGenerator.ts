@@ -15,6 +15,9 @@ export interface ReservationData {
     deliveryMethod?: 'pickup' | 'shipping';
     shippingAddress?: string;
     nextSteps?: string[];
+    isCompany?: boolean;
+    companyName?: string;
+    vatNumber?: string;
 }
 
 /**
@@ -80,10 +83,9 @@ const getLogoBase64 = async (): Promise<string> => {
  */
 export const generatePDFFromPdfData = async (pdfData: any, filenamePrefix: string) => {
     // 1. Setup Data
-    const logoBase64 = await getLogoBase64();
-    if (logoBase64) {
-        pdfData.logo = logoBase64;
-    }
+    // AEGIS: Vector logo is now hardcoded in PdfTemplates for maximum performance and ink saving.
+    // No need to load external PNGs.
+
 
     // 2. Load PDFMake Dynamically
     const pdfMakeModule = await import('pdfmake/build/pdfmake');
@@ -105,17 +107,31 @@ export const generatePDFFromPdfData = async (pdfData: any, filenamePrefix: strin
     const pdfGenerator = pdfMake.createPdf(docDefinition as any);
 
     return new Promise<{ blob: Blob, base64: string, safeFileName: string, doc: any }>((resolve, reject) => {
-        pdfGenerator.getBlob((blob: Blob) => {
-            pdfGenerator.getBase64((base64: string) => {
+        try {
+            const isServer = typeof window === 'undefined';
+
+            pdfGenerator.getBlob((blob: Blob) => {
                 const safeFileName = `${filenamePrefix}_${String(pdfData.orderId || 'Order').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
-                resolve({
-                    blob,
-                    base64,
-                    safeFileName,
-                    doc: docDefinition
-                });
+
+                if (isServer) {
+                    // On server, we almost always need base64 for email attachments
+                    pdfGenerator.getBase64((base64: string) => {
+                        resolve({ blob, base64, safeFileName, doc: docDefinition });
+                    });
+                } else {
+                    // On client, skip base64 to prevent potential browser hang unless explicitly needed
+                    resolve({
+                        blob,
+                        base64: '',
+                        safeFileName,
+                        doc: docDefinition
+                    });
+                }
             });
-        });
+        } catch (error) {
+            console.error("[PDF] Generation failed:", error);
+            reject(error);
+        }
     });
 };
 

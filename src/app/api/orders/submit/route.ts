@@ -77,16 +77,47 @@ export async function POST(req: NextRequest) {
             const { randomBytes } = await import('crypto');
             const trackingToken = randomBytes(32).toString('hex');
 
+            // 4. Logistics & Status Logic
+            const { logisticsService } = await import('../../../../services/server/logisticsService');
+            const deliveryMethod = body.deliveryMethod || 'dropoff';
+            const initialStatus = logisticsService.getInitialStatus(deliveryMethod);
+
+            let shippingLabelUrl = null;
+            let trackingNumber = null;
+
+            if (deliveryMethod === 'send' || deliveryMethod === 'courier') {
+                try {
+                    const labelResult = await logisticsService.createShippingLabel({
+                        name: body.customerName,
+                        email: body.customerEmail,
+                        address: body.customerAddress || '',
+                        city: body.customerCity || '',
+                        postal_code: body.customerZip || '',
+                        country: 'BE',
+                        telephone: body.customerPhone,
+                        request_label: true
+                    });
+                    trackingNumber = labelResult.trackingNumber;
+                    shippingLabelUrl = labelResult.labelUrl;
+                } catch (logisticsError) {
+                    console.error('Logistics Error:', logisticsError);
+                    // Don't fail the order, but admins should know
+                }
+            }
+
             const docReference = await addDoc(collection(db, 'quotes'), {
                 ...body,
                 price: calculatedPrice, // Enforce server price
+                status: initialStatus,  // Override client status
                 isVerified: true,
                 createdAt: serverTimestamp(),
                 source: 'web_wizard_secure',
                 orderId: preGeneratedId,
                 trackingToken,
                 trackingTokenCreatedAt: serverTimestamp(),
-                originPartnerId: body.partnerId || null
+                originPartnerId: body.partnerId || null,
+                shippingLabelUrl,
+                trackingNumber
             });
 
             Sentry.setTag("order_id", preGeneratedId);
@@ -179,7 +210,7 @@ export async function POST(req: NextRequest) {
                             <p>${t('email_buyback_repair_thanks', type === 'buyback' ? t('Buyback') : t('Repair'))}</p>
                             <p>${t('email_buyback_repair_attachment')}</p>
                             <div style="text-align: center; margin: 30px 0;">
-                                <a href="https://belmobile.be/${lang}/track-order?id=${preGeneratedId}&email=${encodeURIComponent(body.customerEmail)}" style="background-color: #4338ca; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                                <a href="https://belmobile.be/${lang}/track-order?id=${preGeneratedId}&token=${trackingToken}" style="background-color: #4338ca; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
                                     ${t('email_track_button')}
                                 </a>
                             </div>
@@ -216,7 +247,7 @@ export async function POST(req: NextRequest) {
                 Sentry.captureException(emailError);
             }
 
-            return NextResponse.json({ success: true, id: docReference.id, orderId: preGeneratedId, price: calculatedPrice });
+            return NextResponse.json({ success: true, id: docReference.id, orderId: preGeneratedId, price: calculatedPrice, trackingToken });
 
         } catch (dbError) {
             console.error('Firestore Write Failed:', dbError);

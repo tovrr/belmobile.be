@@ -247,6 +247,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                         <StepUserInfo
                             type={type}
                             formRef={formRef}
+                            isKiosk={state.isKiosk}
                         />
                     </StepWrapper>
                 )}

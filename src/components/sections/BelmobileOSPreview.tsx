@@ -37,7 +37,7 @@ const BelmobileOSPreview: React.FC = () => {
     return (
         <div className="w-full h-full bg-[#0B0F19] text-slate-300 font-sans selection:bg-indigo-500/30 overflow-hidden flex">
             {/* Sidebar Navigation */}
-            <div className="w-20 lg:w-64 border-r border-white/5 bg-[#0B0F19] flex flex-col justify-between p-4 hidden md:flex">
+            <div className="w-20 lg:w-64 border-r border-white/5 bg-[#0B0F19] hidden md:flex flex-col justify-between p-4">
                 <div className="space-y-8">
                     {/* Logo Area */}
                     <div className="flex items-center gap-3 px-2">
@@ -156,7 +156,7 @@ const BelmobileOSPreview: React.FC = () => {
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: 0.3 + (idx * 0.1) }}
-                                            className="hover:bg-white/[0.02] transition-colors"
+                                            className="hover:bg-white/2 transition-colors"
                                         >
                                             <td className="px-4 py-3.5 font-mono text-indigo-400 font-bold">{repair.id}</td>
                                             <td className="px-4 py-3.5 font-bold text-slate-300">{repair.device}</td>

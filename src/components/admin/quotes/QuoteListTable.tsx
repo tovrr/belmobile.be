@@ -3,7 +3,8 @@ import { Quote, Shop } from '../../../types';
 import { EyeIcon } from '@heroicons/react/24/outline';
 import { slugToDisplayName } from '../../../utils/slugs';
 import { formatDistance, format } from 'date-fns';
-import { fr } from 'date-fns/locale'; // Default to FR locale for now, or pass locale
+import { fr } from 'date-fns/locale';
+import StatusBadge from '../../ui/StatusBadge';
 
 interface Props {
     quotes: Quote[];
@@ -17,21 +18,6 @@ const QuoteListTable: React.FC<Props> = ({ quotes, shops, onQuoteClick }) => {
         const idStr = String(shopId).toLowerCase();
         const shop = shops.find(s => String(s.id).toLowerCase() === idStr || s.slugs?.fr === shopId);
         return shop?.name || shopId;
-    };
-
-    const getStatusColor = (status: Quote['status']) => {
-        switch (status) {
-            case 'new': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
-            case 'processing': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
-            case 'in_repair': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
-            case 'repaired': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-            case 'ready': return 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300';
-            case 'completed': return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
-            case 'cancelled': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
-            case 'holding': return 'bg-red-50 text-red-600 border border-red-200';
-            case 'waiting_parts': return 'bg-yellow-50 text-yellow-600 border border-yellow-200';
-            default: return 'bg-gray-100 text-gray-600';
-        }
     };
 
     return (
@@ -84,9 +70,7 @@ const QuoteListTable: React.FC<Props> = ({ quotes, shops, onQuoteClick }) => {
                                         {slugToDisplayName(quote.model || 'Unknown Device')}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`px-3 py-1 text-xs font-bold rounded-full capitalize ${getStatusColor(quote.status)}`}>
-                                            {quote.status.replace('_', ' ')}
-                                        </span>
+                                        <StatusBadge status={quote.status} />
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col">

@@ -45,6 +45,7 @@ const WalkInOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
                 orderId: successData.orderId || 'N/A',
                 date: new Date().toLocaleDateString('fr-BE'),
                 method: 'In-Store Drop-off',
+                status: 'received',
                 type: successData.type || 'repair',
                 documentTitle: `${successData.type === 'repair' ? 'REPAIR' : 'BUYBACK'} RECEIPT`,
                 customer: {

@@ -52,7 +52,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Home({ params }: PageProps) {
     const { lang } = await params;
-    const initialReviews = await getReviews(lang);
+    // DEBUG: Disable reviews to fix homepage load
+    // const initialReviews = await getReviews(lang);
+    const initialReviews: any[] = [];
 
     return <HomeClient initialReviews={initialReviews} />;
 }

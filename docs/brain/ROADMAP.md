@@ -10,9 +10,11 @@
 
 ## 📅 Q1: FOUNDATION & "ESNAF" OPERATIONS (Jan - Mar)
 
-### **January: The Stability Month**
-*Objective: Flawless migration and shop floor adoption.*
+### **January: The Stability & B2B Month**
+*Objective: Flawless migration and institutional B2B readiness.*
 - [x] **Launch**: Production deploy of Next.js platform (v1.0.0 "Belmobile Core").
+- [x] **B2B Infrastructure**: VIES integration & Automated B2B Invoicing (REST API).
+- [x] **PDF Modular Engine**: Deployed AEGIS V2 (Atomic Render Blocks) with 1-page optimization & TR support.
 - [ ] **Walk-in Adoption**: 100% of shop orders processed via Apollo's Walk-in Modal.
 - [x] **Data Integrity**: Verified Sitemap/SEO (442+ entries) and Redirects.
 - [x] **Performance**: Implemented ISR (Edge Caching) to bypass Vercel Hobby Latency.

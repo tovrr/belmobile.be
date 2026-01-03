@@ -71,89 +71,94 @@ const TrackOrder: React.FC<TrackOrderProps> = ({ initialData }) => {
     const searchParams = useSearchParams();
     const isSuccess = searchParams.get('success') === 'true';
 
+    const [magicLinkSent, setMagicLinkSent] = useState(false);
+
     // handleCheckStatus defined with useCallback for stability
-    const handleCheckStatus = useCallback(async (e?: React.FormEvent, idToCheck?: string, emailToCheck?: string) => {
+    const handleCheckStatus = useCallback(async (e?: React.FormEvent, idToCheck?: string, emailToCheck?: string, tokenToCheck?: string) => {
         if (e) e.preventDefault();
 
         const targetId = idToCheck || orderId;
         const targetEmail = emailToCheck || email;
+        const targetToken = tokenToCheck || searchParams.get('token');
 
-        if (!targetId || !targetEmail) return;
+        if (!targetId) return;
 
         setLoading(true);
         setError(null);
         setStatus(null);
 
         try {
-            // Normalize inputs
-            const normalizedId = targetId.trim();
-            const normalizedEmail = targetEmail.trim().toLowerCase();
+            // 1. TOKEN AUTHENTICATION (Priority)
+            if (targetToken) {
+                // If we have a token, we bypass email check and fetch directly
+                let foundDoc: any = null;
+                let docType: 'repair' | 'buyback' | 'reservation' = 'repair';
 
-            let foundDoc: any = null;
-            let docType: 'repair' | 'buyback' | 'reservation' = 'repair';
+                // Search Quotes
+                const qQuotes = query(collection(db, 'quotes'), where('trackingToken', '==', targetToken));
+                const snapQuotes = await getDocs(qQuotes);
 
-            // 1. Try 'quotes' collection (by orderId field)
-            const qQuotes = query(
-                collection(db, 'quotes'),
-                where('orderId', '==', normalizedId)
-            );
-            const querySnapshotQuotes = await getDocs(qQuotes);
-
-            foundDoc = querySnapshotQuotes.docs.find(doc => {
-                const data = doc.data();
-                const dataEmail = (data.customerEmail || data.email || '').toLowerCase().trim();
-                return dataEmail === normalizedEmail;
-            });
-
-            if (foundDoc) {
-                docType = foundDoc.data().type || 'repair';
-            } else {
-                // 2. Try 'reservations' collection (by orderId field)
-                const qReservations = query(
-                    collection(db, 'reservations'),
-                    where('orderId', '==', normalizedId)
-                );
-                const querySnapshotReservations = await getDocs(qReservations);
-
-                foundDoc = querySnapshotReservations.docs.find(doc => {
-                    const data = doc.data();
-                    const dataEmail = (data.customerEmail || data.email || '').toLowerCase().trim();
-                    return dataEmail === normalizedEmail;
-                });
-
-                if (foundDoc) {
-                    docType = 'reservation';
+                if (!snapQuotes.empty) {
+                    foundDoc = snapQuotes.docs[0];
+                    docType = foundDoc.data().type || 'repair';
                 } else {
-                    // 3. Last resort: Try by Document ID directly
-                    const directDoc = await getDoc(doc(db, 'quotes', normalizedId));
-                    if (directDoc.exists()) {
-                        const d = directDoc.data();
-                        const dEmail = (d.customerEmail || d.email || '').toLowerCase().trim();
-                        if (dEmail === normalizedEmail) {
-                            foundDoc = directDoc;
-                            docType = d.type || 'repair';
-                        }
+                    // Search Reservations
+                    const qRes = query(collection(db, 'reservations'), where('trackingToken', '==', targetToken));
+                    const snapRes = await getDocs(qRes);
+                    if (!snapRes.empty) {
+                        foundDoc = snapRes.docs[0];
+                        docType = 'reservation';
                     }
                 }
-            }
 
-            if (foundDoc) {
-                const data = foundDoc.data();
-                setStatus({
-                    ...data,
-                    id: foundDoc.id,
-                    type: docType
-                } as TrackableItem);
+                if (foundDoc) {
+                    const data = foundDoc.data();
+                    // Optional: Verify ID matches if provided (for extra safety)
+                    // if (data.orderId !== targetId) ...
 
-                // Success celebration
-                if (isSuccess && !celebratedRef.current) {
-                    celebratedRef.current = true;
-                    setTimeout(() => setShowCelebration(true), 500);
+                    setStatus({
+                        ...data,
+                        id: foundDoc.id,
+                        type: docType
+                    } as TrackableItem);
+
+                    // Success celebration
+                    if (isSuccess && !celebratedRef.current) {
+                        celebratedRef.current = true;
+                        setTimeout(() => setShowCelebration(true), 500);
+                    }
+                    setLoading(false);
+                    return;
+                } else {
+                    setError(t('invalid_or_expired_token'));
+                    setLoading(false);
+                    return;
                 }
-            } else {
-                setError(t('order_not_found'));
-                setShowCelebration(false);
             }
+
+            // 2. MAGIC LINK REQUEST (Fallback)
+            // If no token, we do NOT show the order. We request a magic link.
+            if (!targetEmail) {
+                setError(t('please_enter_email'));
+                setLoading(false);
+                return;
+            }
+
+            // Call API to send Magic Link
+            const response = await fetch('/api/orders/magic-link', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId: targetId, email: targetEmail, lang: (window as any).__NEXT_DATA__?.props?.pageProps?.lang || 'fr' }) // simplistic lang detection or use hook
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                setMagicLinkSent(true);
+            } else {
+                setError(result.error || t('order_not_found_or_email_mismatch'));
+            }
+
         } catch (err) {
             console.error("Error fetching order:", err);
             setError(t('error_fetching_order'));
@@ -161,25 +166,29 @@ const TrackOrder: React.FC<TrackOrderProps> = ({ initialData }) => {
         } finally {
             setLoading(false);
         }
-    }, [orderId, email, isSuccess, t]);
+    }, [orderId, email, isSuccess, t, searchParams]);
 
     // Initial useEffect to populate fields from URL and trigger search
     useEffect(() => {
         const id = searchParams.get('id');
-        const mail = searchParams.get('email');
-        if (id && mail) {
-            setOrderId(id);
-            setEmail(mail);
-            handleCheckStatus(undefined, id, mail);
+        const mail = searchParams.get('email'); // Optional: prefill for UI
+        const token = searchParams.get('token');
+
+        if (id) setOrderId(id);
+        if (mail) setEmail(mail);
+
+        if (id && token) {
+            handleCheckStatus(undefined, id, mail || undefined, token);
         }
     }, [searchParams, handleCheckStatus]);
 
     const getRepairSteps = () => {
         return [
             { id: 'pending', label: t('order_status_pending'), icon: ClockIcon },
+            { id: 'pending_drop', label: t('order_status_pending_drop'), icon: ArchiveBoxIcon },
+            { id: 'in_diagnostic', label: t('order_status_in_diagnostic'), icon: MagnifyingGlassIcon },
             { id: 'waiting_parts', label: t('order_status_waiting_parts'), icon: WrenchScrewdriverIcon },
             { id: 'in_repair', label: t('order_status_in_repair'), icon: WrenchScrewdriverIcon },
-            { id: 'repaired', label: t('order_status_repaired'), icon: CheckCircleIcon },
             { id: 'ready', label: t('order_status_ready'), icon: CheckCircleIcon },
             { id: 'shipped', label: t('order_status_shipped'), icon: TruckIcon },
             { id: 'completed', label: t('order_status_completed'), icon: TruckIcon }
@@ -189,6 +198,7 @@ const TrackOrder: React.FC<TrackOrderProps> = ({ initialData }) => {
     const getBuybackSteps = () => {
         return [
             { id: 'pending', label: t('order_status_pending'), icon: ClockIcon },
+            { id: 'pending_drop', label: t('order_status_pending_drop'), icon: ArchiveBoxIcon },
             { id: 'received', label: t('order_status_received'), icon: ArchiveBoxIcon },
             { id: 'inspected', label: t('order_status_inspected'), icon: ClipboardDocumentCheckIcon },
             { id: 'payment_sent', label: t('order_status_paid'), icon: CurrencyEuroIcon },
@@ -207,14 +217,23 @@ const TrackOrder: React.FC<TrackOrderProps> = ({ initialData }) => {
     };
 
     const getStepIndex = (steps: { id: string; label: string; icon: React.ElementType }[], currentStatus: string) => {
-        if (currentStatus === 'new') return 0;
-        if (currentStatus === 'processing') return 1;
-        if (currentStatus === 'waiting_parts') return 1;
-        if (currentStatus === 'in_repair') return 2;
-        if (currentStatus === 'repaired') return 3;
-        if (currentStatus === 'ready') return 4;
-        if (currentStatus === 'shipped') return 5;
+        // Map status aliases to step IDs
+        if (currentStatus === 'new' || currentStatus === 'draft') return 0; // pending
+        if (currentStatus === 'pending_drop') return 1;
+
+        // Repair Flow Mapping
+        if (currentStatus === 'received') return 2; // in_diagnostic
+        if (currentStatus === 'in_diagnostic' || currentStatus === 'verified') return 2;
+        if (currentStatus === 'waiting_parts') return 3;
+        if (currentStatus === 'in_repair') return 4;
+        if (currentStatus === 'repaired') return 4; // Legacy
+        if (currentStatus === 'ready') return 5;
+        if (currentStatus === 'shipped') return 6;
         if (currentStatus === 'completed' || currentStatus === 'closed') return steps.length - 1;
+
+        // Buyback Flow Mapping (Simplified fallback if steps match)
+        if (currentStatus === 'inspected' || currentStatus === 'payment_queued') return 3;
+        if (currentStatus === 'payment_sent' || currentStatus === 'paid') return 4;
 
         const index = steps.findIndex(s => s.id === currentStatus);
         return index === -1 ? 0 : index;
@@ -239,7 +258,7 @@ const TrackOrder: React.FC<TrackOrderProps> = ({ initialData }) => {
                         {t('Track Your Order')}
                     </h1>
                     <p className="text-gray-600 dark:text-gray-400">
-                        {t('track_order_description_extended') || t('Enter your order details below to check the status of your repair, buyback, or product reservation.')}
+                        {t('track_order_description_extended') || t('Enter your order details below to receive a secure access link.')}
                     </p>
                 </div>
 
@@ -294,37 +313,62 @@ const TrackOrder: React.FC<TrackOrderProps> = ({ initialData }) => {
                             </div>
                         )}
 
-                        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl dark:shadow-none dark:border dark:border-slate-800 p-8">
-                            <form onSubmit={(e) => handleCheckStatus(e)} className="flex flex-col md:flex-row gap-4 items-end">
-                                <div className="flex-1 w-full">
-                                    <Input
-                                        label={t('Order ID')}
-                                        placeholder="ORD-2024-XXXXXX"
-                                        value={orderId}
-                                        onChange={(e) => setOrderId(e.target.value)}
-                                        required
-                                    />
+                        {!status && !magicLinkSent && (
+                            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl dark:shadow-none dark:border dark:border-slate-800 p-8">
+                                <form onSubmit={(e) => handleCheckStatus(e)} className="flex flex-col md:flex-row gap-4 items-end">
+                                    <div className="flex-1 w-full">
+                                        <Input
+                                            label={t('Order ID')}
+                                            placeholder="ORD-2024-XXXXXX"
+                                            value={orderId}
+                                            onChange={(e) => setOrderId(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex-1 w-full">
+                                        <Input
+                                            label={t('Email Address')}
+                                            type="email"
+                                            placeholder="john@example.com"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <Button
+                                        variant="primary"
+                                        onClick={(e) => handleCheckStatus(e)}
+                                        isLoading={loading}
+                                        className="h-[52px] w-full md:w-auto px-8 mt-4 md:mt-0"
+                                    >
+                                        {t('Send Secure Link')}
+                                    </Button>
+                                </form>
+                                <div className="mt-4 text-center">
+                                    <p className="text-xs text-gray-400">
+                                        {t('For security, we will send an access link to your email.')}
+                                    </p>
                                 </div>
-                                <div className="flex-1 w-full">
-                                    <Input
-                                        label={t('Email Address')}
-                                        type="email"
-                                        placeholder="john@example.com"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                    />
+                            </div>
+                        )}
+
+                        {!status && magicLinkSent && (
+                            <div className="bg-green-50 dark:bg-green-900/20 rounded-3xl border border-green-100 dark:border-green-800 p-8 text-center animate-fade-in">
+                                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-800 text-green-600 dark:text-green-300 rounded-full mb-4">
+                                    <CheckCircleIcon className="w-8 h-8" />
                                 </div>
-                                <Button
-                                    variant="primary"
-                                    onClick={(e) => handleCheckStatus(e)}
-                                    isLoading={loading}
-                                    className="h-[52px] w-full md:w-auto px-8 mt-4 md:mt-0"
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('Link Sent!')}</h3>
+                                <p className="text-gray-600 dark:text-gray-300 max-w-md mx-auto">
+                                    {t('magic_link_sent_message') || `We have sent a secure access link to ${email}. Please check your inbox (and spam folder) to view your order.`}
+                                </p>
+                                <button
+                                    onClick={() => setMagicLinkSent(false)}
+                                    className="mt-6 text-sm text-bel-blue hover:underline font-medium"
                                 >
-                                    {t('Track Order')}
-                                </Button>
-                            </form>
-                        </div>
+                                    {t('Try another email')}
+                                </button>
+                            </div>
+                        )}
 
                         {status && (
                             <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl dark:shadow-none dark:border dark:border-slate-800 overflow-hidden animate-fade-in">
@@ -439,6 +483,24 @@ const TrackOrder: React.FC<TrackOrderProps> = ({ initialData }) => {
                                                     })()}
                                                 </div>
                                             </div>
+
+                                            {/* Shipping Label Download */}
+                                            {(status as Quote).shippingLabelUrl && (
+                                                <div className="pt-4 mt-4 border-t border-gray-100 dark:border-slate-800">
+                                                    <a
+                                                        href={(status as Quote).shippingLabelUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 font-bold rounded-xl hover:bg-orange-100 transition border border-orange-200 dark:border-orange-800"
+                                                    >
+                                                        <ArrowDownTrayIcon className="w-5 h-5" />
+                                                        {t('Download Shipping Label')}
+                                                    </a>
+                                                    <p className="text-[10px] text-center text-gray-400 mt-2">
+                                                        {t('Print this label and attach it to your package.')}
+                                                    </p>
+                                                </div>
+                                            )}
 
                                             {status.deliveryMethod !== 'shipping' && status.shopId && (
                                                 <div className="py-2 border-b border-gray-100 dark:border-slate-800">

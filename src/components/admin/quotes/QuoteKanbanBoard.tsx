@@ -3,9 +3,10 @@ import { Quote, Shop } from '../../../types';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { slugToDisplayName } from '../../../utils/slugs';
 import {
-    ClockIcon, WrenchScrewdriverIcon, CheckCircleIcon, ExclamationTriangleIcon,
+    ClockIcon, WrenchScrewdriverIcon, CheckCircleIcon,
     CurrencyEuroIcon
 } from '@heroicons/react/24/outline';
+import StatusBadge from '../../ui/StatusBadge';
 
 interface Props {
     quotes: Quote[];
@@ -26,29 +27,29 @@ const QuoteKanbanBoard: React.FC<Props> = ({ quotes, shops, onQuoteClick, onStat
     const columns = [
         {
             id: 'incoming',
-            title: 'Incoming / New',
-            statuses: ['new', 'received', 'responded'],
+            title: 'Incoming / Intake',
+            statuses: ['new', 'pending_drop', 'received', 'draft'],
             color: 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/20',
             icon: ClockIcon
         },
         {
-            id: 'processing',
-            title: 'In Progress',
-            statuses: ['processing', 'in_repair', 'inspected'],
-            color: 'bg-orange-50 dark:bg-orange-900/10 border-orange-100 dark:border-orange-900/20',
+            id: 'diagnostic',
+            title: 'Diagnostic & Quote',
+            statuses: ['in_diagnostic', 'verified', 'issue', 'inspected'],
+            color: 'bg-purple-50 dark:bg-purple-900/10 border-purple-100 dark:border-purple-900/20',
             icon: WrenchScrewdriverIcon
         },
         {
-            id: 'action_required',
-            title: 'Action Required',
-            statuses: ['waiting_parts', 'holding', 'payment_sent'],
-            color: 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/20',
-            icon: ExclamationTriangleIcon
+            id: 'work_financial',
+            title: 'Work & Finance',
+            statuses: ['waiting_parts', 'in_repair', 'repairing', 'payment_queued', 'invoiced', 'paid'],
+            color: 'bg-orange-50 dark:bg-orange-900/10 border-orange-100 dark:border-orange-900/20',
+            icon: CurrencyEuroIcon
         },
         {
             id: 'ready',
             title: 'Ready / Done',
-            statuses: ['repaired', 'ready', 'shipped', 'completed'],
+            statuses: ['ready', 'shipped', 'completed', 'cancelled', 'closed', 'repaired'],
             color: 'bg-green-50 dark:bg-green-900/10 border-green-100 dark:border-green-900/20',
             icon: CheckCircleIcon
         }
@@ -81,10 +82,13 @@ const QuoteKanbanBoard: React.FC<Props> = ({ quotes, shops, onQuoteClick, onStat
                                     className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm hover:shadow-md cursor-pointer transition-all border border-transparent hover:border-bel-blue/30 group"
                                 >
                                     <div className="flex justify-between items-start mb-2">
-                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${quote.type === 'repair' ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'
-                                            }`}>
-                                            {quote.type}
-                                        </span>
+                                        <div className="flex gap-2">
+                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${quote.type === 'repair' ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'
+                                                }`}>
+                                                {quote.type}
+                                            </span>
+                                            <StatusBadge status={quote.status} className="text-[10px] px-1.5 py-0.5" />
+                                        </div>
                                         <span className="text-[10px] text-gray-400 font-mono">
                                             #{quote.orderId || String(quote.id).slice(-6).toUpperCase()}
                                         </span>

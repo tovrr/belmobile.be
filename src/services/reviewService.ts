@@ -45,8 +45,15 @@ export async function getReviews(lang: string = 'fr'): Promise<FormattedReview[]
         // Fetching reviews for all shops in parallel
         const fetchPromises = activeShops.map(async (shop) => {
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s Timeout
                 const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${shop.googlePlaceId}&fields=reviews,rating,user_ratings_total,name&key=${GOOGLE_API_KEY}&language=${lang}`;
-                const response = await fetch(url, { next: { revalidate: 3600 } });
+
+                const response = await fetch(url, {
+                    next: { revalidate: 3600 },
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
                 const data = await response.json() as GooglePlaceResponse;
 
                 if (data.status === 'OK' && data.result?.reviews) {

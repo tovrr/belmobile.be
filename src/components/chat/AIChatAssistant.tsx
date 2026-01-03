@@ -381,7 +381,7 @@ const AIChatAssistant: React.FC = () => {
 
     return (
         <div
-            className={`fixed z-[100] flex items-end font-sans transition-all duration-500 ${isMobileMenuOpen ? 'hidden' : ''} 
+            className={`fixed z-100 flex items-end font-sans transition-all duration-500 ${isMobileMenuOpen ? 'hidden' : ''} 
             max-md:flex-col-reverse max-md:right-4 max-md:bottom-auto max-md:left-auto
             md:flex-col md:bottom-6 md:right-6`}
             style={{

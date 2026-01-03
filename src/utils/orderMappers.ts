@@ -51,7 +51,8 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
     // 2. Formatting Date
     let formattedDate = quote.date;
     if (quote.createdAt && quote.createdAt.seconds) {
-        formattedDate = new Date(quote.createdAt.seconds * 1000).toLocaleDateString();
+        const d = new Date(quote.createdAt.seconds * 1000);
+        formattedDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
     }
 
     // 3. Customer Details
@@ -128,18 +129,39 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
     }
 
 
-    // 6. Next Steps
+    // 6. Next Steps (Scenario-Specific Analysis)
     const nextSteps: string[] = [];
-    if (isBuyback) {
-        nextSteps.push(t('success_step_backup'));
-        if (quote.deliveryMethod === 'send') nextSteps.push(t('success_step_post'));
-        else if (quote.deliveryMethod === 'courier') nextSteps.push(t('repair_step_courier'));
-        else nextSteps.push(t('success_step_shop'));
+    nextSteps.push(t(isBuyback ? 'success_step_backup' : 'repair_step_backup'));
+
+    if (quote.deliveryMethod === 'send') {
+        nextSteps.push(t('pdf_step_pack_securely'));
+        nextSteps.push(t('pdf_step_remove_sim'));
+        nextSteps.push(t('pdf_step_hub_address'));
+    } else if (quote.deliveryMethod === 'courier') {
+        nextSteps.push(t('pdf_step_remove_sim'));
+        nextSteps.push(t('pdf_step_courier_ready'));
     } else {
-        nextSteps.push(t('repair_step_backup'));
-        if (quote.deliveryMethod === 'send') nextSteps.push(t('repair_step_post'));
-        else if (quote.deliveryMethod === 'courier') nextSteps.push(t('repair_step_courier'));
-        else nextSteps.push(t('repair_step_shop'));
+        nextSteps.push(t(isBuyback ? 'success_step_shop' : 'repair_step_shop'));
+    }
+
+    // Determine Document Title based on Scenario
+    let documentTitle = t('pdf_title_dropoff');
+    let logistics: { label: string; value: string } | undefined = undefined;
+
+    if (quote.deliveryMethod === 'send') {
+        documentTitle = t('pdf_title_send');
+        logistics = {
+            label: t('pdf_label_destination'),
+            value: "Belmobile Hub\nRue Gallait 4\n1030 Schaerbeek, BE"
+        };
+    } else if (quote.deliveryMethod === 'courier') {
+        documentTitle = t('pdf_title_courier');
+        logistics = {
+            label: t('pdf_label_pickup_address'),
+            value: customer.address || t('Voir détails client')
+        };
+    } else if (isBuyback && quote.status === 'new') {
+        documentTitle = t('Buyback Offer');
     }
 
     // 7. Footer & Extras
@@ -153,7 +175,7 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
     return {
         orderId: quote.orderId || String(quote.id).toUpperCase(), // Fallback to doc ID if readable ID missing
         date: formattedDate,
-        time: quote.createdAt?.seconds ? new Date(quote.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined,
+        time: quote.createdAt?.seconds ? new Date(quote.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : undefined,
         status: t(`order_status_${quote.status || 'new'}`),
         method: methodLabel,
         type: quote.type,
@@ -169,8 +191,9 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
         subtotal: quote.isCompany ? subtotal : undefined,
         vatAmount: quote.isCompany ? vat : undefined,
         nextSteps,
+        logistics,
         iban: quote.iban,
-        documentTitle: quote.type === 'buyback' ? t('Buyback Offer') : (quote.type === 'repair' ? t('Repair Quote') : t('Reservation Confirmation')),
+        documentTitle: documentTitle,
         footerHelpText: helpText,
         trackingInfo: t('pdf_tracking_info'),
         trackingUrl: quote.orderId && email
@@ -179,6 +202,7 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
         isCompany: quote.isCompany,
         companyName: quote.companyName,
         vatNumber: quote.vatNumber,
+        legalDisclaimer: t('pdf_legal_disclaimer'),
         labels: {
             orderId: t('pdf_label_order_id'),
             date: t('pdf_label_date'),
@@ -205,7 +229,10 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
             page: t('pdf_label_page'),
             of: t('pdf_label_of'),
             subtotal: t('Subtotal'),
-            vat: t('VAT (21%)')
+            vat: t('VAT (21%)'),
+            signatureClient: t('pdf_label_signature_client'),
+            shopStamp: t('pdf_label_shop_stamp'),
+            readAndApproved: t('pdf_label_read_and_approved')
         }
     };
 };
@@ -234,20 +261,44 @@ export const mapReservationToPdfData = (res: any, t: TFunction): PdfData => {
         details.push({ label: t('Shop'), value: res.shopName || t('Belmobile Store') });
     }
 
-    const nextSteps: string[] = res.nextSteps || [
-        t('res_step_1'),
-        t('res_step_2'),
-        t('res_step_3')
-    ];
+    const nextSteps: string[] = [];
+    if (res.deliveryMethod === 'shipping') {
+        nextSteps.push(t('pdf_res_step_preparing'));
+        nextSteps.push(t('pdf_res_step_tracking'));
+        nextSteps.push(t('pdf_res_step_inspection'));
+    } else {
+        nextSteps.push(t('res_step_1'));
+        nextSteps.push(t('res_step_2'));
+        nextSteps.push(t('res_step_3'));
+    }
+
+    const d = res.createdAt
+        ? (res.createdAt instanceof Date ? res.createdAt : new Date(res.createdAt.seconds * 1000))
+        : new Date();
+
+    let documentTitle = res.deliveryMethod === 'shipping' ? t('pdf_title_send') : t('pdf_title_reservation');
+    let logistics: { label: string; value: string } | undefined = undefined;
+
+    if (res.deliveryMethod === 'shipping') {
+        logistics = {
+            label: t('pdf_label_destination'),
+            value: res.shippingAddress || t('Adresse de livraison')
+        };
+    }
 
     return {
         orderId: res.orderId || String(res.id || '').toUpperCase(),
-        date: res.date || new Date().toLocaleDateString(),
-        time: res.createdAt ? (res.createdAt instanceof Date ? res.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : typeof res.createdAt === 'object' && res.createdAt.seconds ? new Date(res.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined) : undefined,
+        date: `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`,
+        time: res.createdAt ? (res.createdAt instanceof Date ? res.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : typeof res.createdAt === 'object' && res.createdAt.seconds ? new Date(res.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : undefined) : undefined,
         status: t(`order_status_${res.status || 'pending'}`),
         method: res.deliveryMethod === 'shipping' ? t('Home Delivery') : t('In-Store Pickup'),
         type: 'reservation',
         customer,
+        isCompany: res.isCompany,
+        companyName: res.companyName,
+        vatNumber: res.vatNumber,
+        subtotal: res.isCompany ? (res.productPrice || 0) / 1.21 : undefined,
+        vatAmount: res.isCompany ? (res.productPrice || 0) * (0.21 / 1.21) : undefined,
         shopOrDevice: {
             title: t('pdf_label_reservation_details'),
             name: res.productName,
@@ -257,12 +308,14 @@ export const mapReservationToPdfData = (res: any, t: TFunction): PdfData => {
         totalLabel: t('Total'),
         totalPrice: res.productPrice || 0,
         nextSteps,
-        documentTitle: t('Reservation Confirmation'),
+        logistics,
+        documentTitle: documentTitle,
         footerHelpText: t('pdf_footer_help'),
         trackingInfo: t('pdf_tracking_info'),
         trackingUrl: res.orderId && res.customerEmail
             ? `https://belmobile.be/${res.language || 'fr'}/track-order?id=${res.orderId}&email=${encodeURIComponent(res.customerEmail)}`
             : undefined,
+        legalDisclaimer: t('pdf_legal_disclaimer'),
         labels: {
             orderId: t('pdf_label_order_id'),
             date: t('pdf_label_date'),
@@ -287,7 +340,10 @@ export const mapReservationToPdfData = (res: any, t: TFunction): PdfData => {
             page: t('pdf_label_page'),
             of: t('pdf_label_of'),
             subtotal: t('Subtotal'),
-            vat: t('VAT (21%)')
+            vat: t('VAT (21%)'),
+            signatureClient: t('pdf_label_signature_client'),
+            shopStamp: t('pdf_label_shop_stamp'),
+            readAndApproved: t('pdf_label_read_and_approved')
         }
     };
 };

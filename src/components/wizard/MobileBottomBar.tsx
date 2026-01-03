@@ -52,8 +52,8 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
     // Theme Colors
     const themeColor = isBuyback ? 'text-yellow-600 bg-yellow-50 border-yellow-200' : 'text-indigo-600 bg-indigo-50 border-indigo-200';
     const btnGradient = isBuyback
-        ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900 shadow-yellow-500/30'
-        : 'bg-gradient-to-r from-indigo-500 to-indigo-700 text-white shadow-indigo-500/30';
+        ? 'bg-linear-to-r from-yellow-400 to-yellow-600 text-gray-900 shadow-yellow-500/30'
+        : 'bg-linear-to-r from-indigo-500 to-indigo-700 text-white shadow-indigo-500/30';
 
     // Summary Helpers
     const hasDevice = selectedBrand && selectedModel;

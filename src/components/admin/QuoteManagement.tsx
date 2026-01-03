@@ -119,14 +119,32 @@ const QuoteManagement: React.FC = () => {
                         className="px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-bel-blue outline-none appearance-none cursor-pointer text-xs font-bold whitespace-nowrap"
                     >
                         <option value="all">All Status</option>
-                        <option value="new">New</option>
-                        <option value="processing">Processing</option>
-                        <option value="waiting_parts">Waiting Parts</option>
-                        <option value="received">Received (Buyback)</option>
-                        <option value="inspected">Inspected</option>
-                        <option value="ready">Ready</option>
-                        <option value="completed">Completed</option>
-                        <option value="closed">Closed</option>
+                        <optgroup label="Initial">
+                            <option value="draft">Draft</option>
+                            <option value="new">New (Walk-in)</option>
+                            <option value="pending_drop">Pending Drop (Mail-in)</option>
+                        </optgroup>
+                        <optgroup label="Processing">
+                            <option value="received">Received</option>
+                            <option value="in_diagnostic">In Diagnostic</option>
+                            <option value="verified">Verified</option>
+                            <option value="waiting_parts">Waiting Parts</option>
+                            <option value="in_repair">In Repair</option>
+                        </optgroup>
+                        <optgroup label="Financial">
+                            <option value="invoiced">Invoiced</option>
+                            <option value="payment_queued">Payment Queued</option>
+                            <option value="paid">Paid</option>
+                        </optgroup>
+                        <optgroup label="Completion">
+                            <option value="ready">Ready</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="completed">Completed</option>
+                        </optgroup>
+                        <optgroup label="Issues/Other">
+                            <option value="issue">Issue</option>
+                            <option value="cancelled">Cancelled</option>
+                        </optgroup>
                     </select>
 
                     <select

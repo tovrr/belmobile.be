@@ -266,7 +266,7 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                 trackBuybackRequest(`${state.selectedBrand} ${state.selectedModel}`, state.screenState || 'unknown', price);
             }
 
-            const { readableId, firestoreData } = await orderService.submitOrder({
+            const { readableId, firestoreData, trackingToken } = await orderService.submitOrder({
                 ...state,
                 type,
                 price,
@@ -285,7 +285,7 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
             // The emails are now handled server-side in the /api/orders/submit route
             // to avoid race conditions during navigation.
             const emailParam = encodeURIComponent(state.customerEmail);
-            router.push(`/${lang}/track-order?id=${readableId}&email=${emailParam}&success=true`);
+            router.push(`/${lang}/track-order?id=${readableId}&token=${trackingToken || ''}&email=${emailParam}&success=true`);
 
         } catch (error: any) {
             console.error('Submission error:', error);

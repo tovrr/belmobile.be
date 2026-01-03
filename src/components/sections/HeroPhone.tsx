@@ -15,7 +15,7 @@ const HeroPhone = () => {
             <div className="relative">
                 {/* 1. The Ultimate CSS Phone Mockup - Static & Interactive */}
                 <motion.div
-                    className="relative z-10 w-full max-w-[320px] sm:max-w-[480px] md:min-h-[600px] lg:min-h-0 lg:max-w-none lg:w-auto lg:h-[75vh] lg:max-h-[750px] aspect-[9/18] transform-gpu perspective-1000 mx-auto lg:mx-0"
+                    className="relative z-10 w-full max-w-[320px] sm:max-w-[480px] md:min-h-[600px] lg:min-h-0 lg:max-w-none lg:w-auto lg:h-[75vh] lg:max-h-[750px] aspect-9/18 transform-gpu perspective-1000 mx-auto lg:mx-0"
                     initial={{ y: 0, rotateY: 10 }}
                     whileHover={{
                         rotateY: 0,

@@ -78,6 +78,11 @@ Your task is to translate/write copy with a "Power" tone that positions us as an
 
 ---
 
+### D. The "PDF Transactional" (Mission Orders)
+*   **Tone**: Institutional and Legally Robust.
+*   **Goal**: Professionalism in physical print.
+*   **Labels**: Use standardized `pdf_label_*` keys to ensure that "Sipariş No" (TR) matches "N° de Commande" (FR) in weight and tone.
+
 ## 5. Schema-First Implementation
 
 When adding a new key to `i18n/*.json`:

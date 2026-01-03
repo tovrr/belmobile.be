@@ -1,519 +1,338 @@
-import { TDocumentDefinitions, StyleDictionary, Content } from 'pdfmake/interfaces';
+import { TDocumentDefinitions, StyleDictionary, Content, Margins, Column } from 'pdfmake/interfaces';
 
-// Design System - INK SAVER MODE
+/**
+ * 🏛️ AEGIS PDF ENGINE V2 - MODULAR ARCHITECTURE
+ * Blueprint: docs/PDF_MASTER_PROMPT.md
+ * Purpose: Professional, institutional, 1-page optimized documents.
+ */
+
+// --- 1. DESIGN SYSTEM ---
 const COLORS = {
-    Primary: '#4338ca',    // Deep Indigo - Used sparingly for accents
-    Accent: '#4338ca',     // Same as primary for consistency/single ink usage
-    TextDark: '#000000',   // Pure Black for max contrast
-    TextGray: '#4b5563',   // Dark Gray for labels
-    Border: '#d1d5db',     // Gray-300 for thin borders
+    Primary: '#4338ca',    // AEGIS Indigo
+    Secondary: '#1e1b4b',  // Dark Navy
+    Accent: '#dc2626',     // Belmobile Red
+    TextDark: '#000000',   // Pure Black
+    TextGray: '#4b5563',   // Slate Gray
+    TextLight: '#9ca3af',  // Light Gray
+    Border: '#d1d5db',     // Gray-300
+    Divider: '#4338ca',    // Indigo line
     White: '#ffffff'
 };
 
 const STYLES: StyleDictionary = {
-    headerTitle: {
-        fontSize: 18,
-        bold: true,
-        color: COLORS.TextDark
-    },
-    headerSubtitle: {
-        fontSize: 7,
-        color: COLORS.TextGray,
-        margin: [0, 1, 0, 0],
-        characterSpacing: 0.8
-    },
-    documentTitle: {
-        fontSize: 10,
-        bold: true,
-        color: COLORS.TextDark,
-        alignment: 'right'
-    },
-    sectionHeader: {
-        fontSize: 8,
-        bold: true,
-        color: COLORS.Primary,
-        margin: [0, 4, 0, 2]
-    },
-    label: {
-        fontSize: 7,
-        color: COLORS.TextGray,
-        lineHeight: 1.1
-    },
-    value: {
-        fontSize: 8,
-        color: COLORS.TextDark,
-        bold: false,
-        lineHeight: 1.1
-    },
-    valueBold: {
-        fontSize: 9,
-        color: COLORS.TextDark,
-        bold: true
-    },
-    tableHeader: {
-        fontSize: 7,
-        bold: true,
-        color: COLORS.TextDark
-    },
-    tableCell: {
-        fontSize: 8,
-        color: COLORS.TextDark
-    },
-    totalLabel: {
-        fontSize: 11,
-        bold: true,
-        color: COLORS.TextDark
-    },
-    totalValue: {
-        fontSize: 13,
-        bold: true,
-        color: COLORS.Primary,
-        alignment: 'right'
-    },
-    stepIndex: {
-        fontSize: 9,
-        bold: true,
-        color: COLORS.Primary
-    },
-    stepText: {
-        fontSize: 8,
-        color: COLORS.TextDark,
-        margin: [4, 0, 0, 0]
-    }
+    headerTitle: { fontSize: 22, bold: true, color: COLORS.Secondary },
+    headerSubtitle: { fontSize: 9, bold: true, color: COLORS.TextGray, characterSpacing: 2 },
+    documentTitle: { fontSize: 13, bold: true, color: COLORS.Secondary, alignment: 'right' },
+    sectionHeader: { fontSize: 10, bold: true, color: COLORS.Primary, margin: [0, 8, 0, 4], characterSpacing: 0.5 },
+    label: { fontSize: 8, color: COLORS.TextGray, margin: [0, 0, 0, 2] },
+    value: { fontSize: 10, color: COLORS.TextDark },
+    valueBold: { fontSize: 11, bold: true, color: COLORS.TextDark },
+    tableHeader: { fontSize: 9, bold: true, color: COLORS.Secondary, margin: [0, 4, 0, 4] },
+    tableCell: { fontSize: 10, color: COLORS.TextDark, margin: [0, 4, 0, 4] },
+    totalLabel: { fontSize: 12, bold: true, color: COLORS.Secondary },
+    totalValue: { fontSize: 16, bold: true, color: COLORS.Primary, alignment: 'right' },
+    stepIndex: { fontSize: 9, bold: true, color: COLORS.Primary },
+    stepText: { fontSize: 9, color: COLORS.TextDark }
 };
 
-// Types
+const LOGO_SVG = `
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path d="M60 10 H 40 C 25 10 20 25 20 40 V 70 C 20 85 30 90 45 90 H 65 C 80 90 85 80 85 65 V 55" stroke="${COLORS.Secondary}" stroke-width="10" stroke-linecap="round" fill="none" />
+  <circle cx="52" cy="78" r="4" fill="${COLORS.Secondary}" />
+  <path d="M75 15 V 45 M 60 30 H 90" stroke="${COLORS.Accent}" stroke-width="10" stroke-linecap="round" fill="none" />
+</svg>`;
+
+// --- 2. INTERFACES ---
 export interface PdfData {
+    documentTitle: string;
     orderId: string;
     date: string;
     time?: string;
     status: string;
-    method: string; // e.g., "Courier", "Store"
-    type: 'reservation' | 'buyback' | 'repair';
-    customer: {
-        name: string;
-        email?: string;
-        phone: string;
-        address?: string;
-    };
-    shopOrDevice: {
-        title: string; // "Shop Details" or "Device Details"
-        name: string;  // Shop Name or Device Name
-        details: { label: string; value: string }[];
-    };
-    priceBreakdown: { label: string; price: number }[];
-    totalLabel: string;
-    totalPrice: number;
-    nextSteps: string[];
-    specs?: Record<string, string | boolean>;
-    iban?: string;
-    footerHelpText: string;
-    documentTitle: string;
-    trackingInfo?: string;
-    trackingUrl?: string;
+    method: string;
+    type: string;
+    customer: { name: string; email?: string; phone?: string; address?: string; };
     isCompany?: boolean;
     companyName?: string;
     vatNumber?: string;
+    shopOrDevice: { title: string; name: string; details: { label: string; value: string }[]; };
+    priceBreakdown: {
+        label: string;
+        description?: string;
+        price: number;
+    }[];
+    totalPrice: number;
     subtotal?: number;
     vatAmount?: number;
-    labels: {
-        orderId: string;
-        date: string;
-        time: string;
-        status: string;
-        method: string;
-        clientDetails: string;
-        name: string;
-        email: string;
-        phone: string;
-        address: string;
-        companyName?: string;
-        vatNumber?: string;
-        shop?: string; // "Magasin"
-        model?: string; // "Modèle"
-        featuresSpecs: string;
-        financials: string; // Ensure this is present
-        description: string;
-        price: string;
-        paymentIban: string;
-        followOrder: string;
-        nextSteps: string;
-        scanToTrack: string;
-        page: string; // "Page" (if needed, or x / y)
-        of: string; // "/" or "of"
-        subtotal: string;
-        vat: string;
-    };
-    signatureBlock?: {
-        customerLabel: string;
-        shopLabel: string;
-    };
+    nextSteps: string[];
+    logistics?: { label: string; value: string };
+    iban?: string;
+    footerHelpText?: string;
+    trackingUrl?: string;
+    totalLabel: string;
     legalDisclaimer?: string;
-    logo?: string; // Base64 logo
+    trackingInfo?: string;
+    labels: any;
+    signatureBlock?: any;
 }
+
+// --- 3. ATOMIC RENDER BLOCKS ---
+
+/** INDIGO LINE: Instititional Divider */
+const renderIndigoDivider = (): Content => ({
+    table: {
+        widths: ['*'],
+        body: [[{ text: '', border: [false, false, false, true] as [boolean, boolean, boolean, boolean], borderColor: [COLORS.Divider, COLORS.Divider, COLORS.Divider, COLORS.Divider] as [string, string, string, string] }]]
+    },
+    layout: { hLineWidth: (i: number) => (i === 1 ? 1.5 : 0) },
+    margin: [0, 0, 0, 12] as Margins
+});
+
+/** TOP BANNER: Brand & Identity (Optimized for 1-Page) */
+const renderTopBanner = (data: PdfData): Content => ({
+    columns: [
+        { width: 40, svg: LOGO_SVG, alignment: 'left' },
+        {
+            width: '*',
+            stack: [
+                { text: 'BELMOBILE.BE', fontSize: 18, bold: true, color: COLORS.Secondary, margin: [8, 4, 0, 0] as Margins },
+                { text: 'BUYBACK & REPAIR', fontSize: 8, bold: true, color: COLORS.TextGray, characterSpacing: 1.5, margin: [8, 0, 0, 0] as Margins }
+            ]
+        },
+        {
+            width: 'auto',
+            stack: [
+                { text: data.documentTitle.toUpperCase(), style: 'documentTitle' },
+                {
+                    text: [
+                        { text: `${data.labels.orderId}: `, style: 'label', fontSize: 8 },
+                        { text: data.orderId, style: 'valueBold', fontSize: 11 }
+                    ],
+                    alignment: 'right', margin: [0, 2, 0, 0] as Margins
+                }
+            ],
+            margin: [0, 0, 10, 0] as Margins
+        },
+        ...(data.trackingUrl ? [{ width: 45, qr: data.trackingUrl, fit: 45, alignment: 'right' as any }] : [])
+    ],
+    margin: [0, 0, 0, 15] as Margins
+});
+
+/** ADMIN GRID: Reference data (Optimized for 1-Page) */
+const renderAdminGrid = (data: PdfData): Content => ({
+    table: {
+        widths: ['*', '*', '*', '*'],
+        body: [
+            [
+                { stack: [{ text: data.labels.date, style: 'label' }, { text: data.date, style: 'valueBold' }], border: [false, false, true, false] as [boolean, boolean, boolean, boolean], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] as [string, string, string, string] },
+                { stack: [{ text: (data.labels.time || 'Heure'), style: 'label' }, { text: data.time || '--:--', style: 'valueBold' }], border: [false, false, true, false] as [boolean, boolean, boolean, boolean], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] as [string, string, string, string] },
+                { stack: [{ text: data.labels.status, style: 'label' }, { text: data.status.toUpperCase(), style: 'valueBold', color: '#dc2626' }], border: [false, false, true, false] as [boolean, boolean, boolean, boolean], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] as [string, string, string, string] },
+                { stack: [{ text: data.labels.method, style: 'label' }, { text: data.method, style: 'valueBold', color: COLORS.Secondary }], border: [false, false, false, false] as [boolean, boolean, boolean, boolean] }
+            ]
+        ]
+    },
+    layout: {
+        hLineWidth: () => 0,
+        vLineWidth: (i) => (i > 0 && i < 4 ? 1 : 0),
+        paddingLeft: (i) => (i === 0 ? 0 : 15),
+        paddingRight: (i) => (i === 3 ? 0 : 15)
+    },
+    margin: [0, 4, 0, 12] as Margins
+});
+
+/** IDENTIFICATION: Client Details (Optimized for 1-Page) */
+const renderIdentification = (data: PdfData): Content => ({
+    columns: [
+        {
+            width: '*',
+            stack: [
+                { text: data.labels.clientDetails.toUpperCase(), style: 'sectionHeader', margin: [0, 0, 0, 2] as Margins },
+                {
+                    stack: [
+                        {
+                            text: [
+                                { text: `${data.labels.name}: `, style: 'label' },
+                                { text: data.customer.name || '', style: 'valueBold' }
+                            ]
+                        },
+                        {
+                            text: [
+                                { text: `${data.labels.email}: `, style: 'label' },
+                                { text: data.customer.email || '', style: 'value' }
+                            ]
+                        },
+                        {
+                            text: [
+                                { text: `${data.labels.phone}: `, style: 'label' },
+                                { text: data.customer.phone || '', style: 'value' }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        ...(data.isCompany ? [{
+            width: '*',
+            stack: [
+                { text: 'BUSINESS INFO', style: 'sectionHeader', margin: [0, 0, 0, 2] as Margins },
+                {
+                    text: [
+                        { text: `${data.labels.companyName}: `, style: 'label' },
+                        { text: data.companyName || '', style: 'valueBold' }
+                    ]
+                },
+                {
+                    text: [
+                        { text: `${data.labels.vatNumber}: `, style: 'label' },
+                        { text: data.vatNumber || '', style: 'value' }
+                    ]
+                }
+            ]
+        }] : [])
+    ],
+    margin: [0, 0, 0, 10] as Margins
+});
+
+/** MISSION DETAILS: Device & Problem (Optimized for 1-Page) */
+const renderMissionDetails = (data: PdfData): Content => ({
+    stack: [
+        { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader', margin: [0, 10, 0, 4] as Margins },
+        {
+            table: {
+                widths: ['*'],
+                body: [[{
+                    stack: [
+                        { text: (data.shopOrDevice.name || '').trim(), fontSize: 13, bold: true, color: COLORS.Secondary, margin: [0, 0, 0, 6] as Margins },
+                        {
+                            columns: (data.shopOrDevice.details || []).map(detail => ({
+                                width: 'auto',
+                                stack: [
+                                    { text: `${detail.label}: `, style: 'label' },
+                                    { text: detail.value || '-', style: 'valueBold' }
+                                ],
+                                margin: [0, 0, 25, 0] as Margins
+                            })) as any
+                        }
+                    ]
+                }]]
+            },
+            layout: {
+                fillColor: '#f8fafc',
+                hLineWidth: () => 0,
+                vLineWidth: () => 0,
+                paddingLeft: () => 12,
+                paddingRight: () => 12,
+                paddingTop: () => 10,
+                paddingBottom: () => 10
+            }
+        }
+    ],
+    margin: [0, 0, 0, 12] as Margins
+});
+
+/** FINANCIALS: Table + Total row (Rigidly Consolidated) */
+const renderFinancials = (data: PdfData): Content => ({
+    stack: [
+        { text: (data.labels.financials || 'Détails Financiers').toUpperCase(), style: 'sectionHeader' },
+        {
+            table: {
+                widths: ['*', 90],
+                body: [
+                    [
+                        { text: (data.labels.description || 'Description').toUpperCase(), style: 'tableHeader', border: [false, false, false, true] as [boolean, boolean, boolean, boolean], borderColor: [COLORS.Divider, COLORS.Divider, COLORS.Divider, COLORS.Divider] as [string, string, string, string] },
+                        { text: (data.labels.price || 'Prix').toUpperCase(), style: 'tableHeader', alignment: 'right' as any, border: [false, false, false, true] as [boolean, boolean, boolean, boolean], borderColor: [COLORS.Divider, COLORS.Divider, COLORS.Divider, COLORS.Divider] as [string, string, string, string] }
+                    ],
+                    ...data.priceBreakdown.map(item => [
+                        { text: item.label || item.description, style: 'tableCell', border: [false, false, false, true] as [boolean, boolean, boolean, boolean], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] as [string, string, string, string] },
+                        { text: `€${(item.price || 0).toFixed(2)}`, style: 'tableCell', alignment: 'right' as any, border: [false, false, false, true] as [boolean, boolean, boolean, boolean], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] as [string, string, string, string] }
+                    ]),
+                    ...(data.isCompany ? [
+                        [
+                            { text: data.labels.subtotal, style: 'label', alignment: 'right' as any, margin: [0, 6, 0, 0] as Margins, border: [false, false, false, false] as [boolean, boolean, boolean, boolean] },
+                            { text: `€${(data.subtotal || 0).toFixed(2)}`, style: 'value', alignment: 'right' as any, margin: [0, 6, 0, 0] as Margins, border: [false, false, false, false] as [boolean, boolean, boolean, boolean] }
+                        ],
+                        [
+                            { text: data.labels.vat, style: 'label', alignment: 'right' as any, border: [false, false, false, false] as [boolean, boolean, boolean, boolean] },
+                            { text: `€${(data.vatAmount || 0).toFixed(2)}`, style: 'value', alignment: 'right' as any, border: [false, false, false, false] as [boolean, boolean, boolean, boolean] }
+                        ]
+                    ] : []),
+                    [
+                        { text: (data.totalLabel || 'Total').toUpperCase(), style: 'totalLabel', alignment: 'right' as any, margin: [0, 12, 0, 0] as Margins, border: [false, true, false, false] as [boolean, boolean, boolean, boolean], borderColor: [COLORS.Divider, COLORS.Divider, COLORS.Divider, COLORS.Divider] as [string, string, string, string] },
+                        { text: `€${(data.totalPrice || 0).toFixed(2)}`, style: 'totalValue', alignment: 'right' as any, margin: [0, 12, 0, 0] as Margins, border: [false, true, false, false] as [boolean, boolean, boolean, boolean], borderColor: [COLORS.Divider, COLORS.Divider, COLORS.Divider, COLORS.Divider] as [string, string, string, string] }
+                    ]
+                ]
+            } as any,
+            layout: { paddingTop: () => 4, paddingBottom: () => 4 }
+        }
+    ],
+    margin: [0, 0, 0, 20] as Margins
+});
+
+/** EXECUTION: Next Steps & Signature */
+const renderExecution = (data: PdfData): Content => ({
+    stack: [
+        ...(data.iban ? [
+            { margin: [0, 0, 0, 6] as Margins, stack: [{ text: (data.labels.paymentIban || 'IBAN').toUpperCase(), style: 'label', bold: true }, { text: data.iban, style: 'valueBold', fontSize: 11, characterSpacing: 0.5 }] }
+        ] : []),
+        ...(data.nextSteps.length > 0 ? [
+            { text: (data.labels.nextSteps || 'Prochaines Étapes').toUpperCase(), style: 'sectionHeader', margin: [0, 2, 0, 1] as Margins },
+            { stack: data.nextSteps.map((step, idx) => ({ columns: [{ text: `${idx + 1}.`, width: 10, style: 'stepIndex' }, { text: step, width: '*', style: 'stepText' }], margin: [0, 0.5, 0, 0.5] as Margins })) }
+        ] : []),
+        {
+            margin: [0, 6, 0, 0] as Margins,
+            table: {
+                widths: ['45%', '10%', '45%'],
+                body: [[
+                    {
+                        stack: [
+                            { text: (data.labels.signatureClient || 'Signature Client').toUpperCase(), style: 'label', bold: true, alignment: 'center' as any, margin: [0, 2, 0, 15] as Margins },
+                            { text: data.labels.readAndApproved || 'Lu et approuvé', style: 'TextLight', fontSize: 6, italics: true, alignment: 'center' as any }
+                        ],
+                        border: [true, true, true, true] as [boolean, boolean, boolean, boolean], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] as [string, string, string, string]
+                    },
+                    { text: '', border: [false, false, false, false] as [boolean, boolean, boolean, boolean] },
+                    {
+                        stack: [
+                            { text: (data.labels.shopStamp || 'Cachet Magasin').toUpperCase(), style: 'label', bold: true, alignment: 'center' as any, margin: [0, 2, 0, 15] as Margins },
+                            { text: 'Belmobile Official', style: 'TextLight', fontSize: 6, alignment: 'center' as any }
+                        ],
+                        border: [true, true, true, true] as [boolean, boolean, boolean, boolean], borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border] as [string, string, string, string]
+                    }
+                ]]
+            },
+            layout: { paddingLeft: () => 8, paddingRight: () => 8 }
+        }
+    ]
+});
+
+// --- 4. MASTER ENGINE ---
 
 export const createPdfDefinition = (data: PdfData): TDocumentDefinitions => {
     return {
         pageSize: 'A4',
-        pageMargins: [25, 15, 25, 15], // Standardized margins
-
+        pageMargins: [40, 30, 40, 40] as Margins,
         content: [
-            // ... (Existing content structure) ...
-            // 1. Header (Logo Left, QR + Title Right)
-            {
-                columns: [
-                    {
-                        width: '*',
-                        stack: [
-                            data.logo ? {
-                                image: data.logo,
-                                width: 120, // Adjust width as needed
-                                margin: [0, 0, 0, 5]
-                            } : {
-                                text: [
-                                    { text: 'BELMOBILE', style: 'headerTitle' },
-                                    { text: '.BE', style: 'headerTitle', color: COLORS.Accent }
-                                ]
-                            },
-                            { text: 'BUYBACK & REPAIR', style: 'headerSubtitle', margin: [0, data.logo ? 0 : 1, 0, 0] }
-                        ]
-                    },
-                    {
-                        width: 'auto',
-                        stack: [
-                            // QR Code Priority
-                            ...(data.trackingUrl ? [{
-                                qr: data.trackingUrl,
-                                fit: 50,
-                                alignment: 'right',
-                                margin: [0, 0, 0, 4]
-                            }] : []),
-                            {
-                                text: data.documentTitle.toUpperCase(),
-                                style: 'documentTitle'
-                            }
-                        ]
-                    }
-                ],
-                margin: [0, 0, 0, 10]
-            } as any,
-
-            // Divider
-            {
-                canvas: [{ type: 'line', x1: 0, y1: 0, x2: 545, y2: 0, lineWidth: 1, lineColor: COLORS.Primary }],
-                margin: [0, 0, 0, 10]
-            } as any,
-
-            // 1. Header Block (ID, Date, Time, Status)
-            {
-                table: {
-                    widths: ['25%', '25%', '25%', '25%'],
-                    body: [[
-                        {
-                            stack: [
-                                { text: data.labels.orderId, style: 'label' },
-                                { text: data.orderId, style: 'valueBold' }
-                            ],
-                            border: [false, false, false, false]
-                        },
-                        {
-                            stack: [
-                                { text: data.labels.date, style: 'label' },
-                                { text: data.date, style: 'valueBold' }
-                            ],
-                            border: [true, false, false, false],
-                            borderColor: [COLORS.Border, '#000', '#000', '#000']
-                        },
-                        {
-                            stack: [
-                                { text: data.labels.time, style: 'label' },
-                                { text: data.time || '-', style: 'valueBold' }
-                            ],
-                            border: [true, false, false, false],
-                            borderColor: [COLORS.Border, '#000', '#000', '#000']
-                        },
-                        {
-                            stack: [
-                                { text: data.labels.status, style: 'label' },
-                                { text: data.status.toUpperCase(), style: 'valueBold', color: COLORS.Accent }
-                            ],
-                            border: [true, false, false, false],
-                            borderColor: [COLORS.Border, '#000', '#000', '#000']
-                        }
-                    ]]
-                },
-                layout: {
-                    paddingLeft: (i: number) => i === 0 ? 0 : 10,
-                    paddingRight: (i: number) => 10,
-                    paddingTop: () => 5,
-                    paddingBottom: () => 5
-                },
-                margin: [0, 0, 0, 15]
-            } as any,
-
-            // 2. Identification Block (Client/Company)
-            {
-                unbreakable: true,
-                table: {
-                    widths: ['50%', '50%'],
-                    body: [
-                        [
-                            {
-                                stack: [
-                                    { text: data.labels.clientDetails.toUpperCase(), style: 'sectionHeader' },
-                                    { text: data.customer.name, style: 'valueBold' },
-                                    ...(data.isCompany ? [
-                                        { text: data.companyName, style: 'value' },
-                                        { text: data.vatNumber, style: 'label' }
-                                    ] : []),
-                                    { text: data.customer.email || '-', style: 'value' },
-                                    { text: data.customer.phone, style: 'value' },
-                                    { text: data.customer.address || '', style: 'value' }
-                                ],
-                                border: [false, false, false, false]
-                            },
-                            {
-                                stack: [
-                                    { text: data.labels.method.toUpperCase(), style: 'sectionHeader' },
-                                    { text: data.method, style: 'valueBold' },
-                                    ...(data.trackingUrl ? [
-                                        { text: data.labels.scanToTrack, style: 'label', margin: [0, 5, 0, 2] },
-                                        { qr: data.trackingUrl, fit: 40 }
-                                    ] : [])
-                                ],
-                                border: [false, false, false, false],
-                                alignment: 'right'
-                            }
-                        ]
-                    ]
-                },
-                layout: 'noBorders',
-                margin: [0, 0, 0, 20]
-            } as any,
-
-            // 3. Mission Block (Repair/Buyback Details)
-            {
-                unbreakable: true,
-                stack: [
-                    {
-                        stack: [
-                            { text: data.shopOrDevice.title.toUpperCase(), style: 'sectionHeader' },
-                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 545, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 2, 0, 5] }
-                        ]
-                    },
-                    {
-                        columns: [
-                            {
-                                width: '40%',
-                                stack: [
-                                    { text: data.type === 'reservation' ? data.labels.shop : data.labels.model, style: 'label' },
-                                    { text: data.shopOrDevice.name, style: 'valueBold', fontSize: 11 }
-                                ]
-                            },
-                            {
-                                width: '60%',
-                                stack: data.shopOrDevice.details.map(d => ({
-                                    columns: [
-                                        { text: d.label + ':', style: 'label', width: 80 },
-                                        { text: d.value, style: 'value', width: '*' }
-                                    ],
-                                    margin: [0, 0, 0, 2]
-                                }))
-                            }
-                        ]
-                    },
-                    // Extra specs if present
-                    ...(data.specs ? [
-                        {
-                            margin: [0, 10, 0, 0],
-                            columns: [
-                                {
-                                    width: '*',
-                                    ul: Object.entries(data.specs).map(([k, v]) => ({ text: `${k}: ${v}`, style: 'label' }))
-                                }
-                            ]
-                        }
-                    ] : [])
-                ],
-                margin: [0, 0, 0, 20]
-            } as any,
-
-            // 4. Financial Breakdown Block
-            {
-                unbreakable: true,
-                stack: [
-                    {
-                        stack: [
-                            { text: data.labels.financials.toUpperCase(), style: 'sectionHeader' },
-                            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 545, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 2, 0, 5] }
-                        ]
-                    },
-                    {
-                        table: {
-                            headerRows: 1,
-                            widths: ['*', 'auto'],
-                            body: [
-                                [
-                                    { text: data.labels.description, style: 'tableHeader', border: [false, false, false, true] },
-                                    { text: data.labels.price, style: 'tableHeader', alignment: 'right', border: [false, false, false, true] }
-                                ],
-                                ...data.priceBreakdown.map(item => [
-                                    { text: item.label, style: 'tableCell', border: [false, false, false, true], borderColor: [COLORS.Border] },
-                                    { text: `€${item.price.toFixed(2)}`, style: 'tableCell', alignment: 'right', border: [false, false, false, true], borderColor: [COLORS.Border] }
-                                ])
-                            ]
-                        },
-                        layout: 'noBorders'
-                    },
-                    {
-                        margin: [0, 10, 0, 0],
-                        columns: [
-                            { width: '*', text: '' },
-                            {
-                                width: 'auto',
-                                stack: [
-                                    ...(data.isCompany ? [
-                                        {
-                                            columns: [
-                                                { text: data.labels.subtotal, style: 'label', width: 80 },
-                                                { text: `€${(data.subtotal || 0).toFixed(2)}`, style: 'value', width: 60, alignment: 'right' }
-                                            ]
-                                        },
-                                        {
-                                            columns: [
-                                                { text: data.labels.vat, style: 'label', width: 80 },
-                                                { text: `€${(data.vatAmount || 0).toFixed(2)}`, style: 'value', width: 60, alignment: 'right' }
-                                            ],
-                                            margin: [0, 2, 0, 5]
-                                        }
-                                    ] : []),
-                                    {
-                                        canvas: [{ type: 'line', x1: 0, y1: 0, x2: 140, y2: 0, lineWidth: 1, lineColor: COLORS.TextDark }]
-                                    },
-                                    {
-                                        columns: [
-                                            { text: data.totalLabel, style: 'totalLabel', width: 80, margin: [0, 5, 0, 0] },
-                                            { text: `€${data.totalPrice.toFixed(2)}`, style: 'totalValue', width: 60, margin: [0, 5, 0, 0] }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                margin: [0, 0, 0, 20]
-            } as any,
-
-            // 7. IBAN & Next Steps (Combined/Unbreakable if needed, but Steps can flow)
-            {
-                unbreakable: true, // Keep steps together to avoid orphans
-                stack: [
-                    // IBAN
-                    ...(data.iban ? [
-                        {
-                            text: [
-                                { text: data.labels.paymentIban + ': ', style: 'label' },
-                                { text: data.iban, style: 'valueBold', fontFeatures: ['tnum'] }
-                            ],
-                            padding: 10,
-                            decoration: 'underline',
-                            decorationStyle: 'dotted',
-                            margin: [0, 0, 0, 10]
-                        }
-                    ] : []),
-
-                    // Next Steps
-                    ...(data.nextSteps.length > 0 ? [
-                        {
-                            stack: [
-                                { text: data.labels.nextSteps.toUpperCase(), style: 'sectionHeader', margin: [0, 4, 0, 1] },
-                                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 545, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 4] }
-                            ]
-                        },
-                        {
-                            stack: data.nextSteps.map((step, index) => ({
-                                columns: [
-                                    { width: 20, text: `${index + 1}.`, style: 'stepIndex' },
-                                    { width: '*', text: step, style: 'stepText' }
-                                ],
-                                margin: [0, 0, 0, 4]
-                            })),
-                            margin: [0, 4, 0, 8]
-                        }
-                    ] : [])
-                ],
-            } as any,
-
-            // 8. Signature Block & Legal Disclaimer (Walk-in Receipt Mode)
-            ...(data.signatureBlock ? [
-                {
-                    unbreakable: true,
-                    stack: [
-                        { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 545, y2: 0, lineWidth: 1, lineColor: COLORS.Border, dash: { length: 5 } }], margin: [0, 20, 0, 15] },
-                        {
-                            table: {
-                                widths: ['45%', '10%', '45%'],
-                                body: [[
-                                    {
-                                        stack: [
-                                            { text: data.signatureBlock.customerLabel, style: 'sectionHeader', alignment: 'center', margin: [0, 0, 0, 40] },
-                                            { text: '(Sign Here)', style: 'label', alignment: 'center', color: '#9ca3af' }
-                                        ],
-                                        border: [true, true, true, true],
-                                        borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border]
-                                    },
-                                    { text: '', border: [false, false, false, false] },
-                                    {
-                                        stack: [
-                                            { text: data.signatureBlock.shopLabel, style: 'sectionHeader', alignment: 'center', margin: [0, 0, 0, 40] },
-                                            { text: '(Stamp & Sign)', style: 'label', alignment: 'center', color: '#9ca3af' }
-                                        ],
-                                        border: [true, true, true, true],
-                                        borderColor: [COLORS.Border, COLORS.Border, COLORS.Border, COLORS.Border]
-                                    }
-                                ]]
-                            },
-                            layout: {
-                                defaultBorder: false,
-                                paddingLeft: () => 5,
-                                paddingRight: () => 5,
-                                paddingTop: () => 10,
-                                paddingBottom: () => 10
-                            }
-                        }
-                    ],
-                    margin: [0, 10, 0, 10]
-                }
-            ] : []),
-
-            ...(data.legalDisclaimer ? [
-                {
-                    text: data.legalDisclaimer,
-                    style: 'label',
-                    italics: true,
-                    color: '#6b7280',
-                    margin: [0, 10, 0, 0],
-                    alignment: 'justify',
-                    fontSize: 6
-                }
-            ] : [])
+            renderTopBanner(data),
+            renderIndigoDivider(),
+            renderAdminGrid(data),
+            renderIdentification(data),
+            renderMissionDetails(data),
+            renderFinancials(data),
+            renderExecution(data),
+            ...(data.legalDisclaimer ? [{ text: data.legalDisclaimer, fontSize: 7, color: COLORS.TextLight, margin: [0, 6, 0, 0] as Margins, alignment: 'justify' as any, italics: true, lineHeight: 1.1 }] : [])
         ],
-
-        // Minimal Footer
-        footer: (currentPage: number, pageCount: number) => {
-            return {
-                columns: [
-                    { text: data.footerHelpText, style: 'label', alignment: 'left', margin: [40, 10, 0, 0], fontSize: 7 },
-                    { text: `${currentPage} / ${pageCount}`, style: 'label', alignment: 'right', margin: [0, 10, 40, 0], fontSize: 7 }
-                ],
-                // Top border for footer
-                canvas: [{ type: 'line', x1: 30, y1: 0, x2: 565, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }]
-            } as any;
-        },
-
+        footer: (currentPage: number, pageCount: number) => ({
+            stack: [
+                { canvas: [{ type: 'line', x1: 40, y1: 0, x2: 555, y2: 0, lineWidth: 0.5, lineColor: COLORS.Border }], margin: [0, 0, 0, 8] as Margins },
+                {
+                    columns: [
+                        { text: 'Belmobile Support: +32 2 275 98 67 | www.belmobile.be', fontSize: 8, color: COLORS.TextGray, margin: [40, 0, 0, 0] as Margins },
+                        { text: `${currentPage} / ${pageCount}`, fontSize: 8, color: COLORS.TextGray, alignment: 'right', margin: [0, 0, 40, 0] as Margins }
+                    ]
+                }
+            ]
+        }),
         styles: STYLES,
-        defaultStyle: {
-            font: 'Roboto'
-        }
+        defaultStyle: { font: 'Roboto' }
     };
 };
