@@ -48,6 +48,8 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
     const nextDisabled = !selectedBrand || !selectedModel;
     const availableModels = modelsData && modelsData[deviceType] ? Object.keys(modelsData[deviceType]) : [];
 
+    const ringColor = type === 'buyback' ? 'ring-yellow-500/30' : 'ring-bel-blue/30';
+
     // Auto-scroll if brand is already selected (e.g. coming back from next step)
     React.useEffect(() => {
         if (selectedBrand && modelSelectRef?.current) {
@@ -56,8 +58,8 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                 // Add visual highlight only (no focus to prevent keyboard opening on mobile)
                 const selectElement = modelSelectRef.current?.querySelector('select');
                 if (selectElement) {
-                    selectElement.classList.add('ring-4', 'ring-bel-blue/30', 'transition-all', 'duration-500');
-                    setTimeout(() => selectElement.classList.remove('ring-4', 'ring-bel-blue/30'), 1500);
+                    selectElement.classList.add('ring-4', ringColor, 'transition-all', 'duration-500');
+                    setTimeout(() => selectElement.classList.remove('ring-4', ringColor), 1500);
                 }
             }, 400); // Slightly longer delay to allow page transition
         }
@@ -68,6 +70,7 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
     const onBrandClick = (brand: string) => {
         handleBrandSelect(brand, deviceType);
         // Wait for state update/render then scroll and focus
+        // Slower delay (400ms) to allow "processing" visualization
         setTimeout(() => {
             if (modelSelectRef?.current) {
                 modelSelectRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -75,11 +78,11 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                 const selectElement = modelSelectRef.current.querySelector('select');
                 if (selectElement) {
                     selectElement.focus();
-                    selectElement.classList.add('ring-4', 'ring-bel-blue/30', 'transition-all', 'duration-500');
-                    setTimeout(() => selectElement.classList.remove('ring-4', 'ring-bel-blue/30'), 1500);
+                    selectElement.classList.add('ring-4', ringColor, 'transition-all', 'duration-500');
+                    setTimeout(() => selectElement.classList.remove('ring-4', ringColor), 1500);
                 }
             }
-        }, 100);
+        }, 400);
     };
 
     return (
@@ -107,8 +110,13 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                                 key={brand}
                                 onClick={() => onBrandClick(brand)}
                                 className={`group py-4 px-4 rounded-ui font-bold text-sm transition-all flex flex-col items-center justify-center gap-3 h-32 ${selectedBrand === brand
-                                    ? 'bg-bel-blue text-white shadow-lg shadow-blue-200 dark:shadow-none'
-                                    : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-800 hover:border-bel-blue hover:bg-blue-50/50 dark:hover:bg-slate-800'
+                                    ? (type === 'buyback'
+                                        ? 'bg-bel-yellow text-gray-900 shadow-lg shadow-yellow-500/20 dark:shadow-none'
+                                        : 'bg-[#6366F1] text-white shadow-lg shadow-indigo-500/20 dark:shadow-none')
+                                    : `bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-800 ${type === 'buyback'
+                                        ? 'hover:border-bel-yellow hover:bg-yellow-50/50'
+                                        : 'hover:border-[#6366F1] hover:bg-indigo-50/50'
+                                    } dark:hover:bg-slate-800`
                                     }`}
                             >
                                 {getDeviceImage(createSlug(brand)) && (

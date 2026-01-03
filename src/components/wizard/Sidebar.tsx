@@ -12,6 +12,7 @@ import { REPAIR_ISSUES, DEVICE_TYPES } from '../../constants';
 import { getDeviceImage } from '../../data/deviceImages';
 import { createSlug, slugToDisplayName } from '../../utils/slugs';
 import { TRUST_SIGNALS, SignalContext } from '../../data/trustSignals';
+import { getDeviceContext } from '../../utils/seoHelpers';
 import Button from '../ui/Button';
 
 import { useWizard } from '../../context/WizardContext';
@@ -79,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     isProcessing = false,
     processingText
 }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const { state } = useWizard();
     const isTransitioning = state.isTransitioning;
     const isBuyback = type === 'buyback';
@@ -109,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 {/* Unified Content Block */}
                 <div>
                     {/* Header */}
-                    <div className="bg-bel-blue p-6 text-white text-center rounded-t-ui-lg relative overflow-hidden">
+                    <div className={`${isBuyback ? 'bg-bel-yellow' : 'bg-bel-blue'} p-6 ${isBuyback ? 'text-gray-900' : 'text-white'} text-center rounded-t-ui-lg relative overflow-hidden`}>
                         <h3 className="font-bold text-xl mb-2 relative z-10">{t('Summary')}</h3>
                         {displayImage && (
                             <AnimatePresence mode="wait">
@@ -131,12 +132,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 </motion.div>
                             </AnimatePresence>
                         )}
-                        <p className="text-blue-100 text-sm font-medium relative z-10 line-clamp-1">
+                        <p className={`${isBuyback ? 'text-gray-700' : 'text-blue-100'} text-sm font-medium relative z-10 line-clamp-1`}>
                             {selectedBrand && selectedModel ? (
                                 selectedModel.toLowerCase().includes(selectedBrand.toLowerCase())
                                     ? slugToDisplayName(selectedModel)
-                                    : `${selectedBrand} ${slugToDisplayName(selectedModel)}`
-                            ) : selectedBrand || ''}
+                                    : `${slugToDisplayName(selectedBrand)} ${slugToDisplayName(selectedModel)}`
+                            ) : slugToDisplayName(selectedBrand || '')}
                         </p>
                     </div>
 
@@ -158,8 +159,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                                         {selectedBrand && selectedModel ? (
                                             selectedModel.toLowerCase().includes(selectedBrand.toLowerCase())
                                                 ? slugToDisplayName(selectedModel)
-                                                : `${selectedBrand} ${slugToDisplayName(selectedModel)}`
-                                        ) : selectedBrand || ''}
+                                                : `${slugToDisplayName(selectedBrand)} ${slugToDisplayName(selectedModel)}`
+                                        ) : slugToDisplayName(selectedBrand || '')}
                                     </span>
                                 </div>
                             )}
@@ -253,7 +254,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 </p>
                             </div>
                             <div className="text-3xl font-extrabold text-bel-dark dark:text-white">
-                                {loading || isTransitioning || (isBuyback && typeof estimateDisplay === 'number' && estimateDisplay === 0) ? (
+                                {loading || isTransitioning || (isBuyback && typeof estimateDisplay === 'number' && estimateDisplay === 0 && loading) ? (
                                     <div className="flex space-x-1 h-9 items-center justify-center">
                                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
@@ -287,11 +288,21 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, scale: 0.9 }}
-                                                className="bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded-lg text-center min-h-[64px] flex flex-col items-center justify-center border border-blue-100/50 dark:border-blue-900/20"
+                                                className={`${isBuyback ? 'bg-yellow-50/50 dark:bg-yellow-900/10 border-yellow-100/50 dark:border-yellow-900/20' : 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-100/50 dark:border-blue-900/20'} p-2 rounded-lg text-center min-h-[64px] flex flex-col items-center justify-center border`}
                                             >
-                                                <Icon className="w-5 h-5 text-bel-blue mb-1" />
+                                                <Icon className={`w-5 h-5 ${isBuyback ? 'text-bel-yellow' : 'text-bel-blue'} mb-1`} />
                                                 <p className="text-[10px] font-bold text-gray-700 dark:text-gray-300 leading-tight">
-                                                    {t(signal.titleKey)}
+                                                    {(() => {
+                                                        const { durationText } = getDeviceContext(selectedModel || '', language as any);
+                                                        let label = t(signal.titleKey);
+                                                        if (signal.titleKey === 'repair_trust_fast') {
+                                                            label = label
+                                                                .replace('30m', durationText)
+                                                                .replace('30min', durationText)
+                                                                .replace('30 min', durationText);
+                                                        }
+                                                        return label;
+                                                    })()}
                                                 </p>
                                             </motion.div>
                                         );
@@ -306,7 +317,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 <Button
                                     onClick={onNext}
                                     disabled={nextDisabled}
-                                    variant="cyber"
+                                    variant={isBuyback ? 'cyber' : 'action'}
                                     className="w-full"
                                 >
                                     {isLoadingState ? loadingText : (nextLabel || t('Next'))}
@@ -317,7 +328,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 <Button
                                     onClick={onNext}
                                     disabled={nextDisabled || isLoadingState}
-                                    variant="cyber"
+                                    variant={isBuyback ? 'cyber' : 'action'}
                                     className="w-full"
                                     isLoading={isLoadingState}
                                     icon={<CheckBadgeIcon className="w-5 h-5" />}
@@ -329,8 +340,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                             {step > 1 && (
                                 <Button
                                     onClick={handleBack}
-                                    variant="ghost"
-                                    className="w-full"
+                                    variant="outline"
+                                    className="w-full border-bel-blue! text-bel-blue! hover:bg-bel-blue/5!"
                                 >
                                     {t('Back')}
                                 </Button>

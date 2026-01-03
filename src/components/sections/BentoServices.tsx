@@ -7,14 +7,18 @@ import { RepairIcon as WrenchScrewdriverIcon, ArrowRightIcon } from '../ui/Brand
 import { useLanguage } from '../../hooks/useLanguage';
 import FadeIn from '../ui/FadeIn';
 
-const BentoServices: React.FC = () => {
+interface BentoServicesProps {
+    variant?: 'aegis' | 'apollo';
+}
+
+const BentoServices: React.FC<BentoServicesProps> = ({ variant = 'aegis' }) => {
     const { language, t } = useLanguage();
 
     return (
         <FadeIn className="py-20">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center max-w-2xl mx-auto mb-16">
-                    <span className="text-electric-indigo font-bold tracking-widest text-xs uppercase mb-2 block">{t('Our Expertise')}</span>
+                    <span className={`${variant === 'apollo' ? 'text-cyber-citron' : 'text-electric-indigo'} font-bold tracking-widest text-xs uppercase mb-2 block`}>{t('Our Expertise')}</span>
                     <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4">{t('Our Services')}</h2>
                     <p className="text-lg text-slate-500 dark:text-slate-400">{t('Professional solutions for all your mobile needs.')}</p>
                 </div>

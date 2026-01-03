@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Bike, GraduationCap } from 'lucide-react';
+import { BikeIcon, AcademicCapIcon as GraduationCap } from '../ui/BrandIcons';
 import { TranslationDict } from '@/utils/translations';
 
 interface FooterColumnsProps {
@@ -38,7 +38,7 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                     </li>
                     <li>
                         <Link href={`/${language}/express-courier`} className="hover:text-white transition-all hover:translate-x-1 inline-flex items-center gap-1.5 duration-200 text-sky-400 font-bold">
-                            <Bike className="w-3.5 h-3.5" />
+                            <BikeIcon className="w-3.5 h-3.5" />
                             {t('Express Courier')}
                         </Link>
                     </li>
@@ -62,11 +62,11 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                 </h4>
                 <ul className="space-y-3.5 text-sm text-slate-400">
                     <li><Link href={`/${language}/contact`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Contact Us')}</Link></li>
-                    <li><Link href={`/${language}/stores`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Store Locator')}</Link></li>
-                    <li><Link href={`/${language}/faq`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Help Center')}</Link></li>
                     <li><Link href={`/${language}/track-order`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Track Order')}</Link></li>
-                    <li><Link href={`/${language}/blog`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Blog')}</Link></li>
+                    <li><Link href={`/${language}/faq`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Help Center')}</Link></li>
+                    <li><Link href={`/${language}/stores`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Store Locator')}</Link></li>
                     <li><Link href={`/${language}/about`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('About Us')}</Link></li>
+                    <li><Link href={`/${language}/blog`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Blog')}</Link></li>
                     <li><Link href={`/${language}/${language === 'nl' ? 'duurzaamheid' : language === 'tr' ? 'surdurulebilirlik' : language === 'fr' ? 'durabilite' : 'sustainability'}`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">Sustainability</Link></li>
                 </ul>
             </div>

@@ -60,7 +60,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ product, initialSho
             // Mocking shop name for PDF if shipping
             const shopNameForPdf = deliveryMethod === 'shipping' ? 'Belmobile Online (Shipping)' : selectedShop!.name;
 
-            const { doc, pdfBase64, safeFileName, blob } = await generateReservationPDF({
+            const { doc, base64, safeFileName, blob } = await generateReservationPDF({
                 orderId: `RES-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
                 date: new Date().toLocaleDateString(lang === 'fr' ? 'fr-BE' : lang === 'nl' ? 'nl-BE' : 'en-US'),
                 productName: product.name,
@@ -68,6 +68,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ product, initialSho
                 shopName: shopNameForPdf,
                 customerName: name,
                 customerPhone: phone,
+                customerEmail: email,
                 deliveryMethod: deliveryMethod,
                 shippingAddress: deliveryMethod === 'shipping' ? `${shippingAddress}, ${shippingZip} ${shippingCity}` : undefined,
                 nextSteps: [
@@ -80,10 +81,10 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ product, initialSho
             if (blob) {
                 savePDFBlob(blob, safeFileName);
             }
-            return pdfBase64;
+            return base64;
         };
 
-        generatePDF().then(async (pdfBase64) => {
+        generatePDF().then(async (base64) => {
             // Send Email to Customer
             const emailTitle = deliveryMethod === 'shipping' ? t('Reservation Received - Waiting for Payment Link') : t('email_reservation_title');
             const emailBody = deliveryMethod === 'shipping'
@@ -111,7 +112,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ product, initialSho
                      </div>`,
                     [{
                         filename: `Reservation_${product.name.replace(/\s+/g, '_')}.pdf`,
-                        content: pdfBase64,
+                        content: base64,
                         encoding: 'base64'
                     }]
                 );

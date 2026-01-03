@@ -10,6 +10,7 @@ import { FormattedReview as Review } from '../../services/reviewService';
 
 interface ReviewsSectionProps {
     initialReviews?: Review[];
+    variant?: 'aegis' | 'apollo';
 }
 
 const MOCK_REVIEWS: Review[] = [
@@ -18,7 +19,7 @@ const MOCK_REVIEWS: Review[] = [
     { id: '3', author: 'Ahmed Benali', rating: 4, text: 'Bon prix pour le rachat de mon Samsung.', date: '2 weeks ago', publishTime: Date.now() - 1209600000, shopName: 'Molenbeek' },
 ];
 
-const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) => {
+const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [], variant = 'aegis' }) => {
     const { t, language } = useLanguage();
     // Use initialReviews if provided, otherwise empty array but we'll show skeleton/mocks if still loading
     const [reviews, setReviews] = useState<Review[]>(initialReviews.length > 0 ? initialReviews : []);
@@ -27,7 +28,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) 
 
     useEffect(() => {
         const fetchReviews = async () => {
-            setIsLoading(true);
+            if (reviews.length === 0) setIsLoading(true);
             try {
                 const response = await fetch(`/api/reviews?lang=${language}`);
                 if (response.ok) {
@@ -70,7 +71,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) 
             <div className="container mx-auto px-4 relative z-10">
                 <FadeIn>
                     <div className="text-center mb-16">
-                        <span className="text-electric-indigo font-bold tracking-widest text-xs uppercase mb-2 block">
+                        <span className={`${variant === 'apollo' ? 'text-cyber-citron' : 'text-electric-indigo'} font-bold tracking-widest text-xs uppercase mb-2 block`}>
                             {t('Testimonials')}
                         </span>
                         <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4 flex items-center justify-center gap-3">
@@ -107,7 +108,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) 
                                                 />
                                             </div>
                                         ) : (
-                                            <div className="w-12 h-12 bg-electric-indigo/10 rounded-full flex items-center justify-center text-electric-indigo font-bold text-xl mr-4 border border-electric-indigo/20">
+                                            <div className={`w-12 h-12 ${variant === 'apollo' ? 'bg-cyber-citron/10 text-cyber-citron border-cyber-citron/20' : 'bg-electric-indigo/10 text-electric-indigo border-electric-indigo/20'} rounded-full flex items-center justify-center font-bold text-xl mr-4 border`}>
                                                 {review.author.charAt(0)}
                                             </div>
                                         )}
@@ -139,7 +140,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) 
                     <div className="mt-8 text-center">
                         <button
                             onClick={() => setShowAll(!showAll)}
-                            className="px-6 py-2 rounded-full bg-electric-indigo/10 text-electric-indigo font-bold text-sm hover:bg-electric-indigo/20 transition-all"
+                            className={`px-6 py-2 rounded-full ${variant === 'apollo' ? 'bg-cyber-citron/10 text-cyber-citron hover:bg-cyber-citron/20' : 'bg-electric-indigo/10 text-electric-indigo hover:bg-electric-indigo/20'} font-bold text-sm transition-all`}
                         >
                             {showAll ? t('Show Less') : t('Show More')}
                         </button>
@@ -152,7 +153,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [] }) 
                             href="https://www.google.com/maps/search/Belmobile"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-sm font-bold text-electric-indigo hover:text-indigo-600 transition-colors"
+                            className={`inline-flex items-center gap-2 text-sm font-bold ${variant === 'apollo' ? 'text-cyber-citron hover:text-citron-700' : 'text-electric-indigo hover:text-indigo-600'} transition-colors`}
                         >
                             <span>{t('View all reviews on Google')}</span>
                             <ExternalLinkIcon className="w-4 h-4" />

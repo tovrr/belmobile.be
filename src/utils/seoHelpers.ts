@@ -15,7 +15,7 @@ interface TextHelperProps {
     durationText?: string;
 }
 
-export const getSEOTitle = ({ isStore, isRepair, lang, locationName, deviceName }: Partial<TextHelperProps>) => {
+export const getSEOTitle = ({ isStore, isRepair, lang, locationName, deviceName, durationText }: Partial<TextHelperProps>) => {
     if (isStore) {
         if (lang === 'fr') return `Réparation & Rachat GSM à ${locationName} - Belmobile`;
         if (lang === 'nl') return `Smartphone Reparatie & Inkoop in ${locationName}`;
@@ -24,10 +24,10 @@ export const getSEOTitle = ({ isStore, isRepair, lang, locationName, deviceName 
     }
     if (isRepair) {
         // High Intent: Repair + Device + Location + Benefit (Speed/Warranty)
-        if (lang === 'fr') return `Réparation ${deviceName} à ${locationName} - 30 min & Garantie`;
-        if (lang === 'nl') return `Reparatie ${deviceName} in ${locationName} - Klaar in 30 min`;
-        if (lang === 'tr') return `${locationName}'de ${deviceName} Tamiri - 30 Dakikada Teslim`;
-        return `Repair ${deviceName} in ${locationName} - 30 min Express`;
+        if (lang === 'fr') return `Réparation ${deviceName} à ${locationName} - ${durationText || '30 min'} & Garantie`;
+        if (lang === 'nl') return `Reparatie ${deviceName} in ${locationName} - Klaar in ${durationText || '30 min'}`;
+        if (lang === 'tr') return `${locationName}'de ${deviceName} Tamiri - ${durationText || '30 Dakikada'} Teslim`;
+        return `Repair ${deviceName} in ${locationName} - ${durationText || '30 min'} Express`;
     }
     // Buyback Intent: Sell + Device + Location + Benefit (Cash/Price)
     if (lang === 'fr') return `Rachat ${deviceName} à ${locationName} - Paiement Cash Immédiat`;
@@ -52,12 +52,12 @@ export const getSEODescription = ({ isStore, isRepair, lang, locationName, devic
     // 2. Repair Context - The "Expert" Pitch
     if (isRepair) {
         if (lang === 'fr') {
-            return `Réparation ${deviceName} certifiée à ${locationName}. Écran, batterie, micro-soudure : nos experts réparent votre ${brand || 'appareil'} en ${durationText} chrono. Pièces Premium, Garantie 1 an & Facture pour Pros.`;
+            return `Réparation ${deviceName} certifiée à ${locationName}. ${issuesText || 'Écran, batterie, micro-soudure'} : nos experts réparent votre ${brand || 'appareil'} en ${durationText || '30 min'} chrono. Pièces Premium, Garantie 1 an & Facture pour Pros.`;
         }
         if (lang === 'nl') {
-            return `Gecertificeerde ${deviceName} reparatie in ${locationName}. Scherm, batterij of moederbord? Onze experts herstellen uw ${brand || 'toestel'} in ${durationText}. Premium onderdelen, 1 jaar garantie & Factuur.`;
+            return `Gecertificeerde ${deviceName} reparatie in ${locationName}. ${issuesText || 'Scherm, batterij of moederbord'}? Onze experts herstellen uw ${brand || 'toestel'} in ${durationText || '30 min'}. Premium onderdelen, 1 jaar garantie & Factuur.`;
         }
-        return `Certified ${deviceName} repair in ${locationName}. Screen, battery, or microsoldering: our experts fix your ${brand || 'device'} in ${durationText}. Premium Parts, 1-Year Warranty & User/Business Invoice.`;
+        return `Certified ${deviceName} repair in ${locationName}. ${issuesText || 'Screen, battery, or microsoldering'}: our experts fix your ${brand || 'device'} in ${durationText || '30 min'}. Premium Parts, 1-Year Warranty & User/Business Invoice.`;
     }
 
     // 3. Buyback Context - The "Best Value" Pitch
@@ -65,4 +65,21 @@ export const getSEODescription = ({ isStore, isRepair, lang, locationName, devic
     if (lang === 'nl') return `Verkoop uw ${deviceName} voor de beste prijs in ${locationName}. Directe AI-schatting en contante betaling. Gecertificeerde dataverwijdering (GDPR). Marktleider in Brussel.`;
 
     return `Sell your ${deviceName} for the highest price in ${locationName}. Instant AI quote and Cash payment. Certified Data Wipe (GDPR) for your peace of mind. Brussels' buyback leader.`;
+};
+
+export const getDeviceContext = (modelName: string, lang: 'fr' | 'nl' | 'en' | 'tr') => {
+    const isHomeConsole = modelName.toLowerCase().includes('playstation') ||
+        modelName.toLowerCase().includes('xbox') ||
+        modelName.toLowerCase().includes('ps5') ||
+        modelName.toLowerCase().includes('ps4');
+
+    const durationText = isHomeConsole
+        ? (lang === 'fr' ? '3h à 4h' : (lang === 'nl' ? '3u tot 4u' : (lang === 'tr' ? '3-4 saat' : '3-4h')))
+        : (lang === 'fr' ? '30 min' : (lang === 'nl' ? '30 min' : (lang === 'tr' ? '30 dk' : '30 min')));
+
+    const issuesText = isHomeConsole
+        ? (lang === 'fr' ? 'HDMI ou surchauffe' : (lang === 'nl' ? 'HDMI of oververhitting' : (lang === 'tr' ? 'HDMI veya aşırı ısınma' : 'HDMI or overheating')))
+        : (lang === 'fr' ? 'écran ou batterie' : (lang === 'nl' ? 'scherm of batterij' : (lang === 'tr' ? 'ekran veya batarya' : 'screen or battery')));
+
+    return { isHomeConsole, durationText, issuesText, deviceType: isHomeConsole ? 'console_home' : 'smartphone' };
 };

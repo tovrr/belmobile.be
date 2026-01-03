@@ -7,7 +7,7 @@ interface LogoProps {
 
 export default function Logo({ className = "w-10 h-10", variant }: LogoProps) {
     return (
-        <div className={`flex items-center gap-3 ${className}`}>
+        <div className={className}>
             <svg
                 id="belmobile-logo"
                 viewBox="0 0 100 100"

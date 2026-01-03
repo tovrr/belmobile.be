@@ -143,7 +143,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                         <span aria-hidden="true">
                             {type === 'buyback' ? t('wizard_action_sell') : t('wizard_action_repair')}
                         </span>
-                        <span aria-hidden="true" className="text-bel-blue mt-2 sm:mt-0 sm:ml-3 relative inline-flex justify-start min-h-[1.2em] align-top">
+                        <span aria-hidden="true" className={`${type === 'buyback' ? 'text-bel-yellow drop-shadow-sm' : 'text-bel-blue'} mt-2 sm:mt-0 sm:ml-3 relative inline-flex justify-start min-h-[1.2em] align-top`}>
                             <TypewriterInput
                                 phrases={[
                                     t('typewriter_1'),
@@ -167,7 +167,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                 <div className={`relative max-w-lg mx-auto ${hideStep1Title ? 'mb-8' : 'mb-12'}`}>
                     <div className="relative z-20 group">
                         <MagnifyingGlassIcon
-                            className={`absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 transition-colors duration-300 ${isFocused ? 'text-bel-blue' : 'text-gray-400 group-hover:text-bel-blue/70'} ${!searchTerm && !isFocused ? 'animate-pulse' : ''}`}
+                            className={`absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 transition-colors duration-300 ${isFocused ? (type === 'buyback' ? 'text-yellow-500' : 'text-bel-blue') : 'text-gray-400 group-hover:text-bel-blue/70'} ${!searchTerm && !isFocused ? 'animate-pulse' : ''}`}
                             aria-hidden="true"
                         />
                         <input
@@ -177,7 +177,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                             onChange={handleSearchChange}
                             onFocus={() => setIsFocused(true)}
                             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-                            className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-bel-blue focus:ring-4 focus:ring-blue-500/10 transition-all text-lg shadow-xl shadow-blue-500/5 hover:shadow-blue-500/10 hover:border-blue-200 dark:hover:border-blue-900"
+                            className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-4 transition-all text-lg shadow-xl ${type === 'buyback' ? 'focus:border-bel-yellow focus:ring-yellow-500/10 shadow-yellow-500/5 hover:shadow-yellow-500/10 hover:border-yellow-200' : 'focus:border-bel-blue focus:ring-blue-500/10 shadow-blue-500/5 hover:shadow-blue-500/10 hover:border-blue-200'} dark:hover:border-blue-900`}
                             aria-expanded={showDropdown}
                             aria-haspopup="listbox"
                         />
@@ -253,8 +253,8 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                     <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-2xl relative overflow-hidden group/card transition-all">
                         {/* Perfect Widget Conversion Badge */}
                         <div className="absolute -top-1 -right-1 flex flex-col items-end">
-                            <div className="bg-bel-blue text-white text-[10px] font-black uppercase px-3 py-1.5 rounded-bl-2xl shadow-lg animate-pulse flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                            <div className={`${type === 'buyback' ? 'bg-bel-yellow text-gray-900' : 'bg-bel-blue text-white'} text-[10px] font-black uppercase px-3 py-1.5 rounded-bl-2xl shadow-lg animate-pulse flex items-center gap-1.5`}>
+                                <span className={`w-1.5 h-1.5 ${type === 'buyback' ? 'bg-gray-900' : 'bg-white'} rounded-full animate-ping`} />
                                 {type === 'buyback' ? t('trust_best_price') : t('trust_official_warranty')}
                             </div>
                         </div>
@@ -263,7 +263,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                             <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight leading-none mb-1">
                                 {type === 'buyback' ? t('Get Best Cash Offer') : t('Instant Repair Quote')}
                             </h3>
-                            <p className="text-xs font-bold text-bel-blue uppercase tracking-widest mt-2">{t('Select Your Device')}</p>
+                            <p className={`text-xs font-bold ${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'} uppercase tracking-widest mt-2`}>{t('Select Your Device')}</p>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -341,21 +341,21 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                                 }
                             }}
                             className={`group flex flex-col items-center justify-center p-4 lg:p-8 rounded-3xl border-2 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${state.deviceType === dt.id
-                                ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 shadow-blue-500/20'
-                                : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'
+                                ? (state.deviceType === dt.id && type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 shadow-yellow-500/20' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 shadow-blue-500/20')
+                                : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300'
                                 }`}
                         >
-                            <div className={`relative w-16 h-16 p-4 rounded-2xl mb-4 transition-all duration-300 ${state.deviceType === dt.id ? 'bg-bel-blue scale-110 shadow-lg shadow-blue-500/30' : 'bg-gray-50 dark:bg-slate-800 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/10'}`}>
+                            <div className={`relative w-16 h-16 p-4 rounded-2xl mb-4 transition-all duration-300 ${state.deviceType === dt.id ? (type === 'buyback' ? 'bg-bel-yellow scale-110 shadow-lg shadow-yellow-500/30' : 'bg-bel-blue scale-110 shadow-lg shadow-blue-500/30') : 'bg-gray-50 dark:bg-slate-800 group-hover:bg-gray-100 dark:group-hover:bg-slate-700'}`}>
                                 <Image
                                     src={dt.icon}
                                     alt={`${t(dt.label)} category icon`}
                                     fill
                                     priority
                                     sizes="64px"
-                                    className={`object-contain p-2 transition-all duration-300 ${state.deviceType === dt.id ? 'brightness-0 invert' : 'opacity-60 dark:invert dark:opacity-80 group-hover:opacity-100 group-hover:scale-110'}`}
+                                    className={`object-contain p-2 transition-all duration-300 ${state.deviceType === dt.id ? (type === 'buyback' ? 'brightness-0' : 'brightness-0 invert') : 'opacity-60 dark:invert dark:opacity-80 group-hover:opacity-100 group-hover:scale-110'}`}
                                 />
                             </div>
-                            <span className="font-bold text-gray-900 dark:text-white group-hover:text-bel-blue transition-colors">{t(dt.label)}</span>
+                            <span className={`font-bold text-gray-900 dark:text-white transition-colors ${state.deviceType !== dt.id ? 'group-hover:text-bel-yellow' : ''}`}>{t(dt.label)}</span>
                         </button>
                     ))}
                 </div>
@@ -403,7 +403,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({ item, onSelect, typ
             </div>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-xs font-bold text-bel-blue uppercase tracking-tight">{item.brand}</span>
+                    <span className={`text-xs font-bold ${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'} uppercase tracking-tight`}>{item.brand}</span>
                     <span className="w-1 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></span>
                     <span className="text-xs text-gray-500 uppercase">{t(DEVICE_TYPES.find(d => d.id === item.category)?.label || item.category)}</span>
                 </div>

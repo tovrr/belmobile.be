@@ -5,7 +5,11 @@ import { ShieldCheckIcon, ClockIcon, LeafIcon as GlobeEuropeAfricaIcon } from '.
 import { useLanguage } from '../../hooks/useLanguage';
 import FadeIn from '../ui/FadeIn';
 
-const TrustSignals: React.FC = () => {
+interface TrustSignalsProps {
+    variant?: 'aegis' | 'apollo';
+}
+
+const TrustSignals: React.FC<TrustSignalsProps> = ({ variant = 'aegis' }) => {
     const { t } = useLanguage();
 
     const signals = [
@@ -20,8 +24,8 @@ const TrustSignals: React.FC = () => {
             icon: ClockIcon,
             title: 'trust_speed',
             desc: 'trust_speed_desc',
-            gradient: 'from-purple-600 to-indigo-500',
-            glow: 'shadow-purple-500/20'
+            gradient: variant === 'apollo' ? 'from-cyber-citron to-lime-500' : 'from-purple-600 to-indigo-500',
+            glow: variant === 'apollo' ? 'shadow-cyber-citron/20' : 'shadow-purple-500/20'
         },
         {
             icon: GlobeEuropeAfricaIcon,

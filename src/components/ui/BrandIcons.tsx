@@ -426,3 +426,83 @@ export const InformationCircleIcon = (props: IconProps) => (
         <line x1="12" y1="8" x2="12.01" y2="8" />
     </BaseIcon>
 );
+
+export const BriefcaseIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+        <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+    </BaseIcon>
+);
+
+export const WrenchScrewdriverIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
+    </BaseIcon>
+);
+
+export const XMarkIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <path d="M6 18L18 6M6 6l12 12" />
+    </BaseIcon>
+);
+
+export const CpuChipIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <rect x="4" y="4" width="16" height="16" rx="2" />
+        <rect x="9" y="9" width="6" height="6" />
+        <path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3" />
+    </BaseIcon>
+);
+
+export const PlusIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <path d="M12 5v14M5 12h14" />
+    </BaseIcon>
+);
+
+export const MinusIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <path d="M5 12h14" />
+    </BaseIcon>
+);
+
+export const WifiIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+        <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+        <line x1="12" y1="20" x2="12.01" y2="20" />
+    </BaseIcon>
+);
+
+export const FileTextIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+        <polyline points="10 9 9 9 8 9" />
+    </BaseIcon>
+);
+export const BikeIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <circle cx="5.5" cy="17.5" r="3.5" />
+        <circle cx="18.5" cy="17.5" r="3.5" />
+        <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2" />
+    </BaseIcon>
+);
+
+export const BellIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </BaseIcon>
+);
+
+export const ArrowPathIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <path d="M23 4v6h-6" />
+        <path d="M1 20v-6h6" />
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+    </BaseIcon>
+);

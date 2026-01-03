@@ -1,35 +1,16 @@
 'use client';
 
-import React from 'react';
-import { useLanguage } from '../../hooks/useLanguage';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import Hero from './Hero';
-import SchemaMarkup from '../seo/SchemaMarkup';
-
-const TrustSignals = dynamic(() => import('./TrustSignals'), {
-    loading: () => <div className="h-40" />
-});
-
-const BentoServices = dynamic(() => import('./BentoServices'), {
-    loading: () => <div className="h-96" />
-});
-
-
-
-import Link from 'next/link';
-
-const SEOContentBlock = dynamic(() => import('./SEOContentBlock'), {
-    loading: () => <div className="h-40" />
-});
-
-const BrandVideo = dynamic(() => import('./BrandVideo'), {
-    loading: () => <div className="h-96 animate-pulse bg-gray-100 dark:bg-slate-800" />
-});
-
 import { FormattedReview } from '../../services/reviewService';
 
-const ReviewsSection = dynamic(() => import('./ReviewsSection'), {
-    loading: () => <div className="h-60" />
+// Dynamic imports for the variants to split the bundle code
+const AegisHomeClient = dynamic(() => import('../home/aegis/AegisHomeClient'), {
+    loading: () => <div className="min-h-screen bg-slate-50 dark:bg-deep-space animate-pulse" />
+});
+
+const ApolloHomeClient = dynamic(() => import('../home/apollo/ApolloHomeClient'), {
+    loading: () => <div className="min-h-screen bg-slate-50 dark:bg-deep-space animate-pulse" />
 });
 
 interface HomeClientProps {
@@ -37,19 +18,40 @@ interface HomeClientProps {
 }
 
 const HomeClient: React.FC<HomeClientProps> = ({ initialReviews = [] }) => {
-    const { t } = useLanguage();
+    const [isMobile, setIsMobile] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            // Standard mobile breakpoint: < 768px (MD)
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        // Initial check
+        checkMobile();
+
+        // Listen for resize
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // Prevent hydration mismatch: render nothing or skeleton until client-side check completes
+    if (isMobile === null) {
+        return <div className="min-h-screen bg-slate-50 dark:bg-deep-space" />;
+    }
 
     return (
-        <div className="bg-transparent transition-colors duration-300">
-            <SchemaMarkup type="organization" />
-            <Hero />
-            <h2 className="sr-only">{t('home_trust_section_title')}</h2>
-            <TrustSignals />
-            <BentoServices />
-            <BrandVideo />
-            <SEOContentBlock />
-            <ReviewsSection initialReviews={initialReviews} />
-        </div>
+        <>
+            {/* 
+              HYBRID STRATEGY:
+              - Mobile: ApolloHomeClient (Focus: Speed / Conversion)
+              - Desktop: AegisHomeClient (Focus: Authority / Trust)
+            */}
+            {isMobile ? (
+                <ApolloHomeClient initialReviews={initialReviews} />
+            ) : (
+                <AegisHomeClient initialReviews={initialReviews} />
+            )}
+        </>
     );
 };
 

@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: StorePageProps): Promise<Meta
 
     // Load translations for metadata (Server Side)
     // Ensure we don't try to load invalid languages
-    if (!['en', 'fr', 'nl'].includes(lang)) return {};
+    if (!['en', 'fr', 'nl', 'tr'].includes(lang)) return {};
     const translationsDict: TranslationDict = (await import(`../../../../data/i18n/${lang}.json`)).default;
     const t = (key: string) => translationsDict[key] || key;
 
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: StorePageProps): Promise<Meta
 
     const baseUrl = 'https://belmobile.be';
     const alternates: { [key: string]: string } = {};
-    ['en', 'fr', 'nl'].forEach(l => {
+    ['en', 'fr', 'nl', 'tr'].forEach(l => {
         alternates[l] = `${baseUrl}/${l}/stores/${shop.slugs?.[l as keyof typeof shop.slugs] || String(shop.id)}`;
     });
 
@@ -89,7 +89,7 @@ export async function generateMetadata({ params }: StorePageProps): Promise<Meta
 // Statically generate routes for all shops and languages
 export async function generateStaticParams() {
     const shops = await getShops();
-    const languages = ['en', 'fr', 'nl'];
+    const languages = ['en', 'fr', 'nl', 'tr'];
     const params: { lang: string; slug: string }[] = [];
 
     shops.forEach(shop => {
@@ -160,6 +160,7 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
 
     const isOpen = shop.status === 'open' && isShopOpen(shop.openingHours);
     const isTempClosed = shop.status === 'temporarily_closed';
+    const isAppointment = shop.openingHours?.some(h => h.toLowerCase().includes('appointment'));
     const isSoon = shop.status === 'coming_soon';
     const isHub = !!shop.isHub;
 
@@ -235,7 +236,7 @@ export default async function StoreProfilePage({ params }: StorePageProps) {
                                                     ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-400'
                                                     : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                                             }`}>
-                                            {isOpen ? t('Open Now') : isTempClosed ? t('Temporarily Closed') : isSoon ? t('Coming Soon') : t('Closed')}
+                                            {isOpen ? t('Open Now') : isAppointment ? t('By Appointment') : isTempClosed ? t('Temporarily Closed') : isSoon ? t('Coming Soon') : t('Closed')}
                                         </span>
                                     )}
                                     <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">

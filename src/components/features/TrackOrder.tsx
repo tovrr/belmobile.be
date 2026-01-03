@@ -13,14 +13,11 @@ import Celebration from '../common/Celebration';
 
 import { Quote, Reservation } from '../../types';
 import { useData } from '../../hooks/useData';
+import { slugToDisplayName } from '../../utils/slugs';
 
 // Helper to format simplified slugs like "apple-iphone-15" -> "Apple iPhone 15"
 const formatDeviceName = (slug: string) => {
-    if (!slug) return '';
-    return slug
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
+    return slugToDisplayName(slug);
 };
 
 type TrackableItem = (Quote | Reservation) & { id: string, type: 'repair' | 'buyback' | 'reservation', orderId?: string };
@@ -350,7 +347,7 @@ const TrackOrder: React.FC<TrackOrderProps> = ({ initialData }) => {
                                         status.status === 'cancelled' ? 'bg-red-100 text-red-700' :
                                             'bg-blue-100 text-blue-700'
                                         }`}>
-                                        {t(status.status.charAt(0).toUpperCase() + status.status.slice(1).replace('_', ' '))}
+                                        {t(`order_status_${status.status}`) || status.status}
                                     </div>
                                 </div>
 
@@ -432,10 +429,14 @@ const TrackOrder: React.FC<TrackOrderProps> = ({ initialData }) => {
                                             <div className="py-2 border-b border-gray-100 dark:border-slate-800">
                                                 <span className="text-gray-500 block mb-1">{t('Delivery Method')}</span>
                                                 <div className="flex items-center gap-2 font-medium text-gray-900 dark:text-white capitalize">
-                                                    {status.deliveryMethod === 'courier' && <TruckIcon className="w-5 h-5 text-bel-blue" />}
-                                                    {status.deliveryMethod === 'shipping' && <CubeIcon className="w-5 h-5 text-bel-blue" />}
-                                                    {(status.deliveryMethod === 'dropoff' || !status.deliveryMethod) && <BuildingStorefrontIcon className="w-5 h-5 text-bel-blue" />}
-                                                    {t(status.deliveryMethod || 'pickup')}
+                                                    {(status.deliveryMethod === 'courier' || (status as any).deliveryMethod === 'express') && <TruckIcon className="w-5 h-5 text-bel-blue" />}
+                                                    {(status.deliveryMethod === 'shipping' || status.deliveryMethod === 'send') && <CubeIcon className="w-5 h-5 text-bel-blue" />}
+                                                    {(status.deliveryMethod === 'dropoff' || (status as any).deliveryMethod === 'pickup' || !status.deliveryMethod) && <BuildingStorefrontIcon className="w-5 h-5 text-bel-blue" />}
+                                                    {(() => {
+                                                        const method = (status.deliveryMethod as string) || 'dropoff';
+                                                        const normalized = method === 'pickup' ? 'dropoff' : (method === 'shipping' ? 'send' : method);
+                                                        return t(`delivery_method_${normalized}`) || t(method);
+                                                    })()}
                                                 </div>
                                             </div>
 

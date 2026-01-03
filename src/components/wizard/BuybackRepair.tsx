@@ -16,17 +16,27 @@ import { orderService } from '../../services/orderService';
 import { auth } from '../../firebase';
 import { signInAnonymously } from 'firebase/auth';
 
+const ApolloLoader = () => (
+    <div className="w-full h-96 rounded-4xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden relative">
+        <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 dark:via-white/5 to-transparent skew-x-12 animate-[shimmer_1.5s_infinite]" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4">
+            <div className="w-12 h-12 rounded-full border-4 border-t-electric-indigo border-r-transparent border-b-electric-indigo border-l-transparent animate-spin"></div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Apollo Engine Loading</span>
+        </div>
+    </div>
+);
+
 const StepCategorySelection = dynamic(() => import('./steps/StepCategorySelection').then(mod => mod.StepCategorySelection));
 const StepDeviceSelection = dynamic(() => import('./steps/StepDeviceSelection').then(mod => mod.StepDeviceSelection), {
-    loading: () => <div className="h-96 w-full animate-pulse bg-gray-100 dark:bg-slate-800 rounded-3xl" />,
+    loading: () => <ApolloLoader />,
     ssr: false
 });
 const StepCondition = dynamic(() => import('./steps/StepCondition').then(mod => mod.StepCondition), {
-    loading: () => <div className="h-96 w-full animate-pulse bg-gray-100 dark:bg-slate-800 rounded-3xl" />,
+    loading: () => <ApolloLoader />,
     ssr: false
 });
 const StepUserInfo = dynamic(() => import('./steps/StepUserInfo').then(mod => mod.StepUserInfo), {
-    loading: () => <div className="h-96 w-full animate-pulse bg-gray-100 dark:bg-slate-800 rounded-3xl" />,
+    loading: () => <ApolloLoader />,
     ssr: false
 });
 import StepWrapper from './StepWrapper';
@@ -143,26 +153,6 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         }
 
         // --- CLIENT-SIDE REDIRECT FIX (Nintendo 3DS) ---
-        // Legacy URL /pages/reparation-3ds-2ds-xl-bruxelles often mis-redirects to generic
-        // or the user lands on a page where the model isn't selected.
-        // We detect if we are on the generic /nintendo page but with a 3ds intent?
-        // Actually, if the user lands on /reparation/nintendo/new-3ds-xl, the model should be selected.
-        // If they land on /reparation (Step 1), selectedBrand is null.
-        // But we can check the window.location.pathname if needed, or rely on URL props.
-        // The issue is likely the '3ds-2ds-xl' part of the legacy URL is confusing things if not redirected properly.
-        // If the server redirect works, they hit /fr/reparation/nintendo/new-3ds-xl.
-        // If they hit that, selectedModel should be 'New 3DS XL'.
-
-        // If the user says "sending to first step", it means the redirect FAILED and they went to /fr/reparation.
-        // In that case, window.location.href might still show the old legacy URL if next.config.ts didn't catch it?
-        // No, Next.js handles redirects server-side.
-        // If they end up on "First Step" (Category Selection), it means `initialDevice` was null.
-        // Which means they landed on `/fr/reparation`.
-        // So the redirect rule `/pages/reparation-3ds...` -> `/fr/reparation` (Generic Fallback) might have triggered instead of the specific one.
-        // But I put the specific one ABOVE the generic one.
-        // Browser cache again?
-        // I will add a window check here to be 100% nuclear.
-
         if (typeof window !== 'undefined' && window.location.pathname.includes('reparation-3ds-2ds-xl-bruxelles')) {
             let slug = 'repair';
             if (language === 'fr') slug = 'reparation';
@@ -188,6 +178,8 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     // Calculate next disabled for mobile bottom bar
     const isAppleSmartphone = selectedBrand?.toLowerCase() === 'apple' && (deviceType === 'smartphone' || deviceType === 'tablet');
     let nextDisabled = false;
+    let nextLabel = t('Next');
+
     if (step === 3) {
         if (type === 'buyback') {
             nextDisabled = !storage || turnsOn === null;
@@ -199,7 +191,24 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         }
     } else if (step === 2) {
         nextDisabled = !selectedBrand || !selectedModel;
+    } else if (step === 4 && type === 'repair') {
+        // Step 4 is User Info for repair
+        nextLabel = t('Confirm Request');
+        // Validation is handled by form submission usually, so button triggers form submit or is disabled if invalid?
+        // Actually StepUserInfo usually has its own submit button.
+        // MobileBottomBar might want to trigger form submission
+    } else if (step === 5 && type === 'buyback') {
+        nextLabel = t('Confirm Offer');
     }
+
+    const handleMobileNext = () => {
+        const isFinalStep = (type === 'buyback' && step === 5) || (type === 'repair' && step === 4);
+        if (isFinalStep) {
+            if (formRef.current) formRef.current.requestSubmit();
+        } else {
+            handleNext();
+        }
+    };
 
     return (
         <div className={`w-full ${state.isWidget ? 'py-0' : 'pb-32'}`}>
@@ -242,6 +251,30 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                     </StepWrapper>
                 )}
             </AnimatePresence>
+
+            {/* APOLLO ENGINE: Mobile Controls */}
+            {!state.isWidget && (
+                (step === 2 && selectedModel) ||
+                (step >= 3)
+            ) && (
+                    <MobileBottomBar
+                        type={type}
+                        onNext={handleMobileNext}
+                        nextDisabled={nextDisabled}
+                        nextLabel={nextLabel}
+                        t={t}
+                        showEstimate={step === 3}
+                        estimateDisplay={pricingLoading ? (
+                            <div className="flex space-x-1 py-1">
+                                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                            </div>
+                        ) : (
+                            <>€{sidebarEstimate}</>
+                        )}
+                    />
+                )}
         </div>
     );
 };

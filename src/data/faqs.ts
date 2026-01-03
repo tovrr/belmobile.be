@@ -14,7 +14,7 @@ export const FAQS = {
             { question: "Puis-je annuler la vente ?", answer: "Oui, vous pouvez refuser notre offre finale sans frais à tout moment avant le paiement." }
         ],
         hub_brussels: [
-            { question: "Où sont situés vos ateliers à Bruxelles ?", answer: "Nous sommes présents à Schaerbeek (Chaussée de Haecht), Molenbeek (Chaussée de Gand) et Anderlecht (Chaussée de Mons)." },
+            { question: "Où sont situés vos ateliers à Bruxelles ?", answer: "Nous sommes présents à Schaerbeek (Rue Gallait, 1030), Anderlecht (Rue Lambert Crickx, 1070) et Molenbeek (Tour & Taxis - HQ B2B Uniquement)." },
             { question: "Y a-t-il un parking à proximité ?", answer: "Oui, tous nos magasins sont situés sur des axes principaux avec des possibilités de stationnement à proximité." }
         ]
     },
@@ -22,7 +22,7 @@ export const FAQS = {
         repair: [
             { question: "Hoe lang duurt de reparatie?", answer: "Voor de meeste ingrepen (scherm, batterij) duurt de reparatie 30 minuten. Complexe diagnoses kunnen 24u duren." },
             { question: "Wat is de garantie?", answer: "Wij bieden 1 jaar garantie op onderdelen en werkuren." },
-            { question: "Moet ik een afspraak maken?", answer: "Nee, onze service is zonder afspraak. Kom langs wanneer u wilt tijdens de openingsuren." },
+            { question: "Moet ik een afspraak maken?", answer: "Nee, voor Schaerbeek en Anderlecht is een afspraak niet nodig. Molenbeek is enkel op afspraak (B2B)." },
             { question: "Is de BTW inbegrepen?", answer: "Ja, al onze prijzen zijn inclusief 21% BTW. U ontvangt een gedetailleerde factuur per e-mail." },
             { question: "Kan ik annuleren?", answer: "Annulering is gratis zolang de reparatie nog niet is begonnen." }
         ],
@@ -32,7 +32,7 @@ export const FAQS = {
             { question: "Kan ik de verkoop annuleren?", answer: "Ja, u kunt ons definitieve bod op elk moment kosteloos weigeren vóór de betaling." }
         ],
         hub_brussels: [
-            { question: "Waar zijn jullie ateliers in Brussel?", answer: "Wij zijn aanwezig in Schaarbeek (Haachtsesteenweg), Sint-Jans-Molenbeek (Gentsesteenweg) en Anderlecht (Bergensesteenweg)." },
+            { question: "Waar zijn jullie ateliers in Brussel?", answer: "Wij zijn aanwezig in Schaarbeek (Gallaitstraat, 1030), Anderlecht (Lambert Crickxstraat, 1070) en Molenbeek (Tour & Taxis - Enkel B2B)." },
             { question: "Is er parkeergelegenheid?", answer: "Ja, al onze winkels liggen aan hoofdwegen met parkeermogelijkheden in de buurt." }
         ]
     },
@@ -40,7 +40,7 @@ export const FAQS = {
         repair: [
             { question: "How long does the repair take?", answer: "For most interventions (screen, battery), the repair takes 30 minutes. Complex diagnostics may take 24h." },
             { question: "What is the warranty?", answer: "We offer a 1-year warranty on parts and labor." },
-            { question: "Do I need an appointment?", answer: "No, walk-ins are welcome. Come by whenever you want during opening hours." },
+            { question: "Do I need an appointment?", answer: "No, walk-ins are welcome at Schaerbeek and Anderlecht. Molenbeek is by appointment only (B2B)." },
             { question: "Is VAT included?", answer: "Yes, all our prices include 21% VAT. You will receive a detailed invoice by email." },
             { question: "Can I cancel?", answer: "Cancellation is free as long as the repair has not started." }
         ],
@@ -50,8 +50,26 @@ export const FAQS = {
             { question: "Can I cancel the sale?", answer: "Yes, you can decline our final offer free of charge at any time before payment." }
         ],
         hub_brussels: [
-            { question: "Where are your workshops in Brussels?", answer: "We are present in Schaerbeek (Chaussée de Haecht), Molenbeek (Chaussée de Gand), and Anderlecht (Chaussée de Mons)." },
+            { question: "Where are your workshops in Brussels?", answer: "We are present in Schaerbeek (Rue Gallait, 1030), Anderlecht (Rue Lambert Crickx, 1070) and Molenbeek (Tour & Taxis - B2B HQ Only)." },
             { question: "Is there parking nearby?", answer: "Yes, all our stores are located on main roads with parking options nearby." }
+        ]
+    },
+    tr: {
+        repair: [
+            { question: "Onarım ne kadar sürer?", answer: "Çoğu işlem için (ekran, batarya) onarım 30 dakika sürer. Karmaşık arıza tespitleri 24 saat sürebilir." },
+            { question: "Garanti süresi nedir?", answer: "Parça ve işçilik için 1 yıl garanti sunuyoruz." },
+            { question: "Randevu almam gerekiyor mu?", answer: "Hayır, Schaerbeek ve Anderlecht mağazalarımıza randevusuz gelebilirsiniz. Molenbeek sadece randevu iledir (B2B)." },
+            { question: "KDV dahil mi?", answer: "Evet, tüm fiyatlarımıza %21 KDV dahildir. Detaylı faturanız e-posta ile gönderilir." },
+            { question: "İptal edebilir miyim?", answer: "Onarım başlamadığı sürece iptal işlemi ücretsizdir." }
+        ],
+        buyback: [
+            { question: "Ödeme anında mı yapılıyor?", answer: "Evet, yasal sınırlar dahilinde nakit veya anında havale ile hemen ödeme yapıyoruz." },
+            { question: "Kırık telefonları alıyor musunuz?", answer: "Evet, ekranı kırık, arkası çatlak veya batarya sorunu olan cihazları da satın alıyoruz." },
+            { question: "Satıştan vazgeçebilir miyim?", answer: "Evet, ödeme yapılmadan önce istediğiniz an teklifimizi ücretsiz olarak reddedebilirsiniz." }
+        ],
+        hub_brussels: [
+            { question: "Brüksel'deki atölyeleriniz nerede?", answer: "Schaerbeek (Rue Gallait, 1030), Anderlecht (Rue Lambert Crickx, 1070) ve Molenbeek (Tour & Taxis - B2B Genel Merkez) şubelerimizle hizmetinizdeyiz." },
+            { question: "Yakınlarda otopark var mı?", answer: "Evet, tüm mağazalarımız ana caddeler üzerinde olup yakınlarda park imkanı mevcuttur." }
         ]
     }
 };

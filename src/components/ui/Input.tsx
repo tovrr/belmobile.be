@@ -10,10 +10,15 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     leftIcon?: React.ReactNode;
     rightIcon?: React.ReactNode;
     rightElement?: React.ReactNode;
+    variant?: 'default' | 'buyback';
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ label, error, description, className, containerClassName, leftIcon, rightIcon, rightElement, ...props }, ref) => {
+    ({ label, error, description, className, containerClassName, leftIcon, rightIcon, rightElement, variant = 'default', ...props }, ref) => {
+        const focusRingClass = variant === 'buyback'
+            ? 'focus:ring-bel-yellow focus:border-bel-yellow caret-bel-yellow'
+            : 'focus:ring-primary focus:border-transparent';
+
         return (
             <div className={`space-y-2 ${containerClassName || ''}`}>
                 {label && (
@@ -36,12 +41,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                         ${rightIcon || rightElement ? 'pr-12' : 'px-4'}
                         bg-white dark:bg-slate-900/50 
                         border rounded-xl 
-                        focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent 
+                        focus:outline-none focus:ring-2 ${focusRingClass}
                         transition-all 
                         text-gray-900 dark:text-white placeholder-gray-400
                         ${error
                                 ? 'border-red-500 focus:ring-red-500'
-                                : 'border-gray-200 dark:border-white/10'
+                                : variant === 'buyback' ? 'border-gray-200 dark:border-white/10 focus:border-bel-yellow' : 'border-gray-200 dark:border-white/10'
                             }
                         ${className || ''}
                     `}

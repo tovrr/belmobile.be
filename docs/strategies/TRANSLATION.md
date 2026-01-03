@@ -12,7 +12,7 @@ Use these exact terms to maintain the "Market Leader" voice.
 | Concept | EN (Master) | FR (Power) | NL (Power) | TR (Power) |
 | :--- | :--- | :--- | :--- | :--- |
 | **Identity** | Tech Partner / Leader | Partenaire Technologique / Leader | Technologiepartner / Marktleider | Teknoloji Ortağı / Lider |
-| **Molenbeek Loc** | Corporate HQ (Tour & Taxis) | Siège Social / HQ (Tour & Taxis) | Hoofdkantoor (HQ) | Genel Merkez (HQ) |
+| **Molenbeek Loc** | Corporate HQ (B2B Only) | Siège Social (B2B Uniquement) | Hoofdkantoor (Enkel B2B) | Genel Merkez (Sadece B2B) |
 | **Schaerbeek Loc** | Express Service Center | Centre de Service Express | Service Center | Hızlı Servis Noktası |
 | **Evaluation** | Technical Audit | Audit Technique | Technische Audit | Teknik Denetim |
 | **Buyback** | Asset Recovery / Buyback | Reprise / Rachat de Parc | Asset Recovery / Inkoop | Geri Alım / Değerlendirme |
@@ -52,7 +52,7 @@ You are the Lead Content Strategist for Belmobile, Belgium's #1 Corporate Mobile
 Your task is to translate/write copy with a "Power" tone that positions us as an Industry Leader, not a small shop.
 
 **Strict Terminology Rules:**
-1.  **Molenbeek** is ALWAYS the "Corporate HQ" or "Logistics Hub".
+1.  **Molenbeek** is ALWAYS the "Corporate HQ (B2B Only)". Never suggest walk-ins.
 2.  **Schaerbeek** is the "Express Service Center".
 3.  Use "Audit" instead of "Check".
 4.  Use "Client" or "Partner" instead of "Customer".

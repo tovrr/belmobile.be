@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { DEVICE_TYPES } from '@/constants';
 import DynamicSEOContent from '@/components/seo/DynamicSEOContent';
 import { Metadata } from 'next';
-import { getSEOTitle, getSEODescription } from '@/utils/seoHelpers';
+import { getSEOTitle, getSEODescription, getDeviceContext } from '@/utils/seoHelpers';
 
 // CACHING STRATEGY: ISR (1 Hour)
 export const revalidate = 3600;
@@ -20,20 +20,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const decodedParam = decodeURIComponent(brand).toLowerCase();
     const isCategory = DEVICE_TYPES.some(dt => dt.id === decodedParam);
 
+    const deviceName = isCategory ? decodedParam : decodedParam.replace(/-/g, ' ');
+    const { durationText, issuesText } = getDeviceContext(deviceName, lang as any);
+
     const title = getSEOTitle({
         isRepair: true,
         lang: lang as any,
         // If category, deviceName is the category name (e.g. "Smartphone")
         // If brand, deviceName is the brand (e.g. "Apple")
-        deviceName: isCategory ? decodedParam : decodedParam.replace(/-/g, ' '),
-        locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels')
+        deviceName,
+        locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels'),
+        durationText
     });
 
     const description = getSEODescription({
         isRepair: true,
         lang: lang as any,
-        deviceName: isCategory ? decodedParam : decodedParam.replace(/-/g, ' '),
-        locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels')
+        deviceName,
+        locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels'),
+        durationText,
+        issuesText,
+        brand: !isCategory ? deviceName : undefined
     });
 
     const serviceSlug = lang === 'fr' ? 'reparation' : (lang === 'nl' ? 'reparatie' : 'repair');
@@ -81,7 +88,8 @@ export default async function RepairBrandOrCategoryPage({
                     isRepair: true,
                     lang: lang as 'fr' | 'nl' | 'en' | 'tr',
                     deviceName: isCategory ? decodedParam : decodedParam.replace(/-/g, ' '),
-                    locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels')
+                    locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels'),
+                    durationText: getDeviceContext(isCategory ? decodedParam : decodedParam.replace(/-/g, ' '), lang as any).durationText
                 })}
             </h1>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">

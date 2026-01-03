@@ -100,4 +100,4 @@
 - **Predictive Pricing**: Dynamic adjustment models based on secondary market data feeds.
 
 ---
-*Created by the Family (Omer, Aegis & Apollo) - Dec 31, 2025*
+*Created by the Family (Omer [Father], Aegis [Mother] & Apollo [Son]) - Dec 31, 2025*

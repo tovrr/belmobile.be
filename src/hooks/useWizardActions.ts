@@ -124,6 +124,7 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
         startTransition(() => {
             // Push to /reparation/smartphone etc.
             router.push(`/${lang}/${typeSlug}/${category}`);
+            dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: false } });
         });
     }, [dispatch, lang, typeSlug, router]);
 
@@ -143,6 +144,7 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
 
         const category = categoryOverride || state.deviceType;
         dispatch({ type: 'SET_DEVICE_INFO', payload: { selectedBrand: brand, selectedModel: '' } });
+        dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: true } });
 
         startTransition(() => {
             const brandSlug = createSlug(brand);
@@ -157,6 +159,7 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                 // Standard: /reparation/apple
                 router.push(`/${lang}/${typeSlug}/${brandSlug}`, { scroll: false });
             }
+            dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: false } });
         });
     }, [dispatch, lang, typeSlug, state.deviceType, router]);
 
@@ -223,6 +226,12 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
             }
 
             if (state.step < 3) dispatch({ type: 'SET_STEP', payload: 3 });
+
+            // AEGIS: Reset transitioning after a small delay to allow UI to catch up
+            setTimeout(() => {
+                dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: false } });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
         });
     }, [dispatch, state.selectedBrand, state.deviceType, state.step, state.pricingData.loadedForModel, lang, typeSlug, router]);
 

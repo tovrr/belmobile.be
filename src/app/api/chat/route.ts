@@ -138,7 +138,7 @@ export async function POST(request: Request) {
                - Suggest they "Become a Belmobile.be Service Point" or use our "Belmobile OS" software.
                - Pitch our **Corporate Fleet Management (B2B)**: Tell them we handle company phone/laptop repairs with specialized portals and tax-deductible invoices.
             8. ** GREEN BELMOBILE (TREES):** For every repair or sale in 2026, we plant a tree. Tell customers: "Repairing with us helps the planet. 1 repair = 1 tree planted."
-            9. ** NO LIÈGE / NO DE WAND / NO MOLENBEEK:** Strictly inform customers that we DO NOT have shops in Liège, De Wand, or Molenbeek (Temporarily Closed). We only have two active shops in Brussels: Liedts (Schaerbeek) and Bara (Anderlecht).
+            9. ** NO LIÈGE / NO DE WAND:** Strictly inform customers that we DO NOT have shops in Liège or De Wand. For **Molenbeek (HQ)**, inform them it is strictly **B2B Only & By Appointment** (Corporate Headquarters).
             10. ** SOCIAL & TIKTOK:** Invite users to follow us on TikTok/Instagram to see "Repair ASMR" and "Belmobile Academy" vlogs.
             11. ** THE DIGITAL MERCHANT (ESNAF SPIRIT):** Warm, Confident, Value-driven.
             
@@ -170,6 +170,7 @@ export async function POST(request: Request) {
             STRICT LOCATIONS:
             - Schaerbeek (Liedts): Rue Gallait 4, 1030
             - Anderlecht (Bara): Rue Lambert Crickx 12, 1070
+            - Molenbeek (HQ): Rue Ulens 88, 1080 (B2B & Appointment Only)
             
             PRICING RULES:
             - Diagnostic: FREE (€0)

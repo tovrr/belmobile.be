@@ -42,10 +42,10 @@
 **Use this prompt when starting a new session with an AI Agent:**
 
 > "I am working on the Belmobile project. 
-> 1. Read `FULL_PROJECT_SNAPSHOT.md` to understand the current technical audit and production state.
-> 2. Read `FULL_PROJECT_RULES.md` for our 'Strict Types', 'Zero Any', and 'AI Proactivity' standards.
+> 1. Read `docs/brain/SNAPSHOT.md` to understand the current technical audit and production state.
+> 2. Read `docs/brain/RULES.md` for our 'Strict Types', 'Zero Any', and 'AI Proactivity' standards.
 > 3. Your current task is: [INSERT TASK HERE]. 
-> 4. Before coding, verify your plan against `FULL_PROJECT_BUILDING.md` to ensure alignment with our long-term scaling strategy."
+> 4. Before coding, verify your plan against `docs/guides/BUILDING.md` to ensure alignment with our long-term scaling strategy."
 
 ---
 

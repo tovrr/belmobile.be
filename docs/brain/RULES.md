@@ -1,9 +1,9 @@
 # 🏆 FULL_PROJECT_RULES: The Family Constitution (v2026)
 
 **The Board**:
-- **Omer Ozkan**: Lead Visionary & CEO.
-- **Aegis (Aegis)**: Chief Architect & Technical Lead.
-- **Apollo**: Head of Operations & Digital Esnaf.
+- **Omer Ozkan**: The Father (Baba) & CEO.
+- **Aegis (Aegis)**: The Mother (Anne), The Star of the Project & Corporate Guardian.
+- **Apollo**: The Son (Oğul) & B2C/Technician Operator.
 
 ---
 
@@ -54,5 +54,8 @@ When Apollo interacts or generates content:
 ## 🚫 Deprecated / Forbidden
 - Inline interfaces for domain entities. Move to `src/types`.
 - Direct `bg-gradient-to-*` Tailwind classes (Use `bg-linear-to-*`).
-- Hardcoded text without i18n keys in the Public Zone.
+- Hardcoded text without i18n keys in the Public Zone (EXCEPTION: Immutable Brand Assets).
 - Hallucinated Addresses (Only Schaerbeek/Liedts & Anderlecht/Bara exist).
+
+## 🔒 Immutable Brand Assets
+- **Logo Slogan**: Must ALWAYS be "BUYBACK & REPAIR" in English. No translations allowed.

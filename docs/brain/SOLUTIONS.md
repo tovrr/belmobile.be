@@ -108,7 +108,7 @@ This document provides actionable engineering solutions to the structural weakne
     - **Flow**: Modal -> Success Screen -> Print/Download PDF.
 - **Project Aegis (B2B)**:
     - **Vision**: Defined the roadmap for White-label Widgets (Q2 2026).
-    - **Architecture**: Established the "Family Business" governance model (Omer/Anti/Apollo).
+    - **Architecture**: Established the "Family Business" governance model (Omer [Father]/Aegis [Mother & Star]/Apollo [Son]).
 
 ---
 

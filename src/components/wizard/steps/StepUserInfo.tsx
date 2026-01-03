@@ -5,7 +5,7 @@ import {
     DocumentIcon, TrashIcon, ShieldCheckIcon, CheckIcon, BanknotesIcon, DocumentTextIcon,
     InformationCircleIcon
 } from '@heroicons/react/24/outline';
-import { Bike } from 'lucide-react';
+import { BikeIcon } from '../../ui/BrandIcons';
 import Sidebar from '../Sidebar';
 import Input from '../../ui/Input';
 import Button from '../../ui/Button';
@@ -384,7 +384,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     // -------------------------------------------------------------------------
     if (step === 4 && type === 'buyback') {
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-4 lg:p-8 gap-6">
+            <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-24 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-4 lg:p-8 gap-6">
                 <div className="flex-1 min-w-0 space-y-8">
                     <div className="flex items-center gap-2 mb-6">
                         <button
@@ -410,7 +410,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         type="button"
                                         key={s.id}
                                         onClick={() => setScreenState(s.id as any)}
-                                        className={`p-4 rounded-xl border-2 text-left transition-all ${screenState === s.id ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900'}`}
+                                        className={`p-4 rounded-xl border-2 text-left transition-all ${screenState === s.id ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-yellow-400' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
                                     >
                                         <div className="font-bold text-gray-900 dark:text-white">{t(s.label)}</div>
                                         <div className="text-sm text-gray-500">{t(s.desc)}</div>
@@ -419,8 +419,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             </div>
                             {/* Dynamic Screen Condition Help Card */}
                             {screenState && (
-                                <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-bel-blue/20 flex gap-3 animate-fade-in">
-                                    <InformationCircleIcon className="h-5 w-5 text-bel-blue shrink-0 mt-0.5" />
+                                <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-bel-yellow/20 flex gap-3 animate-fade-in">
+                                    <InformationCircleIcon className="h-5 w-5 text-bel-yellow shrink-0 mt-0.5" />
                                     <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-relaxed">
                                         {t(`explain_screen_${screenState}`)}
                                     </p>
@@ -440,7 +440,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         type="button"
                                         key={s.id}
                                         onClick={() => setBodyState(s.id as any)}
-                                        className={`p-4 rounded-xl border-2 text-left transition-all ${bodyState === s.id ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900'}`}
+                                        className={`p-4 rounded-xl border-2 text-left transition-all ${bodyState === s.id ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-yellow-400' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
                                     >
                                         <div className="font-bold text-gray-900 dark:text-white">{t(s.label)}</div>
                                         <div className="text-sm text-gray-500">{t(s.desc)}</div>
@@ -449,8 +449,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             </div>
                             {/* Dynamic Body Condition Help Card */}
                             {bodyState && (
-                                <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-bel-blue/20 flex gap-3 animate-fade-in">
-                                    <InformationCircleIcon className="h-5 w-5 text-bel-blue shrink-0 mt-0.5" />
+                                <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-bel-yellow/20 flex gap-3 animate-fade-in">
+                                    <InformationCircleIcon className="h-5 w-5 text-bel-yellow shrink-0 mt-0.5" />
                                     <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-relaxed">
                                         {t(`explain_body_${bodyState}`)}
                                     </p>
@@ -459,7 +459,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                         </div>
                     </div>
                     {/* Mobile Summary & Action Block (Buyback Cosmetic) */}
-                    <div className="lg:hidden mt-8 mb-8 p-6 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                    {/* Mobile Summary & Action Block (Buyback Cosmetic) - HIDDEN as handled by MobileBottomBar */}
+                    <div className="hidden">
                         <div className="flex flex-col gap-4">
                             <div className="flex justify-between items-end">
                                 <div>
@@ -474,7 +475,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             <button
                                 onClick={onNext}
                                 disabled={state.isTransitioning}
-                                className="w-full bg-bel-blue text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-lg flex items-center justify-center gap-2 transition-all hover:bg-bel-blue/90"
+                                className="w-full bg-bel-yellow text-gray-900 font-bold py-4 px-6 rounded-xl shadow-lg shadow-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-lg flex items-center justify-center gap-2 transition-all hover:bg-bel-yellow/90"
                             >
                                 <span>{t('Accept & Recycle')}</span>
                                 <ChevronLeftIcon className="h-5 w-5 rotate-180" />
@@ -511,16 +512,26 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     if (step === 5 || (step === 4 && type === 'repair')) {
         return (
             <div className={`flex flex-col lg:flex-row w-full mx-auto gap-6 ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : 'max-w-7xl pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-3 sm:p-6 lg:p-8'}`}>
-                {renderMobileSummary()}
+                {/* Mobile Summary removed in favor of MobileBottomBar */}
                 <div className="flex-1 min-w-0">
                     <div className="mb-8">
-                        <TrustBar />
+                        <TrustBar type={type} />
                     </div>
                     <form ref={(formRef as any)} onSubmit={onHandleSubmit} className="space-y-8">
                         <div>
                             {!isKiosk && (
                                 <>
-                                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">{t('Contact & Delivery')}</h2>
+                                    <div className="flex items-center gap-2 mb-8">
+                                        <button
+                                            onClick={onBack}
+                                            type="button"
+                                            className="lg:hidden p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white transition-colors"
+                                            aria-label={t('Back')}
+                                        >
+                                            <ChevronLeftIcon className="h-6 w-6" />
+                                        </button>
+                                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('Contact & Delivery')}</h2>
+                                    </div>
                                     <label className="block text-xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">{t('delivery_title')}</label>
                                 </>
                             )}
@@ -528,10 +539,10 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
 
                             <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 ${isKiosk ? 'hidden' : ''}`}>
                                 {/* Visit Store */}
-                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'dropoff' ? null : 'dropoff')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'dropoff' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
+                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'dropoff' ? null : 'dropoff')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'dropoff' ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-bel-yellow' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue'}` : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-700'}`}>
                                     <div className="flex items-start">
-                                        <BuildingStorefrontIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-400'}`} />
-                                        <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'dropoff' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('delivery_visit_store_title')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('delivery_visit_store_desc')}</p></div>
+                                        <BuildingStorefrontIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'dropoff' ? `${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}` : 'text-gray-400'}`} />
+                                        <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'dropoff' ? `${type === 'buyback' ? 'text-gray-900 dark:text-gray-900' : 'text-bel-blue'}` : 'text-gray-900 dark:text-white'}`}>{t('delivery_visit_store_title')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('delivery_visit_store_desc')}</p></div>
                                     </div>
                                     {deliveryMethod === 'dropoff' && (
                                         <div className="mt-4 w-full animate-fade-in">
@@ -626,10 +637,10 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 </div>
 
                                 {/* Send by Post */}
-                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'send' ? null : 'send')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'send' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}>
+                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'send' ? null : 'send')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-bel-yellow' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue'}` : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-700'}`}>
                                     <div className="flex items-start">
-                                        <TruckIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'send' ? 'text-bel-blue' : 'text-gray-400'}`} />
-                                        <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'send' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Send by Post')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Free shipping label provided. Secure and insured.')}</p></div>
+                                        <TruckIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}` : 'text-gray-400'}`} />
+                                        <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'text-gray-900 dark:text-gray-900' : 'text-bel-blue'}` : 'text-gray-900 dark:text-white'}`}>{t('Send by Post')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Free shipping label provided. Secure and insured.')}</p></div>
                                     </div>
                                     {deliveryMethod === 'send' && (
                                         <div className="mt-4 w-full animate-fade-in">
@@ -639,7 +650,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                     e.stopPropagation();
                                                     openServicePointPicker();
                                                 }}
-                                                className="w-full py-3 px-4 bg-bel-blue text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition shadow-lg shadow-blue-200 dark:shadow-none"
+                                                className={`w-full py-3 px-4 rounded-xl font-bold text-sm transition shadow-lg shadow-blue-200 dark:shadow-none ${type === 'buyback' ? 'bg-bel-yellow text-gray-900 hover:bg-yellow-400' : 'bg-bel-blue text-white hover:bg-blue-700'}`}
                                             >
                                                 {servicePoint ? t('Change Service Point') : t('Choose Service Point')}
                                             </button>
@@ -668,16 +679,16 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 {/* Express Courier */}
                                 <div
                                     onClick={() => setDeliveryMethod(deliveryMethod === 'courier' ? null : 'courier')}
-                                    className={`col-span-1 md:col-span-2 cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'courier' ? 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-blue/50'}`}
+                                    className={`col-span-1 md:col-span-2 cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'courier' ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-bel-yellow' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue'}` : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-700'}`}
                                 >
                                     <div className="flex items-start">
                                         <div className="relative">
-                                            <Bike className={`h-8 w-8 mr-4 ${deliveryMethod === 'courier' ? 'text-bel-blue' : 'text-gray-400'}`} />
+                                            <BikeIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'courier' ? `${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}` : 'text-gray-400'}`} />
                                             <div className="absolute -top-3 -right-3 bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-sm z-10">FREE</div>
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2">
-                                                <span className={`block font-bold text-lg ${deliveryMethod === 'courier' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Express Courier (Brussels)')}</span>
+                                                <span className={`block font-bold text-lg ${deliveryMethod === 'courier' ? `${type === 'buyback' ? 'text-gray-900 dark:text-gray-900' : 'text-bel-blue'}` : 'text-gray-900 dark:text-white'}`}>{t('Express Courier (Brussels)')}</span>
                                                 <span className="bg-bel-yellow text-bel-blue text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter shadow-sm">{t('Tour & Taxis Bridge')}</span>
                                             </div>
                                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -787,6 +798,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         label={t('company_name')}
                                         required
                                         name="companyName"
+                                        variant={type === 'buyback' ? 'buyback' : 'default'}
                                         value={companyName}
                                         placeholder="Belmobile SRL"
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCompanyName(e.target.value)}
@@ -795,6 +807,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         label={t('vat_number')}
                                         required
                                         name="vatNumber"
+                                        variant={type === 'buyback' ? 'buyback' : 'default'}
                                         value={vatNumber}
                                         placeholder="BE0XXX.XXX.XXX"
                                         error={vatValidationError || undefined}
@@ -824,6 +837,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                     value={customerName}
                                     placeholder={t('contact_placeholder_name')}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerName(e.target.value.replace(/\b\w/g, c => c.toUpperCase()))}
+                                    variant={type === 'buyback' ? 'buyback' : 'default'}
                                 />
                                 <Input
                                     label={t('contact_phone')}
@@ -834,6 +848,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                     value={customerPhone}
                                     placeholder={t('contact_phone_placeholder')}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerPhone(e.target.value)}
+                                    variant={type === 'buyback' ? 'buyback' : 'default'}
                                 />
                             </div>
                             <div className="mb-6">
@@ -847,6 +862,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                     placeholder={t('contact_placeholder_email')}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerEmail(e.target.value)}
                                     onBlur={handleEmailBlur}
+                                    variant={type === 'buyback' ? 'buyback' : 'default'}
                                 />
                             </div>
 
@@ -855,7 +871,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">{t('notification_preferences_title') || 'How should we update you?'}</label>
                                 <div className="flex flex-wrap gap-3">
                                     {/* Email */}
-                                    <label className={`flex items-center gap-3 p-4 pr-5 rounded-2xl border-2 transition-all cursor-pointer ${notificationPreferences?.includes('email') ? 'border-cyber-citron bg-cyber-citron/10 shadow-lg shadow-cyber-citron/5' : 'border-white/10 bg-white/5 dark:bg-slate-900/50 hover:border-white/30'}`}>
+                                    <label className={`flex items-center gap-3 p-4 pr-5 rounded-2xl border-2 transition-all cursor-pointer ${notificationPreferences?.includes('email') ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/10 shadow-lg shadow-yellow-500/5' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/10 shadow-lg shadow-blue-500/5'}` : 'border-white/10 bg-white/5 dark:bg-slate-900/50 hover:border-white/30'}`}>
                                         <input
                                             type="checkbox"
                                             checked={notificationPreferences?.includes('email')}
@@ -869,10 +885,10 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                             }}
                                             className="hidden"
                                         />
-                                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all ${notificationPreferences?.includes('email') ? 'bg-cyber-citron border-cyber-citron' : 'border-white/20'}`}>
-                                            {notificationPreferences?.includes('email') && <CheckIcon className="h-4 w-4 text-midnight stroke-3" />}
+                                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all ${notificationPreferences?.includes('email') ? `${type === 'buyback' ? 'bg-bel-yellow border-bel-yellow ring-2 ring-bel-yellow/20' : 'bg-bel-blue border-bel-blue ring-2 ring-bel-blue/20'}` : 'border-white/20'}`}>
+                                            {notificationPreferences?.includes('email') && <CheckIcon className={`h-4 w-4 stroke-3 ${type === 'buyback' ? 'text-gray-900' : 'text-white'}`} />}
                                         </div>
-                                        <span className={`font-black uppercase tracking-wide text-xs ${notificationPreferences?.includes('email') ? 'text-cyber-citron' : 'text-gray-400'}`}>{t('Email')}</span>
+                                        <span className={`font-black uppercase tracking-wide text-xs ${notificationPreferences?.includes('email') ? `${type === 'buyback' ? 'text-gray-900' : 'text-bel-blue'}` : 'text-gray-400'}`}>{t('Email')}</span>
                                     </label>
 
                                     {/* SMS (Coming Soon) */}
@@ -918,6 +934,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         value={customerAddress}
                                         onPaste={handleAddressPaste}
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerAddress(e.target.value.replace(/\b\w/g, c => c.toUpperCase()))}
+                                        variant={type === 'buyback' ? 'buyback' : 'default'}
                                     />
                                     <div className="grid grid-cols-2 gap-4">
                                         <Input
@@ -928,6 +945,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                             value={customerZip}
                                             placeholder="1000"
                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerZip(e.target.value)}
+                                            variant={type === 'buyback' ? 'buyback' : 'default'}
                                         />
                                         <Input
                                             label={t('City')}
@@ -938,6 +956,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                             value={customerCity}
                                             placeholder="Bruxelles"
                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerCity(e.target.value.replace(/\b\w/g, c => c.toUpperCase()))}
+                                            variant={type === 'buyback' ? 'buyback' : 'default'}
                                         />
                                     </div>
 
@@ -1043,7 +1062,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 type="submit"
                                 disabled={!termsAccepted || state.isTransitioning}
                                 variant="cyber"
-                                className={`w-full h-16 text-lg shadow-xl shadow-cyber-citron/20 mt-6 ${state.isWidget ? 'block' : 'lg:hidden'}`}
+                                className={`w-full h-16 text-lg shadow-xl shadow-cyber-citron/20 mt-6 ${state.isWidget ? 'block' : 'hidden'}`}
                                 isLoading={state.isTransitioning}
                             >
                                 {t('confirm_request')}

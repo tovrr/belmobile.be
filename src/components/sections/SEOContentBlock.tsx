@@ -3,7 +3,11 @@
 import React from 'react';
 import { useLanguage } from '../../hooks/useLanguage';
 
-const SEOContentBlock: React.FC = () => {
+interface SEOContentBlockProps {
+    variant?: 'aegis' | 'apollo';
+}
+
+const SEOContentBlock: React.FC<SEOContentBlockProps> = ({ variant = 'aegis' }) => {
     const { t, language } = useLanguage();
 
     const isFr = language === 'fr';
@@ -29,25 +33,25 @@ const SEOContentBlock: React.FC = () => {
                         {isFr ? (
                             <>
                                 Chez <strong>Belmobile</strong>, nous redéfinissons les standards de la réparation électronique.
-                                Situés au cœur de <strong>Schaerbeek</strong> et <strong>Anderlecht</strong>, nos laboratoires certifiés redonnent vie à vos appareils
+                                Situés au cœur de <strong>Schaerbeek</strong> et <strong>Anderlecht</strong>, ainsi qu'à notre siège de <strong>Molenbeek (Tour & Taxis)</strong>, nos laboratoires certifiés redonnent vie à vos appareils
                                 (iPhone, Samsung, iPad, MacBook) en moins de 30 minutes.
                             </>
                         ) : isNl ? (
                             <>
                                 Bij <strong>Belmobile</strong> herdefiniëren we de normen voor elektronische reparatie.
-                                Gelegen in het hart van <strong>Schaerbeek</strong> en <strong>Anderlecht</strong>, brengen onze gecertificeerde laboratoria uw apparaten
+                                Gelegen in het hart van <strong>Schaerbeek</strong> en <strong>Anderlecht</strong>, en in ons hoofdkantoor in <strong>Molenbeek (Tour & Taxis)</strong>, brengen onze gecertificeerde laboratoria uw apparaten
                                 (iPhone, Samsung, iPad, MacBook) in minder dan 30 minuten weer tot leven.
                             </>
                         ) : isTr ? (
                             <>
                                 <strong>Belmobile</strong> olarak, telefon tamiri standartlarını yeniden belirliyoruz.
-                                <strong>Schaerbeek</strong> ve <strong>Anderlecht</strong> şubelerimizde, iPhone, Samsung ve tüm diğer cihazlarınızı,
+                                <strong>Schaerbeek</strong>, <strong>Anderlecht</strong> ve <strong>Molenbeek (Tour & Taxis)</strong> HQ şubelerimizde, iPhone, Samsung ve tüm diğer cihazlarınızı,
                                 verilerinizi silmeden ve orijinal parça garantisiyle 30 dakikada onarıyoruz. Brüksel'in en güvenilir Türk telefoncusu olarak hizmetinizdeyiz.
                             </>
                         ) : (
                             <>
                                 At <strong>Belmobile</strong>, we redefine the standards of electronic repair.
-                                Located in the heart of <strong>Brussels</strong> (Schaerbeek & Anderlecht), our certified labs bring your devices
+                                Located in the heart of <strong>Brussels</strong> (Schaerbeek, Anderlecht & Molenbeek HQ), our certified labs bring your devices
                                 (iPhone, Samsung, iPad, MacBook) back to life in under 30 minutes.
                             </>
                         )}
@@ -87,7 +91,7 @@ const SEOContentBlock: React.FC = () => {
                         { label: isTr ? "Garanti" : "Warranty", val: "1 Year" },
                     ].map((stat, i) => (
                         <div key={i} className="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl">
-                            <div className="text-2xl font-black text-cyber-citron">{stat.val}</div>
+                            <div className={`text-2xl font-black ${variant === 'apollo' ? 'text-cyber-citron' : 'text-electric-indigo'}`}>{stat.val}</div>
                             <div className="text-xs font-bold text-slate-500 uppercase mt-1">{stat.label}</div>
                         </div>
                     ))}

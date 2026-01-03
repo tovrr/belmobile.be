@@ -66,7 +66,7 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
 
     // 4. Shop or Device Details
     const isBuyback = quote.type === 'buyback';
-    const title = isBuyback ? t('DÉTAILS APPAREIL') : t('DÉTAILS RÉPARATION');
+    const title = isBuyback ? t('pdf_label_device_details') : t('pdf_label_repair_details');
 
     // FIX: Use Device Name as the main header for BOTH Repair and Buyback to avoid "Réparation" appearing as the model name.
     const brandDisplay = slugToDisplayName(quote.brand || '');
@@ -153,6 +153,8 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
     return {
         orderId: quote.orderId || String(quote.id).toUpperCase(), // Fallback to doc ID if readable ID missing
         date: formattedDate,
+        time: quote.createdAt?.seconds ? new Date(quote.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined,
+        status: t(`order_status_${quote.status || 'new'}`),
         method: methodLabel,
         type: quote.type,
         customer,
@@ -178,30 +180,115 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
         companyName: quote.companyName,
         vatNumber: quote.vatNumber,
         labels: {
-            orderId: t('Order ID'),
-            date: t('Date'),
-            method: t('Method'),
-            clientDetails: t('Customer Details'),
-            name: t('Name'),
-            email: t('Email'),
-            phone: t('Phone'),
-            address: t('Address'),
+            orderId: t('pdf_label_order_id'),
+            date: t('pdf_label_date'),
+            time: t('pdf_label_time'),
+            status: t('pdf_label_status'),
+            method: t('pdf_label_method'),
+            clientDetails: t('pdf_label_client_details'),
+            name: t('pdf_label_name'),
+            email: t('pdf_label_email'),
+            phone: t('pdf_label_phone'),
+            address: t('pdf_label_address'),
             companyName: t('company_name'),
             vatNumber: t('vat_number'),
-            featuresSpecs: t('Device Details'),
+            featuresSpecs: t('pdf_label_device_details'),
             shop: t('Shop'),
             model: t('Model'),
-            financials: t('Financials'),
-            paymentIban: t('Payment IBAN'),
-            scanToTrack: t('Scan to Track'),
-            description: t('Description'),
-            price: t('Price'),
-            followOrder: t('Follow Order'),
-            nextSteps: t('Next Steps'),
-            page: t('Page'),
-            of: t('of'),
+            financials: t('pdf_label_financials'),
+            paymentIban: t('pdf_label_payment_iban'),
+            scanToTrack: t('pdf_label_scan_to_track'),
+            description: t('pdf_label_description'),
+            price: t('pdf_label_price'),
+            followOrder: t('pdf_label_follow_order'),
+            nextSteps: t('pdf_label_next_steps'),
+            page: t('pdf_label_page'),
+            of: t('pdf_label_of'),
             subtotal: t('Subtotal'),
             vat: t('VAT (21%)')
         }
     };
 };
+
+/**
+ * Maps a Reservation object (Refurbished Sale) to PdfData.
+ */
+export const mapReservationToPdfData = (res: any, t: TFunction): PdfData => {
+    const customer = {
+        name: res.customerName,
+        email: res.customerEmail,
+        phone: res.customerPhone,
+        address: res.shippingAddress
+    };
+
+    const details: { label: string; value: string }[] = [];
+    details.push({ label: t('Price'), value: `€${res.productPrice || 0}` });
+
+    if (res.deliveryMethod === 'shipping') {
+        details.push({ label: t('Method'), value: t('Home Delivery') });
+        if (res.shippingAddress) {
+            details.push({ label: t('Address'), value: res.shippingAddress });
+        }
+    } else {
+        details.push({ label: t('Method'), value: t('In-Store Pickup') });
+        details.push({ label: t('Shop'), value: res.shopName || t('Belmobile Store') });
+    }
+
+    const nextSteps: string[] = res.nextSteps || [
+        t('res_step_1'),
+        t('res_step_2'),
+        t('res_step_3')
+    ];
+
+    return {
+        orderId: res.orderId || String(res.id || '').toUpperCase(),
+        date: res.date || new Date().toLocaleDateString(),
+        time: res.createdAt ? (res.createdAt instanceof Date ? res.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : typeof res.createdAt === 'object' && res.createdAt.seconds ? new Date(res.createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined) : undefined,
+        status: t(`order_status_${res.status || 'pending'}`),
+        method: res.deliveryMethod === 'shipping' ? t('Home Delivery') : t('In-Store Pickup'),
+        type: 'reservation',
+        customer,
+        shopOrDevice: {
+            title: t('pdf_label_reservation_details'),
+            name: res.productName,
+            details
+        },
+        priceBreakdown: [{ label: res.productName, price: res.productPrice || 0 }],
+        totalLabel: t('Total'),
+        totalPrice: res.productPrice || 0,
+        nextSteps,
+        documentTitle: t('Reservation Confirmation'),
+        footerHelpText: t('pdf_footer_help'),
+        trackingInfo: t('pdf_tracking_info'),
+        trackingUrl: res.orderId && res.customerEmail
+            ? `https://belmobile.be/${res.language || 'fr'}/track-order?id=${res.orderId}&email=${encodeURIComponent(res.customerEmail)}`
+            : undefined,
+        labels: {
+            orderId: t('pdf_label_order_id'),
+            date: t('pdf_label_date'),
+            time: t('pdf_label_time'),
+            status: t('pdf_label_status'),
+            method: t('pdf_label_method'),
+            clientDetails: t('pdf_label_client_details'),
+            name: t('pdf_label_name'),
+            email: t('pdf_label_email'),
+            phone: t('pdf_label_phone'),
+            address: t('pdf_label_address'),
+            featuresSpecs: t('pdf_label_product_details'),
+            shop: t('Shop'),
+            model: t('Model'),
+            financials: t('pdf_label_financials'),
+            paymentIban: t('pdf_label_payment_iban'),
+            scanToTrack: t('pdf_label_scan_to_track'),
+            description: t('pdf_label_description'),
+            price: t('pdf_label_price'),
+            followOrder: t('pdf_label_follow_order'),
+            nextSteps: t('pdf_label_next_steps'),
+            page: t('pdf_label_page'),
+            of: t('pdf_label_of'),
+            subtotal: t('Subtotal'),
+            vat: t('VAT (21%)')
+        }
+    };
+};
+

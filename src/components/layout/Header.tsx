@@ -97,8 +97,8 @@ const Header: React.FC = () => {
                     className={`
                         relative w-full max-w-6xl rounded-full transition-all duration-500
                         ${scrolled || isMenuOpen
-                            ? 'glass-panel shadow-glow px-6 py-3'
-                            : 'bg-transparent px-6 py-4'
+                            ? 'glass-panel shadow-glow px-3 py-2 sm:px-6 sm:py-3'
+                            : 'bg-transparent px-3 py-3 sm:px-6 sm:py-4'
                         }
                     `}
                 >
@@ -106,23 +106,23 @@ const Header: React.FC = () => {
                         {/* Logo */}
                         <Link
                             href={`/${language}`}
-                            className="flex items-center gap-3 group"
+                            className="flex items-center gap-1.5 sm:gap-3 group"
                             aria-label="Belmobile Home"
                             itemScope
                             itemType="https://schema.org/Organization"
                         >
                             <meta itemProp="name" content="Belmobile" />
                             <meta itemProp="url" content="https://belmobile.be" />
-                            <div className="w-10 h-10 group-hover:scale-110 transition-transform duration-300 text-gray-900 dark:text-cyber-citron" itemProp="logo" itemScope itemType="https://schema.org/ImageObject">
+                            <div className="w-7 h-7 sm:w-10 sm:h-10 group-hover:scale-110 transition-transform duration-300 text-gray-900 dark:text-cyber-citron" itemProp="logo" itemScope itemType="https://schema.org/ImageObject">
                                 <Logo className="w-full h-full" />
                                 <meta itemProp="url" content="https://belmobile.be/belmobile-logo.png" />
                             </div>
                             <div className="flex flex-col">
-                                <span className="font-black text-2xl tracking-tighter text-gray-900 dark:text-white leading-none">
+                                <span className="font-black text-lg sm:text-2xl tracking-tighter text-gray-900 dark:text-white leading-none">
                                     BELMOBILE<span className="text-cyber-citron">.BE</span>
                                 </span>
-                                <span className="text-[10px] font-bold tracking-[0.19em] text-slate-500 uppercase leading-none mt-0.5 group-hover:text-cyber-citron transition-colors">
-                                    {t('logo_slogan')}
+                                <span className="text-[7px] sm:text-[10px] font-bold tracking-[0.1em] sm:tracking-[0.19em] text-slate-500 uppercase leading-none mt-0.5 group-hover:text-cyber-citron transition-colors">
+                                    BUYBACK & REPAIR
                                 </span>
                             </div>
                         </Link>
@@ -318,4 +318,3 @@ const Header: React.FC = () => {
 };
 
 export default Header;
-

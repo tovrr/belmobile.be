@@ -37,13 +37,13 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ type, step, t, isWidget }
 
                     return (
                         <div key={s} className="flex flex-col items-center">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${isCurrent ? 'bg-bel-blue border-bel-blue text-white scale-110 shadow-lg shadow-blue-500/30' :
-                                isCompleted ? 'bg-bel-blue border-bel-blue text-white' :
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${isCurrent ? (type === 'buyback' ? 'bg-bel-yellow border-bel-yellow text-gray-900 scale-110 shadow-lg shadow-yellow-500/30' : 'bg-bel-blue border-bel-blue text-white scale-110 shadow-lg shadow-blue-500/30') :
+                                isCompleted ? (type === 'buyback' ? 'bg-bel-yellow border-bel-yellow text-gray-900' : 'bg-bel-blue border-bel-blue text-white') :
                                     'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 text-gray-400'
                                 }`}>
                                 {isCompleted ? <CheckCircleIcon className="w-5 h-5" /> : (index + 1)}
                             </div>
-                            <span className={`mt-2 text-[10px] sm:text-xs font-bold transition-colors duration-300 ${isCurrent ? 'text-bel-blue' : isCompleted ? 'text-bel-blue' : 'text-gray-400'
+                            <span className={`mt-2 text-[10px] sm:text-xs font-bold transition-colors duration-300 ${isCurrent ? (type === 'buyback' ? 'text-yellow-600 dark:text-yellow-400' : 'text-bel-blue') : isCompleted ? (type === 'buyback' ? 'text-yellow-600 dark:text-yellow-400' : 'text-bel-blue') : 'text-gray-400'
                                 }`}>
                                 {getLabel(s)}
                             </span>
@@ -53,7 +53,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ type, step, t, isWidget }
                 {/* Connecting Lines */}
                 <div className="absolute top-4 left-0 w-full h-0.5 bg-gray-100 dark:bg-slate-800 -z-10" />
                 <div
-                    className="absolute top-4 left-0 h-0.5 bg-bel-blue transition-all duration-500 -z-10"
+                    className={`absolute top-4 left-0 h-0.5 transition-all duration-500 -z-10 ${type === 'buyback' ? 'bg-bel-yellow' : 'bg-bel-blue'}`}
                     style={{ width: `${(safeIndex / (currentSteps.length - 1)) * 100}%` }}
                 />
             </div>

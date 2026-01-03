@@ -4,7 +4,7 @@ import DynamicSEOContent from '@/components/seo/DynamicSEOContent';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { createSlug } from '@/utils/slugs';
-import { getSEOTitle, getSEODescription } from '@/utils/seoHelpers';
+import { getSEOTitle, getSEODescription, getDeviceContext } from '@/utils/seoHelpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,19 +21,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const decodedModel = decodeURIComponent(model).replace(/-/g, ' ');
     const deviceName = `${decodedBrand} ${decodedModel}`;
 
+    // Logic to distinguish consoles from smartphones in SEO
+    const { durationText, issuesText } = getDeviceContext(decodedModel, lang as any);
+
     // Use helper for consistent SEO titles
     const title = getSEOTitle({
         isRepair: true,
         lang: lang as 'fr' | 'nl' | 'en' | 'tr',
         deviceName,
-        locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels')
+        locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels'),
+        durationText
     });
 
     const description = getSEODescription({
         isRepair: true,
         lang: lang as 'fr' | 'nl' | 'en' | 'tr',
         deviceName,
-        locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels')
+        locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels'),
+        durationText,
+        issuesText,
+        brand: decodedBrand
     });
 
     return {
@@ -69,6 +76,8 @@ export default async function RepairModelPage({
     const decodedBrand = decodeURIComponent(brand).replace(/-/g, ' ');
     const decodedModel = decodeURIComponent(model).replace(/-/g, ' ');
 
+    const { durationText } = getDeviceContext(decodedModel, lang as any);
+
     const initialDevice = {
         brand: decodedBrand,
         model: decodedModel
@@ -81,7 +90,8 @@ export default async function RepairModelPage({
                     isRepair: true,
                     lang: lang as 'fr' | 'nl' | 'en' | 'tr',
                     deviceName: `${decodedBrand} ${decodedModel}`,
-                    locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels')
+                    locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels'),
+                    durationText
                 })}
             </h1>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">

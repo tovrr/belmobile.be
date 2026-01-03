@@ -31,8 +31,17 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Belmobile.be",
+        "legalName": "Belmobile Pro Solutions",
         "url": "https://belmobile.be",
         "logo": "https://belmobile.be/belmobile-logo.png",
+        "foundingDate": "2011",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Rue Ulens 88",
+            "addressLocality": "Molenbeek-Saint-Jean",
+            "postalCode": "1080",
+            "addressCountry": "BE"
+        },
         "sameAs": [
             "https://www.facebook.com/belmobile",
             "https://www.instagram.com/belmobile",
@@ -45,7 +54,6 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
             "areaServed": "BE",
             "availableLanguage": ["English", "French", "Dutch", "Turkish"]
         },
-        // SERP Sitelinks Strategy: Explicitly defining main navigation
         "hasPart": [
             {
                 "@type": "SiteNavigationElement",
@@ -60,7 +68,7 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
             {
                 "@type": "SiteNavigationElement",
                 "name": "B2B / Corporate",
-                "url": `https://belmobile.be/${language}/b2b`
+                "url": `https://belmobile.be/${language}/business`
             },
             {
                 "@type": "SiteNavigationElement",
@@ -68,6 +76,49 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
                 "url": `https://belmobile.be/${language}/training`
             }
         ]
+    };
+
+    // 1.1 B2B Professional Service (Authority Boost)
+    const fleetManagementSchema = {
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "name": language === 'fr' ? "Gestion de Flotte Mobile Bruxelles" : "Fleet Management Brussels",
+        "image": "https://belmobile.be/images/bento/business_bg.png",
+        "@id": "https://belmobile.be/#fleet-management",
+        "url": `https://belmobile.be/${language}/business`,
+        "telephone": "+32-2-306-76-56", // Molenbeek HQ
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Rue Ulens 88",
+            "addressLocality": "Molenbeek-Saint-Jean",
+            "postalCode": "1080",
+            "addressCountry": "BE"
+        },
+        "description": language === 'fr'
+            ? "Services professionnels de gestion de flotte mobile (Gérer flotte mobile), maintenance industrielle et rachat de parc informatique pour entreprises à Bruxelles."
+            : "Professional mobile fleet management services, industrial maintenance, and IT asset recovery for companies in Brussels.",
+        "provider": organizationSchema,
+        "areaServed": "Belgium",
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "B2B Mobile Solutions",
+            "itemListElement": [
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Fleet Maintenance"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Mobile Buyback (B2B)"
+                    }
+                }
+            ]
+        }
     };
 
     // 2. LocalBusiness Schema (Map Pack & Local SEO) - Always present on Home or Store Locator
@@ -269,6 +320,7 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
             {(type === 'contact' || type === 'organization') && (
                 <>
                     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(fleetManagementSchema) }} />
                     {localBusinessSchema.map((schema, index) => (
                         <script key={index} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
                     ))}

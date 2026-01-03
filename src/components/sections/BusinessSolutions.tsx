@@ -21,6 +21,8 @@ import {
     BanknotesIcon
 } from '../ui/BrandIcons';
 import TrustedPartnersCloud from './TrustedPartnersCloud';
+import BusinessHeroTerminal from '../home/aegis/BusinessHeroTerminal';
+import BelmobileOSPreview from './BelmobileOSPreview';
 
 const BusinessSolutions: React.FC = () => {
     const { t, language } = useLanguage();
@@ -62,73 +64,13 @@ const BusinessSolutions: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#020202] pt-24 pb-20 px-4 transition-colors duration-300 overflow-hidden">
+        <div className="min-h-screen bg-white dark:bg-[#020202] transition-colors duration-300">
             <SchemaMarkup type="organization" />
 
-            {/* Ambient Background Effects - More sophisticated for 2026 */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[10%] -left-[5%] w-[50%] h-[50%] bg-cyber-citron/10 rounded-full blur-[140px] animate-pulse"></div>
-                <div className="absolute bottom-[10%] -right-[5%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[140px] animate-pulse" style={{ animationDelay: '3s' }}></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 dark:opacity-40 mix-blend-overlay"></div>
-            </div>
+            {/* THE COMMAND CENTER HERO (Business Edition) */}
+            <BusinessHeroTerminal />
 
-            <div className="max-w-7xl mx-auto relative z-10">
-                {/* Hero Section - 2026 Visionary Style */}
-                <div className="text-center mb-32">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-cyber-citron text-[10px] font-black uppercase tracking-[0.3em] mb-10 shadow-xl"
-                    >
-                        <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber-citron opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyber-citron"></span>
-                        </span>
-                        {t('biz_hero_badge')}
-                    </motion.div>
-
-                    <motion.h1
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="text-6xl md:text-9xl font-black text-slate-900 dark:text-white mb-10 tracking-[ -0.05em] leading-[0.85]"
-                    >
-                        {t('biz_hero_title')}
-                    </motion.h1>
-
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2, duration: 0.8 }}
-                        className="text-xl md:text-3xl text-slate-600 dark:text-slate-400 max-w-4xl mx-auto leading-tight mb-16 font-medium"
-                    >
-                        {t('biz_hero_subtitle')}
-                    </motion.p>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="flex flex-col sm:flex-row justify-center gap-8"
-                    >
-                        <Link
-                            href={`/${language}/contact?subject=other`}
-                            className="group relative px-12 py-6 bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-black rounded-2xl shadow-2xl hover:scale-[1.05] active:scale-95 transition-all overflow-hidden"
-                        >
-                            <span className="relative z-10 flex items-center gap-4 text-lg">
-                                {t('biz_cta_contact')}
-                                <ArrowRightIcon className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
-                            </span>
-                        </Link>
-                        <a
-                            href="tel:+32484837560"
-                            className="px-12 py-6 bg-white/40 dark:bg-white/5 text-slate-900 dark:text-white border-2 border-slate-900/10 dark:border-white/10 font-black rounded-2xl hover:bg-white/60 dark:hover:bg-white/10 transition-all backdrop-blur-3xl flex items-center gap-4 text-lg"
-                        >
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                            {t('biz_cta_call')}
-                        </a>
-                    </motion.div>
-                </div>
+            <div className="max-w-7xl mx-auto px-4 py-20 relative z-10">
 
                 <TrustedPartnersCloud title={t('biz_trust_title')} />
 
@@ -294,20 +236,20 @@ const BusinessSolutions: React.FC = () => {
                     <div className="relative z-20 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                         <div>
                             <span className="inline-block px-4 py-1 bg-cyber-citron text-midnight font-black uppercase text-[10px] tracking-widest rounded-full mb-8">
-                                {t('biz_fleet_badge')}
+                                {t('biz_fleet_calc_badge')}
                             </span>
                             <h2 className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-none">
-                                {t('Calculate Your Impact')}
+                                {t('biz_fleet_calc_title')}
                             </h2>
                             <p className="text-xl text-slate-400 mb-12 font-medium">
-                                See how much your company could save by switching to Belmobile Fleet Management (vs. buying new).
+                                {t('biz_fleet_calc_desc')}
                             </p>
 
                             <div className="space-y-12">
                                 <div>
                                     <label className="flex justify-between text-white font-bold mb-4 text-lg">
-                                        <span>Fleet Size: {fleetSize} devices</span>
-                                        <span className="text-cyber-citron">Avg. 30% break rate</span>
+                                        <span>{t('biz_fleet_size_label')}: {fleetSize} devices</span>
+                                        <span className="text-cyber-citron">{t('biz_fleet_break_rate')}</span>
                                     </label>
                                     <input
                                         type="range"
@@ -325,11 +267,11 @@ const BusinessSolutions: React.FC = () => {
                                 </div>
 
                                 <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-md">
-                                    <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-2">Estimated Annual Savings</p>
+                                    <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-2">{t('biz_fleet_savings_label')}</p>
                                     <div className="text-6xl font-black text-white tracking-tighter">
                                         {calculateSavings(fleetSize)} <span className="text-2xl text-cyber-citron">/ yr</span>
                                     </div>
-                                    <p className="text-xs text-slate-500 mt-4">*Based on repair vs. replacement costs & productivity uptime.</p>
+                                    <p className="text-xs text-slate-500 mt-4">{t('biz_fleet_savings_desc')}</p>
                                 </div>
                             </div>
                         </div>
@@ -338,27 +280,26 @@ const BusinessSolutions: React.FC = () => {
                         <div className={`bg-white text-midnight p-10 rounded-[3rem] shadow-2xl transition-all duration-500 ${isFormSubmitted ? 'bg-emerald-500 text-white' : ''}`}>
                             {!isFormSubmitted ? (
                                 <>
-                                    <h3 className="text-3xl font-black mb-2 uppercase tracking-tight">Unlock Corporate Rates</h3>
-                                    <p className="text-slate-500 font-medium mb-8">Get the full "Pro" price list sent to your inbox.</p>
-
+                                    <h3 className="text-3xl font-black mb-2 uppercase tracking-tight">{t('biz_lead_title')}</h3>
+                                    <p className="text-slate-500 font-medium mb-8">{t('biz_lead_desc')}</p>
                                     <form onSubmit={(e) => { e.preventDefault(); setIsFormSubmitted(true); }} className="space-y-4">
                                         <div>
-                                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-slate-400">Company Email</label>
+                                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-slate-400">{t('biz_lead_email_label')}</label>
                                             <input
                                                 type="email"
                                                 required
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 className="w-full bg-slate-100 border-2 border-slate-200 focus:border-midnight rounded-xl px-4 py-4 font-bold text-lg outline-none transition-colors"
-                                                placeholder="procurement@company.com"
+                                                placeholder={t('biz_lead_email_placeholder')}
                                             />
                                         </div>
                                         <button type="submit" className="w-full bg-midnight text-white font-black text-xl py-5 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all flex justify-center items-center gap-3">
-                                            <span>Get Price List</span>
+                                            <span>{t('biz_lead_button')}</span>
                                             <ArrowRightIcon className="w-6 h-6" />
                                         </button>
                                         <p className="text-xs text-center text-slate-400 font-medium mt-4">
-                                            No spam. Direct B2B contact only.
+                                            {t('biz_lead_privacy')}
                                         </p>
                                     </form>
                                 </>
@@ -367,8 +308,8 @@ const BusinessSolutions: React.FC = () => {
                                     <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
                                         <CheckCircleIcon className="w-10 h-10 text-white" />
                                     </div>
-                                    <h3 className="text-3xl font-black mb-4">You're on the list.</h3>
-                                    <p className="text-lg opacity-90">One of our Fleet Managers (likely Omer) will email you shortly.</p>
+                                    <h3 className="text-3xl font-black mb-4">{t('biz_lead_success_title')}</h3>
+                                    <p className="text-lg opacity-90">{t('biz_lead_success_desc')}</p>
                                 </div>
                             )}
                         </div>
@@ -407,14 +348,10 @@ const BusinessSolutions: React.FC = () => {
                             transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
                             className="relative bg-slate-900 rounded-[4.5rem] p-4 lg:p-10 border border-white/20 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden group"
                         >
-                            <div className="relative aspect-video rounded-[3rem] overflow-hidden border border-white/10">
-                                <Image
-                                    src="/images/b2b-dashboard-preview.png"
-                                    alt="Belmobile OS Dashboard Preview"
-                                    fill
-                                    className="object-cover group-hover:scale-[1.02] transition-transform duration-2000"
-                                />
-                                <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none"></div>
+                            <div className="relative aspect-video rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
+                                <BelmobileOSPreview />
+                                {/* Reflection Overlay */}
+                                <div className="absolute inset-0 bg-linear-to-t from-slate-950/20 via-transparent to-white/5 pointer-events-none mix-blend-overlay"></div>
                             </div>
                         </motion.div>
 

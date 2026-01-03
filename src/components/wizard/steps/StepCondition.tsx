@@ -4,6 +4,7 @@ import Sidebar from '../Sidebar';
 import { REPAIR_ISSUES } from '../../../constants';
 import { getRepairProfileForModel } from '../../../config/repair-profiles';
 import { useWizard } from '../../../context/WizardContext';
+import { getDeviceContext } from '../../../utils/seoHelpers';
 import { useWizardPricing } from '../../../hooks/useWizardPricing';
 import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useLanguage } from '../../../hooks/useLanguage';
@@ -138,7 +139,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
         }
 
         return (
-            <div className={`flex flex-col lg:flex-row w-full mx-auto gap-6 ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : 'max-w-7xl pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8'}`}>
+            <div className={`flex flex-col lg:flex-row w-full mx-auto gap-6 ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : 'max-w-7xl pb-24 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8'}`}>
                 <div className="flex-1 min-w-0 space-y-8">
                     <div className="flex items-center gap-2 mb-6">
                         <button
@@ -182,7 +183,9 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                         key={opt}
                                         type="button"
                                         onClick={() => setStorage(opt)}
-                                        className={`py-3 rounded-xl font-bold transition-all ${storage === opt ? 'bg-bel-blue text-white' : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800'}`}
+                                        className={`py-3 rounded-xl font-bold transition-all ${storage === opt
+                                            ? 'bg-bel-yellow text-gray-900 shadow-lg shadow-yellow-500/20 ring-1 ring-yellow-400'
+                                            : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
                                     >
                                         {opt}
                                     </button>
@@ -255,7 +258,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                         onClick={() => setControllerCount(count)}
                                         disabled={turnsOn === false}
                                         className={`py-3 px-4 rounded-xl font-bold transition-all border ${controllerCount === count
-                                            ? 'bg-bel-blue text-white border-bel-blue'
+                                            ? 'bg-bel-yellow text-gray-900 border-bel-yellow'
                                             : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800'
                                             }`}
                                     >
@@ -265,37 +268,9 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             </div>
                         </div>
                     )}
-                    {/* Mobile Summary & Action Block (Buyback) */}
-                    <div className={`${state.isWidget ? 'block' : 'lg:hidden'} mt-8 mb-8 p-6 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm`}>
-                        <div className="flex flex-col gap-4">
-                            <div className="flex justify-between items-end">
-                                <div>
-                                    <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">{t('Estimated Value')}</p>
-                                    <div className="text-3xl font-extrabold text-bel-dark dark:text-white mt-1 min-h-[40px] flex items-center">
-                                        {loading || (type === 'buyback' && sidebarEstimate === 0) ? (
-                                            <div className="flex space-x-1">
-                                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                                            </div>
-                                        ) : (
-                                            `€${sidebarEstimate}`
-                                        )}
-                                    </div>
-                                    <p className="text-xs text-gray-400 mt-1">{t('Based on current selection')}</p>
-                                </div>
-                            </div>
+                    {/* Mobile Summary Block (Buyback) - REMOVED (Redundant with MobileBottomBar) */}
 
-                            <button
-                                onClick={onNext}
-                                disabled={nextDisabled}
-                                className="w-full bg-bel-blue text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-lg flex items-center justify-center gap-2 transition-all hover:bg-bel-blue/90"
-                            >
-                                <span>{t('Next')}</span>
-                                <ChevronLeftIcon className="h-5 w-5 rotate-180" />
-                            </button>
-                        </div>
-                    </div>
+
                     <WizardFAQ
                         currentStep={step}
                         flow={type}
@@ -334,12 +309,13 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
     // REPAIR VIEW
     // -------------------------------------------------------------------------
     else {
+        const { language: lang } = useLanguage();
         const nextDisabled = repairIssues.length === 0;
         const nextLabel = repairIssues.includes('other') ? t("Next") : t("Start Repair");
         const isNintendo = selectedBrand?.toLowerCase() === 'nintendo';
 
         return (
-            <div className={`flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-10 gap-8`}>
+            <div className={`flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-24 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-10 gap-8`}>
                 <div className="flex-1 min-w-0">
                     <div className="mb-10">
                         <div className="flex items-center gap-4 mb-4">
@@ -353,29 +329,18 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             </button>
                             <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-none">{t('What needs fixing?')}</h2>
                         </div>
-                        <p className="text-gray-500 font-medium mb-8 flex items-center gap-2">
-                            <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded text-[10px] font-bold uppercase tracking-widest">{selectedBrand}</span>
-                            <span className="text-slate-400 dark:text-slate-600">/</span>
-                            <span>{slugToDisplayName(selectedModel || '')}</span>
-                            <span className="text-slate-400 dark:text-slate-600 ml-2">•</span>
-                            <span className="text-slate-400 dark:text-slate-500 italic ml-1">{t('repair_header_subtitle')}</span>
-                        </p>
-
-                        {/* Trust Bar - Cheap, Fast, Guaranteed */}
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                            {[
-                                { icon: BoltIcon, label: 'repair_trust_fast', color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-100 dark:border-amber-800/30' },
-                                { icon: BanknotesIcon, label: 'repair_trust_cheap', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-100 dark:border-emerald-800/30' },
-                                { icon: ShieldCheckIcon, label: 'repair_trust_warranty', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-100 dark:border-blue-800/30', className: 'hidden md:flex' }
-                            ].map((item, idx) => (
-                                <div key={idx} className={`flex items-center gap-3 p-3.5 rounded-2xl ${item.bg} ${item.border} ${item.className || ''} border transition-transform hover:scale-[1.02] duration-300`}>
-                                    <div className={`p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm ${item.color}`}>
-                                        <item.icon className="h-4 w-4" />
-                                    </div>
-                                    <span className="text-[10px] font-black uppercase tracking-wider text-gray-700 dark:text-gray-300 antialiased leading-tight">{t(item.label)}</span>
-                                </div>
-                            ))}
+                        <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl py-3 -mx-4 px-4 mb-8 border-b border-slate-100 dark:border-slate-800/50 transition-all">
+                            <p className="text-gray-500 font-medium flex items-center gap-2">
+                                <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-bold uppercase tracking-widest">{selectedBrand}</span>
+                                <span className="text-slate-400 dark:text-slate-600">/</span>
+                                <span className="font-bold text-gray-900 dark:text-white">{slugToDisplayName(selectedModel || '')}</span>
+                                <span className="hidden md:inline-flex items-center">
+                                    <span className="text-slate-400 dark:text-slate-600 ml-2">•</span>
+                                    <span className="text-slate-400 dark:text-slate-500 italic ml-1">{t('repair_header_subtitle')}</span>
+                                </span>
+                            </p>
                         </div>
+
                     </div>
 
                     {/* Category Selector */}
@@ -385,7 +350,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                 key={cat}
                                 onClick={() => setActiveCategory(cat)}
                                 className={`px-6 py-3 rounded-2xl whitespace-nowrap font-black text-xs uppercase tracking-widest transition-all snap-start ${activeCategory === cat
-                                    ? 'bg-bel-blue text-white shadow-xl shadow-blue-500/40 ring-4 ring-blue-500/10'
+                                    ? 'bg-[#6366F1] text-white shadow-xl shadow-indigo-500/40 ring-4 ring-indigo-500/10'
                                     : 'bg-white/50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:scale-105'
                                     }`}
                             >
@@ -441,29 +406,29 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             const showScreenOptionsForIssue = isScreenIssue && isSelected && (deviceType === 'smartphone' || selectedBrand?.toLowerCase() === 'nintendo');
 
                             return (
-                                <div key={issue.id} className={`group relative flex flex-col p-4 rounded-[1.5rem] border-2 transition-all duration-300 ${isSelected ? 'border-bel-blue bg-blue-50/50 dark:bg-blue-900/10 shadow-xl shadow-blue-500/5' : 'border-slate-100 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-900'} ${showScreenOptionsForIssue ? 'md:col-span-2 shadow-2xl shadow-blue-500/10' : ''}`}>
+                                <div key={issue.id} className={`group relative flex flex-col p-4 rounded-[1.5rem] border-2 transition-all duration-300 ${isSelected ? 'border-[#6366F1] bg-indigo-50/50 dark:bg-indigo-900/10 shadow-xl shadow-indigo-500/5' : 'border-slate-100 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-900'} ${showScreenOptionsForIssue ? 'md:col-span-2 shadow-2xl shadow-indigo-500/10' : ''}`}>
                                     <div className="flex items-start h-full cursor-pointer" onClick={() => toggleRepairIssue(issue.id)}>
-                                        <div className={`p-4 rounded-2xl mr-4 flex-shrink-0 transition-all duration-500 ${isSelected ? 'bg-bel-blue text-white shadow-lg shadow-blue-500/30 scale-110' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 group-hover:scale-110 group-hover:bg-slate-200 group-hover:text-slate-600'} `}>
+                                        <div className={`p-4 rounded-2xl mr-4 shrink-0 transition-all duration-500 ${isSelected ? 'bg-[#6366F1] text-white shadow-lg shadow-indigo-500/30 scale-110' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 group-hover:scale-110 group-hover:bg-slate-200 group-hover:text-slate-600'} `}>
                                             <issue.icon className="h-6 w-6" />
                                         </div>
 
                                         <div className="flex-1 min-w-0">
                                             <div className="flex flex-col">
                                                 <div className="flex justify-between items-start mb-1 gap-2">
-                                                    <span className={`font-black text-sm md:text-base leading-tight transition-colors ${isSelected ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>
+                                                    <span className={`font-black text-sm md:text-base leading-tight transition-colors ${isSelected ? 'text-[#6366F1]' : 'text-gray-900 dark:text-white'}`}>
                                                         {t(issue.id)}
                                                     </span>
 
                                                     {!showScreenOptionsForIssue && (
                                                         <div className="flex flex-col items-end shrink-0">
-                                                            <span className={`text-[11px] font-black px-2 py-1 rounded-lg transition-colors ${isSelected ? 'bg-bel-blue text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400'}`}>
+                                                            <span className={`text-[11px] font-black px-2 py-1 rounded-lg transition-colors ${isSelected ? 'bg-[#6366F1] text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400'}`}>
                                                                 {isScreenIssue && displayPrice !== null && displayPrice > 0 && <span className="mr-1 text-[9px] font-normal opacity-70 uppercase tracking-tighter">{t('À partir de')}</span>}
                                                                 {issue.id === 'other' ? <span className="font-black uppercase tracking-widest">{t('free')}</span> : (displayPrice !== null && displayPrice > 0 ? <>&euro;{displayPrice}</> : <span className="text-[9px] font-bold uppercase tracking-tight whitespace-nowrap">{t('on_request')}</span>)}
                                                             </span>
                                                         </div>
                                                     )}
                                                 </div>
-                                                <p className={`text-[11px] leading-relaxed transition-colors line-clamp-2 ${isSelected ? 'text-blue-700/70 dark:text-blue-300/60' : 'text-slate-500'}`}>
+                                                <p className={`text-[11px] leading-relaxed transition-colors line-clamp-2 ${isSelected ? 'text-indigo-700/70 dark:text-indigo-300/60' : 'text-slate-500'}`}>
                                                     {t(issue.id + '_desc')}
                                                 </p>
                                             </div>
@@ -471,8 +436,8 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
 
                                         {isSelected && !showScreenOptionsForIssue && (
                                             <div className="absolute top-2 right-2 animate-in fade-in zoom-in duration-300">
-                                                <div className="bg-bel-blue text-white rounded-full p-1 shadow-lg shadow-blue-500/40">
-                                                    <CheckCircleIcon className="h-3 w-3 stroke-[3]" />
+                                                <div className="bg-[#6366F1] text-white rounded-full p-1 shadow-lg shadow-indigo-500/40">
+                                                    <CheckCircleIcon className="h-3 w-3 stroke-3" />
                                                 </div>
                                             </div>
                                         )}
@@ -539,37 +504,36 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         })}
                     </div>
 
-                    {/* Mobile Summary & Action Block (Replaces Sticky Footer) */}
-                    <div className={`${state.isWidget ? 'block' : 'lg:hidden'} mt-8 mb-8 p-6 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm`}>
-                        <div className="flex flex-col gap-4">
-                            <div className="flex justify-between items-end">
-                                <div>
-                                    <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">{t('Total Estimated Cost')}</p>
-                                    <div className="text-3xl font-extrabold text-bel-dark dark:text-white mt-1 min-h-[40px] flex items-center">
-                                        {loading ? (
-                                            <div className="flex space-x-1">
-                                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                                            </div>
-                                        ) : (
-                                            `€${sidebarEstimate}`
-                                        )}
-                                    </div>
-                                    <p className="text-xs text-gray-400 mt-1">{t('includes_vat_labor')}</p>
-                                </div>
-                            </div>
+                    {/* Trust Bar - Cheap, Fast, Guaranteed (Moved here) */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
+                        {[
+                            { icon: BoltIcon, label: 'repair_trust_fast', color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-100 dark:border-amber-800/30' },
+                            { icon: BanknotesIcon, label: 'repair_trust_cheap', color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-100 dark:border-emerald-800/30' },
+                            { icon: ShieldCheckIcon, label: 'repair_trust_warranty', color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-100 dark:border-blue-800/30', className: 'hidden md:flex' }
+                        ].map((item, idx) => {
+                            const { durationText } = getDeviceContext(selectedModel || '', lang as any);
+                            let label = t(item.label);
+                            if (item.label === 'repair_trust_fast') {
+                                label = label
+                                    .replace('30m', durationText)
+                                    .replace('30min', durationText)
+                                    .replace('30 min', durationText);
+                            }
 
-                            <button
-                                onClick={onNext}
-                                disabled={nextDisabled}
-                                className="w-full bg-bel-blue text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-lg flex items-center justify-center gap-2 transition-all hover:bg-bel-blue/90"
-                            >
-                                <span>{nextLabel}</span>
-                                <ChevronLeftIcon className="h-5 w-5 rotate-180" />
-                            </button>
-                        </div>
+                            return (
+                                <div key={idx} className={`flex items-center gap-3 p-3.5 rounded-2xl ${item.bg} ${item.border} ${item.className || ''} border transition-transform hover:scale-[1.02] duration-300`}>
+                                    <div className={`p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm ${item.color}`}>
+                                        <item.icon className="h-4 w-4" />
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase tracking-wider text-gray-700 dark:text-gray-300 antialiased leading-tight">{label}</span>
+                                </div>
+                            );
+                        })}
                     </div>
+
+                    {/* Mobile Summary Block (Repair) - REMOVED (Redundant with MobileBottomBar) */}
+
+
                     <WizardFAQ
                         currentStep={step}
                         flow={type}

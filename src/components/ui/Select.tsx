@@ -30,7 +30,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
                         ref={ref}
                         className={`
                             w-full px-4 py-3 pr-10
-                            bg-gray-50 dark:bg-surface-dark/50 
+                            bg-gray-50 dark:bg-[#0B0F19] 
                             border rounded-xl 
                             focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent 
                             transition-all appearance-none
@@ -45,7 +45,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
                     >
                         {options ? (
                             options.map((opt) => (
-                                <option key={opt.value} value={opt.value}>
+                                <option key={opt.value} value={opt.value} className="bg-white dark:bg-[#0B0F19] text-gray-900 dark:text-white">
                                     {opt.label}
                                 </option>
                             ))

@@ -42,6 +42,20 @@ export const SHOPS: Shop[] = [
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Bara&query_place_id=ChIJY6KmKtLDw0cRy7JDeNAZ2wQ',
         googlePlaceId: 'ChIJY6KmKtLDw0cRy7JDeNAZ2wQ',
         googleReviewUrl: 'https://search.google.com/local/writereview?placeid=ChIJY6KmKtLDw0cRy7JDeNAZ2wQ'
+    },
+    {
+        id: 'molenbeek',
+        name: 'Belmobile Tour & Taxis',
+        address: 'Rue Ulens 88, 1080 Molenbeek',
+        phone: '02/306.76.56',
+        email: 'molenbeek@belmobile.be',
+        openingHours: ['B2B Only', 'By Appointment'],
+        slugs: { fr: 'molenbeek', nl: 'molenbeek', en: 'molenbeek', tr: 'molenbeek' },
+        coords: { lat: 50.86285, lng: 4.34240 },
+        status: 'open',
+        badge: 'B2B/Corporate HQ',
+        city: 'Molenbeek-Saint-Jean',
+        googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis+Rue+Ulens+88+1080+Molenbeek'
     }
 ];
 

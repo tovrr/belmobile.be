@@ -81,8 +81,9 @@ export const LOCATIONS: Location[] = [
         phone: '02/306.76.56',
         email: 'molenbeek@belmobile.be',
         coords: { lat: 50.86285, lng: 4.34240 },
-        openingHours: ['Temporarily Closed'],
-        status: 'temporarily_closed',
+        openingHours: ['B2B Only', 'By Appointment'],
+        status: 'open',
+        badge: 'B2B/Corporate HQ',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Belmobile+Tour+Taxis+Rue+Ulens+88+1080+Molenbeek',
         photos: [
             '/images/franchise_hero.png',

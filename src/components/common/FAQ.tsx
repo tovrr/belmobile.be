@@ -2,23 +2,28 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '../../hooks/useLanguage';
-import { PlusIcon, MinusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, MinusIcon } from '../ui/BrandIcons';
 
 interface FAQItemProps {
     question: string;
     answer: string;
+    variant?: 'aegis' | 'apollo';
 }
 
-const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
+const FAQItem: React.FC<FAQItemProps> = ({ question, answer, variant = 'aegis' }) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
         <div className="border-b border-gray-200 dark:border-slate-700">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex justify-between items-center text-left py-4 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors px-2 rounded-lg"
+                className="w-full flex justify-between items-center text-left py-4 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors px-2 rounded-lg group"
             >
-                <span className="text-lg font-medium text-gray-900 dark:text-white">{question}</span>
-                {isOpen ? <MinusIcon className="h-6 w-6 text-bel-blue dark:text-blue-400" /> : <PlusIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />}
+                <span className={`text-lg font-medium text-gray-900 dark:text-white transition-colors ${variant === 'apollo' ? 'group-hover:text-cyber-citron' : 'group-hover:text-electric-indigo'}`}>{question}</span>
+                {isOpen ? (
+                    <MinusIcon className={`h-6 w-6 ${variant === 'apollo' ? 'text-cyber-citron' : 'text-electric-indigo'}`} />
+                ) : (
+                    <PlusIcon className="h-6 w-6 text-gray-500 dark:text-gray-400" />
+                )}
             </button>
             {isOpen && (
                 <div className="pb-4 px-2 text-gray-600 dark:text-gray-300 leading-relaxed">
@@ -29,7 +34,11 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
     );
 };
 
-const FAQ: React.FC = () => {
+interface FAQProps {
+    variant?: 'aegis' | 'apollo';
+}
+
+const FAQ: React.FC<FAQProps> = ({ variant = 'aegis' }) => {
     const { t } = useLanguage();
 
     const faqs = [
@@ -56,11 +65,14 @@ const FAQ: React.FC = () => {
     };
 
     return (
-        <div className="mt-12">
-            <h2 className="text-3xl font-bold text-center text-bel-dark dark:text-white">{t('faq_title')}</h2>
+        <div className="mt-20 mb-20">
+            <div className="text-center mb-12">
+                <span className={`${variant === 'apollo' ? 'text-cyber-citron' : 'text-electric-indigo'} font-bold tracking-widest text-xs uppercase mb-2 block`}>{t('Knowledge Hub')}</span>
+                <h2 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{t('faq_title')}</h2>
+            </div>
             <div className="mt-8 max-w-3xl mx-auto">
                 {faqs.map((faq, index) => (
-                    <FAQItem key={index} question={faq.q} answer={faq.a} />
+                    <FAQItem key={index} question={faq.q} answer={faq.a} variant={variant} />
                 ))}
             </div>
             <script type="application/ld+json">

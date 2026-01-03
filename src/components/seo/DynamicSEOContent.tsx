@@ -2,6 +2,7 @@ import { Shop } from '../../types';
 import { Location } from '../../data/locations';
 import { Service } from '../../data/services';
 import { slugToDisplayName, createSlug } from '../../utils/slugs';
+import { findDefaultBrandCategory } from '../../utils/deviceLogic';
 import { ShieldCheckIcon, ClockIcon, DevicePhoneMobileIcon, BoltIcon, BanknotesIcon, WrenchScrewdriverIcon, TvIcon, FireIcon } from '@heroicons/react/24/solid';
 
 import { SHOPS, MOCK_REPAIR_PRICES } from '../../constants';
@@ -32,6 +33,23 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
 }) => {
     // Helper to get location name
     const locationName = shop?.city || location?.city || (lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : (lang === 'tr' ? 'Brüksel' : 'Brussels')));
+
+    // Helper to get device name
+    const getInferredDeviceType = () => {
+        if (deviceType) return deviceType;
+        if (model) {
+            const m = model.toLowerCase();
+            if (m.includes('playstation') || m.includes('xbox') || m.includes('ps5') || m.includes('ps4')) return 'console_home';
+            if (m.includes('switch') || m.includes('deck') || m.includes('gameboy') || m.includes('3ds')) return 'console_handheld';
+        }
+        if (brand) {
+            const match = findDefaultBrandCategory(createSlug(brand));
+            return match?.deviceType || 'smartphone';
+        }
+        return 'smartphone';
+    };
+
+    const effectiveDeviceType = getInferredDeviceType();
 
     // Helper to get device name
     const getDeviceName = () => {
@@ -74,7 +92,8 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     // Content Generation Logic
     const isRepair = type === 'repair';
     const isStore = type === 'store';
-    const isHomeConsole = deviceType === 'console_home';
+    const isHomeConsole = effectiveDeviceType === 'console_home';
+    const isConsole = effectiveDeviceType === 'console_home' || effectiveDeviceType === 'console_handheld';
     const isHub = !!shop?.isHub || !!location?.isHub;
 
     const issuesText = isHomeConsole
@@ -90,7 +109,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     const pricingData = MOCK_REPAIR_PRICES.find(p => p.id === pricingSlug);
 
     // Translations & Content Helpers
-    const getTitle = () => getSEOTitle({ isStore, isRepair, lang, locationName, deviceName });
+    const getTitle = () => getSEOTitle({ isStore, isRepair, lang, locationName, deviceName, durationText });
 
     const getDescription = () => getSEODescription({
         isStore, isRepair, lang, locationName, deviceName, isHub, shop, brand, issuesText, durationText
@@ -99,7 +118,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     const getCard1 = () => {
         const title = lang === 'fr' ? 'Pourquoi choisir Belmobile ?' : (lang === 'nl' ? 'Waarom Belmobile kiezen?' : 'Why Choose Belmobile?');
         const text = isRepair
-            ? (lang === 'fr' ? `Service Premium pour Particuliers & Pros (B2B). Réparation en 30 min avec Facture TVA et Garantie 1 an. Plus de 50.000 appareils réparés dans nos laboratoires.` : (lang === 'nl' ? `Premium Service voor Particulieren & Bedrijven. Reparatie in 30 min met BTW-factuur en 1 jaar garantie. Meer dan 50.000 tevreden klanten.` : `Premium Service for B2C & B2B. 30 min repair with VAT Invoice and 1-year warranty. Trusted by 50k+ customers.`))
+            ? (lang === 'fr' ? `Service Premium pour Particuliers & Pros (B2B). Réparation en ${durationText} avec Facture TVA et Garantie 1 an. Plus de 50.000 appareils réparés dans nos laboratoires.` : (lang === 'nl' ? `Premium Service voor Particulieren & Bedrijven. Reparatie in ${durationText} met BTW-factuur en 1 jaar garantie. Meer dan 50.000 tevreden klanten.` : `Premium Service for B2C & B2B. ${durationText} repair with VAT Invoice and 1-year warranty. Trusted by 50k+ customers.`))
             : (lang === 'fr' ? 'Leader du Rachat à Bruxelles. Nous offrons le meilleur prix garanti, avec paiement immédiat (Cash/Virement). Effacement complet de vos données (GDPR) certifié.' : (lang === 'nl' ? 'Marktleider in Inkoop. Beste prijsgarantie met directe betaling. Gecertificeerde dataverwijdering (GDPR) voor uw privacy.' : 'Brussels Buyback Leader. Best price guaranteed with instant payment. Certified GDPR data wipe for your security.'));
         return { title, text };
     };
@@ -128,18 +147,27 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     // Generate FAQ Schema
     const getFAQSchema = () => {
         let faqs = [];
-        const langCode = (lang === 'fr' || lang === 'nl') ? lang : 'en';
+        const langCode = (lang === 'fr' || lang === 'nl' || lang === 'tr') ? lang : 'en';
 
         // 1. Core FAQs based on Type
-        if (isRepair) {
-            faqs = [...FAQS[langCode].repair];
-        } else {
-            faqs = [...FAQS[langCode].buyback];
-        }
+        // @ts-ignore
+        const sourceFaqs = isRepair ? FAQS[langCode].repair : FAQS[langCode].buyback;
+
+        // DYNAMIC INJECTION: Replace '30 min' with actual durationText
+        faqs = sourceFaqs.map((faq: any) => ({
+            ...faq,
+            answer: faq.answer
+                .replace('30 minutes', durationText)
+                .replace('30 minuten', durationText)
+                .replace('30 min', durationText)
+                .replace('30 dakika', durationText)
+                .replace('30 Dakika', durationText)
+        }));
 
         // 2. Hub Specific FAQs (Brussels Authority)
         const isHub = !!location?.isHub || locationName.toLowerCase().includes('brussel');
         if (isHub) {
+            // @ts-ignore
             faqs = [...faqs, ...FAQS[langCode].hub_brussels];
         }
 
@@ -211,12 +239,12 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                         icon: DevicePhoneMobileIcon,
                         title: lang === 'fr' ? `Changement d'Écran ${deviceName}` : (lang === 'nl' ? `Schermvervanging ${deviceName}` : (lang === 'tr' ? `${deviceName} Ekran Değişimi` : `Screen Replacement ${deviceName}`)),
                         text: lang === 'fr'
-                            ? `Écran cassé ou tactile défaillant ? Nous remplaçons votre dalle par des pièces d'origine ou premium en 30 minutes.`
+                            ? `Écran cassé ou tactile défaillant ? Nous remplaçons votre dalle par des pièces d'origine ou premium en ${durationText}.`
                             : (lang === 'nl'
-                                ? `Gebroken scherm of defecte touch? Wij vervangen uw scherm door originele of premium onderdelen in 30 minuten.`
+                                ? `Gebroken scherm of defecte touch? Wij vervangen uw scherm door originele of premium onderdelen in ${durationText}.`
                                 : (lang === 'tr'
-                                    ? `Ekran mı kırıldı? Orijinal veya premium parçalarla cihazınızın ekranını 30 dakikada değiştiriyoruz.`
-                                    : `Broken screen or touch failure? We replace your display with original or premium parts in 30 minutes.`))
+                                    ? `Ekran mı kırıldı? Orijinal veya premium parçalarla cihazınızın ekranını ${durationText} içinde değiştiriyoruz.`
+                                    : `Broken screen or touch failure? We replace your display with original or premium parts in ${durationText}.`))
                     },
                     {
                         id: 'battery',
@@ -225,7 +253,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                         text: lang === 'fr'
                             ? `Votre ${deviceName} se décharge trop vite ? Retrouvez une autonomie optimale avec une batterie neuve certifiée.`
                             : (lang === 'nl'
-                                ? `Loopt uw ${deviceName} te snel leeg? Krijg de optimale batterijduur terug met een yeni gecertificeerde batterij.`
+                                ? `Loopt uw ${deviceName} te snel leeg? Krijg de optimale batterijduur terug met een nieuwe gecertificeerde batterij.`
                                 : (lang === 'tr'
                                     ? `${deviceName} cihazınızın şarjı çabuk mu bitiyor? Yeni sertifikalı bataryalarla tam performans geri kazanın.`
                                     : `Is your ${deviceName} draining too fast? Get back optimal battery life with a new certified battery.`))
@@ -252,12 +280,12 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                     icon: WrenchScrewdriverIcon,
                     title: lang === 'fr' ? `Rachat ${deviceName} même cassé` : (lang === 'nl' ? `Inkoop ${deviceName} zelfs defect` : (lang === 'tr' ? `Kırık ${deviceName} Cihazları Alıyoruz` : `Buyback ${deviceName} even broken`)),
                     text: lang === 'fr'
-                        ? `Ne jetez pas votre appareil abîmé ! Nous rachetons les ${deviceName} avec écran fissuré ou batterie HS pour pièces.`
+                        ? `Ne jetez pas votre appareil abîmé ! Nous rachetons les ${deviceName} même avec ${issuesText} pour pièces.`
                         : (lang === 'nl'
-                            ? `Gooi uw beschadigde apparaat niet weg! Wij kopen ${deviceName} toestellen met gebarsten schermen voor onderdelen.`
+                            ? `Gooi uw beschadigde apparaat niet weg! Wij kopen ${deviceName} toestellen zelfs met ${isHomeConsole ? 'HDMI-defecten' : 'gebarsten schermen'} voor onderdelen.`
                             : (lang === 'tr'
-                                ? `Hasarlı cihazınızı atmayın! Ekranı kırık veya bataryası bitik ${deviceName} cihazlarını parça amaçlı alıyoruz.`
-                                : `Don't throw away your damaged device! We buy back ${deviceName} units with cracked screens or dead batteries for parts.`))
+                                ? `Hasarlı cihazınızı atmayın! ${issuesText} olan ${deviceName} cihazlarını parça amaçlı alıyoruz.`
+                                : `Don't throw away your damaged device! We buy back ${deviceName} units even with ${issuesText} for parts.`))
                 }
             );
         }
@@ -333,32 +361,48 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                     {/* Pain Points Generator SEO Block */}
                     {(() => {
                         const painPoints = isRepair ? (
-                            lang === 'fr' ? [
-                                { emoji: '💥', q: 'Écran Cassé ?', a: 'Fissures, taches noires ou tactile en panne.' },
-                                { emoji: '🔋', q: 'Batterie Faible ?', a: 'Se décharge vite ou s\'éteint tout seul.' },
-                                { emoji: '💧', q: 'Oxydation ?', a: 'Tombé dans l\'eau ? Agissez vite !' }
-                            ] : lang === 'nl' ? [
-                                { emoji: '💥', q: 'Scherm Kapot?', a: 'Barsten, vlekken of touch werkt niet.' },
-                                { emoji: '🔋', q: 'Zwakke Batterij?', a: 'Loopt snel leeg of valt uit.' },
-                                { emoji: '💧', q: 'Waterschade?', a: 'In water gevallen? Kom direct langs!' }
-                            ] : [
-                                { emoji: '💥', q: 'Broken Screen?', a: 'Cracks, black spots or touch issues.' },
-                                { emoji: '🔋', q: 'Weak Battery?', a: 'Drains fast or unexpected shutdowns.' },
-                                { emoji: '💧', q: 'Water Damage?', a: 'Dropped in water? Act fast!' }
-                            ]
+                            isHomeConsole ? (
+                                lang === 'fr' ? [
+                                    { emoji: '🔌', q: 'Port HDMI ?', a: 'Pas de signal ou image qui saute.' },
+                                    { emoji: '🔥', q: 'Surchauffe ?', a: 'Bruit de ventilation excessif.' },
+                                    { emoji: '💿', q: 'Lecteur ?', a: 'Disque non reconnu ou bloqué.' }
+                                ] : lang === 'nl' ? [
+                                    { emoji: '🔌', q: 'HDMI Poort?', a: 'Geen signaal of flikkerend beeld.' },
+                                    { emoji: '🔥', q: 'Oververhitting?', a: 'Lawaaiige ventilator of valt uit.' },
+                                    { emoji: '💿', q: 'Lezer?', a: 'Schijf wordt niet herkend.' }
+                                ] : [
+                                    { emoji: '🔌', q: 'HDMI Port?', a: 'No signal or flickering image.' },
+                                    { emoji: '🔥', q: 'Overheating?', a: 'Loud fan noise or shutdowns.' },
+                                    { emoji: '💿', q: 'Disc Drive?', a: 'Not reading discs or stuck.' }
+                                ]
+                            ) : (
+                                lang === 'fr' ? [
+                                    { emoji: '💥', q: 'Écran Cassé ?', a: 'Fissures, taches noires ou tactile en panne.' },
+                                    { emoji: '🔋', q: 'Batterie Faible ?', a: 'Se décharge vite ou s\'éteint tout seul.' },
+                                    { emoji: '💧', q: 'Oxydation ?', a: 'Tombé dans l\'eau ? Agissez vite !' }
+                                ] : lang === 'nl' ? [
+                                    { emoji: '💥', q: 'Scherm Kapot?', a: 'Barsten, vlekken of touch werkt niet.' },
+                                    { emoji: '🔋', q: 'Zwakke Batterij?', a: 'Loopt snel leeg of valt uit.' },
+                                    { emoji: '💧', q: 'Waterschade?', a: 'In water gevallen? Kom direct langs!' }
+                                ] : [
+                                    { emoji: '💥', q: 'Broken Screen?', a: 'Cracks, black spots or touch issues.' },
+                                    { emoji: '🔋', q: 'Weak Battery?', a: 'Drains fast or unexpected shutdowns.' },
+                                    { emoji: '💧', q: 'Water Damage?', a: 'Dropped in water? Act fast!' }
+                                ]
+                            )
                         ) : (
                             lang === 'fr' ? [
                                 { emoji: '💶', q: 'Besoin de Cash ?', a: 'Recevez de l\'argent immédiatement.' },
-                                { emoji: '📱', q: 'Nouveau GSM ?', a: 'Financez votre nouvel appareil.' },
-                                { emoji: '♻️', q: 'Ecolo ?', a: 'Donnez une seconde vie à votre mobile.' }
+                                { emoji: isConsole ? '🎮' : '📱', q: isConsole ? 'Nouvelle Console ?' : 'Nouveau GSM ?', a: 'Financez votre nouvel appareil.' },
+                                { emoji: '♻️', q: 'Ecolo ?', a: `Donnez une seconde vie à votre ${isConsole ? 'système' : 'mobile'}.` }
                             ] : lang === 'nl' ? [
                                 { emoji: '💶', q: 'Geld Nodig?', a: 'Ontvang direct contant geld.' },
-                                { emoji: '📱', q: 'Nieuwe GSM?', a: 'Financier uw nieuwe toestel.' },
-                                { emoji: '♻️', q: 'Ecologisch?', a: 'Geef uw mobiel een tweede leven.' }
+                                { emoji: isConsole ? '🎮' : '📱', q: isConsole ? 'Nieuwe Console?' : 'Nieuwe GSM?', a: 'Financier uw nieuwe toestel.' },
+                                { emoji: '♻️', q: 'Ecologisch?', a: `Geef uw ${isConsole ? 'systeem' : 'mobiel'} een tweede leven.` }
                             ] : [
                                 { emoji: '💶', q: 'Need Cash?', a: 'Get money immediately.' },
-                                { emoji: '📱', q: 'Upgrade?', a: 'Fund your new device.' },
-                                { emoji: '♻️', q: 'Eco-friendly?', a: 'Give your mobile a second life.' }
+                                { emoji: isConsole ? '🎮' : '🕹️', q: isConsole ? 'New Console?' : 'Upgrade?', a: 'Fund your new device.' },
+                                { emoji: '♻️', q: 'Eco-friendly?', a: `Give your ${isConsole ? 'system' : 'mobile'} a second life.` }
                             ]
                         );
 
@@ -435,7 +479,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
 
                         const desc = isRepair
                             ? (lang === 'fr' ? "La réparation est trop chère ? Nous rachetons votre appareil cash, même cassé !" : (lang === 'nl' ? "Is de reparatie te duur? Wij kopen uw toestel contant, zelfs defect!" : "Repair too expensive? We buy your device for cash, even broken!"))
-                            : (lang === 'fr' ? "Vous préférez le garder ? Nous le réparons en 30 minutes." : (lang === 'nl' ? "Houdt u het liever? Wij repareren het in 30 minuten." : "Prefer to keep it? We repair it in 30 minutes."));
+                            : (lang === 'fr' ? `Vous préférez le garder ? Nous le réparons en ${durationText}.` : (lang === 'nl' ? `Houdt u het liever? Wij repareren het in ${durationText}.` : `Prefer to keep it? We repair it in ${durationText}.`));
 
                         const cta = isRepair
                             ? (lang === 'fr' ? 'Obtenir une offre de rachat' : (lang === 'nl' ? 'Krijg een inkoopbod' : 'Get Buyback Offer'))
