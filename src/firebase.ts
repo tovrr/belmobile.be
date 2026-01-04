@@ -22,7 +22,10 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const dbName = firebaseConfig.projectId === 'bemobile-be-live' ? 'belmobile-database' : '(default)';
+const dbName = (firebaseConfig.projectId === 'bemobile-be-live' || firebaseConfig.projectId === 'belmobile-firebase')
+    ? '(default)'
+    : '(default)';
+// Note: We are sticking to (default) for the new project as per your screenshot.
 export const db = getFirestore(app, dbName);
 export const auth = getAuth(app);
 export const storage = getStorage(app);

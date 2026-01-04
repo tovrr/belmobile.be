@@ -47,9 +47,8 @@ if (!admin.apps.length) {
 }
 
 // Safely export database connection
-// We now target 'belmobile-database' explicitly to match the Client SDK
-// If app is undefined (credentials missing), accessing this will throw a clearer error
-export const adminDb = (app && getFirestore(app, "belmobile-database")) as FirebaseFirestore.Firestore;
+// We now target the default database as per the new project structure
+export const adminDb = (app && getFirestore(app)) as FirebaseFirestore.Firestore;
 
 if (!adminDb && process.env.NODE_ENV !== 'production') {
     console.warn("⚠️ adminDb export is undefined (Credentials Missing?)");
