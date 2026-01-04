@@ -21,7 +21,38 @@ export function middleware(req: NextRequest) {
         return;
     }
 
-    // 2. Check if the pathname already has a supported locale
+    // 2. STAGING PROTECTION (PIN GATE)
+    const hostname = req.headers.get('host') || '';
+    const isStaging = hostname.includes('dev.') || hostname.includes('vercel.app');
+
+    if (isStaging) {
+        const isProtectedPath = !pathname.includes('/protected');
+
+        if (isProtectedPath) {
+            const hasAccess = req.cookies.has('staging_access_granted');
+            const pinParam = req.nextUrl.searchParams.get('pin');
+            const STAGING_PIN = '2580';
+
+            if (pinParam === STAGING_PIN) {
+                const url = req.nextUrl.clone();
+                url.searchParams.delete('pin');
+                const response = NextResponse.redirect(url);
+                response.cookies.set('staging_access_granted', 'true', {
+                    maxAge: 60 * 60 * 24 * 7, // 1 week
+                    path: '/',
+                });
+                return response;
+            }
+
+            if (!hasAccess) {
+                const url = req.nextUrl.clone();
+                url.pathname = '/fr/protected';
+                return NextResponse.redirect(url);
+            }
+        }
+    }
+
+    // 3. Check if the pathname already has a supported locale
     const pathnameHasLocale = i18n.locales.some(
         (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
     );
