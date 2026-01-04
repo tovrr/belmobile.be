@@ -42,9 +42,10 @@ export async function getShops(): Promise<Shop[]> {
             return (a.name || '').localeCompare(b.name || '');
         });
 
+        if (sortedData.length === 0) return SHOPS as Shop[];
         return sortedData;
     } catch (error) {
-        console.error("Error fetching shops for ISR:", error);
+        console.error("Error fetching shops for ISR, falling back to static list:", error);
         return SHOPS as Shop[]; // Fallback to constants
     }
 }

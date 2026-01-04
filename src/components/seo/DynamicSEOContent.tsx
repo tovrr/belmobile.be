@@ -5,10 +5,11 @@ import { slugToDisplayName, createSlug } from '../../utils/slugs';
 import { findDefaultBrandCategory } from '../../utils/deviceLogic';
 import { ShieldCheckIcon, ClockIcon, DevicePhoneMobileIcon, BoltIcon, BanknotesIcon, WrenchScrewdriverIcon, TvIcon, FireIcon } from '@heroicons/react/24/solid';
 
-import { SHOPS, MOCK_REPAIR_PRICES } from '../../constants';
+import { SHOPS } from '../../constants';
 import { FAQS } from '../../data/faqs';
 
 import { getSEOTitle, getSEODescription } from '../../utils/seoHelpers';
+import { PricingQuote } from '../../services/server/pricing.dal';
 
 interface DynamicSEOContentProps {
     type: 'store' | 'repair' | 'buyback';
@@ -19,6 +20,7 @@ interface DynamicSEOContentProps {
     brand?: string;
     model?: string;
     deviceType?: string;
+    priceQuote?: PricingQuote | null; // SSOT Injection
 }
 
 const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
@@ -29,12 +31,14 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     service,
     brand,
     model,
-    deviceType
+    deviceType,
+    priceQuote
 }) => {
     // Helper to get location name
     const locationName = shop?.city || location?.city || (lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : (lang === 'tr' ? 'Brüksel' : 'Brussels')));
 
-    // Helper to get device name
+    // ... (keep helper methods like getInferredDeviceType until getDeviceName)
+
     const getInferredDeviceType = () => {
         if (deviceType) return deviceType;
         if (model) {
@@ -104,16 +108,23 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
         ? (lang === 'fr' ? '3h à 4h' : (lang === 'nl' ? '3u tot 4u' : (lang === 'tr' ? '3-4 saat' : '3h to 4h')))
         : (lang === 'fr' ? '30 minutes' : (lang === 'nl' ? '30 minuten' : (lang === 'tr' ? '30 dakika' : '30 minutes')));
 
-    // Find pricing data if model is provided
-    const pricingSlug = model ? createSlug(`${brand} ${model}`) : '';
-    const pricingData = MOCK_REPAIR_PRICES.find(p => p.id === pricingSlug);
-
     // Translations & Content Helpers
-    const getTitle = () => getSEOTitle({ isStore, isRepair, lang, locationName, deviceName, durationText });
+    // In SOTA, we use the DAL data for title/description if available
+    const getTitle = () => {
+        if (priceQuote && priceQuote.seo && priceQuote.seo[lang]) {
+            return priceQuote.seo[lang].title;
+        }
+        return getSEOTitle({ isStore, isRepair, lang, locationName, deviceName, durationText });
+    };
 
-    const getDescription = () => getSEODescription({
-        isStore, isRepair, lang, locationName, deviceName, isHub, shop, brand, issuesText, durationText
-    });
+    const getDescription = () => {
+        if (priceQuote && priceQuote.seo && priceQuote.seo[lang]) {
+            return priceQuote.seo[lang].description;
+        }
+        return getSEODescription({
+            isStore, isRepair, lang, locationName, deviceName, isHub, shop, brand, issuesText, durationText
+        });
+    };
 
     const getCard1 = () => {
         const title = lang === 'fr' ? 'Pourquoi choisir Belmobile ?' : (lang === 'nl' ? 'Waarom Belmobile kiezen?' : 'Why Choose Belmobile?');
@@ -144,8 +155,8 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     const card1 = getCard1();
     const card2 = getCard2();
 
-    // Generate FAQ Schema
-    const getFAQSchema = () => {
+    // Generate JSON-LD Schema (FAQ + Product)
+    const getJSONLDSchema = () => {
         let faqs = [];
         const langCode = (lang === 'fr' || lang === 'nl' || lang === 'tr') ? lang : 'en';
 
@@ -183,24 +194,61 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
             faqs.unshift(dynamicQ);
         }
 
-        const schema = {
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": faqs.map(faq => ({
-                "@type": "Question",
-                "name": faq.question,
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": faq.answer
-                }
-            }))
-        };
+        const schemas: any[] = [
+            {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": faqs.map(faq => ({
+                    "@type": "Question",
+                    "name": faq.question,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": faq.answer
+                    }
+                }))
+            }
+        ];
 
+        // 4. Product Schema (SSOT Driven)
+        // If we have a price quote, we generate a high-quality Product/Offer schema
+        if (priceQuote && isRepair) {
+            const { repair } = priceQuote;
+            const startPrice = repair.screen_generic || repair.screen_original || repair.screen_oled || repair.battery || 60;
+
+            schemas.push({
+                "@context": "https://schema.org",
+                "@type": "Product",
+                "name": `${lang === 'fr' ? 'Réparation' : (lang === 'nl' ? 'Reparatie' : 'Repair')} ${deviceName}`,
+                "description": getDescription(),
+                "image": priceQuote.deviceImage || undefined, // Add image if available in DAL someday
+                "offers": {
+                    "@type": "Offer",
+                    "url": typeof window !== 'undefined' ? window.location.href : undefined,
+                    "priceCurrency": "EUR",
+                    "price": startPrice,
+                    "availability": "https://schema.org/InStock",
+                    "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+                    "seller": {
+                        "@type": "LocalBusiness",
+                        "name": "Belmobile"
+                    }
+                }
+            });
+        }
+
+        // Return multiple script tags or a graph? 
+        // A list of scripts is cleaner for Next.js to handle hydration usually, but array of objects in one script is valid too if graph.
+        // Let's output separate scripts or a graph. Using a fragment with multiple scripts.
         return (
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-            />
+            <>
+                {schemas.map((s, i) => (
+                    <script
+                        key={i}
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }}
+                    />
+                ))}
+            </>
         );
     };
 
@@ -309,12 +357,15 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
 
     // Helper to render price table for repair
     const renderPriceTable = () => {
-        if (!isRepair || !pricingData) return null;
+        if (!isRepair || !priceQuote) return null;
+
+        const { repair } = priceQuote;
 
         const tableRows = [
-            { id: 'screen', label: lang === 'fr' ? 'Écran' : (lang === 'nl' ? 'Scherm' : (lang === 'tr' ? 'Ekran' : 'Screen')), price: pricingData.screen || pricingData.standard },
-            { id: 'battery', label: lang === 'fr' ? 'Batterie' : (lang === 'nl' ? 'Batterij' : (lang === 'tr' ? 'Batarya' : 'Battery')), price: pricingData.battery },
-            { id: 'charging', label: lang === 'fr' ? 'Connecteur de Charge' : (lang === 'nl' ? 'Oplaadpoort' : (lang === 'tr' ? 'Şarj Soketi' : 'Charging')), price: pricingData.charging },
+            { id: 'screen', label: lang === 'fr' ? 'Écran' : (lang === 'nl' ? 'Scherm' : (lang === 'tr' ? 'Ekran' : 'Screen')), price: repair.screen_original || repair.screen_generic || repair.screen_oled },
+            { id: 'battery', label: lang === 'fr' ? 'Batterie' : (lang === 'nl' ? 'Batterij' : (lang === 'tr' ? 'Batarya' : 'Battery')), price: repair.battery },
+            { id: 'charging', label: lang === 'fr' ? 'Connecteur de Charge' : (lang === 'nl' ? 'Oplaadpoort' : (lang === 'tr' ? 'Şarj Soketi' : 'Charging')), price: repair.charging },
+            { id: 'camera', label: lang === 'fr' ? 'Caméra Arrière' : (lang === 'nl' ? 'Achtercamera' : (lang === 'tr' ? 'Arka Kamera' : 'Rear Camera')), price: repair.camera },
         ].filter(r => typeof r.price === 'number' && r.price > 0);
 
         if (tableRows.length === 0) return null;
@@ -348,7 +399,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
 
     return (
         <section className="w-full bg-transparent py-16 lg:py-24 transition-colors duration-300">
-            {getFAQSchema()}
+            {getJSONLDSchema()}
             <div className="container mx-auto px-4 max-w-6xl">
                 <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl p-6 lg:p-12 shadow-2xl border border-white/20 dark:border-white/10">
                     <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">

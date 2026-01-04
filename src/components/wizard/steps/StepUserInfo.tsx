@@ -391,7 +391,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     // -------------------------------------------------------------------------
     if (step === 4 && type === 'buyback') {
         return (
-            <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-24 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-4 lg:p-8 gap-6">
+            <div className="w-full mx-auto bg-transparent">
                 <div className="flex-1 min-w-0 space-y-8">
                     <div className="flex items-center gap-2 mb-6">
                         <button
@@ -490,25 +490,6 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                         </div>
                     </div>
                 </div>
-                <Sidebar
-                    type={type}
-                    step={step}
-                    selectedBrand={selectedBrand}
-                    selectedModel={selectedModel}
-                    deviceType={deviceType}
-                    storage={storage}
-                    repairIssues={repairIssues}
-                    estimateDisplay={sidebarEstimate}
-                    onNext={onNext}
-                    handleBack={onBack}
-                    nextDisabled={false}
-                    nextLabel={t('Accept & Recycle')}
-                    selectedScreenQuality={selectedScreenQuality}
-                    repairEstimates={repairEstimates}
-                    dynamicRepairPrices={dynamicRepairPrices}
-                    getSingleIssuePrice={getSingleIssuePrice}
-                    isSubmitting={state.isTransitioning}
-                />
             </div>
         );
     }
@@ -518,7 +499,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     // -------------------------------------------------------------------------
     if (step === 5 || (step === 4 && type === 'repair')) {
         return (
-            <div className={`flex flex-col lg:flex-row w-full mx-auto gap-6 ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : 'max-w-7xl pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-3 sm:p-6 lg:p-8'}`}>
+            <div className={`w-full mx-auto ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : ''}`}>
                 {/* Mobile Summary removed in favor of MobileBottomBar */}
                 <div className="flex-1 min-w-0">
                     <div className="mb-8">
@@ -549,7 +530,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 <div onClick={() => setDeliveryMethod(deliveryMethod === 'dropoff' ? null : 'dropoff')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'dropoff' ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-bel-yellow' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue'}` : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-700'}`}>
                                     <div className="flex items-start">
                                         <BuildingStorefrontIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'dropoff' ? `${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}` : 'text-gray-400'}`} />
-                                        <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'dropoff' ? `${type === 'buyback' ? 'text-gray-900 dark:text-gray-900' : 'text-bel-blue'}` : 'text-gray-900 dark:text-white'}`}>{t('delivery_visit_store_title')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('delivery_visit_store_desc')}</p></div>
+                                        <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'dropoff' ? `${type === 'buyback' ? 'text-gray-900 dark:text-white' : 'text-bel-blue dark:text-blue-400'}` : 'text-gray-900 dark:text-white'}`}>{t('delivery_visit_store_title')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('delivery_visit_store_desc')}</p></div>
                                     </div>
                                     {deliveryMethod === 'dropoff' && (
                                         <div className="mt-4 w-full animate-fade-in">
@@ -567,7 +548,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                                 e.stopPropagation();
                                                                 setIsShopListOpen(true);
                                                             }}
-                                                            className="w-full py-4 px-6 bg-white dark:bg-slate-900 text-left rounded-xl border-2 border-gray-200 dark:border-slate-700 hover:border-bel-blue transition font-medium text-gray-900 dark:text-white flex items-center justify-between"
+                                                            className={`w-full py-4 px-6 bg-white dark:bg-slate-900 text-left rounded-xl border-2 border-gray-200 dark:border-slate-700 ${type === 'buyback' ? 'hover:border-bel-yellow' : 'hover:border-bel-blue'} transition font-medium text-gray-900 dark:text-white flex items-center justify-between`}
                                                         >
                                                             <span>{t('Select a shop')}</span>
                                                             <ChevronRightIcon className="h-5 w-5 text-gray-400" />
@@ -598,13 +579,13 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                                                 setShopSelectionError(false);
                                                                                 setIsShopListOpen(false);
                                                                             }}
-                                                                            className={`w-full py-4 px-6 text-left hover:bg-gray-50 dark:hover:bg-slate-800 transition flex items-center justify-between group ${shop.isPrimary ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''}`}
+                                                                            className={`w-full py-4 px-6 text-left hover:bg-gray-50 dark:hover:bg-slate-800 transition flex items-center justify-between group ${shop.isPrimary ? (type === 'buyback' ? 'bg-yellow-50/30 dark:bg-yellow-900/10' : 'bg-blue-50/30 dark:bg-blue-900/10') : ''}`}
                                                                         >
                                                                             <div className="flex-1">
                                                                                 <div className="flex items-center gap-2">
-                                                                                    <div className={`font-bold text-gray-900 dark:text-white group-hover:text-bel-blue transition-colors ${shop.isPrimary ? 'text-bel-blue' : ''}`}>{shop.name.replace('Belmobile ', '')}</div>
+                                                                                    <div className={`font-bold text-gray-900 dark:text-white ${type === 'buyback' ? 'group-hover:text-bel-yellow' : 'group-hover:text-bel-blue'} transition-colors ${shop.isPrimary ? (type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue') : ''}`}>{shop.name.replace('Belmobile ', '')}</div>
                                                                                     {shop.isPrimary && (
-                                                                                        <span className="bg-bel-blue text-white text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter">⚡ {t('Available Today')}</span>
+                                                                                        <span className={`${type === 'buyback' ? 'bg-bel-yellow text-gray-900' : 'bg-bel-blue text-white'} text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter`}>⚡ {t('Available Today')}</span>
                                                                                     )}
                                                                                 </div>
                                                                                 <div className="text-xs text-gray-500 mt-1">{shop.address}</div>
@@ -617,11 +598,11 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                     )}
                                                 </div>
                                             ) : (
-                                                <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border-2 border-bel-blue">
+                                                <div className={`bg-white dark:bg-slate-900 p-4 rounded-xl border-2 ${type === 'buyback' ? 'border-bel-yellow' : 'border-bel-blue'}`}>
                                                     <div className="flex items-start justify-between">
                                                         <div>
                                                             <div className="flex items-center gap-2">
-                                                                <p className="font-bold text-bel-blue">{selectedShop?.name?.replace('Belmobile ', '')}</p>
+                                                                <p className={`font-bold ${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}`}>{selectedShop?.name?.replace('Belmobile ', '')}</p>
                                                             </div>
                                                             <p className="text-sm text-gray-600 dark:text-gray-300">{selectedShop.address}</p>
                                                         </div>
@@ -632,7 +613,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                                 setSelectedShop(null);
                                                                 setIsShopListOpen(true);
                                                             }}
-                                                            className="text-sm text-bel-blue hover:text-blue-700 font-medium underline"
+                                                            className={`text-sm font-medium underline ${type === 'buyback' ? 'text-bel-yellow hover:text-yellow-600' : 'text-bel-blue hover:text-blue-700'}`}
                                                         >
                                                             {t('Change')}
                                                         </button>
@@ -647,7 +628,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 <div onClick={() => setDeliveryMethod(deliveryMethod === 'send' ? null : 'send')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-bel-yellow' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue'}` : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-700'}`}>
                                     <div className="flex items-start">
                                         <TruckIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}` : 'text-gray-400'}`} />
-                                        <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'text-gray-900 dark:text-gray-900' : 'text-bel-blue'}` : 'text-gray-900 dark:text-white'}`}>{t('Send by Post')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Free shipping label provided. Secure and insured.')}</p></div>
+                                        <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'text-gray-900 dark:text-white' : 'text-bel-blue dark:text-blue-400'}` : 'text-gray-900 dark:text-white'}`}>{t('Send by Post')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Free shipping label provided. Secure and insured.')}</p></div>
                                     </div>
                                     {deliveryMethod === 'send' && (
                                         <div className="mt-4 w-full animate-fade-in">
@@ -695,7 +676,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2">
-                                                <span className={`block font-bold text-lg ${deliveryMethod === 'courier' ? `${type === 'buyback' ? 'text-gray-900 dark:text-gray-900' : 'text-bel-blue'}` : 'text-gray-900 dark:text-white'}`}>{t('Express Courier (Brussels)')}</span>
+                                                <span className={`block font-bold text-lg ${deliveryMethod === 'courier' ? `${type === 'buyback' ? 'text-gray-900 dark:text-white' : 'text-bel-blue dark:text-blue-400'}` : 'text-gray-900 dark:text-white'}`}>{t('Express Courier (Brussels)')}</span>
                                                 <span className="bg-bel-yellow text-bel-blue text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter shadow-sm">{t('Tour & Taxis Bridge')}</span>
                                             </div>
                                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -1122,31 +1103,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                         </div>
                     </form>
                 </div>
-                {!state.isWidget && (
-                    <Sidebar
-                        type={type}
-                        step={step}
-                        selectedBrand={selectedBrand}
-                        selectedModel={selectedModel}
-                        deviceType={deviceType}
-                        storage={storage}
-                        repairIssues={repairIssues}
-                        estimateDisplay={sidebarEstimate}
-                        onNext={onNext}
-                        handleBack={onBack}
-                        nextDisabled={false}
-                        nextLabel={t('Complete Request')}
-                        selectedScreenQuality={selectedScreenQuality}
-                        repairEstimates={repairEstimates}
-                        dynamicRepairPrices={dynamicRepairPrices}
-                        getSingleIssuePrice={getSingleIssuePrice}
-                        deliveryMethod={deliveryMethod}
-                        courierTier={courierTier}
-                        hasHydrogel={hasHydrogel}
-                        isProcessing={state.isTransitioning}
-                        processingText={getProcessingText()}
-                    />
-                )}
+                {/* Sidebar removed - persisted in parent component */}
             </div>
         );
     }

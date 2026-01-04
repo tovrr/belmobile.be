@@ -11,6 +11,7 @@ import { useLanguage } from '../../../hooks/useLanguage';
 import { slugToDisplayName } from '../../../utils/slugs';
 import { WizardFAQ } from '../WizardFAQ';
 import { BoltIcon, BanknotesIcon, ShieldCheckIcon } from '../../ui/BrandIcons';
+import BrandLoader from '../../ui/BrandLoader';
 
 interface StepConditionProps {
     type: 'buyback' | 'repair';
@@ -139,7 +140,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
         }
 
         return (
-            <div className={`flex flex-col lg:flex-row w-full mx-auto gap-6 ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : 'max-w-7xl pb-24 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8'}`}>
+            <div className={`w-full mx-auto ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : ''}`}>
                 <div className="flex-1 min-w-0 space-y-8">
                     <div className="flex items-center gap-2 mb-6">
                         <button
@@ -156,41 +157,62 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                     {/* Storage Selection */}
                     <div>
                         <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Storage')}</label>
-                        <div className="grid grid-cols-3 gap-3">
-                            {(() => {
-                                const staticOptions = (specsData && selectedModel ? specsData[selectedModel] : []) || [];
-                                const dynamicOptions = dynamicBuybackPrices ? dynamicBuybackPrices.map(p => p.storage) : [];
-
-                                let finalOptions = [];
-                                if (dynamicOptions.length > 0) {
-                                    finalOptions = Array.from(new Set(dynamicOptions));
-                                } else if (staticOptions.length > 0) {
-                                    finalOptions = staticOptions;
-                                } else {
-                                    finalOptions = ['64GB', '128GB', '256GB'];
-                                }
-
-                                const sortStorage = (a: string, b: string) => {
-                                    const getVal = (s: string) => {
-                                        if (s.endsWith('TB')) return parseFloat(s) * 1024;
-                                        return parseFloat(s);
+                        <div className="grid grid-cols-3 gap-3 min-h-[60px] items-center">
+                            {(loading || state.isLoadingData) ? (
+                                <div className="col-span-3 flex items-center justify-center space-x-2 py-4">
+                                    <div className="w-2 h-2 bg-bel-yellow rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                    <div className="w-2 h-2 bg-bel-yellow rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                    <div className="w-2 h-2 bg-bel-yellow rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-2">{t('loading_specs')}</span>
+                                </div>
+                            ) : (
+                                (() => {
+                                    const findSpecs = (modelStr: string) => {
+                                        if (!specsData || !modelStr) return [];
+                                        const m = String(modelStr).trim();
+                                        if (specsData[m]) return specsData[m];
+                                        const key = Object.keys(specsData).find(k => k.toLowerCase() === m.toLowerCase());
+                                        return key ? specsData[key] : [];
                                     };
-                                    return getVal(a) - getVal(b);
-                                };
 
-                                return finalOptions.sort(sortStorage).map(opt => (
-                                    <button
-                                        key={opt}
-                                        type="button"
-                                        onClick={() => setStorage(opt)}
-                                        className={`py-3 rounded-xl font-bold transition-all ${storage === opt
-                                            ? 'bg-bel-yellow text-gray-900 shadow-lg shadow-yellow-500/20 ring-1 ring-yellow-400'
-                                            : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
-                                    >
-                                        {opt}
-                                    </button>
-                                ));
-                            })()}
+                                    const staticOptions = findSpecs(selectedModel);
+                                    const dynamicOptions = (dynamicBuybackPrices || [])
+                                        .map(p => p.storage)
+                                        .filter(Boolean);
+
+                                    let finalOptions: string[] = [];
+                                    if (dynamicOptions.length > 0) {
+                                        finalOptions = Array.from(new Set(dynamicOptions));
+                                    } else if (staticOptions && staticOptions.length > 0) {
+                                        finalOptions = staticOptions;
+                                    } else {
+                                        // Robust Fallback
+                                        finalOptions = ['64GB', '128GB', '256GB', '512GB'];
+                                    }
+
+                                    const sortStorage = (a: string, b: string) => {
+                                        const getVal = (s: string) => {
+                                            if (!s) return 0;
+                                            if (s.endsWith('TB')) return parseFloat(s) * 1024;
+                                            return parseFloat(s) || 0;
+                                        };
+                                        return getVal(a) - getVal(b);
+                                    };
+
+                                    return finalOptions.sort(sortStorage).map((opt) => (
+                                        <button
+                                            key={`storage-${opt}`}
+                                            type="button"
+                                            onClick={() => setStorage(opt)}
+                                            className={`py-3 rounded-xl font-bold transition-all ${storage === opt
+                                                ? 'bg-bel-yellow text-gray-900 shadow-lg shadow-yellow-500/20 ring-1 ring-yellow-400'
+                                                : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
+                                        >
+                                            {opt}
+                                        </button>
+                                    ));
+                                })()
+                            )}
                         </div>
                     </div>
 
@@ -198,16 +220,16 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                     <div className="space-y-4">
                         <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Functionality')}</label>
                         {[
-                            { label: 'Turns On?', state: turnsOn, setter: setTurnsOn },
-                            { label: 'Everything Works?', state: worksCorrectly, setter: setWorksCorrectly },
-                            ...(deviceType === 'smartphone' ? [{ label: 'Unlocked?', state: isUnlocked, setter: setIsUnlocked }] : []),
-                            ...(isAppleSmartphone ? [{ label: 'Face ID Working?', state: faceIdWorking, setter: setFaceIdWorking }] : [])
-                        ].map((item, i) => {
-                            const isDisabled = turnsOn === false && item.label !== 'Turns On?';
+                            { id: 'turns-on', label: 'Turns On?', state: turnsOn, setter: setTurnsOn },
+                            { id: 'works-correctly', label: 'Everything Works?', state: worksCorrectly, setter: setWorksCorrectly },
+                            ...(deviceType === 'smartphone' ? [{ id: 'is-unlocked', label: 'Unlocked?', state: isUnlocked, setter: setIsUnlocked }] : []),
+                            ...(isAppleSmartphone ? [{ id: 'faceid', label: 'Face ID Working?', state: faceIdWorking, setter: setFaceIdWorking }] : [])
+                        ].map((item) => {
+                            const isDisabled = turnsOn === false && item.id !== 'turns-on';
                             if (!item.setter) return null;
 
                             return (
-                                <div key={i} className={`flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200 dark:border-slate-800 ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}>
+                                <div key={item.id} className={`flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200 dark:border-slate-800 ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}>
                                     <div className="flex flex-col">
                                         <span className="font-medium text-gray-900 dark:text-white">{t(item.label)}</span>
                                         <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('desc_' + item.label)}</span>
@@ -279,28 +301,6 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         selectedModel={selectedModel || undefined}
                     />
                 </div>
-
-                {!state.isWidget && (
-                    <Sidebar
-                        type={type}
-                        step={step}
-                        selectedBrand={selectedBrand}
-                        selectedModel={selectedModel}
-                        deviceType={deviceType}
-                        storage={storage}
-                        repairIssues={repairIssues}
-                        estimateDisplay={sidebarEstimate}
-                        onNext={onNext}
-                        handleBack={onBack}
-                        nextDisabled={nextDisabled}
-                        nextLabel={t('Next')}
-                        selectedScreenQuality={selectedScreenQuality}
-                        repairEstimates={repairEstimates}
-                        dynamicRepairPrices={dynamicRepairPrices}
-                        getSingleIssuePrice={getSingleIssuePrice}
-                        loading={loading}
-                    />
-                )}
             </div>
         );
     }
@@ -315,7 +315,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
         const isNintendo = selectedBrand?.toLowerCase() === 'nintendo';
 
         return (
-            <div className={`flex flex-col lg:flex-row w-full max-w-7xl mx-auto pb-24 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-10 gap-8`}>
+            <div className={`w-full mx-auto ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : ''}`}>
                 <div className="flex-1 min-w-0">
                     <div className="mb-10">
                         <div className="flex items-center gap-4 mb-4">
@@ -542,28 +542,6 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         selectedModel={selectedModel || undefined}
                     />
                 </div>
-
-                {!state.isWidget && (
-                    <Sidebar
-                        type={type}
-                        step={step}
-                        selectedBrand={selectedBrand}
-                        selectedModel={selectedModel}
-                        deviceType={deviceType}
-                        storage={storage}
-                        repairIssues={repairIssues}
-                        estimateDisplay={sidebarEstimate}
-                        onNext={onNext}
-                        handleBack={onBack}
-                        nextDisabled={nextDisabled}
-                        nextLabel={nextLabel}
-                        selectedScreenQuality={selectedScreenQuality}
-                        repairEstimates={repairEstimates}
-                        dynamicRepairPrices={dynamicRepairPrices}
-                        getSingleIssuePrice={getSingleIssuePrice}
-                        loading={loading}
-                    />
-                )}
             </div>
         );
     }

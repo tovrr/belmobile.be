@@ -39,6 +39,7 @@ const StepUserInfo = dynamic(() => import('./steps/StepUserInfo').then(mod => mo
     loading: () => <ApolloLoader />,
     ssr: false
 });
+import Sidebar from './Sidebar';
 import StepWrapper from './StepWrapper';
 import StepIndicator from './StepIndicator';
 import MobileBottomBar from './MobileBottomBar';
@@ -65,7 +66,8 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         selectedBrand, selectedModel, customerEmail,
         repairIssues, storage, turnsOn, deviceType,
         worksCorrectly, isUnlocked, batteryHealth, faceIdWorking,
-        screenState, bodyState
+        screenState, bodyState, selectedScreenQuality,
+        deliveryMethod, courierTier, hasHydrogel, controllerCount
     } = state;
 
     const { t, language } = useLanguage();
@@ -74,7 +76,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     const { setSelectedShop } = useShop();
 
     const { handleNext, handleBack, handleModelSelect, loadBrandData, handleSubmit } = useWizardActions(type);
-    const { sidebarEstimate, buybackEstimate, repairEstimates, loading: pricingLoading } = useWizardPricing(type);
+    const { sidebarEstimate, buybackEstimate, repairEstimates, loading: pricingLoading, dynamicRepairPrices, getSingleIssuePrice } = useWizardPricing(type);
 
     const formRef = useRef<HTMLFormElement>(null);
     const modelSelectRef = useRef<HTMLDivElement>(null);
@@ -96,8 +98,6 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                     payload: {
                         ...hydratedState,
                         isInitialized: true,
-                        // If we are recovering, we probably want to be on the last step (User Info)
-                        // but let's respect the saved step if it exists
                     }
                 });
             } catch (e) {
@@ -164,12 +164,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
             return;
         }
 
-        // If we have a brand and model selected on mount, but no pricing data loaded for it, trigger the selection logic.
-        // NOTE: With SSR pages, this might be redundant or cause double-fetching if the parent page handles it.
-        // But for client-side navigation it's safe.
         if (selectedBrand && selectedModel && state.pricingData.loadedForModel !== createSlug(`${selectedBrand} ${selectedModel}`)) {
-            // Only trigger if we are NOT on a server-rendered page that might already satisfy this?
-            // Actually, handleModelSelect triggers a fetch. It's safe to keep for now.
             handleModelSelect(selectedModel);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -182,26 +177,48 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
 
     if (step === 3) {
         if (type === 'buyback') {
+            const isAppleSmartphone = selectedBrand?.toLowerCase() === 'apple' && (deviceType === 'smartphone' || deviceType === 'tablet');
+            const isHomeConsole = deviceType === 'console_home';
+
             nextDisabled = !storage || turnsOn === null;
             if (turnsOn !== false) {
-                nextDisabled = nextDisabled || worksCorrectly === null || isUnlocked === null || (isAppleSmartphone && (!batteryHealth || faceIdWorking === null));
+                nextDisabled = nextDisabled || worksCorrectly === null;
+
+                // Smartphone specific checks
+                if (deviceType === 'smartphone') {
+                    nextDisabled = nextDisabled || isUnlocked === null;
+                }
+
+                // Apple specific checks
+                if (isAppleSmartphone) {
+                    nextDisabled = nextDisabled || !batteryHealth || faceIdWorking === null;
+                }
+
+                // Console specific checks
+                if (isHomeConsole && (controllerCount === null || controllerCount === undefined)) {
+                    nextDisabled = true;
+                }
             }
         } else {
             nextDisabled = repairIssues.length === 0;
+            // Also logic from StepCondition repair:
+            if (!repairIssues.includes('other')) {
+                nextLabel = t("Start Repair");
+            }
         }
     } else if (step === 2) {
         nextDisabled = !selectedBrand || !selectedModel;
     } else if (step === 4 && type === 'repair') {
-        // Step 4 is User Info for repair
         nextLabel = t('Confirm Request');
-        // Validation is handled by form submission usually, so button triggers form submit or is disabled if invalid?
-        // Actually StepUserInfo usually has its own submit button.
-        // MobileBottomBar might want to trigger form submission
     } else if (step === 5 && type === 'buyback') {
         nextLabel = t('Confirm Offer');
     }
 
     const handleMobileNext = () => {
+        if (state.isWidget) {
+            handleNext();
+            return;
+        }
         const isFinalStep = (type === 'buyback' && step === 5) || (type === 'repair' && step === 4);
         if (isFinalStep) {
             if (formRef.current) formRef.current.requestSubmit();
@@ -210,12 +227,22 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         }
     };
 
+    const handleDesktopNext = () => {
+        const isFinalStep = (type === 'buyback' && step === 5) || (type === 'repair' && step === 4);
+        if (isFinalStep) {
+            if (formRef.current) formRef.current.requestSubmit();
+        } else {
+            handleNext();
+        }
+    }
+
     return (
         <div className={`w-full ${state.isWidget ? 'py-0' : 'pb-32'}`}>
             <StepIndicator step={step} type={type} t={t} isWidget={state.isWidget} />
 
-            <AnimatePresence mode="wait">
-                {step === 1 && (
+            {/* Step 1: No Sidebar, No Card (usually) */}
+            {step === 1 && (
+                <AnimatePresence mode="wait">
                     <StepWrapper key="step1" stepKey="step1">
                         <StepCategorySelection
                             type={type}
@@ -223,35 +250,69 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                             hideStep1Title={hideStep1Title}
                         />
                     </StepWrapper>
-                )}
+                </AnimatePresence>
+            )}
 
-                {step === 2 && (
-                    <StepWrapper key="step2" stepKey="step2">
-                        <StepDeviceSelection
-                            type={type}
-                            modelSelectRef={modelSelectRef}
-                        />
-                    </StepWrapper>
-                )}
+            {/* Steps 2+: Glass Card Container (Sidebar Persistence) */}
+            {step >= 2 && (
+                <div className={`flex flex-col lg:flex-row w-full mx-auto gap-6 ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : 'max-w-7xl pb-24 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl p-4 lg:p-8'}`}>
+                    <div className="flex-1 min-w-0">
+                        <AnimatePresence mode="wait">
+                            {step === 2 && (
+                                <StepWrapper key="step2" stepKey="step2">
+                                    <StepDeviceSelection
+                                        type={type}
+                                        modelSelectRef={modelSelectRef}
+                                    />
+                                </StepWrapper>
+                            )}
 
-                {step === 3 && (
-                    <StepWrapper key="step3" stepKey="step3">
-                        <StepCondition
-                            type={type}
-                        />
-                    </StepWrapper>
-                )}
+                            {step === 3 && (
+                                <StepWrapper key="step3" stepKey="step3">
+                                    <StepCondition
+                                        type={type}
+                                    />
+                                </StepWrapper>
+                            )}
 
-                {(step === 4 || (step === 5 && type === 'buyback')) && (
-                    <StepWrapper key="step4" stepKey="step4">
-                        <StepUserInfo
+                            {(step === 4 || (step === 5 && type === 'buyback')) && (
+                                <StepWrapper key="step4" stepKey="step4">
+                                    <StepUserInfo
+                                        type={type}
+                                        formRef={formRef}
+                                        isKiosk={state.isKiosk}
+                                    />
+                                </StepWrapper>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    {!state.isWidget && (
+                        <Sidebar
                             type={type}
-                            formRef={formRef}
-                            isKiosk={state.isKiosk}
+                            step={step}
+                            selectedBrand={selectedBrand}
+                            selectedModel={selectedModel}
+                            deviceType={deviceType}
+                            storage={storage}
+                            repairIssues={repairIssues}
+                            estimateDisplay={sidebarEstimate}
+                            onNext={handleDesktopNext}
+                            handleBack={handleBack}
+                            nextDisabled={nextDisabled}
+                            nextLabel={nextLabel}
+                            selectedScreenQuality={selectedScreenQuality}
+                            repairEstimates={repairEstimates}
+                            dynamicRepairPrices={dynamicRepairPrices}
+                            getSingleIssuePrice={getSingleIssuePrice}
+                            loading={pricingLoading}
+                            deliveryMethod={deliveryMethod}
+                            courierTier={courierTier}
+                            hasHydrogel={hasHydrogel}
                         />
-                    </StepWrapper>
-                )}
-            </AnimatePresence>
+                    )}
+                </div>
+            )}
 
             {/* APOLLO ENGINE: Mobile Controls */}
             {!state.isWidget && (
@@ -264,7 +325,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                         nextDisabled={nextDisabled}
                         nextLabel={nextLabel}
                         t={t}
-                        showEstimate={step === 3}
+                        showEstimate={step >= 3}
                         estimateDisplay={pricingLoading ? (
                             <div className="flex space-x-1 py-1">
                                 <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>

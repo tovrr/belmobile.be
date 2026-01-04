@@ -93,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     const specificImage = selectedModel ? getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`), deviceType) : null;
     const brandImage = selectedBrand ? getDeviceImage(createSlug(selectedBrand), deviceType) : null;
     const displayImage = specificImage || brandImage;
-    const isFallback = !specificImage;
+    const isFallback = !specificImage || (typeof specificImage === 'string' && specificImage.includes('/brands/'));
 
     // Trust Signals Logic
     const signalContext: SignalContext = {
@@ -110,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 {/* Unified Content Block */}
                 <div>
                     {/* Header */}
-                    <div className={`${isBuyback ? 'bg-bel-yellow' : 'bg-bel-blue'} p-6 ${isBuyback ? 'text-gray-900' : 'text-white'} text-center rounded-t-ui-lg relative overflow-hidden`}>
+                    <div className={`${isBuyback ? 'bg-bel-yellow' : 'bg-indigo-500'} p-6 ${isBuyback ? 'text-gray-900' : 'text-white'} text-center rounded-t-ui-lg relative overflow-hidden`}>
                         <h3 className="font-bold text-xl mb-2 relative z-10">{t('Summary')}</h3>
                         {displayImage && (
                             <AnimatePresence mode="wait">
@@ -120,19 +120,29 @@ const Sidebar: React.FC<SidebarProps> = ({
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     transition={{ duration: 0.2 }}
-                                    className="relative w-24 h-24 mx-auto mb-2 bg-white/20 rounded-xl p-2 backdrop-blur-sm shadow-inner"
+                                    className={`relative mx-auto mb-2 overflow-hidden ${isFallback
+                                        ? 'w-24 h-24 flex items-center justify-center'
+                                        : 'w-32 h-32 bg-white rounded-2xl p-3 shadow-xl border border-white/50'
+                                        }`}
                                 >
                                     <Image
                                         src={displayImage}
-                                        alt={`${selectedBrand} ${selectedModel} - ${t(isBuyback ? 'wizard_action_sell' : 'wizard_action_repair')} Belmobile`}
+                                        alt={t(
+                                            isBuyback ? 'seo_image_buyback_alt' : 'seo_image_repair_alt',
+                                            slugToDisplayName(selectedBrand || ''),
+                                            slugToDisplayName(selectedModel || '')
+                                        )}
                                         fill
                                         sizes="128px"
-                                        className={`object-contain transition-all ${isFallback ? 'brightness-0 invert p-4 opacity-90' : 'hover:scale-105'}`}
+                                        className={`object-contain transition-all ${isFallback
+                                            ? (isBuyback ? 'brightness-0' : 'brightness-0 invert')
+                                            : 'hover:scale-105 p-1'
+                                            }`}
                                     />
                                 </motion.div>
                             </AnimatePresence>
                         )}
-                        <p className={`${isBuyback ? 'text-gray-700' : 'text-blue-100'} text-sm font-medium relative z-10 line-clamp-1`}>
+                        <p className={`${isBuyback ? 'text-gray-700' : 'text-indigo-100'} text-sm font-medium relative z-10 line-clamp-1`}>
                             {selectedBrand && selectedModel ? (
                                 selectedModel.toLowerCase().includes(selectedBrand.toLowerCase())
                                     ? slugToDisplayName(selectedModel)
@@ -288,9 +298,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, scale: 0.9 }}
-                                                className={`${isBuyback ? 'bg-yellow-50/50 dark:bg-yellow-900/10 border-yellow-100/50 dark:border-yellow-900/20' : 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-100/50 dark:border-blue-900/20'} p-2 rounded-lg text-center min-h-[64px] flex flex-col items-center justify-center border`}
+                                                className={`${isBuyback ? 'bg-yellow-50/50 dark:bg-yellow-900/10 border-yellow-100/50 dark:border-yellow-900/20' : 'bg-indigo-50/50 dark:bg-indigo-900/10 border-indigo-100/50 dark:border-indigo-900/20'} p-2 rounded-lg text-center min-h-[64px] flex flex-col items-center justify-center border`}
                                             >
-                                                <Icon className={`w-5 h-5 ${isBuyback ? 'text-bel-yellow' : 'text-bel-blue'} mb-1`} />
+                                                <Icon className={`w-5 h-5 ${isBuyback ? 'text-bel-yellow' : 'text-indigo-500'} mb-1`} />
                                                 <p className="text-[10px] font-bold text-gray-700 dark:text-gray-300 leading-tight">
                                                     {(() => {
                                                         const { durationText } = getDeviceContext(selectedModel || '', language as any);
@@ -341,7 +351,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 <Button
                                     onClick={handleBack}
                                     variant="outline"
-                                    className="w-full border-bel-blue! text-bel-blue! hover:bg-bel-blue/5!"
+                                    className={`w-full ${isBuyback ? 'border-bel-yellow! text-bel-yellow! hover:bg-yellow-50!' : 'border-indigo-500! text-indigo-500! hover:bg-indigo-50!'}`}
                                 >
                                     {t('Back')}
                                 </Button>

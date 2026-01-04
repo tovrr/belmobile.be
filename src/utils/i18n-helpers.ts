@@ -1,4 +1,5 @@
 import { MOCK_BLOG_POSTS } from '../constants';
+import { SERVICES } from '../data/services';
 
 /**
  * Ensures a URL string has a protocol (defaults to https://) and handles potential whitespace.
@@ -12,12 +13,10 @@ export function sanitizeUrl(url: string | undefined, defaultUrl: string = 'https
     return sanitized;
 }
 
-export const SLUG_MAPPINGS: Record<string, Record<string, string>> = {
-    products: { en: 'products', fr: 'produits', nl: 'producten', tr: 'urunler' },
-    repair: { en: 'repair', fr: 'reparation', nl: 'reparatie', tr: 'tamir' },
-    buyback: { en: 'buyback', fr: 'rachat', nl: 'inkoop', tr: 'sat' },
+// 1. Static Mappings for non-service pages
+export const STATIC_SLUG_MAPPINGS: Record<string, Record<string, string>> = {
+    products: { en: 'products', fr: 'produits', nl: 'producten', tr: 'urunler' }, // Can overlap with service if not careful
     stores: { en: 'stores', fr: 'magasins', nl: 'winkels', tr: 'magazalar' },
-    services: { en: 'services', fr: 'services', nl: 'diensten', tr: 'hizmetler' },
     about: { en: 'about', fr: 'a-propos', nl: 'over-ons', tr: 'hakkimizda' },
     sustainability: { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid', tr: 'surdurulebilirlik' },
     students: { en: 'students', fr: 'etudiants', nl: 'studenten', tr: 'ogrenci' },
@@ -29,13 +28,8 @@ export const SLUG_MAPPINGS: Record<string, Record<string, string>> = {
     track: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen', tr: 'takip' },
     business: { en: 'business', fr: 'business', nl: 'zakelijk', tr: 'kurumsal' },
     support: { en: 'support', fr: 'support', nl: 'destek', tr: 'destek' },
-    franchise: { en: 'franchise', fr: 'devenir-partenaire', nl: 'word-partner', tr: 'franchise' },
+    franchise: { en: 'franchise', fr: 'franchise', nl: 'franchise', tr: 'franchise' }, // Fixed slug
     training: { en: 'training', fr: 'formation', nl: 'opleiding', tr: 'egitim' },
-    // Redundant keys for direct lookup from localized slugs if needed
-    'a-propos': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
-    'over-ons': { en: 'about', fr: 'a-propos', nl: 'over-ons' },
-    'durabilite': { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' },
-    'duurzaamheid': { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid' }
 };
 
 export function getLocalizedPath(currentPath: string, newLang: 'en' | 'fr' | 'nl' | 'tr', searchParams: string = ''): string {
@@ -52,8 +46,17 @@ export function getLocalizedPath(currentPath: string, newLang: 'en' | 'fr' | 'nl
 
     // Helper to translate a segment if it matches any known term
     const translateSegment = (segment: string) => {
-        for (const key in SLUG_MAPPINGS) {
-            const terms = SLUG_MAPPINGS[key];
+        // 1. Check Dynamic Services (SSOT)
+        for (const service of SERVICES) {
+            if (Object.values(service.slugs).includes(segment)) {
+                // @ts-ignore
+                return service.slugs[newLang];
+            }
+        }
+
+        // 2. Check Static Mappings
+        for (const key in STATIC_SLUG_MAPPINGS) {
+            const terms = STATIC_SLUG_MAPPINGS[key];
             if (Object.values(terms).includes(segment)) {
                 return terms[newLang];
             }

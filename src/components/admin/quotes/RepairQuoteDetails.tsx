@@ -49,11 +49,12 @@ const RepairQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
     };
 
     const handleStatusChange = async (newStatus: Quote['status']) => {
+        const oldStatus = currentStatus; // Capture the real old value first
         setCurrentStatus(newStatus);
         setIsUpdatingStatus(true);
         try {
             await updateQuoteStatus(quote.id, newStatus, notifyCustomer);
-            await logActivity('status_change', quote.status, newStatus);
+            await logActivity('status_change', oldStatus, newStatus);
 
             if (newStatus === 'closed') {
                 await fetch('/api/mail/schedule-review', {
@@ -188,6 +189,28 @@ const RepairQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
                                 >
                                     <div className={`w-2 h-2 rounded-full ${currentStatus === 'processing' || currentStatus === 'new' ? 'bg-white' : 'bg-gray-300'}`} />
                                     ⏳ Processing
+                                </button>
+
+                                <button
+                                    onClick={() => handleStatusChange('pending_drop')}
+                                    className={`w-full text-left px-4 py-3 text-xs font-bold rounded-xl transition-all flex items-center gap-3 ${currentStatus === 'pending_drop'
+                                        ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/30 ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-slate-800'
+                                        : 'bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800'
+                                        }`}
+                                >
+                                    <div className={`w-2 h-2 rounded-full ${currentStatus === 'pending_drop' ? 'bg-white' : 'bg-gray-300'}`} />
+                                    📥 Pending Drop-off
+                                </button>
+
+                                <button
+                                    onClick={() => handleStatusChange('in_diagnostic')}
+                                    className={`w-full text-left px-4 py-3 text-xs font-bold rounded-xl transition-all flex items-center gap-3 ${currentStatus === 'in_diagnostic'
+                                        ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/30 ring-2 ring-cyan-500 ring-offset-2 dark:ring-offset-slate-800'
+                                        : 'bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800'
+                                        }`}
+                                >
+                                    <div className={`w-2 h-2 rounded-full ${currentStatus === 'in_diagnostic' ? 'bg-white' : 'bg-gray-300'}`} />
+                                    🔍 In Diagnostic
                                 </button>
 
                                 <button

@@ -11,7 +11,7 @@ interface MobileBottomBarProps {
     showEstimate?: boolean;
     estimateDisplay?: React.ReactNode;
     hideNextButton?: boolean;
-    t: (key: string) => string;
+    t: (key: string, ...args: (string | number)[]) => string;
     // selectedIssues removed in favor of Context
 }
 
@@ -117,26 +117,42 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
                             {hasDevice && (
                                 <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-2xl flex items-center gap-4">
                                     {/* Brand Logo */}
-                                    <div className="relative w-12 h-12 shrink-0 bg-white dark:bg-white/10 rounded-xl p-2 flex items-center justify-center">
-                                        {getDeviceImage(createSlug(selectedBrand || ''), deviceType) ? (
-                                            <Image
-                                                src={getDeviceImage(createSlug(selectedBrand || ''), deviceType)!}
-                                                alt={`${selectedBrand || 'Device'} ${t(type === 'buyback' ? 'Buyback' : 'Repair')}`}
-                                                width={40}
-                                                height={40}
-                                                className="object-contain w-full h-full dark:invert"
-                                                placeholder="blur"
-                                                blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(40, 40))}`}
-                                            />
-                                        ) : (
-                                            <span className={`text-lg font-bold ${themeColor}`}>
-                                                {selectedBrand?.charAt(0)}
-                                            </span>
-                                        )}
+                                    <div className={`relative w-14 h-14 shrink-0 rounded-2xl p-2.5 flex items-center justify-center border shadow-md overflow-hidden ${(() => {
+                                        const specificImage = selectedModel ? getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`), deviceType) : null;
+                                        const isFallback = !specificImage || (typeof specificImage === 'string' && specificImage.includes('/brands/'));
+                                        return isFallback
+                                            ? (isBuyback ? 'bg-bel-yellow border-yellow-400' : 'bg-indigo-500 border-indigo-400')
+                                            : 'bg-white border-white/50';
+                                    })()}`}>
+                                        {(() => {
+                                            const specificImage = selectedModel ? getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`), deviceType) : null;
+                                            const brandImage = getDeviceImage(createSlug(selectedBrand || ''), deviceType);
+                                            const displayImage = specificImage || brandImage;
+                                            const isFallback = !specificImage || (typeof specificImage === 'string' && specificImage.includes('/brands/'));
+
+                                            return displayImage ? (
+                                                <Image
+                                                    src={displayImage}
+                                                    alt={`${selectedBrand || 'Device'}`}
+                                                    width={48}
+                                                    height={48}
+                                                    className={`object-contain w-full h-full transition-all ${isFallback
+                                                        ? (isBuyback ? 'brightness-0 p-1' : 'brightness-0 invert p-1')
+                                                        : 'p-0.5'
+                                                        }`}
+                                                    placeholder="blur"
+                                                    blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(48, 48))}`}
+                                                />
+                                            ) : (
+                                                <span className={`text-xl font-bold ${isFallback ? (isBuyback ? 'text-gray-900' : 'text-white') : themeColor}`}>
+                                                    {selectedBrand?.charAt(0)}
+                                                </span>
+                                            );
+                                        })()}
                                     </div>
-                                    <div>
-                                        <div className="font-bold text-gray-900 dark:text-white text-lg">{slugToDisplayName(selectedModel || '')}</div>
-                                        <div className="text-xs text-gray-500 uppercase tracking-wide">{slugToDisplayName(selectedBrand || '')} • {t(deviceType)}</div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-black text-gray-900 dark:text-white text-lg leading-tight truncate">{slugToDisplayName(selectedModel || '')}</div>
+                                        <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">{slugToDisplayName(selectedBrand || '')} • {t(deviceType || '')}</div>
                                     </div>
                                 </div>
                             )}

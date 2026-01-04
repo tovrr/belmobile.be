@@ -13,23 +13,29 @@ const LAYOUT = (content: string, lang: string, trackingUrl: string, trackButton:
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Belmobile.be Update</title>
+    <style>
+        @media only screen and (max-width: 620px) {
+            .container { width: 100% !important; border-radius: 0 !important; }
+            .content { padding: 32px 24px !important; }
+            .header { padding: 32px 20px !important; }
+        }
+    </style>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;">
         <tr>
-            <td align="center" style="padding: 40px 0;">
-                <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+            <td align="center" style="padding: 20px 0;">
+                <table border="0" cellpadding="0" cellspacing="0" class="container" style="background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); width: 600px; max-width: 95%;">
                     <!-- Header -->
                     <tr>
-                        <td align="center" style="padding: 48px 40px; background-color: #1e1b4b; background-image: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);">
+                        <td align="center" class="header" style="padding: 48px 40px; background-color: #1e1b4b; background-image: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);">
                             <div style="font-size: 32px; font-weight: 900; color: #ffffff; letter-spacing: -1px; margin-bottom: 4px;">BELMOBILE<span style="color: ${accentColor}">.BE</span></div>
                             <div style="font-size: 12px; font-weight: 700; color: #a5b4fc; letter-spacing: 2px; text-transform: uppercase;">Repair & Buyback Center</div>
                         </td>
                     </tr>
                     <!-- Body -->
                     <tr>
-                        <td style="padding: 48px 48px 40px 48px;">
+                        <td class="content" style="padding: 48px 48px 40px 48px;">
                             ${content}
                             
                             <!-- Tracking Button -->
@@ -72,24 +78,28 @@ const LAYOUT = (content: string, lang: string, trackingUrl: string, trackButton:
 </html>
 `;
 
-export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' | 'nl') => {
+export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' | 'nl' | 'tr') => {
     const trackingUrl = `https://belmobile.be/${lang}/track-order?id=${id}&email=${encodeURIComponent(quote.customerEmail)}`;
 
     const subjects: Record<string, string> = {
         en: `📦 Update: Order #${id.substring(0, 8).toUpperCase()}`,
         fr: `📦 Suivi : Commande #${id.substring(0, 8).toUpperCase()}`,
-        nl: `📦 Status : Bestelling #${id.substring(0, 8).toUpperCase()}`
+        nl: `📦 Status : Bestelling #${id.substring(0, 8).toUpperCase()}`,
+        tr: `📦 Güncelleme: Sipariş #${id.substring(0, 8).toUpperCase()}`
     };
 
     const titles: Record<string, string> = {
         en: 'Order Status Update',
         fr: 'Mise à jour de votre commande',
-        nl: 'Status van uw bestelling'
+        nl: 'Status van uw bestelling',
+        tr: 'Sipariş Durumu Güncellemesi'
     };
 
     const statusMessages: Record<string, Record<string, string>> = {
         en: {
             new: '👋 We have received your request and will process it shortly. Thanks for choosing us!',
+            pending_drop: '📥 Your order is confirmed! Please drop off your device at the selected shop whenever you\'re ready.',
+            in_diagnostic: '🔍 Our technicians have received your device and are currently performing a complete diagnostic.',
             waiting_parts: '⏳ Needs a little patience! We are currently waiting for specific parts to complete your repair perfectly.',
             in_repair: '🛠️ Work in progress! Your device is currently in the hands of our experts.',
             repaired: '✅ Great news! Your device has been successfully repaired and is working like new.',
@@ -102,6 +112,8 @@ export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' 
         },
         fr: {
             new: '👋 Nous avons bien reçu votre demande et la traiterons sous peu. Merci de votre confiance !',
+            pending_drop: '📥 Votre commande est confirmée ! Vous pouvez déposer votre appareil au magasin choisi quand vous le souhaitez.',
+            in_diagnostic: '🔍 Nos techniciens ont bien reçu votre appareil et effectuent actuellement un diagnostic complet.',
             waiting_parts: '⏳ Un peu de patience ! Nous attendons actuellement des pièces spécifiques pour une réparation parfaite.',
             in_repair: '🛠️ Au travail ! Votre appareil est actuellement entre les mains de nos experts.',
             repaired: '✅ Bonne nouvelle ! Votre appareil a été réparé avec succès et fonctionne comme neuf.',
@@ -114,6 +126,8 @@ export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' 
         },
         nl: {
             new: '👋 We hebben uw aanvraag ontvangen en zullen deze spoedig behandelen. Bedankt voor uw vertrouwen!',
+            pending_drop: '📥 Uw bestelling is bevestigd! U kunt uw toestel afgeven in de gekozen winkel wanneer u maar wilt.',
+            in_diagnostic: '🔍 Onze technici hebben uw toestel ontvangen en voeren momenteel een volledige diagnose uit.',
             waiting_parts: '⏳ Even geduld! We wachten momenteel op specifieke onderdelen om uw reparatie perfect uit te voeren.',
             in_repair: '🛠️ Aan het werk! Uw apparaat is momenteel in handen van onze experts.',
             repaired: '✅ Goed nieuws! Uw apparaat is succesvol gerepareerd en werkt weer als nieuw.',
@@ -123,17 +137,31 @@ export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' 
             responded: '📬 We hebben gereageerd op uw aanvraag. Controleer uw volgpagina.',
             payment_sent: '💸 Betaling verzonden! We hebben de betaling voor uw apparaat uitgevoerd. Het komt er snel aan.',
             closed: '📂 Uw bestelling is nu afgerond. Bedankt dat u voor Belmobile hebt gekozen!'
+        },
+        tr: {
+            new: '👋 Talebinizi aldık ve kısa süre içinde işleme koyacağız. Bizi seçtiğiniz için teşekkürler!',
+            pending_drop: '📥 Siparişiniz onaylandı! Hazır olduğunuzda cihazınızı seçtiğiniz mağazaya bırakabilirsiniz.',
+            in_diagnostic: '🔍 Teknisyenlerimiz cihazınızı teslim aldı ve şu anda tam bir arıza tespiti yapıyor.',
+            waiting_parts: '⏳ Biraz sabır gerekiyor! Onarımınızı mükemmel bir şekilde tamamlamak için şu anda belirli parçaları bekliyoruz.',
+            in_repair: '🛠️ İşlem devam ediyor! Cihazınız şu anda uzmanlarımızın ellerinde.',
+            repaired: '✅ Harika haber! Cihazınız başarıyla onarıldı ve yeni gibi çalışıyor.',
+            ready: '🎉 Cihazınız hazır! Teslim almak için lütfen çalışma saatleri içinde mağazamızı ziyaret edin.',
+            shipped: '🚚 Yola çıktı! Siparişiniz kargoya verildi. Aşağıdaki bağlantıyı kullanarak takip edebilirsiniz.',
+            processing: '⚙️ Siparişinizi özenle işliyoruz.',
+            responded: '📬 Talebinize yanıt verdik. Lütfen takip sayfanızı kontrol edin.',
+            payment_sent: '💸 Ödeme gönderildi! Cihazınızın ödemesini transfer ettik. Kısa süre içinde ulaşacaktır.',
+            closed: '📂 Siparişiniz kapatıldı. Belmobile\'a güvendiğiniz için teşekkürler!'
         }
     };
 
     const message = statusMessages[lang]?.[quote.status] || statusMessages['en'][quote.status] || `Status updated to: ${quote.status}`;
-    const trackButton = lang === 'fr' ? 'Suivre ma commande' : lang === 'nl' ? 'Volg mijn bestelling' : 'Track My Order';
+    const trackButton = lang === 'fr' ? 'Suivre ma commande' : lang === 'nl' ? 'Volg mijn bestelling' : lang === 'tr' ? 'Siparişi Takip Et' : 'Track My Order';
 
     const content = `
         <h1 style="color: #1e1b4b; font-size: 24px; font-weight: 800; margin: 0 0 24px 0;">${titles[lang] || titles['en']}</h1>
         <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin: 0;">${message}</p>
         <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin: 24px 0 0 0;">
-            ${lang === 'fr' ? 'Appareil :' : lang === 'nl' ? 'Apparaat :' : 'Device :'} 
+            ${lang === 'fr' ? 'Appareil :' : lang === 'nl' ? 'Apparaat :' : lang === 'tr' ? 'Cihaz :' : 'Device :'} 
             <strong style="color: #1e1b4b;">${formatDeviceName(quote.brand)} ${formatDeviceName(quote.model)}</strong>
         </p>
     `;
@@ -141,28 +169,31 @@ export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' 
     return { subject: subjects[lang] || subjects['en'], html: LAYOUT(content, lang, trackingUrl, trackButton, id) };
 };
 
-export const getPaymentReceivedEmail = (reservation: Reservation, lang: 'en' | 'fr' | 'nl') => {
+export const getPaymentReceivedEmail = (reservation: Reservation, lang: 'en' | 'fr' | 'nl' | 'tr') => {
     const trackingUrl = `https://belmobile.be/${lang}/track-order?id=${reservation.id}&email=${encodeURIComponent(reservation.customerEmail)}`;
 
     const subjects: Record<string, string> = {
         en: "✅ Payment Received - Order Confirmed!",
         fr: "✅ Paiement Reçu - Commande Confirmée !",
-        nl: "✅ Betaling Ontvangen - Bestelling Bevestigd!"
+        nl: "✅ Betaling Ontvangen - Bestelling Bevestigd!",
+        tr: "✅ Ödeme Alındı - Sipariş Onaylandı!"
     };
 
     const titles: Record<string, string> = {
         en: "Payment Received!",
         fr: "Paiement Reçu !",
-        nl: "Betaling Ontvangen !"
+        nl: "Betaling Ontvangen !",
+        tr: "Ödeme Alındı!"
     };
 
     const body: Record<string, string> = {
         en: `Great news! We have successfully received your payment for <strong>${reservation.productName}</strong>. We will now proceed with your order immediately.`,
         fr: `Excellente nouvelle ! Nous avons bien reçu votre paiement pour <strong>${reservation.productName}</strong>. Nous allons maintenant traiter votre commande immédiatement.`,
-        nl: `Goed nieuws! We hebben uw betaling voor <strong>${reservation.productName}</strong> succesvol ontvangen. We gaan nu direct aan de slag met uw bestelling.`
+        nl: `Goed nieuws! We hebben uw betaling voor <strong>${reservation.productName}</strong> succesvol ontvangen. We gaan nu direct aan de slag met uw bestelling.`,
+        tr: `Harika haber! <strong>${reservation.productName}</strong> için ödemenizi başarıyla aldık. Şimdi siparişinize hemen devam edeceğiz.`
     };
 
-    const trackButton = lang === 'fr' ? 'Suivre ma commande' : lang === 'nl' ? 'Volg mijn bestelling' : 'Track My Order';
+    const trackButton = lang === 'fr' ? 'Suivre ma commande' : lang === 'nl' ? 'Volg mijn bestelling' : lang === 'tr' ? 'Siparişi Takip Et' : 'Track My Order';
 
     const content = `
         <h1 style="color: #059669; font-size: 24px; font-weight: 800; margin: 0 0 24px 0;">${titles[lang] || titles['en']}</h1>
@@ -175,7 +206,7 @@ export const getPaymentReceivedEmail = (reservation: Reservation, lang: 'en' | '
     return { subject: subjects[lang] || subjects['en'], html: LAYOUT(content, lang, trackingUrl, trackButton, String(reservation.id || ''), '#059669') };
 };
 
-export const getReservationStatusEmail = (reservation: Reservation, id: string, lang: 'en' | 'fr' | 'nl', paymentLink?: string) => {
+export const getReservationStatusEmail = (reservation: Reservation, id: string, lang: 'en' | 'fr' | 'nl' | 'tr', paymentLink?: string) => {
     const isShipping = reservation.deliveryMethod === 'shipping' && reservation.status !== 'ready';
     const trackingUrl = `https://belmobile.be/${lang}/track-order?id=${id}&email=${encodeURIComponent(reservation.customerEmail)}`;
     const finalPaymentLink = paymentLink || reservation.paymentLink || '#';
@@ -183,20 +214,23 @@ export const getReservationStatusEmail = (reservation: Reservation, id: string, 
     const subjects: Record<string, string> = {
         en: isShipping ? "🚨 Action Required: Payment Needed" : "🎉 Your Device is Ready!",
         fr: isShipping ? "🚨 Action Requise : Paiement Requis" : "🎉 Votre Appareil est Prêt !",
-        nl: isShipping ? "🚨 Actie vereist : Betaling vereist" : "🎉 Uw Apparaat ligt Klaar !"
+        nl: isShipping ? "🚨 Actie vereist : Betaling vereist" : "🎉 Uw Apparaat ligt Klaar !",
+        tr: isShipping ? "🚨 Aksiyon Gerekli: Ödeme Gerekiyor" : "🎉 Cihazınız Hazır!"
     };
 
-    const trackButton = lang === 'fr' ? 'Suivre ma commande' : lang === 'nl' ? 'Volg mijn bestelling' : 'Track My Order';
+    const trackButton = lang === 'fr' ? 'Suivre ma commande' : lang === 'nl' ? 'Volg mijn bestelling' : lang === 'tr' ? 'Siparişi Takip Et' : 'Track My Order';
     const accent = isShipping ? '#10b981' : '#4338ca';
 
     const contentDetails = isShipping ? {
         en: { title: "Order Confirmed", body: `Your order for <strong>${reservation.productName}</strong> is verified. To finalize shipping to <strong>${reservation.shippingCity}</strong>, please complete payment below.` },
         fr: { title: "Commande Confirmée", body: `Votre commande pour <strong>${reservation.productName}</strong> est vérifiée. Pour finaliser l'expédition vers <strong>${reservation.shippingCity}</strong>, veuillez régler ci-dessous.` },
-        nl: { title: "Bestelling Bevestigd", body: `Uw bestelling voor <strong>${reservation.productName}</strong> is geverifieerd. Om de verzending naar <strong>${reservation.shippingCity}</strong> te voltooien, betaal dan hieronder.` }
+        nl: { title: "Bestelling Bevestigd", body: `Uw bestelling voor <strong>${reservation.productName}</strong> is geverifieerd. Om de verzending naar <strong>${reservation.shippingCity}</strong> te voltooien, betaal dan hieronder.` },
+        tr: { title: "Sipariş Onaylandı", body: `<strong>${reservation.productName}</strong> siparişiniz doğrulandı. <strong>${reservation.shippingCity}</strong> adresine gönderimi tamamlamak için lütfen aşağıdan ödemeyi yapın.` }
     } : {
         en: { title: "Ready for Pickup!", body: `Your reservation for <strong>${reservation.productName}</strong> has been approved. You can pick it up at our shop whenever you're ready!` },
         fr: { title: "Prêt pour retrait !", body: `Votre réservation pour <strong>${reservation.productName}</strong> a été approuvée. Vous pouvez passer la récupérer en magasin quand vous le souhaitez !` },
-        nl: { title: "Klaar om op te halen!", body: `Uw reservering voor <strong>${reservation.productName}</strong> is goedgekeurd. U kunt deze ophalen in de winkel wanneer u wilt!` }
+        nl: { title: "Klaar om op te halen!", body: `Uw reservering voor <strong>${reservation.productName}</strong> is goedgekeurd. U kunt deze ophalen in de winkel wanneer u wilt!` },
+        tr: { title: "Teslime Hazır!", body: `<strong>${reservation.productName}</strong> için randevunuz onaylandı. Hazır olduğunuzda mağazamızdan teslim alabilirsiniz!` }
     };
 
     const t = (contentDetails as any)[lang] || (contentDetails as any)['en'];
@@ -206,16 +240,17 @@ export const getReservationStatusEmail = (reservation: Reservation, id: string, 
         <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin: 0;">${t.body}</p>
     `;
 
-    return { subject: subjects[lang] || subjects['en'], html: LAYOUT(content, lang, isShipping ? finalPaymentLink : trackingUrl, isShipping ? (lang === 'fr' ? 'Payer maintenant' : 'Pay Now') : trackButton, id, accent) };
+    return { subject: subjects[lang] || subjects['en'], html: LAYOUT(content, lang, isShipping ? finalPaymentLink : trackingUrl, isShipping ? (lang === 'fr' ? 'Payer maintenant' : lang === 'tr' ? 'Hemen Öde' : 'Pay Now') : trackButton, id, accent) };
 };
 
-export const generateReviewEmailHtml = (lang: string, name: string, shopId: string, orderId: string, shopName: string) => {
+export const generateReviewEmailHtml = (lang: 'en' | 'fr' | 'nl' | 'tr', name: string, shopId: string, orderId: string, shopName: string) => {
     const reviewUrl = `https://belmobile.be/${lang}/review?id=${orderId}&shop=${shopId}`;
 
     const subjects: Record<string, string> = {
         en: `⭐ How was your experience at ${shopName}?`,
         fr: `⭐ Comment s'est passée votre visite chez ${shopName} ?`,
-        nl: `⭐ Hoe was uw ervaring bij ${shopName}?`
+        nl: `⭐ Hoe was uw ervaring bij ${shopName}?`,
+        tr: `⭐ ${shopName} mağazasındaki deneyiminiz nasıldı?`
     };
 
     const subject = subjects[lang] || subjects['en'];
@@ -238,6 +273,12 @@ export const generateReviewEmailHtml = (lang: string, name: string, shopId: stri
             greeting: `Beste ${name},`,
             body: `Bedankt voor uw bezoek aan Belmobile ${shopName}. We horen graag what u van onze diensten vond. Het duurt maar een minuutje!`,
             cta: "Beoordeling achterlaten"
+        },
+        tr: {
+            title: "Görüşleriniz bizim için önemli",
+            greeting: `Merhaba ${name},`,
+            body: `Belmobile ${shopName} mağazasını seçtiğiniz için teşekkürler. Hizmetlerimiz hakkındaki düşüncelerinizi duymayı çok isteriz. Sadece bir dakikanızı alır!`,
+            cta: "Yorum Yap"
         }
     };
 
@@ -250,4 +291,32 @@ export const generateReviewEmailHtml = (lang: string, name: string, shopId: stri
     `;
 
     return { subject, html: LAYOUT(htmlContent, lang, reviewUrl, t.cta, orderId, '#d97706') };
+};
+
+export const getOrderConfirmationEmail = (order: any, id: string, lang: 'en' | 'fr' | 'nl' | 'tr', t: any) => {
+    const typeLabel = order.type === 'buyback' ? t('Buyback') : t('Repair');
+    const trackingUrl = `https://belmobile.be/${lang}/track-order?id=${id}&token=${order.trackingToken}`;
+
+    // Subjects
+    const subject = t('email_buyback_repair_subject', typeLabel, id);
+
+    // Content
+    const content = `
+        <h1 style="color: #4338ca; font-size: 24px; font-weight: 800; margin: 0 0 24px 0;">${t('email_buyback_repair_greeting', order.customerName)}</h1>
+        <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin: 0;">${t('email_buyback_repair_thanks', typeLabel)}</p>
+        <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin: 24px 0 0 0;">
+            ${t('email_buyback_repair_attachment')}
+        </p>
+        <div style="margin-top: 32px; padding: 24px; background-color: #f1f5f9; border-radius: 16px;">
+            <p style="margin: 0; font-size: 14px; font-weight: 700; color: #1e1b4b; text-transform: uppercase; letter-spacing: 1px;">${t('Device')} :</p>
+            <p style="margin: 8px 0 0 0; font-size: 18px; font-weight: 800; color: #4338ca;">${formatDeviceName(order.brand)} ${formatDeviceName(order.model)}</p>
+            ${order.storage ? `<p style="margin: 4px 0 0 0; font-size: 14px; color: #64748b;">${order.storage}</p>` : ''}
+        </div>
+        <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; font-style: italic;">${t('email_automatic_message')}</p>
+    `;
+
+    return {
+        subject,
+        html: LAYOUT(content, lang, trackingUrl, t('email_track_button'), id, '#4338ca')
+    };
 };

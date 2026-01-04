@@ -8,7 +8,7 @@ import {
     CreditCardIcon, CloudArrowUpIcon, DocumentIcon, CalculatorIcon, ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 import { notificationService } from '../../../services/notificationService';
-import { calculateBuybackPrice } from '../../../utils/pricingCalculator';
+import { calculateBuybackPriceShared, PricingParams } from '../../../utils/pricingLogic';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../firebase';
 import { QuoteHeader, CustomerInfoCard, DeviceBasicsCard, ActivityLogViewer, SectionWrapper, MagicLinkCard } from './SharedQuoteComponents';
@@ -113,28 +113,46 @@ const BuybackQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
     };
 
     const handleRecalculatePrice = () => {
-        const pricingState = {
-            type: 'buyback' as const,
+        // Map string values to strictly typed valid values for the pricing logic
+        const mapScreenState = (s: string): 'flawless' | 'scratches' | 'cracked' => {
+            const lower = s.toLowerCase();
+            if (lower.includes('broken') || lower.includes('cracked')) return 'cracked';
+            if (lower.includes('scratched')) return 'scratches';
+            return 'flawless';
+        };
+
+        const mapBodyState = (s: string): 'flawless' | 'scratches' | 'dents' | 'bent' => {
+            const lower = s.toLowerCase();
+            if (lower.includes('bent')) return 'bent';
+            if (lower.includes('dents')) return 'dents';
+            if (lower.includes('scratched')) return 'scratches';
+            return 'flawless';
+        };
+
+        const pricingParams: PricingParams = {
+            type: 'buyback',
+            brand: quote.brand,
+            model: quote.model,
             deviceType: quote.deviceType || 'smartphone',
-            selectedBrand: quote.brand,
-            selectedModel: quote.model,
             storage: editedStorage,
-            turnsOn: editedSpecs.turnsOn,
-            worksCorrectly: editedSpecs.worksCorrectly,
-            isUnlocked: editedSpecs.isUnlocked,
-            faceIdWorking: editedSpecs.faceIdWorking,
-            batteryHealth: editedSpecs.batteryHealth,
-            screenState: editedScreenCondition.toLowerCase(),
-            bodyState: editedBodyCondition.toLowerCase(),
-            repairIssues: []
+            turnsOn: editedSpecs.turnsOn ?? false,
+            worksCorrectly: editedSpecs.worksCorrectly ?? false,
+            isUnlocked: editedSpecs.isUnlocked ?? false,
+            faceIdWorking: editedSpecs.faceIdWorking ?? false,
+            batteryHealth: editedSpecs.batteryHealth as 'normal' | 'service',
+            screenState: mapScreenState(editedScreenCondition),
+            bodyState: mapBodyState(editedBodyCondition),
+            repairIssues: [],
+            controllerCount: null // Or handle console logic if needed
         };
 
         const deviceIdSlug = `${quote.brand}-${quote.model}`.toLowerCase().replace(/\s+/g, '-');
         const relevantBuybackPrices = buybackPrices.filter((p: BuybackPriceRecord) =>
             (p.brand === quote.brand && p.model === quote.model) ||
             (p.deviceId === deviceIdSlug)
-        ) as BuybackPriceRecord[];
+        ) as any[]; // casting to any to match expected type if strictness issue
 
+        // Construct simple map
         const mappedRepairPrices: Record<string, number> = {};
         repairPrices.forEach((rp: RepairPricing) => {
             mappedRepairPrices['screen_generic'] = (rp.screen_generic as number) || 0;
@@ -144,7 +162,7 @@ const BuybackQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
             mappedRepairPrices['back_glass'] = (rp.back_glass as number) || 0;
         });
 
-        const newPrice = calculateBuybackPrice(pricingState, {
+        const newPrice = calculateBuybackPriceShared(pricingParams, {
             buybackPrices: relevantBuybackPrices,
             repairPrices: mappedRepairPrices
         });

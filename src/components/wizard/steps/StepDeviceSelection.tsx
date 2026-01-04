@@ -86,7 +86,7 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
     };
 
     return (
-        <div className={`flex flex-col lg:flex-row w-full mx-auto gap-6 ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : 'max-w-7xl pb-32 lg:pb-8 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-ui-lg p-4 lg:p-8'}`}>
+        <div className={`w-full mx-auto ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : ''}`}>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-8">
                     <button
@@ -169,24 +169,6 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                     </div>
                 )}
             </div>
-            <Sidebar
-                type={type}
-                step={step}
-                selectedBrand={selectedBrand}
-                selectedModel={selectedModel}
-                deviceType={deviceType}
-                storage={storage}
-                repairIssues={repairIssues}
-                estimateDisplay={sidebarEstimate}
-                onNext={onNext}
-                handleBack={onBack}
-                nextDisabled={nextDisabled}
-                nextLabel={t('Next')}
-                selectedScreenQuality={selectedScreenQuality}
-                repairEstimates={repairEstimates}
-                dynamicRepairPrices={dynamicRepairPrices}
-                getSingleIssuePrice={getSingleIssuePrice}
-            />
         </div>
     );
 };

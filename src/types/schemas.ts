@@ -61,6 +61,9 @@ export const OrderSubmissionSchema = z.object({
     orderId: z.string().optional(),
     trackingToken: z.string().optional(),
     originPartnerId: z.string().optional(),
+    partnerId: z.string().optional(), // Match naming
+    shopId: z.union([z.string(), z.number()]).optional(),
+    deviceType: z.string().optional(),
     status: z.string().optional(),
     date: z.string().optional()
 }).refine(

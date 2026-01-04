@@ -1,17 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import { FormattedReview } from '../../services/reviewService';
-
-// Dynamic imports for the variants to split the bundle code
-const AegisHomeClient = dynamic(() => import('../home/aegis/AegisHomeClient'), {
-    loading: () => <div className="min-h-screen bg-slate-50 dark:bg-deep-space animate-pulse" />
-});
-
-const ApolloHomeClient = dynamic(() => import('../home/apollo/ApolloHomeClient'), {
-    loading: () => <div className="min-h-screen bg-slate-50 dark:bg-deep-space animate-pulse" />
-});
+import AegisHomeClient from '../home/aegis/AegisHomeClient';
+import ApolloHomeClient from '../home/apollo/ApolloHomeClient';
 
 interface HomeClientProps {
     initialReviews?: FormattedReview[];

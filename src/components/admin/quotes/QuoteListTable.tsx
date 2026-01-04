@@ -15,6 +15,7 @@ interface Props {
 const QuoteListTable: React.FC<Props> = ({ quotes, shops, onQuoteClick }) => {
 
     const getShopName = (shopId: string | number) => {
+        if (!shopId || shopId === 'online') return 'Belmobile Online';
         const idStr = String(shopId).toLowerCase();
         const shop = shops.find(s => String(s.id).toLowerCase() === idStr || s.slugs?.fr === shopId);
         return shop?.name || shopId;

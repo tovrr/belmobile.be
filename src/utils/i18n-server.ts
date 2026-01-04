@@ -1,8 +1,9 @@
 import fr from '../data/i18n/fr.json';
 import en from '../data/i18n/en.json';
 import nl from '../data/i18n/nl.json';
+import tr from '../data/i18n/tr.json';
 
-const translations: Record<string, any> = { fr, en, nl };
+const translations: Record<string, any> = { fr, en, nl, tr };
 
 export type TFunction = (key: string, ...args: (string | number)[]) => string;
 

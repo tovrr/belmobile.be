@@ -1,11 +1,27 @@
-<svg viewBox="0 0 500 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Icon -->
-    <rect x="26.5" y="25" width="44" height="76" rx="8" stroke="#eab308" stroke-width="6" stroke-linecap="round"/>
-    <path d="M42.5 31h12" stroke="#eab308" stroke-width="6" stroke-linecap="round"/>
-    <path d="M48.5 21L58.06 46.04L84.5 55L58.06 63.96L48.5 89L38.94 63.96L12.5 55L38.94 46.04L48.5 21Z" fill="#eab308" transform="translate(16, -12) scale(0.6)"/>
-    <path d="M48.5 21L58.06 46.04L84.5 55L58.06 63.96L48.5 89L38.94 63.96L12.5 55L38.94 46.04L48.5 21Z" fill="#eab308" transform="translate(-20, 36) scale(0.4)"/>
+<svg width="900" height="200" viewBox="0 0 900 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        .brand { font-family: Arial, sans-serif; font-weight: 900; letter-spacing: -0.05em; }
+        .slogan { font-family: Arial, sans-serif; font-weight: 700; letter-spacing: 0.48em; }
+    </style>
     
-    <!-- Text -->
-    <text x="110" y="85" font-family="Arial, sans-serif" font-weight="900" font-size="64" fill="#0f172a">BELMOBILE<tspan fill="#eab308">.BE</tspan></text>
-    <text x="112" y="115" font-family="Arial, sans-serif" font-weight="bold" font-size="16" letter-spacing="4" fill="#64748b">BUYBACK & REPAIR</text>
+    <!-- Icon Group -->
+    <g transform="translate(10, 40) scale(1.3)">
+        <path d="M60 10 H 40 C 25 10 20 25 20 40 V 70 C 20 85 30 90 45 90 H 65 C 80 90 85 80 85 65 V 55" stroke="#EAB308" stroke-width="10" stroke-linecap="round" />
+        <circle cx="52" cy="78" r="4" fill="#EAB308" />
+        <path d="M75 15 V 45 M 60 30 H 90" stroke="#DC2626" stroke-width="10" stroke-linecap="round" />
+    </g>
+
+    <!-- Text Group -->
+    <g transform="translate(160, 10)">
+        <!-- Brand: BELMOBILE.BE -->
+        <text x="0" y="100" fill="white" font-size="80" class="brand">
+            BELMOBILE<tspan fill="#EAB308">.BE</tspan>
+        </text>
+        
+        <!-- Slogan: BUYBACK & REPAIR -->
+        <!-- Tracking increased to 0.48em as requested -->
+        <text x="3" y="135" fill="#94A3B8" font-size="28" class="slogan">
+            BUYBACK &amp; REPAIR
+        </text>
+    </g>
 </svg>

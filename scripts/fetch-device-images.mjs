@@ -1,0 +1,280 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import sharp from 'sharp';
+import { exiftool } from 'exiftool-vendored';
+import pLimit from 'p-limit';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PUBLIC_DIR = path.join(__dirname, '../public/images/models');
+const DATA_FILE = path.join(__dirname, '../src/data/deviceImages.ts');
+
+const limit = pLimit(3); // Process 3 images at a time
+const HQ_COORDS = { lat: 50.86285, lng: 4.34240 }; // Tour & Taxis
+
+/**
+ * SEO & Platform Expansion Suite (V10 - Full iPhone & iPad Collection)
+ */
+
+const DEVICES = [
+    // --- iPhone 17 Series ---
+    { name: 'iPhone 17 Pro Max', slug: 'apple-iphone-17-pro-max' },
+    { name: 'iPhone 17 Pro', slug: 'apple-iphone-17-pro' },
+    { name: 'iPhone Air', slug: 'apple-iphone-air' },
+    { name: 'iPhone 17', slug: 'apple-iphone-17' },
+
+    // --- iPhone 16 Series ---
+    { name: 'iPhone 16 Pro Max', slug: 'apple-iphone-16-pro-max' },
+    { name: 'iPhone 16 Pro', slug: 'apple-iphone-16-pro' },
+    { name: 'iPhone 16 Plus', slug: 'apple-iphone-16-plus' },
+    { name: 'iPhone 16', slug: 'apple-iphone-16' },
+
+    // --- iPhone 15 Series ---
+    { name: 'iPhone 15 Pro Max', slug: 'apple-iphone-15-pro-max' },
+    { name: 'iPhone 15 Pro', slug: 'apple-iphone-15-pro' },
+    { name: 'iPhone 15 Plus', slug: 'apple-iphone-15-plus' },
+    { name: 'iPhone 15', slug: 'apple-iphone-15' },
+
+    // --- iPhone 14 Series ---
+    { name: 'iPhone 14 Pro Max', slug: 'apple-iphone-14-pro-max' },
+    { name: 'iPhone 14 Pro', slug: 'apple-iphone-14-pro' },
+    { name: 'iPhone 14 Plus', slug: 'apple-iphone-14-plus' },
+    { name: 'iPhone 14', slug: 'apple-iphone-14' },
+
+    // --- iPhone 13 Series ---
+    { name: 'iPhone 13 Pro Max', slug: 'apple-iphone-13-pro-max' },
+    { name: 'iPhone 13 Pro', slug: 'apple-iphone-13-pro' },
+    { name: 'iPhone 13', slug: 'apple-iphone-13' },
+    { name: 'iPhone 13 mini', slug: 'apple-iphone-13-mini' },
+
+    // --- iPhone 12 Series ---
+    { name: 'iPhone 12 Pro Max', slug: 'apple-iphone-12-pro-max' },
+    { name: 'iPhone 12 Pro', slug: 'apple-iphone-12-pro' },
+    { name: 'iPhone 12', slug: 'apple-iphone-12' },
+    { name: 'iPhone 12 mini', slug: 'apple-iphone-12-mini' },
+
+    // --- iPhone 11 Series ---
+    { name: 'iPhone 11 Pro Max', slug: 'apple-iphone-11-pro-max' },
+    { name: 'iPhone 11 Pro', slug: 'apple-iphone-11-pro' },
+    { name: 'iPhone 11', slug: 'apple-iphone-11' },
+
+    // --- X Series ---
+    { name: 'iPhone XR', slug: 'apple-iphone-xr' },
+    { name: 'iPhone XS Max', slug: 'apple-iphone-xs-max' },
+    { name: 'iPhone XS', slug: 'apple-iphone-xs' },
+    { name: 'iPhone X', slug: 'apple-iphone-x' },
+
+    // --- 8 Series ---
+    { name: 'iPhone 8 Plus', slug: 'apple-iphone-8-plus' },
+    { name: 'iPhone 8', slug: 'apple-iphone-8' },
+
+    // --- 7 Series ---
+    { name: 'iPhone 7 Plus', slug: 'apple-iphone-7-plus' },
+    { name: 'iPhone 7', slug: 'apple-iphone-7' },
+
+    // --- 6s Series ---
+    { name: 'iPhone 6s Plus', slug: 'apple-iphone-6s-plus' },
+    { name: 'iPhone 6s', slug: 'apple-iphone-6s' },
+
+    // --- SE Series ---
+    { name: 'iPhone SE (2020)', slug: 'apple-iphone-se-2020' },
+    { name: 'iPhone SE (2022)', slug: 'apple-iphone-se-2022' },
+
+    // --- iPad Air Collection ---
+    { name: 'iPad Air 13 (2024)', slug: 'apple-ipad-air-13-(2024)' },
+    { name: 'iPad Air 11 (2024)', slug: 'apple-ipad-air-11-(2024)' },
+    { name: 'iPad Air (2022)', slug: 'apple-ipad-air-(2022)' },
+    { name: 'iPad Air (2020)', slug: 'apple-ipad-air-(2020)' },
+    { name: 'iPad Air (2019)', slug: 'apple-ipad-air-(2019)' },
+
+    // --- iPad Pro Collection ---
+    { name: 'iPad Pro 13 (2024)', slug: 'apple-ipad-pro-13-(2024)' },
+    { name: 'iPad Pro 11 (2024)', slug: 'apple-ipad-pro-11-(2024)' },
+    { name: 'iPad Pro 12.9 (2022)', slug: 'apple-ipad-pro-12_9-(2022)' },
+    { name: 'iPad Pro 11 (2022)', slug: 'apple-ipad-pro-11-(2022)' },
+    { name: 'iPad Pro 12.9 (2021)', slug: 'apple-ipad-pro-12_9-(2021)' },
+    { name: 'iPad Pro 11 (2021)', slug: 'apple-ipad-pro-11-(2021)' },
+
+    // --- iPad Standard & Mini ---
+    { name: 'iPad 10.9 (2022)', slug: 'apple-ipad-(2022)' },
+    { name: 'iPad 10.2 (2021)', slug: 'apple-ipad-10_2-(2021)' },
+    { name: 'iPad mini (2024)', slug: 'apple-ipad-mini-(2024)' },
+    { name: 'iPad mini (2021)', slug: 'apple-ipad-mini-(2021)' },
+
+    // --- Samsung Flagships ---
+    { name: 'S24 Ultra', slug: 'samsung-galaxy-s24-ultra', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-ultra-5g-sm-s928-stylus.jpg' },
+    { name: 'S24+', slug: 'samsung-galaxy-s24-plus', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-plus-5g-sm-s926.jpg' },
+    { name: 'S24', slug: 'samsung-galaxy-s24', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-5g-sm-s921.jpg' },
+    { name: 'S24 FE', slug: 'samsung-galaxy-s24-fe', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-fe-r1.jpg' },
+    { name: 'S23 Ultra', slug: 'samsung-galaxy-s23-ultra-5g' },
+    { name: 'S22 Ultra', slug: 'samsung-galaxy-s22-ultra-5g' },
+
+    // --- Samsung A-Series (Popular) ---
+    { name: 'Galaxy A55', slug: 'samsung-galaxy-a55' },
+    { name: 'Galaxy A54', slug: 'samsung-galaxy-a54' },
+    { name: 'Galaxy A35', slug: 'samsung-galaxy-a35' },
+
+    // --- Google Pixel (Custom URLs) ---
+    { name: 'Pixel 10 Pro XL', slug: 'google-pixel-10-pro-xl', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-10-pro-xl-.jpg' },
+    { name: 'Pixel 10 Pro', slug: 'google-pixel-10-pro', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-10-pro-.jpg' },
+    { name: 'Pixel 10', slug: 'google-pixel-10', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-10-.jpg' },
+
+    { name: 'Pixel 9 Pro Fold', slug: 'google-pixel-9-pro-fold', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-9-pro-fold-.jpg' },
+    { name: 'Pixel 9 Pro XL', slug: 'google-pixel-9-pro-xl', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-9-pro-xl-.jpg' },
+    { name: 'Pixel 9 Pro', slug: 'google-pixel-9-pro', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-9-pro-.jpg' },
+    { name: 'Pixel 9', slug: 'google-pixel-9', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-9-.jpg' },
+    { name: 'Pixel 9a', slug: 'google-pixel-9a', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-9a.jpg' },
+
+    { name: 'Pixel Fold', slug: 'google-pixel-fold', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-fold.jpg' },
+];
+
+const DOWNLOADED_ASSETS = [];
+
+async function processImage(device) {
+    const url = device.customUrl || `https://fdn2.gsmarena.com/vv/bigpic/${device.slug}.jpg`;
+    const tempRawPath = path.join(PUBLIC_DIR, `raw-${device.slug}.jpg`);
+    const finalPath = path.join(PUBLIC_DIR, `${device.slug}.jpg`);
+    const seoFilename = `${device.slug}-repair-buyback-brussels.jpg`;
+    const seoPath = path.join(PUBLIC_DIR, seoFilename);
+
+    if (fs.existsSync(seoPath)) {
+        console.log(`⏭️  Skipping: ${device.name}`);
+        DOWNLOADED_ASSETS.push({ slug: device.slug, path: `/images/models/${seoFilename}` });
+        return;
+    }
+
+    console.log(`⏳ Processing: ${device.name}...`);
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Referer': 'https://www.gsmarena.com/'
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`  ❌ Fetch Failed: ${response.status} (${device.slug})`);
+            return;
+        }
+
+        const buffer = await response.arrayBuffer();
+        fs.writeFileSync(tempRawPath, Buffer.from(buffer));
+
+        await sharp(tempRawPath)
+            .trim()
+            .resize(800, 800, {
+                fit: 'contain',
+                background: { r: 255, g: 255, b: 255, alpha: 1 }
+            })
+            .jpeg({ quality: 90 })
+            .toFile(finalPath);
+
+        // Inject Metadata
+        await exiftool.write(finalPath, {
+            AllDates: new Date().toISOString(),
+            'IPTC:ObjectName': `${device.name} Repair Brussels`,
+            'IPTC:Caption-Abstract': `Professional ${device.name} repair and buyback services at Belmobile Brussels.`,
+            'IPTC:CopyrightNotice': 'Copyright © Belmobile.be',
+            'IPTC:By-line': 'Belmobile.be',
+            'IPTC:Credit': 'Belmobile.be',
+            'IPTC:Source': 'https://belmobile.be',
+            GPSLatitude: HQ_COORDS.lat,
+            GPSLatitudeRef: 'N',
+            GPSLongitude: HQ_COORDS.lng,
+            GPSLongitudeRef: 'E',
+            Make: 'Sony',
+            Model: 'ILCE-7RM4',
+        });
+
+        fs.copyFileSync(finalPath, seoPath);
+
+        DOWNLOADED_ASSETS.push({
+            slug: device.slug,
+            path: `/images/models/${seoFilename}`
+        });
+
+        if (fs.existsSync(tempRawPath)) fs.unlinkSync(tempRawPath);
+        const backupFile = finalPath + '_original';
+        if (fs.existsSync(backupFile)) fs.unlinkSync(backupFile);
+
+        console.log(`  ✅ Done: ${seoFilename}`);
+
+    } catch (error) {
+        console.error(`  💥 error: ${error.message} (${device.slug})`);
+    }
+}
+
+async function updateMapping() {
+    console.log('\n📝 Syncing Registry...');
+
+    let content = `export const DEVICE_IMAGES: Record<string, string> = {
+    // Brands
+    'apple': '/images/brands/apple.svg',
+    'samsung': '/images/brands/samsung.svg',
+    'google': '/images/brands/google.svg',
+    'huawei': '/images/brands/huawei.svg',
+    'oneplus': '/images/brands/oneplus.svg',
+    'xiaomi': '/images/brands/xiaomi.svg',
+    'oppo': '/images/brands/oppo.svg',
+    'motorola': '/images/brands/motorola.svg',
+    'realme': '/images/brands/realme_logo.svg',
+    'microsoft': '/images/brands/microsoft.svg',
+    'lenovo': '/images/brands/lenovo.svg',
+    'hp': '/images/brands/hp.svg',
+    'dell': '/images/brands/dell.svg',
+    'sony': '/images/brands/sony.svg',
+    'playstation': '/images/brands/sony.svg',
+    'xbox': '/images/brands/xbox.svg',
+    'nintendo': '/images/brands/nintendo.svg',
+
+    // --- AUTO-GENERATED PREMIUM MODELS ---
+`;
+
+    DOWNLOADED_ASSETS.sort((a, b) => a.slug.localeCompare(b.slug)).forEach(asset => {
+        content += `    '${asset.slug}': '${asset.path}',\n`;
+    });
+
+    content += `\n    // --- SMART ALIASES (Convenience) ---\n`;
+    DOWNLOADED_ASSETS.forEach(asset => {
+        const shortSlug = asset.slug.replace(/^(apple|samsung|google)-/, '').replace(/-5g$/, '');
+        if (shortSlug !== asset.slug) {
+            content += `    '${shortSlug}': '${asset.path}',\n`;
+        }
+        // Handle parenthesis in iPads for mapping
+        const cleanSlug = asset.slug.replace(/\(/g, '').replace(/\)/g, '').replace(/ /g, '-').toLowerCase();
+        if (cleanSlug !== asset.slug && !content.includes(`'${cleanSlug}':`)) {
+            content += `    '${cleanSlug}': '${asset.path}',\n`;
+        }
+    });
+
+    content += `};
+
+export const getDeviceImage = (slug: string, category?: string): string | null => {
+    const s = slug.toLowerCase();
+    if (DEVICE_IMAGES[s]) return DEVICE_IMAGES[s];
+    if (category) {
+        const cat = category.toLowerCase();
+        const normalizedCat = cat.startsWith('console') ? (cat.includes('_') ? cat : 'console_home') : cat;
+        return \`/images/generics/\${normalizedCat}.png\`;
+    }
+    const brand = s.split('-')[0];
+    return DEVICE_IMAGES[brand] || null;
+};\n`;
+
+    fs.writeFileSync(DATA_FILE, content);
+}
+
+async function run() {
+    if (!fs.existsSync(PUBLIC_DIR)) {
+        fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+    }
+
+    console.log(`🚀 Starting Big Injection (${DEVICES.length} devices)...\n`);
+    await Promise.all(DEVICES.map(device => limit(() => processImage(device))));
+    await updateMapping();
+    await exiftool.end();
+    console.log('\n🏁 FULL INJECTION COMPLETE!');
+}
+
+run();

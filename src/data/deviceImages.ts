@@ -18,33 +18,119 @@ export const DEVICE_IMAGES: Record<string, string> = {
     'xbox': '/images/brands/xbox.svg',
     'nintendo': '/images/brands/nintendo.svg',
 
-    // Specific Models (Premium Renders)
-    'apple-iphone-15-pro': '/images/models/apple-iphone-15-pro.png',
-    'samsung-galaxy-s24-ultra': '/images/models/samsung-galaxy-s24-ultra.png',
-    'iphone-13': '/images/models/iphone-13.jpg',
-    'sony-playstation-5-disc': '/images/models/sony-playstation-5-disc.jpg',
+    // --- AUTO-GENERATED PREMIUM MODELS ---
+    'apple-iphone-11': '/images/models/apple-iphone-11-repair-buyback-brussels.jpg',
+    'apple-iphone-11-pro': '/images/models/apple-iphone-11-pro-repair-buyback-brussels.jpg',
+    'apple-iphone-12': '/images/models/apple-iphone-12-repair-buyback-brussels.jpg',
+    'apple-iphone-12-mini': '/images/models/apple-iphone-12-mini-repair-buyback-brussels.jpg',
+    'apple-iphone-12-pro': '/images/models/apple-iphone-12-pro-repair-buyback-brussels.jpg',
+    'apple-iphone-12-pro-max': '/images/models/apple-iphone-12-pro-max-repair-buyback-brussels.jpg',
+    'apple-iphone-13': '/images/models/apple-iphone-13-repair-buyback-brussels.jpg',
+    'apple-iphone-13-mini': '/images/models/apple-iphone-13-mini-repair-buyback-brussels.jpg',
+    'apple-iphone-13-pro': '/images/models/apple-iphone-13-pro-repair-buyback-brussels.jpg',
+    'apple-iphone-13-pro-max': '/images/models/apple-iphone-13-pro-max-repair-buyback-brussels.jpg',
+    'apple-iphone-14': '/images/models/apple-iphone-14-repair-buyback-brussels.jpg',
+    'apple-iphone-14-plus': '/images/models/apple-iphone-14-plus-repair-buyback-brussels.jpg',
+    'apple-iphone-14-pro': '/images/models/apple-iphone-14-pro-repair-buyback-brussels.jpg',
+    'apple-iphone-15': '/images/models/apple-iphone-15-repair-buyback-brussels.jpg',
+    'apple-iphone-15-pro': '/images/models/apple-iphone-15-pro-repair-buyback-brussels.jpg',
+    'apple-iphone-15-pro-max': '/images/models/apple-iphone-15-pro-max-repair-buyback-brussels.jpg',
+    'apple-iphone-16': '/images/models/apple-iphone-16-repair-buyback-brussels.jpg',
+    'apple-iphone-16-plus': '/images/models/apple-iphone-16-plus-repair-buyback-brussels.jpg',
+    'apple-iphone-16-pro': '/images/models/apple-iphone-16-pro-repair-buyback-brussels.jpg',
+    'apple-iphone-16-pro-max': '/images/models/apple-iphone-16-pro-max-repair-buyback-brussels.jpg',
+    'apple-iphone-17': '/images/models/apple-iphone-17-repair-buyback-brussels.jpg',
+    'apple-iphone-17-pro': '/images/models/apple-iphone-17-pro-repair-buyback-brussels.jpg',
+    'apple-iphone-17-pro-max': '/images/models/apple-iphone-17-pro-max-repair-buyback-brussels.jpg',
+    'apple-iphone-6s': '/images/models/apple-iphone-6s-repair-buyback-brussels.jpg',
+    'apple-iphone-6s-plus': '/images/models/apple-iphone-6s-plus-repair-buyback-brussels.jpg',
+    'apple-iphone-8': '/images/models/apple-iphone-8-repair-buyback-brussels.jpg',
+    'apple-iphone-8-plus': '/images/models/apple-iphone-8-plus-repair-buyback-brussels.jpg',
+    'apple-iphone-air': '/images/models/apple-iphone-air-repair-buyback-brussels.jpg',
+    'apple-iphone-se-2020': '/images/models/apple-iphone-se-2020-repair-buyback-brussels.jpg',
+    'apple-iphone-se-2022': '/images/models/apple-iphone-se-2022-repair-buyback-brussels.jpg',
+    'apple-iphone-x': '/images/models/apple-iphone-x-repair-buyback-brussels.jpg',
+    'apple-iphone-xr': '/images/models/apple-iphone-xr-repair-buyback-brussels.jpg',
+    'apple-iphone-xs': '/images/models/apple-iphone-xs-repair-buyback-brussels.jpg',
+    'apple-iphone-xs-max': '/images/models/apple-iphone-xs-max-repair-buyback-brussels.jpg',
+    'google-pixel-10': '/images/models/google-pixel-10-repair-buyback-brussels.jpg',
+    'google-pixel-10-pro': '/images/models/google-pixel-10-pro-repair-buyback-brussels.jpg',
+    'google-pixel-10-pro-xl': '/images/models/google-pixel-10-pro-xl-repair-buyback-brussels.jpg',
+    'google-pixel-9': '/images/models/google-pixel-9-repair-buyback-brussels.jpg',
+    'google-pixel-9-pro': '/images/models/google-pixel-9-pro-repair-buyback-brussels.jpg',
+    'google-pixel-9-pro-fold': '/images/models/google-pixel-9-pro-fold-repair-buyback-brussels.jpg',
+    'google-pixel-9-pro-xl': '/images/models/google-pixel-9-pro-xl-repair-buyback-brussels.jpg',
+    'google-pixel-9a': '/images/models/google-pixel-9a-repair-buyback-brussels.jpg',
+    'google-pixel-fold': '/images/models/google-pixel-fold-repair-buyback-brussels.jpg',
+    'samsung-galaxy-a35': '/images/models/samsung-galaxy-a35-repair-buyback-brussels.jpg',
+    'samsung-galaxy-a54': '/images/models/samsung-galaxy-a54-repair-buyback-brussels.jpg',
+    'samsung-galaxy-a55': '/images/models/samsung-galaxy-a55-repair-buyback-brussels.jpg',
+    'samsung-galaxy-s22-ultra-5g': '/images/models/samsung-galaxy-s22-ultra-5g-repair-buyback-brussels.jpg',
+    'samsung-galaxy-s23-ultra-5g': '/images/models/samsung-galaxy-s23-ultra-5g-repair-buyback-brussels.jpg',
+    'samsung-galaxy-s24': '/images/models/samsung-galaxy-s24-repair-buyback-brussels.jpg',
+    'samsung-galaxy-s24-fe': '/images/models/samsung-galaxy-s24-fe-repair-buyback-brussels.jpg',
+    'samsung-galaxy-s24-plus': '/images/models/samsung-galaxy-s24-plus-repair-buyback-brussels.jpg',
+    'samsung-galaxy-s24-ultra': '/images/models/samsung-galaxy-s24-ultra-repair-buyback-brussels.jpg',
+
+    // --- SMART ALIASES (Convenience) ---
+    'iphone-11': '/images/models/apple-iphone-11-repair-buyback-brussels.jpg',
+    'iphone-11-pro': '/images/models/apple-iphone-11-pro-repair-buyback-brussels.jpg',
+    'iphone-12': '/images/models/apple-iphone-12-repair-buyback-brussels.jpg',
+    'iphone-12-mini': '/images/models/apple-iphone-12-mini-repair-buyback-brussels.jpg',
+    'iphone-12-pro': '/images/models/apple-iphone-12-pro-repair-buyback-brussels.jpg',
+    'iphone-12-pro-max': '/images/models/apple-iphone-12-pro-max-repair-buyback-brussels.jpg',
+    'iphone-13': '/images/models/apple-iphone-13-repair-buyback-brussels.jpg',
+    'iphone-13-mini': '/images/models/apple-iphone-13-mini-repair-buyback-brussels.jpg',
+    'iphone-13-pro': '/images/models/apple-iphone-13-pro-repair-buyback-brussels.jpg',
+    'iphone-13-pro-max': '/images/models/apple-iphone-13-pro-max-repair-buyback-brussels.jpg',
+    'iphone-14': '/images/models/apple-iphone-14-repair-buyback-brussels.jpg',
+    'iphone-14-plus': '/images/models/apple-iphone-14-plus-repair-buyback-brussels.jpg',
+    'iphone-14-pro': '/images/models/apple-iphone-14-pro-repair-buyback-brussels.jpg',
+    'iphone-15': '/images/models/apple-iphone-15-repair-buyback-brussels.jpg',
+    'iphone-15-pro': '/images/models/apple-iphone-15-pro-repair-buyback-brussels.jpg',
+    'iphone-15-pro-max': '/images/models/apple-iphone-15-pro-max-repair-buyback-brussels.jpg',
+    'iphone-16': '/images/models/apple-iphone-16-repair-buyback-brussels.jpg',
+    'iphone-16-plus': '/images/models/apple-iphone-16-plus-repair-buyback-brussels.jpg',
+    'iphone-16-pro': '/images/models/apple-iphone-16-pro-repair-buyback-brussels.jpg',
+    'iphone-16-pro-max': '/images/models/apple-iphone-16-pro-max-repair-buyback-brussels.jpg',
+    'iphone-17': '/images/models/apple-iphone-17-repair-buyback-brussels.jpg',
+    'iphone-17-pro': '/images/models/apple-iphone-17-pro-repair-buyback-brussels.jpg',
+    'iphone-17-pro-max': '/images/models/apple-iphone-17-pro-max-repair-buyback-brussels.jpg',
+    'iphone-6s': '/images/models/apple-iphone-6s-repair-buyback-brussels.jpg',
+    'iphone-6s-plus': '/images/models/apple-iphone-6s-plus-repair-buyback-brussels.jpg',
+    'iphone-8': '/images/models/apple-iphone-8-repair-buyback-brussels.jpg',
+    'iphone-8-plus': '/images/models/apple-iphone-8-plus-repair-buyback-brussels.jpg',
+    'iphone-air': '/images/models/apple-iphone-air-repair-buyback-brussels.jpg',
+    'iphone-se-2020': '/images/models/apple-iphone-se-2020-repair-buyback-brussels.jpg',
+    'iphone-se-2022': '/images/models/apple-iphone-se-2022-repair-buyback-brussels.jpg',
+    'iphone-x': '/images/models/apple-iphone-x-repair-buyback-brussels.jpg',
+    'iphone-xr': '/images/models/apple-iphone-xr-repair-buyback-brussels.jpg',
+    'iphone-xs': '/images/models/apple-iphone-xs-repair-buyback-brussels.jpg',
+    'iphone-xs-max': '/images/models/apple-iphone-xs-max-repair-buyback-brussels.jpg',
+    'pixel-10': '/images/models/google-pixel-10-repair-buyback-brussels.jpg',
+    'pixel-10-pro': '/images/models/google-pixel-10-pro-repair-buyback-brussels.jpg',
+    'pixel-10-pro-xl': '/images/models/google-pixel-10-pro-xl-repair-buyback-brussels.jpg',
+    'pixel-9': '/images/models/google-pixel-9-repair-buyback-brussels.jpg',
+    'pixel-9-pro': '/images/models/google-pixel-9-pro-repair-buyback-brussels.jpg',
+    'pixel-9-pro-fold': '/images/models/google-pixel-9-pro-fold-repair-buyback-brussels.jpg',
+    'pixel-9-pro-xl': '/images/models/google-pixel-9-pro-xl-repair-buyback-brussels.jpg',
+    'pixel-9a': '/images/models/google-pixel-9a-repair-buyback-brussels.jpg',
+    'pixel-fold': '/images/models/google-pixel-fold-repair-buyback-brussels.jpg',
+    'galaxy-a35': '/images/models/samsung-galaxy-a35-repair-buyback-brussels.jpg',
+    'galaxy-a54': '/images/models/samsung-galaxy-a54-repair-buyback-brussels.jpg',
+    'galaxy-a55': '/images/models/samsung-galaxy-a55-repair-buyback-brussels.jpg',
+    'galaxy-s22-ultra': '/images/models/samsung-galaxy-s22-ultra-5g-repair-buyback-brussels.jpg',
+    'galaxy-s23-ultra': '/images/models/samsung-galaxy-s23-ultra-5g-repair-buyback-brussels.jpg',
+    'galaxy-s24': '/images/models/samsung-galaxy-s24-repair-buyback-brussels.jpg',
+    'galaxy-s24-fe': '/images/models/samsung-galaxy-s24-fe-repair-buyback-brussels.jpg',
+    'galaxy-s24-plus': '/images/models/samsung-galaxy-s24-plus-repair-buyback-brussels.jpg',
+    'galaxy-s24-ultra': '/images/models/samsung-galaxy-s24-ultra-repair-buyback-brussels.jpg',
 };
 
-// Helper function to get image for brand or model with intelligent generic fallback
 export const getDeviceImage = (slug: string, category?: string): string | null => {
     const s = slug.toLowerCase();
-
-    // 1. Try specific model first
     if (DEVICE_IMAGES[s]) return DEVICE_IMAGES[s];
-
-    // 2. Try Category specific generic (New Premium Feature)
-    if (category) {
-        const cat = category.toLowerCase();
-        // Handle variants (e.g. console vs console_home)
-        const normalizedCat = cat.startsWith('console') ? (cat.includes('_') ? cat : 'console_home') : cat;
-
-        // We now have beautiful renders for: smartphone, tablet, laptop, console_home, console_portable, smartwatch
-        const genericPath = `/images/generics/${normalizedCat}.png`;
-        // In a real environment, we'd check if file exists, but here we assume our deployment task worked.
-        return genericPath;
-    }
-
-    // 3. Fallback to Brand Logo
+    // Removed "if (category)" block to prevent generic images
     const brand = s.split('-')[0];
     return DEVICE_IMAGES[brand] || null;
 };

@@ -63,53 +63,48 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     const isOwner = userEmail === OWNER_EMAIL;
 
                     // 1. Try fetching by UID first
+                    console.log("[Auth] Fetching profile for UID:", currentUser.uid);
                     let profileDoc = await getDoc(doc(db, 'users', currentUser.uid));
 
                     if (profileDoc.exists()) {
                         let profileData = profileDoc.data() as AdminProfile;
+                        console.log("[Auth] Profile found in DB. Role:", profileData.role);
 
                         // --- Safe Bootstrap for System Owner ---
                         if (isOwner && profileData.role !== 'super_admin') {
-                            // console.log('Bootstrapping super_admin for system owner:', userEmail);
+                            console.log('[Auth] Elevating owner to super_admin...');
                             profileData = { ...profileData, role: 'super_admin' };
                             await setDoc(doc(db, 'users', currentUser.uid), { role: 'super_admin' }, { merge: true });
                         }
 
-                        // console.log(`Profile loaded for ${userEmail}:`, profileData.role);
                         setProfile(profileData);
                     } else {
-                        // 2. Fallback: Search by Email (for pre-created team profiles)
-                        // console.log('Searching for profile by email:', userEmail);
+                        console.log("[Auth] No profile found for UID. Searching by email:", userEmail);
+                        // 2. Fallback: Search by Email
                         const q = query(collection(db, 'users'), where('email', '==', userEmail));
                         const emailSnapshot = await getDocs(q);
 
                         if (!emailSnapshot.empty) {
                             const foundDoc = emailSnapshot.docs[0];
                             let profileData = foundDoc.data() as AdminProfile;
+                            console.log("[Auth] Profile found by email. Claiming...");
 
-                            // --- Safe Bootstrap for System Owner ---
-                            if (isOwner) {
-                                profileData = { ...profileData, role: 'super_admin' };
-                            }
+                            if (isOwner) profileData.role = 'super_admin';
 
-                            // 3. Claim the profile: Copy document to the new UID ID
-                            // console.log('Claiming profile found by email...');
                             await setDoc(doc(db, 'users', currentUser.uid), {
                                 ...profileData,
                                 uid: currentUser.uid,
                                 claimedAt: new Date().toISOString()
                             });
 
-                            // Delete the old placeholder document if the ID was different
                             if (foundDoc.id !== currentUser.uid) {
                                 await deleteDoc(doc(db, 'users', foundDoc.id));
                             }
 
                             setProfile({ ...profileData, uid: currentUser.uid });
                         } else {
-                            // --- Case: System Owner login with NO existing profile at all ---
                             if (isOwner) {
-                                // console.log('Creating fresh super_admin profile for system owner...');
+                                console.log('[Auth] Creating FRESH super_admin for OWNER:', userEmail);
                                 const freshProfile: AdminProfile = {
                                     uid: currentUser.uid,
                                     email: userEmail!,
@@ -121,14 +116,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                                 await setDoc(doc(db, 'users', currentUser.uid), freshProfile);
                                 setProfile(freshProfile);
                             } else {
-                                console.warn('No admin profile found for user UID or Email:', currentUser.uid);
+                                console.warn('[Auth] No admin profile for:', userEmail);
                                 setProfile(null);
                             }
                         }
                     }
                 } catch (error) {
-                    console.error('Error fetching admin profile:', error);
-                    setProfile(null);
+                    console.error('[Auth] Critical error during profile sync:', error);
+                    // Fallback for OWNER even on DB error
+                    if (currentUser.email?.toLowerCase() === 'omerozkan@live.be') {
+                        console.log("[Auth] DB Error but USER IS OWNER. Granting emergency access.");
+                        setProfile({
+                            uid: currentUser.uid,
+                            email: currentUser.email,
+                            displayName: 'Omer Ozkan (Offline Mode)',
+                            role: 'super_admin' as any,
+                            shopId: 'all',
+                            createdAt: new Date().toISOString()
+                        });
+                    } else {
+                        setProfile(null);
+                    }
                 }
             } else {
                 setProfile(null);

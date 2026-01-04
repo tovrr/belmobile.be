@@ -77,6 +77,10 @@ export interface WizardState {
     isShopListOpen: boolean;
     isWidget: boolean;
     isKiosk: boolean;
+
+    // Server-Calculated Estimate (SSOT)
+    currentEstimate: number;
+    priceBreakdown: any;
 }
 
 const initialState: WizardState = {
@@ -130,6 +134,8 @@ const initialState: WizardState = {
     isShopListOpen: false,
     isWidget: false,
     isKiosk: false,
+    currentEstimate: 0,
+    priceBreakdown: {},
 };
 
 /**

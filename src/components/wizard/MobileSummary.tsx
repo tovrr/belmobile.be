@@ -9,7 +9,7 @@ import { REPAIR_ISSUES } from '../../constants';
 
 interface MobileSummaryProps {
     type: 'buyback' | 'repair';
-    t: (key: string) => string;
+    t: (key: string, ...args: (string | number)[]) => string;
     selectedBrand?: string;
     selectedModel?: string;
     storage?: string;
@@ -52,12 +52,21 @@ const MobileSummary: React.FC<MobileSummaryProps> = ({
                 <h3 className="font-bold text-xl text-gray-900 dark:text-white">{t('Summary')}</h3>
             </div>
             {deviceImageUrl && (
-                <div className="relative w-full h-48 mb-4 bg-gray-50 dark:bg-slate-950 rounded-xl p-4">
+                <div className="relative w-full h-48 mb-4 bg-white rounded-xl p-4 border border-gray-100 shadow-xs overflow-hidden">
                     <Image
                         src={deviceImageUrl}
-                        alt={`${selectedBrand} ${selectedModel} ${t(isBuyback ? 'Buyback' : 'Repair')}`}
+                        alt={t(
+                            isBuyback ? 'seo_image_buyback_alt' : 'seo_image_repair_alt',
+                            slugToDisplayName(selectedBrand || ''),
+                            slugToDisplayName(selectedModel || '')
+                        )}
                         fill
-                        className="object-contain"
+                        className={`object-contain ${!deviceImageUrl.includes('models') ? 'p-4' : ''}`}
+                        style={!deviceImageUrl.includes('models') ? {
+                            filter: isBuyback
+                                ? 'brightness(0) saturate(100%) invert(70%) sepia(85%) saturate(836%) hue-rotate(355deg) brightness(105%) contrast(103%)'
+                                : 'brightness(0) saturate(100%) invert(30%) sepia(98%) saturate(1766%) hue-rotate(209deg) brightness(97%) contrast(106%)'
+                        } : undefined}
                     />
                 </div>
             )}

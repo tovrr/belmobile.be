@@ -3,7 +3,7 @@ import BuybackRepair from '@/components/wizard/BuybackRepair';
 import DynamicSEOContent from '@/components/seo/DynamicSEOContent';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { createSlug } from '@/utils/slugs';
+import { createSlug, slugToDisplayName } from '@/utils/slugs';
 import { getSEOTitle, getSEODescription } from '@/utils/seoHelpers';
 
 export const dynamic = 'force-dynamic';
@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang, brand, model } = await params;
 
     // Decode for display
-    const decodedBrand = decodeURIComponent(brand).replace(/-/g, ' ');
-    const decodedModel = decodeURIComponent(model).replace(/-/g, ' ');
+    const decodedBrand = slugToDisplayName(brand);
+    const decodedModel = slugToDisplayName(model);
     const deviceName = `${decodedBrand} ${decodedModel}`;
 
     // Use helper for consistent SEO titles
@@ -65,8 +65,8 @@ export default async function BuybackModelPage({
 
     if (!brand || !model) return notFound();
 
-    const decodedBrand = decodeURIComponent(brand).replace(/-/g, ' ');
-    const decodedModel = decodeURIComponent(model).replace(/-/g, ' ');
+    const decodedBrand = slugToDisplayName(brand);
+    const decodedModel = slugToDisplayName(model);
 
     const initialDevice = {
         brand: decodedBrand,

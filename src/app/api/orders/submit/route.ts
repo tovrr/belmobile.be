@@ -17,7 +17,9 @@ export async function POST(req: NextRequest) {
             condition,
             issues,
             type,
-            storage
+            storage,
+            deviceType,
+            shopId
         } = body;
 
         // 1. Validate Payload Structure
@@ -116,6 +118,8 @@ export async function POST(req: NextRequest) {
                 trackingToken,
                 trackingTokenCreatedAt: serverTimestamp(),
                 originPartnerId: body.partnerId || null,
+                deviceType: deviceType || 'smartphone',
+                shopId: shopId || body.selectedShop || 'online',
                 shippingLabelUrl,
                 trackingNumber
             });
@@ -191,42 +195,16 @@ export async function POST(req: NextRequest) {
                 const pdfData = mapQuoteToPdfData(quoteData as any, t);
                 const { base64, safeFileName } = await generatePDFFromPdfData(pdfData, type === 'buyback' ? 'Buyback' : 'Repair');
 
-                const emailHeader = `
-                <div style="padding: 20px 0; border-bottom: 1px solid #eaeaea; margin-bottom: 24px;">
-                    <h1 style="color: #111111; font-family: sans-serif; font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">
-                        BELMOBILE<span style="color: #4338ca;">.BE</span>
-                    </h1>
-                    <p style="color: #666666; font-family: sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin: 4px 0 0 0;">
-                        BUYBACK & REPAIR
-                    </p>
-                </div>`;
-                const emailFooter = `<div style="padding: 20px; text-align: center; background-color: #f8fafc; border-top: 1px solid #e5e7eb;"><p style="font-size: 14px; font-weight: bold; color: #1e293b; margin: 0;">Belmobile.be</p><p style="font-size: 12px; color: #64748b; margin: 4px 0;">Rue Gallait 4, 1030 Schaerbeek, Brussels</p><p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">&copy; ${new Date().getFullYear()} Belmobile. All rights reserved.</p></div>`;
+                const { getOrderConfirmationEmail } = await import('../../../../utils/emailTemplates');
 
-                const htmlContent = `
-                    <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
-                        ${emailHeader}
-                        <div style="padding: 30px; line-height: 1.6;">
-                            <h2 style="color: #4338ca;">${t('email_buyback_repair_greeting', body.customerName)}</h2>
-                            <p>${t('email_buyback_repair_thanks', type === 'buyback' ? t('Buyback') : t('Repair'))}</p>
-                            <p>${t('email_buyback_repair_attachment')}</p>
-                            <div style="text-align: center; margin: 30px 0;">
-                                <a href="https://belmobile.be/${lang}/track-order?id=${preGeneratedId}&token=${trackingToken}" style="background-color: #4338ca; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-                                    ${t('email_track_button')}
-                                </a>
-                            </div>
-                            <hr style="border: 1px solid #eee; margin: 20px 0;">
-                            <p style="font-size: 12px; color: #666;">${t('email_automatic_message')}</p>
-                        </div>
-                        ${emailFooter}
-                    </div>
-                `;
+                const { subject, html } = getOrderConfirmationEmail(quoteData, preGeneratedId, lang as any, t);
 
                 // Send to Customer
                 console.log(`[Email] Starting dispatch to customer: ${body.customerEmail}`);
                 const customerResult = await serverEmailService.sendEmail(
                     body.customerEmail,
-                    t('email_buyback_repair_subject', type === 'buyback' ? t('Buyback') : t('Repair'), preGeneratedId),
-                    htmlContent,
+                    subject,
+                    html,
                     [{ name: safeFileName, content: base64 }]
                 );
                 console.log(`[Email] Customer dispatch success:`, customerResult);
@@ -236,7 +214,7 @@ export async function POST(req: NextRequest) {
                 const adminResult = await serverEmailService.sendEmail(
                     'info@belmobile.be',
                     `[ADMIN COPY] Order ${preGeneratedId} (${body.customerName})`,
-                    htmlContent,
+                    html,
                     [{ name: safeFileName, content: base64 }]
                 );
                 console.log(`[Email] Admin dispatch success:`, adminResult);

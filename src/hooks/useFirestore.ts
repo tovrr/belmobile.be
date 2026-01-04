@@ -77,35 +77,29 @@ export const useShops = () => {
                 return shopData;
             });
 
-            // Priority Sort: Liedts (schaerbeek) > Bara (anderlecht) > Tour & Taxis (molenbeek)
-            // Then group established shops (open/temp_closed) above "coming_soon"
-            const priorityIds = ['schaerbeek', 'anderlecht', 'molenbeek'];
-
-            const sortedData = [...data].sort((a, b) => {
-                const aIdx = priorityIds.indexOf(a.id as string);
-                const bIdx = priorityIds.indexOf(b.id as string);
-
-                // Both in priority list -> sort by index
-                if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-
-                // One in priority list -> that one goes top
-                if (aIdx !== -1) return -1;
-                if (bIdx !== -1) return 1;
-
-                // Status Sort: Established above Coming Soon
-                const aIsComing = a.status === 'coming_soon';
-                const bIsComing = b.status === 'coming_soon';
-                if (!aIsComing && bIsComing) return -1;
-                if (aIsComing && !bIsComing) return 1;
-
-                // Final sort by name
-                return a.name.localeCompare(b.name);
-            });
-
-            setShops(sortedData);
+            if (data.length === 0) {
+                setShops(SHOPS as Shop[]);
+            } else {
+                // Priority Sort: Liedts (schaerbeek) > Bara (anderlecht) > Tour & Taxis (molenbeek)
+                const priorityIds = ['schaerbeek', 'anderlecht', 'molenbeek'];
+                const sortedData = [...data].sort((a, b) => {
+                    const aIdx = priorityIds.indexOf(a.id as string);
+                    const bIdx = priorityIds.indexOf(b.id as string);
+                    if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+                    if (aIdx !== -1) return -1;
+                    if (bIdx !== -1) return 1;
+                    const aIsComing = a.status === 'coming_soon';
+                    const bIsComing = b.status === 'coming_soon';
+                    if (!aIsComing && bIsComing) return -1;
+                    if (aIsComing && !bIsComing) return 1;
+                    return a.name.localeCompare(b.name);
+                });
+                setShops(sortedData);
+            }
             setLoading(false);
         }, (error) => {
-            console.error("Error fetching shops:", error);
+            console.error("Error fetching shops, falling back to static list:", error);
+            setShops(SHOPS as Shop[]);
             setLoading(false);
         });
         return () => unsub();

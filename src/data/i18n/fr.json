@@ -1,4 +1,5 @@
 {
+    "loading_specs": "Chargement des caractéristiques techniques...",
     "video_watch_story": "L'Excellence Mobile",
     "video_section_title": "Partenaire Technologique de Confiance.",
     "certified_and_recognized_by": "Certifié et Choisi par les Leaders",
@@ -847,6 +848,8 @@
     "biz_trust_sec": "Sécurité ISO 27001",
     "Directions": "Itinéraire",
     "Call": "Appeler",
+    "seo_image_repair_alt": "Réparation {0} {1} à Bruxelles - Belmobile",
+    "seo_image_buyback_alt": "Rachat {0} {1} au meilleur prix à Bruxelles - Belmobile",
     "Don't see your city?": "Votre ville n'y est pas ?",
     "Suggest a location": "Suggérer un lieu",
     "Mon": "Lun",

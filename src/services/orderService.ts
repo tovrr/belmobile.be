@@ -31,6 +31,8 @@ export interface OrderSubmissionData {
     companyName?: string;
     vatNumber?: string;
     partnerId?: string;
+    shopId?: string | number;
+    deviceType?: string;
 }
 
 export const orderService = {

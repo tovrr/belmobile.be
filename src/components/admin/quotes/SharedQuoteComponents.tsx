@@ -39,7 +39,12 @@ export const QuoteHeader: React.FC<QuoteHeaderProps> = ({ quote, onClose, onDown
             <div className="flex items-center gap-4 mt-1 text-sm text-gray-500 dark:text-gray-400">
                 <p>ID: <span className="font-mono font-bold text-gray-700 dark:text-gray-300 select-all">{quote.orderId || quote.id}</span></p>
                 <span className="text-gray-300">•</span>
-                <p>{new Date(quote.date).toLocaleDateString()} {new Date(quote.date).toLocaleTimeString()}</p>
+                <p>
+                    {(() => {
+                        const d = quote.createdAt?.seconds ? new Date(quote.createdAt.seconds * 1000) : new Date(quote.date);
+                        return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                    })()}
+                </p>
             </div>
         </div>
 
@@ -80,14 +85,16 @@ export const CustomerInfoCard: React.FC<{ quote: Quote }> = ({ quote }) => {
     // Robust Shop Name Logic
     const shopName = React.useMemo(() => {
         if (!quote.shopId) return 'Unknown Shop';
-        const exactMatch = shops.find((s: Shop) => s.id === quote.shopId);
+        if (quote.shopId === 'online') return 'Belmobile Online';
+
+        const exactMatch = shops.find((s: Shop) => String(s.id).toLowerCase() === String(quote.shopId).toLowerCase());
         if (exactMatch) return exactMatch.name;
 
         // Fallback: try matching by slugified name if shopId is actually a slug
-        const slugMatch = shops.find((s: Shop) => s.slug === quote.shopId || String(s.id).toLowerCase() === String(quote.shopId).toLowerCase());
+        const slugMatch = shops.find((s: Shop) => s.slug === quote.shopId || s.slugs?.fr === quote.shopId);
         if (slugMatch) return slugMatch.name;
 
-        return 'Unknown Shop';
+        return `Shop (${quote.shopId})`;
     }, [shops, quote.shopId]);
 
     return (
@@ -149,28 +156,54 @@ export const DeviceBasicsCard: React.FC<{ quote: Quote }> = ({ quote }) => (
 export const ActivityLogViewer: React.FC<{ log: ActivityLogEntry[] }> = ({ log }) => {
     if (!log || log.length === 0) return null;
 
+    const formatValue = (val: any) => {
+        if (val === undefined || val === null) return 'Initial';
+        if (val === 'new') return 'New Order';
+        if (typeof val === 'string') {
+            return val.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
+        return String(val);
+    };
+
+    const parseDate = (ts: any) => {
+        if (!ts) return new Date();
+        if (typeof ts === 'string') {
+            const d = new Date(ts);
+            return isNaN(d.getTime()) ? new Date() : d;
+        }
+        if (ts.seconds) return new Date(ts.seconds * 1000);
+        return new Date();
+    };
+
     return (
         <div className="border-t border-gray-100 dark:border-slate-700 pt-6">
             <h3 className="font-bold text-gray-900 dark:text-white mb-4 text-sm uppercase flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-bel-blue"></span> Activity Log
             </h3>
-            <div className="space-y-4 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
-                {[...log].reverse().map((entry, idx) => (
-                    <div key={idx} className="flex gap-3 text-xs">
-                        <div className="text-gray-400 w-24 shrink-0 px-1">
-                            {new Date(entry.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            <div className="space-y-4 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                {[...log].reverse().map((entry, idx) => {
+                    const date = parseDate(entry.timestamp);
+                    return (
+                        <div key={idx} className="flex gap-3 text-xs">
+                            <div className="text-gray-400 w-24 shrink-0 px-1">
+                                {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                <br />
+                                {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                            <div className="flex-1 text-gray-600 dark:text-gray-300">
+                                <span className="font-bold text-gray-900 dark:text-white mr-1 uppercase">{entry.adminName}:</span>
+                                <span className="font-medium bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide mr-1.5 text-bel-blue">{entry.action.replace(/_/g, ' ')}</span>
+                                <span className="italic">
+                                    {entry.note ? `"${entry.note}"` : ''}
+                                    {entry.action === 'price_change' && `from €${entry.oldValue} to €${entry.newValue}`}
+                                    {entry.action === 'status_change' && (
+                                        <>from <span className="font-bold text-gray-400">{formatValue(entry.oldValue)}</span> to <span className="font-bold text-bel-blue">{formatValue(entry.newValue)}</span></>
+                                    )}
+                                </span>
+                            </div>
                         </div>
-                        <div className="flex-1 text-gray-600 dark:text-gray-300">
-                            <span className="font-bold text-gray-900 dark:text-white mr-1">{entry.adminName}:</span>
-                            <span className="font-medium bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide mr-1.5">{entry.action.replace(/_/g, ' ')}</span>
-                            <span>
-                                {entry.note ? `"${entry.note}"` : ''}
-                                {entry.action === 'price_change' && `from €${entry.oldValue} to €${entry.newValue}`}
-                                {entry.action === 'status_change' && `from ${entry.oldValue} to ${entry.newValue}`}
-                            </span>
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

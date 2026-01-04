@@ -8,7 +8,7 @@ import { findDefaultBrandCategory } from '../utils/deviceLogic';
 import { useLanguage } from './useLanguage';
 import { orderService } from '../services/orderService';
 import { useData } from './useData';
-import { calculateBuybackPriceShared, calculateRepairPriceShared } from '../utils/pricingLogic';
+import { useShop } from './useShop';
 import * as Sentry from "@sentry/nextjs";
 import { sendGAEvent } from '../utils/analytics';
 
@@ -16,6 +16,7 @@ const BRAND_DATA_CACHE = new Set<string>();
 
 export const useWizardActions = (type: 'buyback' | 'repair') => {
     const { state, dispatch } = useWizard();
+    const { selectedShop } = useShop();
     const router = useRouter();
     const { language: lang, t } = useLanguage();
     const { sendEmail } = useData();
@@ -247,16 +248,8 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
 
             dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: true } });
 
-            const pricingParams = {
-                ...state,
-                type,
-                brand: state.selectedBrand,
-                model: state.selectedModel
-            };
-
-            const price = type === 'buyback'
-                ? calculateBuybackPriceShared(pricingParams, state.pricingData)
-                : calculateRepairPriceShared(pricingParams, state.pricingData);
+            // Use Server-Calculated Estimate (SSOT) instead of client-side math
+            const price = state.currentEstimate;
 
             // AEGIS: Analytics - Track conversion (Lead Generation)
             const { trackRepairRequest, trackBuybackRequest } = await import('../utils/analytics');
@@ -278,7 +271,9 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                 isCompany: state.isCompany,
                 companyName: state.companyName,
                 vatNumber: state.vatNumber,
-                partnerId: state.partnerId
+                partnerId: state.partnerId,
+                deviceType: state.deviceType || 'smartphone',
+                shopId: selectedShop?.id || 'online'
             }, t);
 
             // 4. Redirect Immediately to Success Page
@@ -294,7 +289,7 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
         }
         // Note: isTransitioning is NOT set to false in finally because we want the spinner 
         // to persist until the next page (TrackOrder) loads and takes over.
-    }, [dispatch, state, type, lang, t, sendEmail, router]);
+    }, [dispatch, state, type, lang, t, sendEmail, router, selectedShop]);
 
     const loadBrandData = useCallback(async (brandSlug: string) => {
         if (loadedBrandRef.current === brandSlug) return;
