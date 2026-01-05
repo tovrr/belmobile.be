@@ -27,35 +27,11 @@ const getDisplayName = (slug: string, t: (key: string) => string, products: Prod
     // 0.1 Check Static Mappings (Priority for standard routes)
     for (const key in STATIC_SLUG_MAPPINGS) {
         const translations = STATIC_SLUG_MAPPINGS[key];
-        // Check if the current slug is a value in this mapping group
         const isMatch = Object.values(translations).includes(slug);
 
-        // If it is a known static slug (e.g. 'herstelling' or 'repair'), we want to show the localized display string.
-        // Usually, we want to capitalize it.
-        // However, if the slug IS the translation, we might just want to capitalize it or map it to a "Title" key if we had one.
-        // For now, let's map it to the 'en' key as a unique identifier then translate? 
-        // Or simply if it matches, return the proper casing or translation.
-
-        // Better approach: If slug matches a localized value, find the 'key' (e.g. 'repair') and see if we have a translation key.
-        // Actually, the prompt says "Utiliser le STATIC_SLUG_MAPPINGS... pour traduire les segments".
-        // If the URL is already localized (e.g. /fr/reparation), 'reparation' is the slug.
-        // We want to display "Réparation".
-
         if (isMatch) {
-            // Find which language key this slug belongs to, or just check if it matches the current lang's version
-            // But we actually just want a readable name.
-            // If the slug is 'reparation' (fr), and language is 'nl', we shouldn't be seeing 'reparation' in the URL usually.
-            // But here we are just displaying the segment name.
-
-            // Let's capitalize it nicely or use t() if available.
-            // Only purely static ones like 'about' -> 'À propos' might need t().
-            // For now, let's fall through to t() but use the key if possible?
-            // Actually, if it's in STATIC_SLUG_MAPPINGS, it's a known structural segment.
-
-            // Let's try to reverse lookup the canonical key
             const canonicalKey = Object.keys(STATIC_SLUG_MAPPINGS).find(k => Object.values(STATIC_SLUG_MAPPINGS[k]).includes(slug));
             if (canonicalKey) {
-                // Try to translate the canonical key using our main translation dictionary
                 const translated = t(canonicalKey);
                 if (translated && translated !== canonicalKey) return translated;
             }
@@ -125,8 +101,8 @@ const Breadcrumbs: React.FC = () => {
         };
     });
 
-    // Determine Base URL (safely)
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://belmobile.be';
+    // Determine Base URL (Fixed for Consistency & Hydration Match)
+    const baseUrl = 'https://belmobile.be';
 
     // JSON-LD Construction
     const jsonLd = {

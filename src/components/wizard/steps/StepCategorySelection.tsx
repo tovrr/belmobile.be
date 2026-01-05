@@ -1,5 +1,6 @@
 import React, { useState, useMemo, memo } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { MagnifyingGlassIcon, DevicePhoneMobileIcon, ChevronLeftIcon, ShieldCheckIcon, BanknotesIcon, BoltIcon, StarIcon } from '@heroicons/react/24/outline';
 import { DEVICE_TYPES } from '../../../constants';
 import TypewriterInput from '../../ui/TypewriterInput';
@@ -40,8 +41,9 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
 }) => {
     const { state, dispatch } = useWizard();
     const { t } = useLanguage();
+    const router = useRouter();
     // We can get handleNext from useWizardActions if not passed, but passing is fine
-    const { handleNext: actionHandleNext, handleCategorySelect } = useWizardActions(type);
+    const { handleNext: actionHandleNext, handleCategorySelect, typeSlug } = useWizardActions(type);
 
     const onNext = handleNext || actionHandleNext;
 
@@ -104,6 +106,17 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
 
     const onSearchSelect = (item: SearchResult) => {
         dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: item.category, selectedBrand: item.brand, selectedModel: item.model } });
+
+        // SEO NAV FIX: Force URL update to match selection
+        const lang = window.location.pathname.split('/')[1] || 'fr';
+        const brandSlug = createSlug(item.brand);
+        const modelSlug = createSlug(item.model);
+
+        const url = `/${lang}/${typeSlug}/${item.category}/${brandSlug}/${modelSlug}`;
+
+        // Push URL for SEO context (Breadcrumbs, Metadata)
+        router.push(url);
+
         dispatch({ type: 'SET_STEP', payload: 3 });
         setIsFocused(false);
     };

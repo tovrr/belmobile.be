@@ -123,7 +123,7 @@ export const getPriceQuote = cache(async (deviceSlug: string): Promise<PricingQu
                 const d = doc.data();
                 const { issueId, variants, price } = d;
 
-                console.log(`[PricingDAL] Aggregating repair: ${issueId} - ${JSON.stringify(variants)} - €${price}`);
+                // console.log(`[PricingDAL] Aggregating repair: ${issueId} - ${JSON.stringify(variants)} - €${price}`);
 
                 if (issueId === 'screen' && variants?.quality) {
                     let q = variants.quality.toLowerCase();
@@ -145,7 +145,7 @@ export const getPriceQuote = cache(async (deviceSlug: string): Promise<PricingQu
             });
         }
 
-        console.log(`[PricingDAL] getPriceQuote for ${deviceId}: Found ${Object.keys(repairData).length} mapped repair issues.`);
+        // console.log(`[PricingDAL] getPriceQuote for ${deviceId}: Found ${Object.keys(repairData).length} mapped repair issues.`);
 
 
         // --- FALLBACK TO MOCKS IF DATABASE IS EMPTY ---
@@ -171,19 +171,22 @@ export const getPriceQuote = cache(async (deviceSlug: string): Promise<PricingQu
         // Buyback Base: If market data missing, fallback to buyback_pricing manual entries
         let maxBuyback = 0;
         if (!buybackSnap.empty) {
-            const prices = buybackSnap.docs.map((d: any) => d.data().price as number);
+            // FILTER: Exclude "new" condition from SEO price to be more realistic (User Request)
+            const validDocs = buybackSnap.docs.filter((d: any) => d.data().condition !== 'new');
+            const targetDocs = validDocs.length > 0 ? validDocs : buybackSnap.docs; // Fallback if only 'new' exists
+
+            const prices = targetDocs.map((d: any) => d.data().price as number);
             maxBuyback = Math.max(...prices);
         }
 
-        // SOTA Logic: If maxBuyback is missing or looks like a retail price, calculate from market value
+        // SOTA Logic: If maxBuyback is missing, calculate from market value
         if (marketData?.sellPrice) {
             // Target Buyback = (Market Sell Price * 0.8) - RepairBuffer(€50) - Margin(€50)
             // Simplified: ~70% of market value for a "Perfect" device
             const calculatedBuyback = Math.round(marketData.sellPrice * 0.7);
 
-            // If we have no manual buyback price, or if the manual one is suspiciously high (>90% of retail),
-            // we use the calculated one to avoid "showing the new price" to users.
-            if (maxBuyback === 0 || maxBuyback > (marketData.sellPrice * 0.9)) {
+            // If we have no manual buyback price, we use the calculated one.
+            if (maxBuyback === 0) {
                 maxBuyback = calculatedBuyback;
             }
         }
@@ -272,7 +275,7 @@ export const getPricingData = cache(async (deviceSlug: string) => {
                 const d = doc.data();
                 const { issueId, variants, price } = d;
 
-                console.log(`[PricingDAL] getPricingData repair: ${issueId} - €${price}`);
+                // console.log(`[PricingDAL] getPricingData repair: ${issueId} - €${price}`);
 
                 if (issueId === 'screen' && variants?.quality) {
                     let q = variants.quality.toLowerCase();

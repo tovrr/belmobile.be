@@ -24,33 +24,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // UAT Bypass Logic (Temporary for Live UAT)
-        const params = new URLSearchParams(window.location.search);
-        const uatRole = params.get('uat_role');
-
-        if (uatRole) {
-            // console.log('UAT Mode active:', uatRole);
-            const isSuper = uatRole === 'super_admin';
-            const mockUser = {
-                uid: 'mock-uid-' + uatRole,
-                email: isSuper ? 'omerozkan@live.be' : uatRole + '@belmobile.be',
-                displayName: isSuper ? 'Omer Ozkan' : 'UAT Manager'
-            } as User;
-
-            const mockProfile: AdminProfile = {
-                uid: mockUser.uid,
-                email: mockUser.email || 'uat@belmobile.be',
-                displayName: mockUser.displayName || 'UAT User',
-                role: uatRole as any,
-                shopId: uatRole === 'shop_manager' || uatRole === 'technician' ? 'gal-brussels' : 'all',
-                createdAt: new Date().toISOString()
-            };
-
-            setUser(mockUser);
-            setProfile(mockProfile);
-            setLoading(false);
-            return;
-        }
+        // [SECURITY] UAT Bypass Logic REMOVED.
+        // Access strictly controlled by Firebase Auth & Firestore Rules.
 
         // Subscribe to Firebase Auth state changes
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
