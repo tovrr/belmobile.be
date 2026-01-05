@@ -1,0 +1,2613 @@
+[
+  {
+    "id": "apple-iphone-17-pro-max",
+    "label": "Apple Iphone 17 Pro Max",
+    "price": 1360,
+    "brand": "Apple",
+    "model": "iphone 17 pro max"
+  },
+  {
+    "id": "samsung-galaxy-s24-ultra",
+    "label": "Samsung Galaxy S24 Ultra",
+    "price": 1250,
+    "brand": "Samsung",
+    "model": "galaxy s24 ultra"
+  },
+  {
+    "id": "samsung-galaxy-s25-ultra",
+    "label": "Samsung Galaxy S25 Ultra",
+    "price": 1250,
+    "brand": "Samsung",
+    "model": "galaxy s25 ultra"
+  },
+  {
+    "id": "apple-iphone-16-pro-max",
+    "label": "Apple Iphone 16 Pro Max",
+    "price": 1071,
+    "brand": "Apple",
+    "model": "iphone 16 pro max"
+  },
+  {
+    "id": "apple-iphone-17-pro",
+    "label": "Apple Iphone 17 Pro",
+    "price": 1071,
+    "brand": "Apple",
+    "model": "iphone 17 pro"
+  },
+  {
+    "id": "samsung-galaxy-s23-ultra",
+    "label": "Samsung Galaxy S23 Ultra",
+    "price": 1012,
+    "brand": "Samsung",
+    "model": "galaxy s23 ultra"
+  },
+  {
+    "id": "apple-iphone-16-pro",
+    "label": "Apple Iphone 16 Pro",
+    "price": 952,
+    "brand": "Apple",
+    "model": "iphone 16 pro"
+  },
+  {
+    "id": "apple-iphone-17-plus",
+    "label": "Apple Iphone 17 Plus",
+    "price": 850,
+    "brand": "Apple",
+    "model": "iphone 17 plus"
+  },
+  {
+    "id": "samsung-galaxy-s22-ultra",
+    "label": "Samsung Galaxy S22 Ultra",
+    "price": 833,
+    "brand": "Samsung",
+    "model": "galaxy s22 ultra"
+  },
+  {
+    "id": "apple-iphone-17",
+    "label": "Apple Iphone 17",
+    "price": 797,
+    "brand": "Apple",
+    "model": "iphone 17"
+  },
+  {
+    "id": "apple-iphone-air",
+    "label": "Apple Iphone Air",
+    "price": 797,
+    "brand": "Apple",
+    "model": "iphone air"
+  },
+  {
+    "id": "apple-iphone-16-plus",
+    "label": "Apple Iphone 16 Plus",
+    "price": 744,
+    "brand": "Apple",
+    "model": "iphone 16 plus"
+  },
+  {
+    "id": "apple-iphone-16",
+    "label": "Apple Iphone 16",
+    "price": 691,
+    "brand": "Apple",
+    "model": "iphone 16"
+  },
+  {
+    "id": "apple-iphone-16e",
+    "label": "Apple Iphone 16e",
+    "price": 608,
+    "brand": "Apple",
+    "model": "iphone 16e"
+  },
+  {
+    "id": "apple-iphone-15-pro-max",
+    "label": "Apple Iphone 15 Pro Max",
+    "price": 596,
+    "brand": "Apple",
+    "model": "iphone 15 pro max"
+  },
+  {
+    "id": "samsung-galaxy-s21-ultra",
+    "label": "Samsung Galaxy S21 Ultra",
+    "price": 585,
+    "brand": "Samsung",
+    "model": "galaxy s21 ultra"
+  },
+  {
+    "id": "samsung-galaxy-s23",
+    "label": "Samsung Galaxy S23",
+    "price": 561,
+    "brand": "Samsung",
+    "model": "galaxy s23"
+  },
+  {
+    "id": "samsung-galaxy-tab-s9-ultra",
+    "label": "Samsung Galaxy Tab S9 Ultra",
+    "price": 536,
+    "brand": "Samsung",
+    "model": "galaxy tab s9 ultra"
+  },
+  {
+    "id": "apple-iphone-14-pro-max",
+    "label": "Apple Iphone 14 Pro Max",
+    "price": 519,
+    "brand": "Apple",
+    "model": "iphone 14 pro max"
+  },
+  {
+    "id": "apple-iphone-15-pro",
+    "label": "Apple Iphone 15 Pro",
+    "price": 519,
+    "brand": "Apple",
+    "model": "iphone 15 pro"
+  },
+  {
+    "id": "samsung-galaxy-s20-ultra",
+    "label": "Samsung Galaxy S20 Ultra",
+    "price": 479,
+    "brand": "Samsung",
+    "model": "galaxy s20 ultra"
+  },
+  {
+    "id": "apple-iphone-13-pro-max",
+    "label": "Apple Iphone 13 Pro Max",
+    "price": 442,
+    "brand": "Apple",
+    "model": "iphone 13 pro max"
+  },
+  {
+    "id": "apple-iphone-14-pro",
+    "label": "Apple Iphone 14 Pro",
+    "price": 442,
+    "brand": "Apple",
+    "model": "iphone 14 pro"
+  },
+  {
+    "id": "samsung-galaxy-s22",
+    "label": "Samsung Galaxy S22",
+    "price": 421,
+    "brand": "Samsung",
+    "model": "galaxy s22"
+  },
+  {
+    "id": "apple-iphone-15-plus",
+    "label": "Apple Iphone 15 Plus",
+    "price": 420,
+    "brand": "Apple",
+    "model": "iphone 15 plus"
+  },
+  {
+    "id": "apple-ipad-pro-12-9-m2",
+    "label": "Apple Ipad Pro 12 9 M2",
+    "price": 408,
+    "brand": "Apple",
+    "model": "ipad pro 12 9 m2"
+  },
+  {
+    "id": "apple-iphone-15",
+    "label": "Apple Iphone 15",
+    "price": 385,
+    "brand": "Apple",
+    "model": "iphone 15"
+  },
+  {
+    "id": "apple-iphone-13-pro",
+    "label": "Apple Iphone 13 Pro",
+    "price": 365,
+    "brand": "Apple",
+    "model": "iphone 13 pro"
+  },
+  {
+    "id": "apple-iphone-12-pro-max",
+    "label": "Apple Iphone 12 Pro Max",
+    "price": 345,
+    "brand": "Apple",
+    "model": "iphone 12 pro max"
+  },
+  {
+    "id": "apple-iphone-14-plus",
+    "label": "Apple Iphone 14 Plus",
+    "price": 324,
+    "brand": "Apple",
+    "model": "iphone 14 plus"
+  },
+  {
+    "id": "apple-iphone-11-pro-max",
+    "label": "Apple Iphone 11 Pro Max",
+    "price": 290,
+    "brand": "Apple",
+    "model": "iphone 11 pro max"
+  },
+  {
+    "id": "apple-iphone-14",
+    "label": "Apple Iphone 14",
+    "price": 290,
+    "brand": "Apple",
+    "model": "iphone 14"
+  },
+  {
+    "id": "samsung-galaxy-s21",
+    "label": "Samsung Galaxy S21",
+    "price": 281,
+    "brand": "Samsung",
+    "model": "galaxy s21"
+  },
+  {
+    "id": "apple-iphone-12-pro",
+    "label": "Apple Iphone 12 Pro",
+    "price": 276,
+    "brand": "Apple",
+    "model": "iphone 12 pro"
+  },
+  {
+    "id": "apple-iphone-13",
+    "label": "Apple Iphone 13",
+    "price": 263,
+    "brand": "Apple",
+    "model": "iphone 13"
+  },
+  {
+    "id": "apple-iphone-13-mini",
+    "label": "Apple Iphone 13 Mini",
+    "price": 242,
+    "brand": "Apple",
+    "model": "iphone 13 mini"
+  },
+  {
+    "id": "apple-iphone-11-pro",
+    "label": "Apple Iphone 11 Pro",
+    "price": 221,
+    "brand": "Apple",
+    "model": "iphone 11 pro"
+  },
+  {
+    "id": "apple-iphone-xs-max",
+    "label": "Apple Iphone Xs Max",
+    "price": 189,
+    "brand": "Apple",
+    "model": "iphone xs max"
+  },
+  {
+    "id": "samsung-galaxy-a53",
+    "label": "Samsung Galaxy A53",
+    "price": 187,
+    "brand": "Samsung",
+    "model": "galaxy a53"
+  },
+  {
+    "id": "samsung-galaxy-a54",
+    "label": "Samsung Galaxy A54",
+    "price": 187,
+    "brand": "Samsung",
+    "model": "galaxy a54"
+  },
+  {
+    "id": "samsung-galaxy-a55",
+    "label": "Samsung Galaxy A55",
+    "price": 187,
+    "brand": "Samsung",
+    "model": "galaxy a55"
+  },
+  {
+    "id": "apple-iphone-12",
+    "label": "Apple Iphone 12",
+    "price": 185,
+    "brand": "Apple",
+    "model": "iphone 12"
+  },
+  {
+    "id": "apple-iphone-xs",
+    "label": "Apple Iphone Xs",
+    "price": 175,
+    "brand": "Apple",
+    "model": "iphone xs"
+  },
+  {
+    "id": "samsung-galaxy-s20",
+    "label": "Samsung Galaxy S20",
+    "price": 170,
+    "brand": "Samsung",
+    "model": "galaxy s20"
+  },
+  {
+    "id": "apple-iphone-11",
+    "label": "Apple Iphone 11",
+    "price": 164,
+    "brand": "Apple",
+    "model": "iphone 11"
+  },
+  {
+    "id": "apple-iphone-12-mini",
+    "label": "Apple Iphone 12 Mini",
+    "price": 163,
+    "brand": "Apple",
+    "model": "iphone 12 mini"
+  },
+  {
+    "id": "apple-ipad-10th-gen",
+    "label": "Apple Ipad 10th Gen",
+    "price": 140,
+    "brand": "Apple",
+    "model": "ipad 10th gen"
+  },
+  {
+    "id": "apple-ipad-9",
+    "label": "Apple Ipad 9",
+    "price": 140,
+    "brand": "Apple",
+    "model": "ipad 9"
+  },
+  {
+    "id": "apple-ipad-air-3",
+    "label": "Apple Ipad Air 3",
+    "price": 140,
+    "brand": "Apple",
+    "model": "ipad air 3"
+  },
+  {
+    "id": "apple-ipad-air-4",
+    "label": "Apple Ipad Air 4",
+    "price": 140,
+    "brand": "Apple",
+    "model": "ipad air 4"
+  },
+  {
+    "id": "apple-ipad-air-5",
+    "label": "Apple Ipad Air 5",
+    "price": 140,
+    "brand": "Apple",
+    "model": "ipad air 5"
+  },
+  {
+    "id": "apple-ipad-mini-5",
+    "label": "Apple Ipad Mini 5",
+    "price": 140,
+    "brand": "Apple",
+    "model": "ipad mini 5"
+  },
+  {
+    "id": "apple-ipad-mini-6",
+    "label": "Apple Ipad Mini 6",
+    "price": 140,
+    "brand": "Apple",
+    "model": "ipad mini 6"
+  },
+  {
+    "id": "apple-iphone-se-3rd-gen",
+    "label": "Apple Iphone SE 3rd Gen",
+    "price": 140,
+    "brand": "Apple",
+    "model": "iphone se 3rd gen"
+  },
+  {
+    "id": "apple-iphone-se-2022",
+    "label": "Apple Iphone SE 2022",
+    "price": 134,
+    "brand": "Apple",
+    "model": "iphone se 2022"
+  },
+  {
+    "id": "apple-ipad-8",
+    "label": "Apple Ipad 8",
+    "price": 128,
+    "brand": "Apple",
+    "model": "ipad 8"
+  },
+  {
+    "id": "apple-ipad-mini-4",
+    "label": "Apple Ipad Mini 4",
+    "price": 128,
+    "brand": "Apple",
+    "model": "ipad mini 4"
+  },
+  {
+    "id": "apple-iphone-xr",
+    "label": "Apple Iphone Xr",
+    "price": 126,
+    "brand": "Apple",
+    "model": "iphone xr"
+  },
+  {
+    "id": "apple-iphone-se-2020",
+    "label": "Apple Iphone SE 2020",
+    "price": 105,
+    "brand": "Apple",
+    "model": "iphone se 2020"
+  },
+  {
+    "id": "apple-iphone-x",
+    "label": "Apple Iphone X",
+    "price": 91,
+    "brand": "Apple",
+    "model": "iphone x"
+  },
+  {
+    "id": "samsung-galaxy-a14",
+    "label": "Samsung Galaxy A14",
+    "price": 90,
+    "brand": "Samsung",
+    "model": "galaxy a14"
+  },
+  {
+    "id": "apple-apple-watch-se",
+    "label": "Apple Apple Watch SE",
+    "price": 0,
+    "brand": "Apple",
+    "model": "apple watch se"
+  },
+  {
+    "id": "apple-apple-watch-se-2",
+    "label": "Apple Apple Watch SE 2",
+    "price": 0,
+    "brand": "Apple",
+    "model": "apple watch se 2"
+  },
+  {
+    "id": "apple-apple-watch-series-7",
+    "label": "Apple Apple Watch Series 7",
+    "price": 0,
+    "brand": "Apple",
+    "model": "apple watch series 7"
+  },
+  {
+    "id": "apple-apple-watch-series-8",
+    "label": "Apple Apple Watch Series 8",
+    "price": 0,
+    "brand": "Apple",
+    "model": "apple watch series 8"
+  },
+  {
+    "id": "apple-apple-watch-series-9",
+    "label": "Apple Apple Watch Series 9",
+    "price": 0,
+    "brand": "Apple",
+    "model": "apple watch series 9"
+  },
+  {
+    "id": "apple-apple-watch-ultra",
+    "label": "Apple Apple Watch Ultra",
+    "price": 0,
+    "brand": "Apple",
+    "model": "apple watch ultra"
+  },
+  {
+    "id": "apple-apple-watch-ultra-2",
+    "label": "Apple Apple Watch Ultra 2",
+    "price": 0,
+    "brand": "Apple",
+    "model": "apple watch ultra 2"
+  },
+  {
+    "id": "apple-ipad-pro-11-2018",
+    "label": "Apple Ipad Pro 11 2018",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 11 2018"
+  },
+  {
+    "id": "apple-ipad-pro-11-2020",
+    "label": "Apple Ipad Pro 11 2020",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 11 2020"
+  },
+  {
+    "id": "apple-ipad-pro-11-2021",
+    "label": "Apple Ipad Pro 11 2021",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 11 2021"
+  },
+  {
+    "id": "apple-ipad-pro-11-2022",
+    "label": "Apple Ipad Pro 11 2022",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 11 2022"
+  },
+  {
+    "id": "apple-ipad-pro-12-9-2018",
+    "label": "Apple Ipad Pro 12 9 2018",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 12 9 2018"
+  },
+  {
+    "id": "apple-ipad-pro-12-9-2020",
+    "label": "Apple Ipad Pro 12 9 2020",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 12 9 2020"
+  },
+  {
+    "id": "apple-ipad-pro-12-9-2021",
+    "label": "Apple Ipad Pro 12 9 2021",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 12 9 2021"
+  },
+  {
+    "id": "apple-ipad-pro-12-9-2022",
+    "label": "Apple Ipad Pro 12 9 2022",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 12 9 2022"
+  },
+  {
+    "id": "apple-ipad-pro-129-2018",
+    "label": "Apple Ipad Pro 129 2018",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 129 2018"
+  },
+  {
+    "id": "apple-ipad-pro-129-2020",
+    "label": "Apple Ipad Pro 129 2020",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 129 2020"
+  },
+  {
+    "id": "apple-ipad-pro-129-2021",
+    "label": "Apple Ipad Pro 129 2021",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 129 2021"
+  },
+  {
+    "id": "apple-ipad-pro-129-2022",
+    "label": "Apple Ipad Pro 129 2022",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 129 2022"
+  },
+  {
+    "id": "apple-ipad-pro-129-m2",
+    "label": "Apple Ipad Pro 129 M2",
+    "price": 0,
+    "brand": "Apple",
+    "model": "ipad pro 129 m2"
+  },
+  {
+    "id": "apple-iphone-8",
+    "label": "Apple Iphone 8",
+    "price": 0,
+    "brand": "Apple",
+    "model": "iphone 8"
+  },
+  {
+    "id": "apple-iphone-8-plus",
+    "label": "Apple Iphone 8 Plus",
+    "price": 0,
+    "brand": "Apple",
+    "model": "iphone 8 plus"
+  },
+  {
+    "id": "apple-macbook-air-13-2010-2017",
+    "label": "Apple Macbook Air 13 2010 2017",
+    "price": 0,
+    "brand": "Apple",
+    "model": "macbook air 13 2010 2017"
+  },
+  {
+    "id": "apple-macbook-air-13-2018-2020",
+    "label": "Apple Macbook Air 13 2018 2020",
+    "price": 0,
+    "brand": "Apple",
+    "model": "macbook air 13 2018 2020"
+  },
+  {
+    "id": "apple-macbook-air-m1",
+    "label": "Apple Macbook Air M1",
+    "price": 0,
+    "brand": "Apple",
+    "model": "macbook air m1"
+  },
+  {
+    "id": "apple-macbook-air-m2",
+    "label": "Apple Macbook Air M2",
+    "price": 0,
+    "brand": "Apple",
+    "model": "macbook air m2"
+  },
+  {
+    "id": "apple-macbook-pro-13-m2",
+    "label": "Apple Macbook Pro 13 M2",
+    "price": 0,
+    "brand": "Apple",
+    "model": "macbook pro 13 m2"
+  },
+  {
+    "id": "apple-macbook-pro-14-m2",
+    "label": "Apple Macbook Pro 14 M2",
+    "price": 0,
+    "brand": "Apple",
+    "model": "macbook pro 14 m2"
+  },
+  {
+    "id": "apple-macbook-pro-14-m2-pro-max",
+    "label": "Apple Macbook Pro 14 M2 Pro Max",
+    "price": 0,
+    "brand": "Apple",
+    "model": "macbook pro 14 m2 pro max"
+  },
+  {
+    "id": "apple-macbook-pro-16-m2",
+    "label": "Apple Macbook Pro 16 M2",
+    "price": 0,
+    "brand": "Apple",
+    "model": "macbook pro 16 m2"
+  },
+  {
+    "id": "apple-macbook-pro-16-m2-pro-max",
+    "label": "Apple Macbook Pro 16 M2 Pro Max",
+    "price": 0,
+    "brand": "Apple",
+    "model": "macbook pro 16 m2 pro max"
+  },
+  {
+    "id": "apple-watch-se",
+    "label": "Apple Watch SE",
+    "price": 0,
+    "brand": "Apple",
+    "model": "watch se"
+  },
+  {
+    "id": "apple-watch-se-2",
+    "label": "Apple Watch SE 2",
+    "price": 0,
+    "brand": "Apple",
+    "model": "watch se 2"
+  },
+  {
+    "id": "apple-watch-series-7",
+    "label": "Apple Watch Series 7",
+    "price": 0,
+    "brand": "Apple",
+    "model": "watch series 7"
+  },
+  {
+    "id": "apple-watch-series-8",
+    "label": "Apple Watch Series 8",
+    "price": 0,
+    "brand": "Apple",
+    "model": "watch series 8"
+  },
+  {
+    "id": "apple-watch-series-9",
+    "label": "Apple Watch Series 9",
+    "price": 0,
+    "brand": "Apple",
+    "model": "watch series 9"
+  },
+  {
+    "id": "apple-watch-ultra",
+    "label": "Apple Watch Ultra",
+    "price": 0,
+    "brand": "Apple",
+    "model": "watch ultra"
+  },
+  {
+    "id": "apple-watch-ultra-2",
+    "label": "Apple Watch Ultra 2",
+    "price": 0,
+    "brand": "Apple",
+    "model": "watch ultra 2"
+  },
+  {
+    "id": "apple-xiaomi-13t",
+    "label": "Apple Xiaomi 13t",
+    "price": 0,
+    "brand": "Apple",
+    "model": "xiaomi 13t"
+  },
+  {
+    "id": "google-pixel-10",
+    "label": "Google Pixel 10",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 10"
+  },
+  {
+    "id": "google-pixel-10-pro",
+    "label": "Google Pixel 10 Pro",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 10 pro"
+  },
+  {
+    "id": "google-pixel-10-pro-xl",
+    "label": "Google Pixel 10 Pro Xl",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 10 pro xl"
+  },
+  {
+    "id": "google-pixel-6",
+    "label": "Google Pixel 6",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 6"
+  },
+  {
+    "id": "google-pixel-6-pro",
+    "label": "Google Pixel 6 Pro",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 6 pro"
+  },
+  {
+    "id": "google-pixel-6a",
+    "label": "Google Pixel 6a",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 6a"
+  },
+  {
+    "id": "google-pixel-7",
+    "label": "Google Pixel 7",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 7"
+  },
+  {
+    "id": "google-pixel-7-pro",
+    "label": "Google Pixel 7 Pro",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 7 pro"
+  },
+  {
+    "id": "google-pixel-7a",
+    "label": "Google Pixel 7a",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 7a"
+  },
+  {
+    "id": "google-pixel-8",
+    "label": "Google Pixel 8",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 8"
+  },
+  {
+    "id": "google-pixel-8-pro",
+    "label": "Google Pixel 8 Pro",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 8 pro"
+  },
+  {
+    "id": "google-pixel-8a",
+    "label": "Google Pixel 8a",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 8a"
+  },
+  {
+    "id": "google-pixel-9",
+    "label": "Google Pixel 9",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 9"
+  },
+  {
+    "id": "google-pixel-9-pro",
+    "label": "Google Pixel 9 Pro",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 9 pro"
+  },
+  {
+    "id": "google-pixel-9-pro-fold",
+    "label": "Google Pixel 9 Pro Fold",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 9 pro fold"
+  },
+  {
+    "id": "google-pixel-9-pro-xl",
+    "label": "Google Pixel 9 Pro Xl",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel 9 pro xl"
+  },
+  {
+    "id": "google-pixel-fold",
+    "label": "Google Pixel Fold",
+    "price": 0,
+    "brand": "Google",
+    "model": "pixel fold"
+  },
+  {
+    "id": "huawei-honor-200",
+    "label": "Huawei Honor 200",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor 200"
+  },
+  {
+    "id": "huawei-honor-200-lite",
+    "label": "Huawei Honor 200 Lite",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor 200 lite"
+  },
+  {
+    "id": "huawei-honor-200-pro",
+    "label": "Huawei Honor 200 Pro",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor 200 pro"
+  },
+  {
+    "id": "huawei-honor-50",
+    "label": "Huawei Honor 50",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor 50"
+  },
+  {
+    "id": "huawei-honor-50-lite",
+    "label": "Huawei Honor 50 Lite",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor 50 lite"
+  },
+  {
+    "id": "huawei-honor-70",
+    "label": "Huawei Honor 70",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor 70"
+  },
+  {
+    "id": "huawei-honor-70-lite",
+    "label": "Huawei Honor 70 Lite",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor 70 lite"
+  },
+  {
+    "id": "huawei-honor-90",
+    "label": "Huawei Honor 90",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor 90"
+  },
+  {
+    "id": "huawei-honor-90-lite",
+    "label": "Huawei Honor 90 Lite",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor 90 lite"
+  },
+  {
+    "id": "huawei-honor-magic4-lite",
+    "label": "Huawei Honor Magic4 Lite",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor magic4 lite"
+  },
+  {
+    "id": "huawei-honor-magic4-pro",
+    "label": "Huawei Honor Magic4 Pro",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor magic4 pro"
+  },
+  {
+    "id": "huawei-honor-magic5-lite",
+    "label": "Huawei Honor Magic5 Lite",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor magic5 lite"
+  },
+  {
+    "id": "huawei-honor-magic5-pro",
+    "label": "Huawei Honor Magic5 Pro",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor magic5 pro"
+  },
+  {
+    "id": "huawei-honor-magic6-lite",
+    "label": "Huawei Honor Magic6 Lite",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor magic6 lite"
+  },
+  {
+    "id": "huawei-honor-magic6-pro",
+    "label": "Huawei Honor Magic6 Pro",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor magic6 pro"
+  },
+  {
+    "id": "huawei-honor-x6",
+    "label": "Huawei Honor X6",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor x6"
+  },
+  {
+    "id": "huawei-honor-x6a",
+    "label": "Huawei Honor X6a",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor x6a"
+  },
+  {
+    "id": "huawei-honor-x7",
+    "label": "Huawei Honor X7",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor x7"
+  },
+  {
+    "id": "huawei-honor-x7a",
+    "label": "Huawei Honor X7a",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor x7a"
+  },
+  {
+    "id": "huawei-honor-x7b",
+    "label": "Huawei Honor X7b",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor x7b"
+  },
+  {
+    "id": "huawei-honor-x8",
+    "label": "Huawei Honor X8",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor x8"
+  },
+  {
+    "id": "huawei-honor-x8a",
+    "label": "Huawei Honor X8a",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor x8a"
+  },
+  {
+    "id": "huawei-honor-x8b",
+    "label": "Huawei Honor X8b",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "honor x8b"
+  },
+  {
+    "id": "huawei-huawei-y5-2019",
+    "label": "Huawei Huawei Y5 2019",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "huawei y5 2019"
+  },
+  {
+    "id": "huawei-huawei-y5p",
+    "label": "Huawei Huawei Y5p",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "huawei y5p"
+  },
+  {
+    "id": "huawei-huawei-y6-2019",
+    "label": "Huawei Huawei Y6 2019",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "huawei y6 2019"
+  },
+  {
+    "id": "huawei-huawei-y6p",
+    "label": "Huawei Huawei Y6p",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "huawei y6p"
+  },
+  {
+    "id": "huawei-huawei-y6s",
+    "label": "Huawei Huawei Y6s",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "huawei y6s"
+  },
+  {
+    "id": "huawei-huawei-y7-2019",
+    "label": "Huawei Huawei Y7 2019",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "huawei y7 2019"
+  },
+  {
+    "id": "huawei-huawei-y7a",
+    "label": "Huawei Huawei Y7a",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "huawei y7a"
+  },
+  {
+    "id": "huawei-huawei-y7p",
+    "label": "Huawei Huawei Y7p",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "huawei y7p"
+  },
+  {
+    "id": "huawei-huawei-y9-prime-2019",
+    "label": "Huawei Huawei Y9 Prime 2019",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "huawei y9 prime 2019"
+  },
+  {
+    "id": "huawei-huawei-y9a",
+    "label": "Huawei Huawei Y9a",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "huawei y9a"
+  },
+  {
+    "id": "huawei-huawei-y9s",
+    "label": "Huawei Huawei Y9s",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "huawei y9s"
+  },
+  {
+    "id": "huawei-mate-20",
+    "label": "Huawei Mate 20",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "mate 20"
+  },
+  {
+    "id": "huawei-mate-20-lite",
+    "label": "Huawei Mate 20 Lite",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "mate 20 lite"
+  },
+  {
+    "id": "huawei-mate-20-pro",
+    "label": "Huawei Mate 20 Pro",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "mate 20 pro"
+  },
+  {
+    "id": "huawei-nova-10",
+    "label": "Huawei Nova 10",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "nova 10"
+  },
+  {
+    "id": "huawei-nova-10-pro",
+    "label": "Huawei Nova 10 Pro",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "nova 10 pro"
+  },
+  {
+    "id": "huawei-nova-10-se",
+    "label": "Huawei Nova 10 SE",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "nova 10 se"
+  },
+  {
+    "id": "huawei-nova-11",
+    "label": "Huawei Nova 11",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "nova 11"
+  },
+  {
+    "id": "huawei-nova-11-pro",
+    "label": "Huawei Nova 11 Pro",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "nova 11 pro"
+  },
+  {
+    "id": "huawei-nova-5t",
+    "label": "Huawei Nova 5t",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "nova 5t"
+  },
+  {
+    "id": "huawei-nova-8i",
+    "label": "Huawei Nova 8i",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "nova 8i"
+  },
+  {
+    "id": "huawei-nova-9",
+    "label": "Huawei Nova 9",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "nova 9"
+  },
+  {
+    "id": "huawei-nova-9-se",
+    "label": "Huawei Nova 9 SE",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "nova 9 se"
+  },
+  {
+    "id": "huawei-p-smart-2019",
+    "label": "Huawei P Smart 2019",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p smart 2019"
+  },
+  {
+    "id": "huawei-p-smart-2020",
+    "label": "Huawei P Smart 2020",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p smart 2020"
+  },
+  {
+    "id": "huawei-p-smart-2021",
+    "label": "Huawei P Smart 2021",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p smart 2021"
+  },
+  {
+    "id": "huawei-p-smart-pro",
+    "label": "Huawei P Smart Pro",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p smart pro"
+  },
+  {
+    "id": "huawei-p-smart-s",
+    "label": "Huawei P Smart S",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p smart s"
+  },
+  {
+    "id": "huawei-p-smart-z",
+    "label": "Huawei P Smart Z",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p smart z"
+  },
+  {
+    "id": "huawei-p20",
+    "label": "Huawei P20",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p20"
+  },
+  {
+    "id": "huawei-p20-lite",
+    "label": "Huawei P20 Lite",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p20 lite"
+  },
+  {
+    "id": "huawei-p20-pro",
+    "label": "Huawei P20 Pro",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p20 pro"
+  },
+  {
+    "id": "huawei-p30",
+    "label": "Huawei P30",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p30"
+  },
+  {
+    "id": "huawei-p30-lite",
+    "label": "Huawei P30 Lite",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p30 lite"
+  },
+  {
+    "id": "huawei-p30-pro",
+    "label": "Huawei P30 Pro",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p30 pro"
+  },
+  {
+    "id": "huawei-p40",
+    "label": "Huawei P40",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p40"
+  },
+  {
+    "id": "huawei-p40-lite",
+    "label": "Huawei P40 Lite",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p40 lite"
+  },
+  {
+    "id": "huawei-p40-pro",
+    "label": "Huawei P40 Pro",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p40 pro"
+  },
+  {
+    "id": "huawei-p40-pro-plus",
+    "label": "Huawei P40 Pro Plus",
+    "price": 0,
+    "brand": "Huawei",
+    "model": "p40 pro plus"
+  },
+  {
+    "id": "oneplus-10-pro",
+    "label": "Oneplus Oneplus 10 Pro",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "10 pro"
+  },
+  {
+    "id": "oneplus-11",
+    "label": "Oneplus Oneplus 11",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "11"
+  },
+  {
+    "id": "oneplus-12",
+    "label": "Oneplus Oneplus 12",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "12"
+  },
+  {
+    "id": "oneplus-9-pro",
+    "label": "Oneplus Oneplus 9 Pro",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "9 pro"
+  },
+  {
+    "id": "oneplus-nord-3",
+    "label": "Oneplus Oneplus Nord 3",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "nord 3"
+  },
+  {
+    "id": "oneplus-nord-4",
+    "label": "Oneplus Oneplus Nord 4",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "nord 4"
+  },
+  {
+    "id": "oneplus-oneplus-10-pro",
+    "label": "Oneplus Oneplus Oneplus 10 Pro",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 10 pro"
+  },
+  {
+    "id": "oneplus-oneplus-10t",
+    "label": "Oneplus Oneplus Oneplus 10t",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 10t"
+  },
+  {
+    "id": "oneplus-oneplus-11",
+    "label": "Oneplus Oneplus Oneplus 11",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 11"
+  },
+  {
+    "id": "oneplus-oneplus-11r",
+    "label": "Oneplus Oneplus Oneplus 11r",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 11r"
+  },
+  {
+    "id": "oneplus-oneplus-12",
+    "label": "Oneplus Oneplus Oneplus 12",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 12"
+  },
+  {
+    "id": "oneplus-oneplus-12r",
+    "label": "Oneplus Oneplus Oneplus 12r",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 12r"
+  },
+  {
+    "id": "oneplus-oneplus-13",
+    "label": "Oneplus Oneplus Oneplus 13",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 13"
+  },
+  {
+    "id": "oneplus-oneplus-15",
+    "label": "Oneplus Oneplus Oneplus 15",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 15"
+  },
+  {
+    "id": "oneplus-oneplus-8",
+    "label": "Oneplus Oneplus Oneplus 8",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 8"
+  },
+  {
+    "id": "oneplus-oneplus-8-pro",
+    "label": "Oneplus Oneplus Oneplus 8 Pro",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 8 pro"
+  },
+  {
+    "id": "oneplus-oneplus-8t",
+    "label": "Oneplus Oneplus Oneplus 8t",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 8t"
+  },
+  {
+    "id": "oneplus-oneplus-9",
+    "label": "Oneplus Oneplus Oneplus 9",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 9"
+  },
+  {
+    "id": "oneplus-oneplus-9-pro",
+    "label": "Oneplus Oneplus Oneplus 9 Pro",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 9 pro"
+  },
+  {
+    "id": "oneplus-oneplus-9rt",
+    "label": "Oneplus Oneplus Oneplus 9rt",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus 9rt"
+  },
+  {
+    "id": "oneplus-oneplus-nord-2",
+    "label": "Oneplus Oneplus Oneplus Nord 2",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus nord 2"
+  },
+  {
+    "id": "oneplus-oneplus-nord-2t",
+    "label": "Oneplus Oneplus Oneplus Nord 2t",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus nord 2t"
+  },
+  {
+    "id": "oneplus-oneplus-nord-3",
+    "label": "Oneplus Oneplus Oneplus Nord 3",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus nord 3"
+  },
+  {
+    "id": "oneplus-oneplus-nord-4",
+    "label": "Oneplus Oneplus Oneplus Nord 4",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus nord 4"
+  },
+  {
+    "id": "oneplus-oneplus-nord-ce-3",
+    "label": "Oneplus Oneplus Oneplus Nord Ce 3",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus nord ce 3"
+  },
+  {
+    "id": "oneplus-oneplus-nord-ce-3-lite",
+    "label": "Oneplus Oneplus Oneplus Nord Ce 3 Lite",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus nord ce 3 lite"
+  },
+  {
+    "id": "oneplus-oneplus-nord-ce-4",
+    "label": "Oneplus Oneplus Oneplus Nord Ce 4",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus nord ce 4"
+  },
+  {
+    "id": "oneplus-oneplus-nord-ce-4-lite",
+    "label": "Oneplus Oneplus Oneplus Nord Ce 4 Lite",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus nord ce 4 lite"
+  },
+  {
+    "id": "oneplus-oneplus-open",
+    "label": "Oneplus Oneplus Oneplus Open",
+    "price": 0,
+    "brand": "Oneplus",
+    "model": "oneplus open"
+  },
+  {
+    "id": "oppo-a78",
+    "label": "Oppo A78",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "a78"
+  },
+  {
+    "id": "oppo-a98-5g",
+    "label": "Oppo A98 5g",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "a98 5g"
+  },
+  {
+    "id": "oppo-find-x5",
+    "label": "Oppo Find X5",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "find x5"
+  },
+  {
+    "id": "oppo-find-x5-pro",
+    "label": "Oppo Find X5 Pro",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "find x5 pro"
+  },
+  {
+    "id": "oppo-find-x6",
+    "label": "Oppo Find X6",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "find x6"
+  },
+  {
+    "id": "oppo-find-x6-pro",
+    "label": "Oppo Find X6 Pro",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "find x6 pro"
+  },
+  {
+    "id": "oppo-find-x7",
+    "label": "Oppo Find X7",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "find x7"
+  },
+  {
+    "id": "oppo-find-x7-ultra",
+    "label": "Oppo Find X7 Ultra",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "find x7 ultra"
+  },
+  {
+    "id": "oppo-oppo-a78",
+    "label": "Oppo Oppo A78",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "oppo a78"
+  },
+  {
+    "id": "oppo-oppo-a79-5g",
+    "label": "Oppo Oppo A79 5g",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "oppo a79 5g"
+  },
+  {
+    "id": "oppo-oppo-a98-5g",
+    "label": "Oppo Oppo A98 5g",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "oppo a98 5g"
+  },
+  {
+    "id": "oppo-reno-10",
+    "label": "Oppo Reno 10",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "reno 10"
+  },
+  {
+    "id": "oppo-reno-10-pro",
+    "label": "Oppo Reno 10 Pro",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "reno 10 pro"
+  },
+  {
+    "id": "oppo-reno-10-pro-plus",
+    "label": "Oppo Reno 10 Pro Plus",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "reno 10 pro plus"
+  },
+  {
+    "id": "oppo-reno-11",
+    "label": "Oppo Reno 11",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "reno 11"
+  },
+  {
+    "id": "oppo-reno-11-pro",
+    "label": "Oppo Reno 11 Pro",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "reno 11 pro"
+  },
+  {
+    "id": "oppo-reno-12",
+    "label": "Oppo Reno 12",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "reno 12"
+  },
+  {
+    "id": "oppo-reno-12-pro",
+    "label": "Oppo Reno 12 Pro",
+    "price": 0,
+    "brand": "Oppo",
+    "model": "reno 12 pro"
+  },
+  {
+    "id": "samsung-galaxy-a02s",
+    "label": "Samsung Galaxy A02s",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a02s"
+  },
+  {
+    "id": "samsung-galaxy-a03s",
+    "label": "Samsung Galaxy A03s",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a03s"
+  },
+  {
+    "id": "samsung-galaxy-a04s",
+    "label": "Samsung Galaxy A04s",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a04s"
+  },
+  {
+    "id": "samsung-galaxy-a05s",
+    "label": "Samsung Galaxy A05s",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a05s"
+  },
+  {
+    "id": "samsung-galaxy-a06",
+    "label": "Samsung Galaxy A06",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a06"
+  },
+  {
+    "id": "samsung-galaxy-a07",
+    "label": "Samsung Galaxy A07",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a07"
+  },
+  {
+    "id": "samsung-galaxy-a10",
+    "label": "Samsung Galaxy A10",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a10"
+  },
+  {
+    "id": "samsung-galaxy-a11",
+    "label": "Samsung Galaxy A11",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a11"
+  },
+  {
+    "id": "samsung-galaxy-a12",
+    "label": "Samsung Galaxy A12",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a12"
+  },
+  {
+    "id": "samsung-galaxy-a13",
+    "label": "Samsung Galaxy A13",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a13"
+  },
+  {
+    "id": "samsung-galaxy-a15",
+    "label": "Samsung Galaxy A15",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a15"
+  },
+  {
+    "id": "samsung-galaxy-a16",
+    "label": "Samsung Galaxy A16",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a16"
+  },
+  {
+    "id": "samsung-galaxy-a17",
+    "label": "Samsung Galaxy A17",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a17"
+  },
+  {
+    "id": "samsung-galaxy-a20e",
+    "label": "Samsung Galaxy A20e",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a20e"
+  },
+  {
+    "id": "samsung-galaxy-a21s",
+    "label": "Samsung Galaxy A21s",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a21s"
+  },
+  {
+    "id": "samsung-galaxy-a22",
+    "label": "Samsung Galaxy A22",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a22"
+  },
+  {
+    "id": "samsung-galaxy-a23",
+    "label": "Samsung Galaxy A23",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a23"
+  },
+  {
+    "id": "samsung-galaxy-a24",
+    "label": "Samsung Galaxy A24",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a24"
+  },
+  {
+    "id": "samsung-galaxy-a25",
+    "label": "Samsung Galaxy A25",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a25"
+  },
+  {
+    "id": "samsung-galaxy-a26",
+    "label": "Samsung Galaxy A26",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a26"
+  },
+  {
+    "id": "samsung-galaxy-a30",
+    "label": "Samsung Galaxy A30",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a30"
+  },
+  {
+    "id": "samsung-galaxy-a31",
+    "label": "Samsung Galaxy A31",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a31"
+  },
+  {
+    "id": "samsung-galaxy-a32",
+    "label": "Samsung Galaxy A32",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a32"
+  },
+  {
+    "id": "samsung-galaxy-a33",
+    "label": "Samsung Galaxy A33",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a33"
+  },
+  {
+    "id": "samsung-galaxy-a34",
+    "label": "Samsung Galaxy A34",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a34"
+  },
+  {
+    "id": "samsung-galaxy-a35",
+    "label": "Samsung Galaxy A35",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a35"
+  },
+  {
+    "id": "samsung-galaxy-a36",
+    "label": "Samsung Galaxy A36",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a36"
+  },
+  {
+    "id": "samsung-galaxy-a50",
+    "label": "Samsung Galaxy A50",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a50"
+  },
+  {
+    "id": "samsung-galaxy-a51",
+    "label": "Samsung Galaxy A51",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a51"
+  },
+  {
+    "id": "samsung-galaxy-a52",
+    "label": "Samsung Galaxy A52",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a52"
+  },
+  {
+    "id": "samsung-galaxy-a52s",
+    "label": "Samsung Galaxy A52s",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a52s"
+  },
+  {
+    "id": "samsung-galaxy-a56",
+    "label": "Samsung Galaxy A56",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a56"
+  },
+  {
+    "id": "samsung-galaxy-a70",
+    "label": "Samsung Galaxy A70",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a70"
+  },
+  {
+    "id": "samsung-galaxy-a71",
+    "label": "Samsung Galaxy A71",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a71"
+  },
+  {
+    "id": "samsung-galaxy-a72",
+    "label": "Samsung Galaxy A72",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a72"
+  },
+  {
+    "id": "samsung-galaxy-a73",
+    "label": "Samsung Galaxy A73",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy a73"
+  },
+  {
+    "id": "samsung-galaxy-book3",
+    "label": "Samsung Galaxy Book3",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy book3"
+  },
+  {
+    "id": "samsung-galaxy-book3-pro",
+    "label": "Samsung Galaxy Book3 Pro",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy book3 pro"
+  },
+  {
+    "id": "samsung-galaxy-note-10",
+    "label": "Samsung Galaxy Note 10",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy note 10"
+  },
+  {
+    "id": "samsung-galaxy-note-10-lite",
+    "label": "Samsung Galaxy Note 10 Lite",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy note 10 lite"
+  },
+  {
+    "id": "samsung-galaxy-note-10-plus",
+    "label": "Samsung Galaxy Note 10 Plus",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy note 10 plus"
+  },
+  {
+    "id": "samsung-galaxy-note-20",
+    "label": "Samsung Galaxy Note 20",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy note 20"
+  },
+  {
+    "id": "samsung-galaxy-note-20-ultra",
+    "label": "Samsung Galaxy Note 20 Ultra",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy note 20 ultra"
+  },
+  {
+    "id": "samsung-galaxy-note-8",
+    "label": "Samsung Galaxy Note 8",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy note 8"
+  },
+  {
+    "id": "samsung-galaxy-note-9",
+    "label": "Samsung Galaxy Note 9",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy note 9"
+  },
+  {
+    "id": "samsung-galaxy-s10",
+    "label": "Samsung Galaxy S10",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s10"
+  },
+  {
+    "id": "samsung-galaxy-s10-lite",
+    "label": "Samsung Galaxy S10 Lite",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s10 lite"
+  },
+  {
+    "id": "samsung-galaxy-s10-plus",
+    "label": "Samsung Galaxy S10 Plus",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s10 plus"
+  },
+  {
+    "id": "samsung-galaxy-s10e",
+    "label": "Samsung Galaxy S10e",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s10e"
+  },
+  {
+    "id": "samsung-galaxy-s20-fe",
+    "label": "Samsung Galaxy S20 Fe",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s20 fe"
+  },
+  {
+    "id": "samsung-galaxy-s20-plus",
+    "label": "Samsung Galaxy S20 Plus",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s20 plus"
+  },
+  {
+    "id": "samsung-galaxy-s21-fe",
+    "label": "Samsung Galaxy S21 Fe",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s21 fe"
+  },
+  {
+    "id": "samsung-galaxy-s21-plus",
+    "label": "Samsung Galaxy S21 Plus",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s21 plus"
+  },
+  {
+    "id": "samsung-galaxy-s22-plus",
+    "label": "Samsung Galaxy S22 Plus",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s22 plus"
+  },
+  {
+    "id": "samsung-galaxy-s23-fe",
+    "label": "Samsung Galaxy S23 Fe",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s23 fe"
+  },
+  {
+    "id": "samsung-galaxy-s23-plus",
+    "label": "Samsung Galaxy S23 Plus",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s23 plus"
+  },
+  {
+    "id": "samsung-galaxy-s24",
+    "label": "Samsung Galaxy S24",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s24"
+  },
+  {
+    "id": "samsung-galaxy-s24-fe",
+    "label": "Samsung Galaxy S24 Fe",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s24 fe"
+  },
+  {
+    "id": "samsung-galaxy-s24-plus",
+    "label": "Samsung Galaxy S24 Plus",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s24 plus"
+  },
+  {
+    "id": "samsung-galaxy-s25",
+    "label": "Samsung Galaxy S25",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s25"
+  },
+  {
+    "id": "samsung-galaxy-s25-edge",
+    "label": "Samsung Galaxy S25 Edge",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s25 edge"
+  },
+  {
+    "id": "samsung-galaxy-s25-fe",
+    "label": "Samsung Galaxy S25 Fe",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s25 fe"
+  },
+  {
+    "id": "samsung-galaxy-s25-plus",
+    "label": "Samsung Galaxy S25 Plus",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s25 plus"
+  },
+  {
+    "id": "samsung-galaxy-s7",
+    "label": "Samsung Galaxy S7",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s7"
+  },
+  {
+    "id": "samsung-galaxy-s7-edge",
+    "label": "Samsung Galaxy S7 Edge",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s7 edge"
+  },
+  {
+    "id": "samsung-galaxy-s8",
+    "label": "Samsung Galaxy S8",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s8"
+  },
+  {
+    "id": "samsung-galaxy-s8-plus",
+    "label": "Samsung Galaxy S8 Plus",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s8 plus"
+  },
+  {
+    "id": "samsung-galaxy-s9",
+    "label": "Samsung Galaxy S9",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s9"
+  },
+  {
+    "id": "samsung-galaxy-s9-plus",
+    "label": "Samsung Galaxy S9 Plus",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy s9 plus"
+  },
+  {
+    "id": "samsung-galaxy-tab-a7",
+    "label": "Samsung Galaxy Tab A7",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy tab a7"
+  },
+  {
+    "id": "samsung-galaxy-tab-a8",
+    "label": "Samsung Galaxy Tab A8",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy tab a8"
+  },
+  {
+    "id": "samsung-galaxy-tab-s6",
+    "label": "Samsung Galaxy Tab S6",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy tab s6"
+  },
+  {
+    "id": "samsung-galaxy-tab-s6-lite",
+    "label": "Samsung Galaxy Tab S6 Lite",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy tab s6 lite"
+  },
+  {
+    "id": "samsung-galaxy-tab-s7",
+    "label": "Samsung Galaxy Tab S7",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy tab s7"
+  },
+  {
+    "id": "samsung-galaxy-tab-s7-fe",
+    "label": "Samsung Galaxy Tab S7 Fe",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy tab s7 fe"
+  },
+  {
+    "id": "samsung-galaxy-tab-s8",
+    "label": "Samsung Galaxy Tab S8",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy tab s8"
+  },
+  {
+    "id": "samsung-galaxy-tab-s8-ultra",
+    "label": "Samsung Galaxy Tab S8 Ultra",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy tab s8 ultra"
+  },
+  {
+    "id": "samsung-galaxy-tab-s9",
+    "label": "Samsung Galaxy Tab S9",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy tab s9"
+  },
+  {
+    "id": "samsung-galaxy-watch-4-classic",
+    "label": "Samsung Galaxy Watch 4 Classic",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy watch 4 classic"
+  },
+  {
+    "id": "samsung-galaxy-watch-5",
+    "label": "Samsung Galaxy Watch 5",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy watch 5"
+  },
+  {
+    "id": "samsung-galaxy-watch-5-pro",
+    "label": "Samsung Galaxy Watch 5 Pro",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy watch 5 pro"
+  },
+  {
+    "id": "samsung-galaxy-watch-6",
+    "label": "Samsung Galaxy Watch 6",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy watch 6"
+  },
+  {
+    "id": "samsung-galaxy-watch-6-classic",
+    "label": "Samsung Galaxy Watch 6 Classic",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy watch 6 classic"
+  },
+  {
+    "id": "samsung-galaxy-z-flip",
+    "label": "Samsung Galaxy Z Flip",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z flip"
+  },
+  {
+    "id": "samsung-galaxy-z-flip-3",
+    "label": "Samsung Galaxy Z Flip 3",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z flip 3"
+  },
+  {
+    "id": "samsung-galaxy-z-flip-4",
+    "label": "Samsung Galaxy Z Flip 4",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z flip 4"
+  },
+  {
+    "id": "samsung-galaxy-z-flip-5",
+    "label": "Samsung Galaxy Z Flip 5",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z flip 5"
+  },
+  {
+    "id": "samsung-galaxy-z-flip-5g",
+    "label": "Samsung Galaxy Z Flip 5g",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z flip 5g"
+  },
+  {
+    "id": "samsung-galaxy-z-flip-6",
+    "label": "Samsung Galaxy Z Flip 6",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z flip 6"
+  },
+  {
+    "id": "samsung-galaxy-z-flip3",
+    "label": "Samsung Galaxy Z Flip3",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z flip3"
+  },
+  {
+    "id": "samsung-galaxy-z-flip4",
+    "label": "Samsung Galaxy Z Flip4",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z flip4"
+  },
+  {
+    "id": "samsung-galaxy-z-flip5",
+    "label": "Samsung Galaxy Z Flip5",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z flip5"
+  },
+  {
+    "id": "samsung-galaxy-z-flip6",
+    "label": "Samsung Galaxy Z Flip6",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z flip6"
+  },
+  {
+    "id": "samsung-galaxy-z-flip7",
+    "label": "Samsung Galaxy Z Flip7",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z flip7"
+  },
+  {
+    "id": "samsung-galaxy-z-flip7-fe",
+    "label": "Samsung Galaxy Z Flip7 Fe",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z flip7 fe"
+  },
+  {
+    "id": "samsung-galaxy-z-fold-2",
+    "label": "Samsung Galaxy Z Fold 2",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z fold 2"
+  },
+  {
+    "id": "samsung-galaxy-z-fold-3",
+    "label": "Samsung Galaxy Z Fold 3",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z fold 3"
+  },
+  {
+    "id": "samsung-galaxy-z-fold-4",
+    "label": "Samsung Galaxy Z Fold 4",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z fold 4"
+  },
+  {
+    "id": "samsung-galaxy-z-fold-5",
+    "label": "Samsung Galaxy Z Fold 5",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z fold 5"
+  },
+  {
+    "id": "samsung-galaxy-z-fold-6",
+    "label": "Samsung Galaxy Z Fold 6",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z fold 6"
+  },
+  {
+    "id": "samsung-galaxy-z-fold2",
+    "label": "Samsung Galaxy Z Fold2",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z fold2"
+  },
+  {
+    "id": "samsung-galaxy-z-fold3",
+    "label": "Samsung Galaxy Z Fold3",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z fold3"
+  },
+  {
+    "id": "samsung-galaxy-z-fold4",
+    "label": "Samsung Galaxy Z Fold4",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z fold4"
+  },
+  {
+    "id": "samsung-galaxy-z-fold5",
+    "label": "Samsung Galaxy Z Fold5",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z fold5"
+  },
+  {
+    "id": "samsung-galaxy-z-fold6",
+    "label": "Samsung Galaxy Z Fold6",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z fold6"
+  },
+  {
+    "id": "samsung-galaxy-z-fold7",
+    "label": "Samsung Galaxy Z Fold7",
+    "price": 0,
+    "brand": "Samsung",
+    "model": "galaxy z fold7"
+  },
+  {
+    "id": "xiaomi-13-pro",
+    "label": "Xiaomi 13 Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "13 pro"
+  },
+  {
+    "id": "xiaomi-13t-pro",
+    "label": "Xiaomi 13t Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "13t pro"
+  },
+  {
+    "id": "xiaomi-14",
+    "label": "Xiaomi 14",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "14"
+  },
+  {
+    "id": "xiaomi-14-ultra",
+    "label": "Xiaomi 14 Ultra",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "14 ultra"
+  },
+  {
+    "id": "xiaomi-mi-11",
+    "label": "Xiaomi Mi 11",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "mi 11"
+  },
+  {
+    "id": "xiaomi-mi-11-lite",
+    "label": "Xiaomi Mi 11 Lite",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "mi 11 lite"
+  },
+  {
+    "id": "xiaomi-mi-11-ultra",
+    "label": "Xiaomi Mi 11 Ultra",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "mi 11 ultra"
+  },
+  {
+    "id": "xiaomi-poco-f5",
+    "label": "Xiaomi Poco F5",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "poco f5"
+  },
+  {
+    "id": "xiaomi-poco-f5-pro",
+    "label": "Xiaomi Poco F5 Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "poco f5 pro"
+  },
+  {
+    "id": "xiaomi-poco-f6",
+    "label": "Xiaomi Poco F6",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "poco f6"
+  },
+  {
+    "id": "xiaomi-poco-f6-pro",
+    "label": "Xiaomi Poco F6 Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "poco f6 pro"
+  },
+  {
+    "id": "xiaomi-poco-x5",
+    "label": "Xiaomi Poco X5",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "poco x5"
+  },
+  {
+    "id": "xiaomi-poco-x5-pro",
+    "label": "Xiaomi Poco X5 Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "poco x5 pro"
+  },
+  {
+    "id": "xiaomi-poco-x6",
+    "label": "Xiaomi Poco X6",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "poco x6"
+  },
+  {
+    "id": "xiaomi-poco-x6-pro",
+    "label": "Xiaomi Poco X6 Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "poco x6 pro"
+  },
+  {
+    "id": "xiaomi-redmi-10",
+    "label": "Xiaomi Redmi 10",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "redmi 10"
+  },
+  {
+    "id": "xiaomi-redmi-12",
+    "label": "Xiaomi Redmi 12",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "redmi 12"
+  },
+  {
+    "id": "xiaomi-redmi-13c",
+    "label": "Xiaomi Redmi 13c",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "redmi 13c"
+  },
+  {
+    "id": "xiaomi-redmi-9",
+    "label": "Xiaomi Redmi 9",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "redmi 9"
+  },
+  {
+    "id": "xiaomi-redmi-note-11",
+    "label": "Xiaomi Redmi Note 11",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "redmi note 11"
+  },
+  {
+    "id": "xiaomi-redmi-note-11-pro",
+    "label": "Xiaomi Redmi Note 11 Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "redmi note 11 pro"
+  },
+  {
+    "id": "xiaomi-redmi-note-12",
+    "label": "Xiaomi Redmi Note 12",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "redmi note 12"
+  },
+  {
+    "id": "xiaomi-redmi-note-12-pro",
+    "label": "Xiaomi Redmi Note 12 Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "redmi note 12 pro"
+  },
+  {
+    "id": "xiaomi-redmi-note-12-pro-plus",
+    "label": "Xiaomi Redmi Note 12 Pro Plus",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "redmi note 12 pro plus"
+  },
+  {
+    "id": "xiaomi-redmi-note-13",
+    "label": "Xiaomi Redmi Note 13",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "redmi note 13"
+  },
+  {
+    "id": "xiaomi-redmi-note-13-pro",
+    "label": "Xiaomi Redmi Note 13 Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "redmi note 13 pro"
+  },
+  {
+    "id": "xiaomi-redmi-note-13-pro-plus",
+    "label": "Xiaomi Redmi Note 13 Pro Plus",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "redmi note 13 pro plus"
+  },
+  {
+    "id": "xiaomi-xiaomi-11t",
+    "label": "Xiaomi Xiaomi 11t",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 11t"
+  },
+  {
+    "id": "xiaomi-xiaomi-11t-pro",
+    "label": "Xiaomi Xiaomi 11t Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 11t pro"
+  },
+  {
+    "id": "xiaomi-xiaomi-12",
+    "label": "Xiaomi Xiaomi 12",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 12"
+  },
+  {
+    "id": "xiaomi-xiaomi-12-pro",
+    "label": "Xiaomi Xiaomi 12 Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 12 pro"
+  },
+  {
+    "id": "xiaomi-xiaomi-12t",
+    "label": "Xiaomi Xiaomi 12t",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 12t"
+  },
+  {
+    "id": "xiaomi-xiaomi-12t-pro",
+    "label": "Xiaomi Xiaomi 12t Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 12t pro"
+  },
+  {
+    "id": "xiaomi-xiaomi-13",
+    "label": "Xiaomi Xiaomi 13",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 13"
+  },
+  {
+    "id": "xiaomi-xiaomi-13-lite",
+    "label": "Xiaomi Xiaomi 13 Lite",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 13 lite"
+  },
+  {
+    "id": "xiaomi-xiaomi-13-pro",
+    "label": "Xiaomi Xiaomi 13 Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 13 pro"
+  },
+  {
+    "id": "xiaomi-xiaomi-13-ultra",
+    "label": "Xiaomi Xiaomi 13 Ultra",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 13 ultra"
+  },
+  {
+    "id": "xiaomi-xiaomi-13t",
+    "label": "Xiaomi Xiaomi 13t",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 13t"
+  },
+  {
+    "id": "xiaomi-xiaomi-13t-pro",
+    "label": "Xiaomi Xiaomi 13t Pro",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 13t pro"
+  },
+  {
+    "id": "xiaomi-xiaomi-14",
+    "label": "Xiaomi Xiaomi 14",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 14"
+  },
+  {
+    "id": "xiaomi-xiaomi-14-ultra",
+    "label": "Xiaomi Xiaomi 14 Ultra",
+    "price": 0,
+    "brand": "Xiaomi",
+    "model": "xiaomi 14 ultra"
+  }
+]
