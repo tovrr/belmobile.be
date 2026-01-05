@@ -10,6 +10,7 @@ interface SeoContext {
     locationName?: string; // "Schaerbeek", "Brussels"
     isHomeConsole?: boolean;
     isPortableConsole?: boolean;
+    price?: number;
 }
 
 // Simple deterministic hash
@@ -26,7 +27,15 @@ const getDeterministicIndex = (str: string | undefined, max: number): number => 
 // --- Value Props & Suffixes ---
 
 const getRepairSuffix = (ctx: SeoContext): string => {
-    const { lang, isHomeConsole, isPortableConsole } = ctx;
+    const { lang, isHomeConsole, isPortableConsole, price } = ctx;
+
+    // If we have a valid price, prioritize it (High CTR)
+    if (price && price > 0) {
+        if (lang === 'fr') return `: Dès ${price}€`;
+        if (lang === 'nl') return `: Vanaf ${price}€`;
+        return `: From ${price}€`;
+    }
+
     if (isHomeConsole) {
         if (lang === 'fr') return ': Prix HDMI & Nettoyage';
         if (lang === 'nl') return ': Prijs HDMI & Reiniging';
@@ -44,7 +53,15 @@ const getRepairSuffix = (ctx: SeoContext): string => {
 };
 
 const getBuybackSuffix = (ctx: SeoContext): string => {
-    const { lang } = ctx;
+    const { lang, price } = ctx;
+
+    // If we have a valid price, prioritize it (High CTR)
+    if (price && price > 0) {
+        if (lang === 'fr') return `: ${price}€ Cash`;
+        if (lang === 'nl') return `: ${price}€ Cash`;
+        return `: ${price}€ Cash`;
+    }
+
     if (lang === 'fr') return ': Meilleur Prix Reprise';
     if (lang === 'nl') return ': Beste Inruilprijs';
     return ': Best Trade-in Price';
@@ -53,7 +70,7 @@ const getBuybackSuffix = (ctx: SeoContext): string => {
 // --- Templates ---
 
 export const generateSeoMetadata = (ctx: SeoContext) => {
-    const { lang, serviceId, deviceValue, deviceModel, deviceCategory, locationName } = ctx;
+    const { lang, serviceId, deviceValue, deviceModel, deviceCategory, locationName, price } = ctx;
 
     // 1. Prepare Variables
     const brand = deviceValue ? deviceValue.charAt(0).toUpperCase() + deviceValue.slice(1) : '';
@@ -113,7 +130,7 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
 
 
     if (serviceId === 'repair') {
-        const suffix = getRepairSuffix(ctx); // e.g. ": Prix Écran & Batterie"
+        const suffix = getRepairSuffix(ctx); // e.g. ": Prix Écran & Batterie" or ": Dès 99€"
 
         if (lang === 'fr') {
             const templates = [
@@ -422,11 +439,12 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
         const services = ctx.isHomeConsole
             ? (lang === 'fr' ? 'HDMI et nettoyage' : 'HDMI en reiniging')
             : (lang === 'fr' ? 'écran et batterie' : 'scherm en batterij');
+        const priceText = (price && price > 0) ? (lang === 'fr' ? `dès ${price}€` : lang === 'nl' ? `vanaf ${price}€` : `from ${price}€`) : '';
 
         if (lang === 'fr') {
             const templates = [
-                `Confiez votre ${fullDeviceName} aux experts de Belmobile à ${loc}. Réparation ${services} en 30 minutes. Garantie 1 an. Sans rendez-vous.`,
-                `Besoin d'une réparation pour ${deviceName} ? Nous réparons votre appareil sur place à ${loc}. Prix transparents pour ${services}.`,
+                `Confiez votre ${fullDeviceName} aux experts de Belmobile à ${loc}. Réparation ${services} en 30 minutes${priceText ? ' ' + priceText : ''}. Garantie 1 an. Sans rendez-vous.`,
+                `Besoin d'une réparation pour ${deviceName} ? Nous réparons votre appareil sur place à ${loc}. Prix transparents${priceText ? ' ' + priceText : ''}.`,
                 `Votre ${fullDeviceName} est cassé ? Pas de panique. Belmobile ${loc} le remet à neuf en moins d'une heure. Garantie pièces et main d'œuvre.`
             ];
             // Use a DIFFERENT offset/salt for description so it doesn't always lock to the title choice
@@ -434,7 +452,7 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
             description = templates[idx];
         } else if (lang === 'nl') {
             const templates = [
-                `Laat uw ${fullDeviceName} herstellen door Belmobile in ${loc}. ${services} vervangen in 30 minuten. 1 jaar garantie. Zonder afspraak.`,
+                `Laat uw ${fullDeviceName} herstellen door Belmobile in ${loc}. ${services} vervangen in 30 minuten${priceText ? ' ' + priceText : ''}. 1 jaar garantie. Zonder afspraak.`,
                 `${deviceName} reparatie nodig? Wij herstellen uw toestel direct in ${loc}. Bekijk onze prijzen voor ${services}.`,
                 `Is uw ${fullDeviceName} stuk? Belmobile ${loc} fixt het binnen het uur. Garantie op onderdelen en werkuren.`
             ];
@@ -442,8 +460,8 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
             description = templates[idx];
         } else {
             const templates = [
-                `Trust your ${fullDeviceName} with Belmobile experts in ${loc}. Screen & battery repair in 30 minutes. 1 Year Warranty. No appointment needed.`,
-                `Need a ${deviceName} repair? We fix your device on-site in ${loc}. Transparent prices. Fast service.`,
+                `Trust your ${fullDeviceName} with Belmobile experts in ${loc}. Screen & battery repair in 30 minutes${priceText ? ' ' + priceText : ''}. 1 Year Warranty. No appointment needed.`,
+                `Need a ${deviceName} repair? We fix your device on-site in ${loc}. Transparent prices${priceText ? ' ' + priceText : ''}. Fast service.`,
                 `Broken ${fullDeviceName}? Belmobile ${loc} restores it in under an hour. Parts and labor warranty included.`
             ];
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
@@ -451,9 +469,11 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
         }
 
     } else { // Buyback
+        const priceText = (price && price > 0) ? (lang === 'fr' ? `jusqu'à ${price}€` : lang === 'nl' ? `tot ${price}€` : `up to ${price}€`) : '';
+
         if (lang === 'fr') {
             const templates = [
-                `Vendez votre ${fullDeviceName} au meilleur prix chez Belmobile à ${loc}. Estimation gratuite et paiement cash immédiat.`,
+                `Vendez votre ${fullDeviceName} au meilleur prix chez Belmobile à ${loc}. Estimation gratuite et paiement cash immédiat${priceText ? ' ' + priceText : ''}.`,
                 `Transformez votre ${deviceName} en argent liquide. Reprise simple et rapide à ${loc}. Nous rachetons tous les modèles.`,
                 `Offre de reprise pour ${fullDeviceName} : obtenez une estimation en ligne ou en magasin à ${loc}. Paiement direct.`
             ];
@@ -461,7 +481,7 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
             description = templates[idx];
         } else if (lang === 'nl') {
             const templates = [
-                `Verkoop uw ${fullDeviceName} voor de beste prijs bij Belmobile in ${loc}. Gratis schatting en directe contante betaling.`,
+                `Verkoop uw ${fullDeviceName} voor de beste prijs bij Belmobile in ${loc}. Gratis schatting en directe contante betaling${priceText ? ' ' + priceText : ''}.`,
                 `Zet uw ${deviceName} om in cash. Eenvoudige en snelle inkoop in ${loc}. Wij kopen alle modellen.`,
                 `Inruilactie voor ${fullDeviceName}: krijg direct een schatting online of in onze winkel in ${loc}. Direct uitbetaald.`
             ];
@@ -469,7 +489,7 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
             description = templates[idx];
         } else {
             const templates = [
-                `Sell your ${fullDeviceName} for the best price at Belmobile in ${loc}. Free quote and instant cash payment.`,
+                `Sell your ${fullDeviceName} for the best price at Belmobile in ${loc}. Free quote and instant cash payment${priceText ? ' ' + priceText : ''}.`,
                 `Turn your ${deviceName} into cash. Simple and fast trade-in in ${loc}. We buy all models.`,
                 `Trade-in offer for ${fullDeviceName}: get an instant quote online or at our store in ${loc}. Get paid today.`
             ];
@@ -497,6 +517,11 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
     if (lang === 'fr') ogTitle = serviceId === 'repair' ? `Réparation ${ogDeviceName}` : `Rachat ${ogDeviceName}`;
     else if (lang === 'nl') ogTitle = serviceId === 'repair' ? `Reparatie ${ogDeviceName}` : `Verkoop ${ogDeviceName}`;
     else ogTitle = serviceId === 'repair' ? `${ogDeviceName} Repair` : `Sell ${ogDeviceName}`;
+
+    // Append price to OG title if available
+    if (price && price > 0) {
+        ogTitle += ` - ${price}€`;
+    }
 
     let ogSubtitle = '';
     if (serviceId === 'repair') {

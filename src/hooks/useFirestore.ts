@@ -167,14 +167,18 @@ export const useRepairPrices = () => {
                 // Construct logic-friendly keys
                 if (issueId === 'screen' && variants?.quality) {
                     let q = variants.quality.toLowerCase();
-                    if (q === 'generic-lcd') q = 'generic';
-                    if (q === 'oled-soft') q = 'oled';
-                    if (q === 'original-refurb' || q === 'service-pack' || q === 'original-service-pack') q = 'original';
+                    if (q.includes('generic') || q.includes('lcd')) q = 'generic';
+                    if (q.includes('soft') || q.includes('oled')) q = 'oled';
+                    if (q.includes('original') || q.includes('refurb') || q.includes('service') || q.includes('pack')) q = 'original';
                     aggregated[deviceId][`screen_${q}`] = price;
                 } else if (issueId === 'screen' && variants?.position) {
                     aggregated[deviceId][`screen_${variants.position.toLowerCase()}`] = price;
                 } else {
                     aggregated[deviceId][issueId] = price;
+                    // Synonym mappings for UI compatibility (REPAIR_ISSUES constants)
+                    if (issueId === 'charging_port' || issueId === 'connector') aggregated[deviceId]['charging'] = price;
+                    if (issueId === 'rear_camera' || issueId === 'camera') aggregated[deviceId]['camera_rear'] = price;
+                    if (issueId === 'glass_back') aggregated[deviceId]['back_glass'] = price;
                 }
             });
 

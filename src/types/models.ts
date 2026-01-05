@@ -325,6 +325,14 @@ export interface ProductPriceRecord {
     updatedAt: string;
 }
 
+export interface MarketValueRecord {
+    id: string; // "apple-iphone-13" (matches repair_prices ID)
+    sellPrice: number; // The scraped "Like New" retail price
+    currency: string;
+    source: string; // "backmarket", "refurbed", "manual"
+    lastScraped: string;
+}
+
 // -- Webhooks & External APIs --
 
 export interface DraftLead {

@@ -69,3 +69,28 @@ If `main` is broken:
 ## 6. AI Agent Instructions
 *   When asked to "Deploy", the AI will default to **Staging** first.
 *   The AI will ask for "Confirmation" before pushing to `main`.
+
+---
+
+## 7. Current Project Focus & Attention Points (Technical SOP)
+**Critical architecture rules for all future development:**
+
+### A. Pricing Engine (SSoT)
+*   **Source of Truth**: All pricing data (Repair & Buyback) MUST come from the `getWizardQuote` Server Action or `pricing.dal.ts`.
+    *   ❌ NEVER hardcode prices in frontend components.
+    *   ❌ NEVER import `pricingLogic.ts` directly in Client Components (it exposes business logic).
+    *   ✅ ALWAYS use `useWizardPricing` hook for UI estimates.
+*   **Firestore Collections**:
+    *   `repair_prices`: Dynamic repair catalog (screen, battery, etc.).
+    *   `buyback_pricing`: Base buyback offers (often calculated from Market Value).
+    *   `market_values`: The reference "Sell Price" used to auto-calculate Buyback offers.
+
+### B. Localization Strategy
+*   **Static Labels**: Use `useLanguage()` hook and `t()` function.
+*   **Dynamic Data**: Repair issues (e.g. "Screen Replacement") are localized in the Backend/DAL (`getLocalizedRepairDictionary`) and passed via the `breakdown` object.
+    *   ❌ Do not create new translation keys for dynamic database content.
+
+### C. SEO & Metadata
+*   **Generation**: All Page Titles/Descriptions are generated in `page.tsx` using `pricing.dal.ts` to ensure the "Starting From" price matches the actual content.
+*   **JSON-LD**: Product Schema and Breadcrumbs must be injected on every product page using the same SSoT data.
+

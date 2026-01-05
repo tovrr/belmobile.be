@@ -86,6 +86,7 @@ export const SEARCH_INDEX: Record<string, { brand: string, category: string, mod
     'pixel-9-pro-xl': { brand: 'Google', category: 'smartphone', model: 'Pixel 9 Pro XL', keywords: ["google","pixel 9 pro xl","googlepixel9proxl","pixel9proxl"] },
     'pixel-9-pro': { brand: 'Google', category: 'smartphone', model: 'Pixel 9 Pro', keywords: ["google","pixel 9 pro","googlepixel9pro","pixel9pro"] },
     'pixel-9': { brand: 'Google', category: 'smartphone', model: 'Pixel 9', keywords: ["google","pixel 9","googlepixel9","pixel9"] },
+    'pixel-9a': { brand: 'Google', category: 'smartphone', model: 'Pixel 9a', keywords: ["google","pixel 9a","googlepixel9a","pixel9a"] },
     'pixel-fold': { brand: 'Google', category: 'smartphone', model: 'Pixel Fold', keywords: ["google","pixel fold","googlepixelfold","pixelfold"] },
     'pixel-8-pro': { brand: 'Google', category: 'smartphone', model: 'Pixel 8 Pro', keywords: ["google","pixel 8 pro","googlepixel8pro","pixel8pro"] },
     'pixel-8': { brand: 'Google', category: 'smartphone', model: 'Pixel 8', keywords: ["google","pixel 8","googlepixel8","pixel8"] },

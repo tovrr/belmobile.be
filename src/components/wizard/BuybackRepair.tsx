@@ -309,6 +309,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                             deliveryMethod={deliveryMethod}
                             courierTier={courierTier}
                             hasHydrogel={hasHydrogel}
+                            breakdown={state.priceBreakdown}
                         />
                     )}
                 </div>

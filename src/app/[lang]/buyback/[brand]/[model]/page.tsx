@@ -3,8 +3,9 @@ import BuybackRepair from '@/components/wizard/BuybackRepair';
 import DynamicSEOContent from '@/components/seo/DynamicSEOContent';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { createSlug, slugToDisplayName } from '@/utils/slugs';
-import { getSEOTitle, getSEODescription } from '@/utils/seoHelpers';
+import { slugToDisplayName } from '@/utils/slugs';
+import { getSEOTitle, getSEODescription, getDeviceContext } from '@/utils/seoHelpers';
+import { getPriceQuote } from '@/services/server/pricing.dal';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,42 +16,56 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang, brand, model } = await params;
+    const currentLang = lang as 'fr' | 'nl' | 'en' | 'tr';
 
     // Decode for display
     const decodedBrand = slugToDisplayName(brand);
     const decodedModel = slugToDisplayName(model);
     const deviceName = `${decodedBrand} ${decodedModel}`;
 
-    // Use helper for consistent SEO titles
-    const title = getSEOTitle({
-        isRepair: false, // Buyback
-        lang: lang as 'fr' | 'nl' | 'en' | 'tr',
+    // SSOT Fetch (0 Latency)
+    const deviceSlug = `${brand}-${model}`;
+    const quote = await getPriceQuote(deviceSlug);
+
+    // Context for Fallback
+    const locationName = currentLang === 'fr' ? 'Bruxelles' : (currentLang === 'nl' ? 'Brussel' : (currentLang === 'tr' ? 'Brüksel' : 'Brussels'));
+
+    // Title & Desc Resolution
+    const title = quote?.seo?.[currentLang]?.buyback.title ||
+        getSEOTitle({
+            isRepair: false,
+            lang: currentLang,
+            deviceName,
+            locationName
+        });
+
+    const description = quote?.seo?.[currentLang]?.buyback.description || getSEODescription({
+        isRepair: false,
+        lang: currentLang,
         deviceName,
-        locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels')
+        locationName,
+        brand: decodedBrand
     });
 
-    const description = getSEODescription({
-        isRepair: false,
-        lang: lang as 'fr' | 'nl' | 'en' | 'tr',
-        deviceName,
-        locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels')
-    });
+    // Alternates Resolution
+    const languages = {
+        'fr': `https://belmobile.be/fr/rachat/${brand}/${model}`,
+        'nl': `https://belmobile.be/nl/inkoop/${brand}/${model}`,
+        'en': `https://belmobile.be/en/buyback/${brand}/${model}`,
+        'tr': `https://belmobile.be/tr/geri-alim/${brand}/${model}`,
+    };
 
     return {
         title,
         description,
         alternates: {
-            canonical: `https://belmobile.be/${lang}/buyback/${brand}/${model}`,
-            languages: {
-                'fr': `https://belmobile.be/fr/rachat/${brand}/${model}`,
-                'nl': `https://belmobile.be/nl/inkoop/${brand}/${model}`,
-                'en': `https://belmobile.be/en/buyback/${brand}/${model}`,
-                'tr': `https://belmobile.be/tr/geri-alim/${brand}/${model}`,
-            },
+            canonical: languages[currentLang] || `https://belmobile.be/${lang}/buyback/${brand}/${model}`,
+            languages,
         },
         openGraph: {
             title,
             description,
+            images: quote?.deviceImage ? [quote.deviceImage] : [],
         }
     };
 }
@@ -67,6 +82,11 @@ export default async function BuybackModelPage({
 
     const decodedBrand = slugToDisplayName(brand);
     const decodedModel = slugToDisplayName(model);
+    const currentLang = lang as 'fr' | 'nl' | 'en' | 'tr';
+
+    // SSOT Fetch
+    const deviceSlug = `${brand}-${model}`;
+    const quote = await getPriceQuote(deviceSlug);
 
     const initialDevice = {
         brand: decodedBrand,
@@ -78,9 +98,9 @@ export default async function BuybackModelPage({
             <h1 className="sr-only">
                 {getSEOTitle({
                     isRepair: false,
-                    lang: lang as 'fr' | 'nl' | 'en' | 'tr',
+                    lang: currentLang,
                     deviceName: `${decodedBrand} ${decodedModel}`,
-                    locationName: lang === 'fr' ? 'Bruxelles' : (lang === 'nl' ? 'Brussel' : 'Brussels')
+                    locationName: currentLang === 'fr' ? 'Bruxelles' : (currentLang === 'nl' ? 'Brussel' : (currentLang === 'tr' ? 'Brüksel' : 'Brussels'))
                 })}
             </h1>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
@@ -97,13 +117,14 @@ export default async function BuybackModelPage({
                     />
                 </Suspense>
 
-                {/* SEO Content Injection - Vital for Buyback Trust */}
+                {/* SEO Content Injection - Powered by DAL */}
                 <div className="mt-16">
                     <DynamicSEOContent
                         type="buyback"
-                        lang={lang as 'fr' | 'nl' | 'en' | 'tr'}
+                        lang={currentLang}
                         brand={decodedBrand}
                         model={decodedModel}
+                        priceQuote={quote}
                     />
                 </div>
             </div>

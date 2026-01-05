@@ -37,7 +37,8 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
     const {
         selectedBrand, selectedModel, repairIssues, storage,
         turnsOn, worksCorrectly, screenState, bodyState,
-        batteryHealth, faceIdWorking, isUnlocked, controllerCount
+        batteryHealth, faceIdWorking, isUnlocked, controllerCount,
+        selectedScreenQuality
     } = state;
 
     const requestPayload: WizardQuoteRequest | null = useMemo(() => {
@@ -55,13 +56,16 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
             batteryHealth: batteryHealth as any,
             faceIdWorking: faceIdWorking ?? undefined,
             isUnlocked: isUnlocked ?? undefined,
-            controllerCount: controllerCount ?? undefined
+            controllerCount: controllerCount ?? undefined,
+            selectedScreenQuality: selectedScreenQuality || undefined,
+            language: t('current_lang_code') as any || 'fr' // Assuming t can return lang code or we use useLanguage hook's language prop
         };
     }, [
         selectedBrand, selectedModel, repairIssues, storage,
         turnsOn, worksCorrectly, screenState, bodyState,
         batteryHealth, faceIdWorking, isUnlocked, controllerCount,
-        type
+        selectedScreenQuality,
+        type, t
     ]);
 
     const debouncedPayload = useDebounce(requestPayload, 300);
@@ -133,46 +137,27 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
     }, [debouncedPayload]);
 
     // 3. Single Issue Price Helper (Still needed for "Starting from X" badges in UI)
-    // This might need access to raw data. The Server Action doesn't return raw data by default.
-    // However, `state.pricingData` is currently populating `repairPrices` via `useBuybackPricing` hook (which listens to Firestore snapshot).
-    // If we want to replace `useBuybackPricing` entirely, we need to pass raw data here.
-    // BUT `useWizardPricing` is used for total calculation.
-    // The `state.pricingData` comes from `useBuybackPricing` which is separate.
-    // If we keep `useBuybackPricing` for raw data sync, we can use it for `getSingleIssuePrice`.
-    // Let's keep `getSingleIssuePrice` using `state.pricingData` (Client Side Snapshot) for UI badges, 
-    // but use Server Action for the TOTAL (The Truth).
-
-    // We re-implement getSingleIssuePrice to use the context data for speed/UI elements
     const { repairPrices: dynamicRepairPrices } = state.pricingData;
 
     const getSingleIssuePrice = useCallback((issueId: string) => {
         if (!state.deviceType || !state.selectedBrand || !state.selectedModel) return null;
-        // ... (Same logic as before for UI badges)
         if (dynamicRepairPrices) {
             if (issueId === 'screen') {
-                // Check if we have multiple qualities
-                const p = [];
-                if (dynamicRepairPrices.screen_original) p.push(dynamicRepairPrices.screen_original);
-                if (dynamicRepairPrices.screen_generic) p.push(dynamicRepairPrices.screen_generic);
-                if (p.length) return Math.min(...p);
+                const p: number[] = [];
+                if (dynamicRepairPrices.screen_original > 0) p.push(dynamicRepairPrices.screen_original);
+                if (dynamicRepairPrices.screen_generic > 0) p.push(dynamicRepairPrices.screen_generic);
+                if (dynamicRepairPrices.screen > 0) p.push(dynamicRepairPrices.screen); // Fallback to base key
+
+                if (p.length > 0) return Math.min(...p);
             }
             return dynamicRepairPrices[issueId] || null;
         }
         return null;
     }, [state.deviceType, state.selectedBrand, state.selectedModel, dynamicRepairPrices]);
 
-
     return {
         sidebarEstimate: serverPrice, // The Source of Truth from Server
-        // repairEstimates: ... // If we need variant prices, we might need to expand Server Action or use local state
-        // For now, let's just expose what the UI consumes.
-        // It seems `repairEstimates` object was used for the "Screen Quality Selection" step to show specific prices.
-        // For that step, we should probably fetch those specifics.
-        // But for "Sidebar Estimate", serverPrice is key.
-
-        // We'll map serverPrice to the structure expected by consumers or adapt consumers.
-        // Let's keep simpler API.
-
+        breakdown: priceBreakdown, // Expose the detailed breakdown
         repairEstimates: {
             standard: dynamicRepairPrices?.screen_generic ?? -1,
             original: dynamicRepairPrices?.screen_original ?? -1,

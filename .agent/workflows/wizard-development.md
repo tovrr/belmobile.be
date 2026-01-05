@@ -16,9 +16,9 @@ All wizard state lives here.
 - Selection logic (switching brands/models) should be encapsulated here.
 
 ## 3. Pricing & Estimates (`useWizardPricing.ts`)
-- All pricing math MUST reside in this hook.
-- It consumes `usePublicPricing` for dynamic data from Firestore.
-- Supports both Buyback (deductions) and Repair (additive) logic.
+- **Server-Driven**: Uses `getWizardQuote` Server Action. The client hook manages loading states and debounce.
+- **Breakdown Object**: The UI consumes `response.breakdown` (base price, deductions, repair list) for display.
+- **SSoT**: Do NOT implement pricing math in the client. The client strictly displays what the server calculates.
 
 ## 4. Components (`src/components/wizard/steps/`)
 - Each step is a standalone component.
@@ -34,3 +34,7 @@ All wizard state lives here.
 ## 6. Order Submission (`orderService.ts`)
 - All "side effects" (Firebase, PDF, Email) happen here.
 - Do NOT put business logic inside the component.
+
+## 7. Localization & Data
+- **Labels**: Static text uses `t()`. Dynamic Pricing labels come from the Server Action (`breakdown.repairs[].label`).
+- **Collections**: `repair_issues` in Firestore provides the source of truth for issue labels across EN, FR, NL, TR.

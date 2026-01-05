@@ -4,12 +4,8 @@ import React, { useState } from 'react';
 import { SEARCH_INDEX } from '../../data/search-index';
 import { createSlug } from '../../utils/slugs';
 const getAllModels = (brand: string): string[] => {
-    // Filter index entries that match the brand
-    // value format: { brand: 'Apple', ... }
     const matches = Object.values(SEARCH_INDEX).filter(item => item.brand.toLowerCase() === brand.toLowerCase());
-    // Dedup models (since index has aliases like 'nintendo-switch' and 'switch-v2' mapping to same model)
     const uniqueModels = Array.from(new Set(matches.map(m => m.model)));
-    // console.log(`getAllModels(${brand}) -> Found ${uniqueModels.length} unique models`);
     return uniqueModels;
 };
 import { collection, query, where, getDocs, getDoc, writeBatch, doc, setDoc } from 'firebase/firestore';
@@ -20,6 +16,8 @@ import { PricingEngine } from '../../utils/pricing-engine';
 import { DEVICE_BRANDS } from '../../data/brands';
 import { CheckCircleIcon, ExclamationTriangleIcon, XCircleIcon, ArrowDownTrayIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { RepairPriceRecord, BuybackPriceRecord, BuybackCondition } from '../../types';
+
+import { BuybackAnchorManager } from './BuybackAnchorManager';
 
 // Helper for CSV Export
 const capitalizeSlug = (slug: string) => {
@@ -44,9 +42,7 @@ export const BatchPricingTools = () => {
     const [statusMessage, setStatusMessage] = useState<{ text: string, type: 'success' | 'error' | 'info' } | null>(null);
     const [overwriteMode, setOverwriteMode] = useState(false); // Default false for safety
     const [targetedModel, setTargetedModel] = useState(''); // NEW: Target specific model slug
-
-
-
+    const [selectedTab, setSelectedTab] = useState<'repair' | 'buyback'>('repair');
 
     const {
         generateAppleDefaults,
@@ -125,7 +121,6 @@ export const BatchPricingTools = () => {
             const batch = writeBatch(db);
             let count = 0;
 
-
             for (const item of targetModels) {
                 // Enrich with Market Data if available
                 let marketData: { avgPrice: number, partCosts?: { screen: number, battery: number } } | null = null;
@@ -160,11 +155,6 @@ export const BatchPricingTools = () => {
                     // OVERRIDE with Market Data if available
                     if (marketData && marketData.partCosts) {
                         if (rec.issueId === 'screen' && marketData.partCosts.screen > 0) {
-                            // Only override Generic Screen base cost (assume scanned price is for High Quality copy or similar?)
-                            // Actually Scraper returns generic 'screen' cost.
-                            // Let's assume it applies to the 'service-pack-original' or main quality variant.
-                            // If variant details are empty or match, update.
-                            // Simple logic: Update Part Cost and Recalculate Price
                             rec.partCost = marketData.partCosts.screen;
                             rec.price = PricingEngine.calculateRepairPrice(rec.partCost || 0, rec.laborMinutes || 45);
                         }
@@ -202,10 +192,8 @@ export const BatchPricingTools = () => {
         setGenerating(true);
 
         try {
-            // Get all unique brands from config
             const SUPPORTED_BRANDS = Array.from(new Set(Object.values(DEVICE_BRANDS).flat())).sort();
             let totalCount = 0;
-            // Removed skippedCount
 
             for (const brand of SUPPORTED_BRANDS) {
                 console.log(`Processing Brand: ${brand}...`);
@@ -213,34 +201,26 @@ export const BatchPricingTools = () => {
 
                 if (models.length === 0) continue;
 
-                const CHUNK_SIZE = 20; // Firestore batch limit 500, keeping chunks small for safety
+                const CHUNK_SIZE = 20;
                 for (let i = 0; i < models.length; i += CHUNK_SIZE) {
                     const modelChunk = models.slice(i, i + CHUNK_SIZE);
                     const batch = writeBatch(db);
                     let opsInBatch = 0;
 
-                    // If Safe Mode (Overwrite False), we need to fetch existing docs first
                     const existingDocMap = new Set<string>();
                     if (!overwriteMode) {
-                        // We can't query "IN" on ID easily for generated IDs.
-                        // But we CAN query "deviceId" IN chunk array. 
-                        // Then locally check issueId.
                         const chunkSlugs = modelChunk.map(m => createSlug(`${brand} ${m}`));
-                        // Firestore "IN" limit is 10. Split chunk if needed? 
-                        // Actually, doing 2 sub-queries of 10 is better than 20.
                         const subChunks = [chunkSlugs.slice(0, 10), chunkSlugs.slice(10, 20)].filter(arr => arr.length > 0);
 
                         for (const sub of subChunks) {
                             const q = query(collection(db, 'repair_prices'), where('deviceId', 'in', sub));
                             const snap = await getDocs(q);
                             snap.forEach(d => {
-                                // Key logic: We need to match the EXACT docId logic used below: `${rec.deviceId}_${rec.issueId}_${variantSuffix}`
                                 existingDocMap.add(d.id);
                             });
                         }
                     }
 
-                    // Fetch Market Data for Enrichment for the current chunk
                     const marketMap: Record<string, { avgPrice: number, partCosts?: { screen: number, battery: number } }> = {};
                     try {
                         const chunkSlugs = modelChunk.map(m => createSlug(`${brand} ${m}`));
@@ -316,8 +296,6 @@ export const BatchPricingTools = () => {
     };
 
     const handleSeedBuyback = async () => {
-        // if (!confirm("⚠️ SEED BUYBACK PRICES ⚠️\n\nThis will generate estimated buyback offers for ALL supported models.\nContinue?")) return;
-
         setGenerating(true);
         try {
             const SUPPORTED_BRANDS = Array.from(new Set(Object.values(DEVICE_BRANDS).flat())).sort();
@@ -327,7 +305,6 @@ export const BatchPricingTools = () => {
                 console.log(`Processing Buyback for Brand: ${brand}...`);
                 let models = getAllModels(brand);
 
-                // NEW: Filter models based on targetedModel
                 if (targetedModel) {
                     models = models.filter(m => createSlug(`${brand} ${m}`).includes(targetedModel));
                 }
@@ -340,35 +317,22 @@ export const BatchPricingTools = () => {
                 for (const model of models) {
                     const slug = createSlug(`${brand} ${model}`);
                     const offers = generateBuybackDefaults(slug);
-                    if (offers.length > 0) console.log(`[${slug}] Generated ${offers.length} base offers.`);
 
-                    // BETTER CLEANUP: Query-based Purge
-                    // Instead of guessing what to delete, we FETCH existing records for this device
-                    // and delete anything that is NOT in our calculated 'offers'.
-
-                    // Only do this expensive check if we are targeting a specific model (for performance)
-                    // or if overwriteMode is on (implying we want a clean state).
                     if (targetedModel || overwriteMode) {
                         try {
-                            console.log(`[Cleanup] Scanning existing records for ${slug}...`);
                             const existingQuery = query(collection(db, 'buyback_pricing'), where('deviceId', '==', slug));
                             const existingDocs = await getDocs(existingQuery);
 
-                            // Create a Set of VALID IDs we just generated
-                            // We need to account for condition variants of the generated offers
                             const validIds = new Set<string>();
                             const CONDITIONS: BuybackCondition[] = ['new', 'like-new', 'good', 'fair', 'damaged'];
 
                             offers.forEach((o: BuybackDefaultOffer) => {
-                                // Base (though we only use variants usually, sometimes base exists)
                                 validIds.add(`${slug}_${o.storage}`);
-                                // Variants
                                 CONDITIONS.forEach(c => validIds.add(`${slug}_${o.storage}_${c}`));
                             });
 
                             existingDocs.forEach(d => {
                                 if (!validIds.has(d.id)) {
-                                    console.log(`[Cleanup] Deleting Ghost Record: ${d.id}`);
                                     batch.delete(d.ref);
                                     opsInBatch++;
                                     totalCount++;
@@ -378,7 +342,6 @@ export const BatchPricingTools = () => {
                             console.error("Error during cleanup query:", err);
                         }
                     } else {
-                        // Fallback to Blind Delete for global scans to save reads
                         const ALL_POSSIBLE_STORAGES = ['16GB', '32GB', '64GB', '128GB', '256GB', '512GB', '1TB', '2TB', '4TB', '8TB'];
                         const validStorages = new Set(offers.map((o: BuybackDefaultOffer) => o.storage));
                         const CONDITIONS_FOR_CLEANUP: BuybackCondition[] = ['new', 'like-new', 'good', 'fair', 'damaged'];
@@ -395,7 +358,6 @@ export const BatchPricingTools = () => {
                         }
                     }
 
-                    // EXPAND OFFERS TO ALL CONDITIONS
                     const expandedOffers: BuybackPriceRecord[] = [];
                     const CONDITIONS: BuybackCondition[] = ['new', 'like-new', 'good', 'fair', 'damaged'];
 
@@ -416,7 +378,6 @@ export const BatchPricingTools = () => {
                         }
                     }
 
-                    // 1. Fetch Existing IDs for Safe Mode
                     const existingDocMap = new Set<string>();
                     if (!overwriteMode && expandedOffers.length > 0) {
                         const offerIds = expandedOffers.map(o => o.id);
@@ -431,7 +392,6 @@ export const BatchPricingTools = () => {
                         }
                     }
 
-                    // Fetch Market Data for Enrichment
                     const marketMap: Record<string, { avgPrice: number }> = {};
                     try {
                         const snap = await getDoc(doc(db, 'market_values', slug));
@@ -442,13 +402,10 @@ export const BatchPricingTools = () => {
 
                     for (const offer of expandedOffers) {
                         if (offer.id) {
-                            // SAFE MODE CHECK
                             if (!overwriteMode && existingDocMap.has(offer.id)) {
                                 continue;
                             }
 
-                            // ENRICH BUYBACK
-                            // Skip enrichment if we are targeting a specific model (User likely wants to force the defaults)
                             const marketData = marketMap[slug];
                             if (!targetedModel && marketData && marketData.avgPrice > 0) {
                                 let conditionDeduction = 0;
@@ -469,7 +426,7 @@ export const BatchPricingTools = () => {
 
                             if (opsInBatch >= 450) {
                                 await batch.commit();
-                                batch = writeBatch(db); // START NEW BATCH
+                                batch = writeBatch(db);
                                 opsInBatch = 0;
                             }
                         }
@@ -497,13 +454,23 @@ export const BatchPricingTools = () => {
         }
     };
 
-    // ... Clean FaceID function remains ...
     const handleCleanInvalidFaceID = async () => {
-        // ... (existing implementation)
+        if (!confirm("Delete all 'face_id' repair records?")) return;
+        setGenerating(true);
+        try {
+            const q = query(collection(db, 'repair_prices'), where('issueId', '==', 'face_id'));
+            const snap = await getDocs(q);
+            const batch = writeBatch(db);
+            snap.docs.forEach(d => batch.delete(d.ref));
+            await batch.commit();
+            alert(`Deleted ${snap.size} Face ID records.`);
+        } catch (e) {
+            alert("Error: " + e);
+        } finally {
+            setGenerating(false);
+        }
     };
 
-
-    // --- START MARKET INTELLIGENCE ---
     const handleLiveScan = async (model: string, slug: string) => {
         setStatusMessage({ text: `⚡ Scanning market for ${model}...`, type: 'info' });
         try {
@@ -518,8 +485,6 @@ export const BatchPricingTools = () => {
             const data = await res.json() as { avgPrice: number, error?: string };
 
             if (res.ok && data) {
-                // Save to Firestore 'market_values' for persistence
-                // We use setDoc to write to a specific document ID (slug)
                 await setDoc(doc(db, 'market_values', slug), {
                     ...data,
                     deviceId: slug
@@ -535,10 +500,6 @@ export const BatchPricingTools = () => {
             setStatusMessage({ text: `Scan failed: ${msg}`, type: 'error' });
         }
     };
-    // --- END MARKET INTELLIGENCE ---
-
-
-    // --- MARKETPLACE EXPORTS ---
 
     const handleExportCSV = async (type: 'repair' | 'buyback' | 'stock') => {
         setGenerating(true);
@@ -548,8 +509,6 @@ export const BatchPricingTools = () => {
 
             if (type === 'repair') {
                 filename = "belmobile_repair_prices.csv";
-                // Header compatible with 2dehands/generic
-                // Model, Issue, Price, Description
                 csvContent = "Model,Issue,Price,Description\n";
 
                 const q = query(collection(db, 'repair_prices'), where('isActive', '==', true));
@@ -557,8 +516,6 @@ export const BatchPricingTools = () => {
 
                 snap.forEach(doc => {
                     const data = doc.data() as RepairPriceRecord;
-                    // Format: "iPhone 13", "Screen Replacement", "290"
-                    // data.deviceId is "iphone-13" -> needs beautification
                     const model = capitalizeSlug(data.deviceId);
                     const issue = capitalizeSlug(data.issueId);
                     csvContent += `"${model}","${issue}","${data.price}","Professional repair service for ${model} ${issue}"\n`;
@@ -588,7 +545,6 @@ export const BatchPricingTools = () => {
 
                 snap.forEach(doc => {
                     const data = doc.data();
-                    // Availability is object { "storeId": qty }
                     const availability = data.availability as Record<string, number> | undefined;
                     const totalStock = availability ? Object.values(availability).reduce((a, b) => a + (Number(b) || 0), 0) : 0;
 
@@ -596,7 +552,6 @@ export const BatchPricingTools = () => {
                 });
             }
 
-            // Download Trigger
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
@@ -617,7 +572,6 @@ export const BatchPricingTools = () => {
         }
     };
 
-    // Derived lists
     const missingList = results.filter(r => r.status === 'empty');
     const partialList = results.filter(r => r.status === 'partial');
 
@@ -627,7 +581,6 @@ export const BatchPricingTools = () => {
                 🚀 Batch Pricing Tools & Export
             </h3>
 
-            {/* SEEDING SECTION */}
             <div className="flex gap-4 items-end mb-8">
                 <div>
                     <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-2">Brand Target</label>
@@ -656,184 +609,178 @@ export const BatchPricingTools = () => {
                 </div>
             )}
 
-            <div className="mb-8 pt-8 border-t border-gray-100 dark:border-slate-700">
-                <div className="flex items-center gap-3 mb-4">
-                    <input
-                        type="checkbox"
-                        id="overwriteMode"
-                        checked={overwriteMode}
-                        onChange={(e) => setOverwriteMode(e.target.checked)}
-                        className="w-5 h-5 rounded border-gray-300 text-red-600 focus:ring-red-500"
-                    />
-                    <label htmlFor="overwriteMode" className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                        ⚠️ Overwrite Existing Prices? (Uncheck for &quot;Safe Mode&quot; to preserve custom edits)
-                    </label>
-                </div>
-
-                <div className="flex flex-col gap-2 mb-4">
-                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Target Specific Model (Optional)</label>
-                    <input
-                        type="text"
-                        placeholder="e.g. iphone-air"
-                        value={targetedModel}
-                        onChange={(e) => setTargetedModel(e.target.value)}
-                        className="p-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    />
-                    <div className="text-xs text-gray-500">Leave empty to seed ALL models. Enter a slug (e.g. &apos;iphone-14&apos;) to limit scope.</div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
+            <div className="mb-6 border-b border-gray-200 dark:border-slate-700">
+                <nav className="-mb-px flex space-x-8" aria-label="Tabs">
                     <button
-                        type="button"
-                        onClick={handleGlobalSeed}
-                        disabled={generating}
-                        className={`px-6 py-4 text-white rounded-xl font-bold shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50 ${overwriteMode ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 dark:bg-slate-700 hover:bg-gray-800'}`}
+                        onClick={() => setSelectedTab('repair')}
+                        className={`
+                            whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                            ${selectedTab === 'repair'
+                                ? 'border-bel-blue text-bel-blue'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+                        `}
                     >
-                        🌍 Seed ALL Supported Brands {overwriteMode ? '(OVERWRITE)' : '(SAFE)'}
+                        🛠️ Repair Matrix (Manual)
                     </button>
                     <button
-                        type="button"
-                        onClick={handleCleanInvalidFaceID}
-                        disabled={generating}
-                        className="px-6 py-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl font-bold shadow-sm hover:bg-red-200 transition flex items-center justify-center gap-2 disabled:opacity-50"
+                        onClick={() => setSelectedTab('buyback')}
+                        className={`
+                            whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                            ${selectedTab === 'buyback'
+                                ? 'border-bel-blue text-bel-blue'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+                        `}
                     >
-                        🧹 Clean FACE ID Data
+                        ♻️ Buyback Engine (Automated)
                     </button>
-                    <button
-                        type="button"
-                        onClick={handleSeedBuyback}
-                        disabled={generating}
-                        className="col-span-2 px-6 py-4 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-xl font-bold shadow-sm hover:bg-green-200 transition flex items-center justify-center gap-2 disabled:opacity-50"
-                    >
-                        🌱 Seed Buyback Prices
-                    </button>
-                </div>
-
-                {/* GHOST FIXER */}
-                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700">
-                    <button
-                        type="button"
-                        onClick={async () => {
-                            if (!confirm("⚠️ DEEP CLEAN & FIX GHOSTS ⚠️\n\nThis will scan for:\n1. Duplicate IDs (Ghost Records)\n2. Invalid Variant Names (e.g. 'generic' vs 'generic-lcd')\n\nIt will DELETE any record for standard issues (Screen, Battery) that does not match the strict schema.\n\nThis ensures a clean database for deployment.\n\nContinue?")) return;
-
-                            setGenerating(true);
-                            try {
-                                const SUPPORTED_BRANDS = Array.from(new Set(Object.values(DEVICE_BRANDS).flat())).sort();
-                                let fixedCount = 0;
-                                let ghostsFound = 0;
-
-                                for (const brand of SUPPORTED_BRANDS) {
-                                    const models = getAllModels(brand);
-                                    if (models.length === 0) continue;
-
-                                    // Generate Generator for this brand
-                                    let generator: ((id: string) => RepairPriceRecord[]) | null = null;
-                                    const brandL = brand.toLowerCase();
-                                    if (brandL === 'apple') generator = generateAppleDefaults;
-                                    else if (brandL === 'samsung') generator = generateSamsungDefaults;
-                                    else if (brandL === 'google') generator = generateGoogleDefaults;
-
-                                    // Process in chunks
-                                    const CHUNK_SIZE = 10;
-                                    for (let i = 0; i < models.length; i += CHUNK_SIZE) {
-                                        const modelChunk = models.slice(i, i + CHUNK_SIZE);
-                                        const chunkSlugs = modelChunk.map(m => createSlug(`${brand} ${m}`));
-
-                                        const q = query(collection(db, 'repair_prices'), where('deviceId', 'in', chunkSlugs));
-                                        const snap = await getDocs(q);
-
-                                        const batch = writeBatch(db);
-                                        let ops = 0;
-
-                                        snap.docs.forEach(docSnap => {
-                                            const data = docSnap.data() as RepairPriceRecord;
-                                            if (!data.deviceId || !data.issueId) return;
-
-                                            // 1. Blueprint Check (Strict Variant Name Clean)
-                                            if (generator && ['screen', 'battery'].includes(data.issueId)) {
-                                                const blueprints = generator(data.deviceId);
-                                                // Find if this variant exists in blueprints
-                                                // Blueprint variants: e.g. { quality: 'generic-lcd' }
-
-                                                const validVariants = blueprints
-                                                    .filter(b => b.issueId === data.issueId)
-                                                    .map(b => JSON.stringify(b.variants || {}));
-
-                                                const currentVariant = JSON.stringify(data.variants || {});
-
-                                                // If current doesn't match ANY valid blueprint -> INVALID (Ghost Variant)
-                                                // BUT: Allow keys to be empty if blueprint is empty.
-                                                // We must be careful about "Custom" prices added by user?
-                                                // User said "clean fallback and duplicate variants".
-                                                // If user added "original-premium" (custom), this would delete it.
-                                                // But usually user adds prices to EXISTING/Standard variants.
-                                                // The problem is 'generic' (old) vs 'generic-lcd' (new).
-
-                                                const isValid = validVariants.includes(currentVariant);
-
-                                                if (!isValid) {
-                                                    console.log(`[Deep Clean] Invalid Variant for ${data.deviceId} ${data.issueId}:`, currentVariant);
-                                                    // This IS the ghost variant (e.g. 'generic'). DELETE IT.
-                                                    batch.delete(docSnap.ref);
-                                                    ops++;
-                                                    ghostsFound++;
-                                                    return; // Done with this doc
-                                                }
-                                            }
-
-                                            // 2. ID Check (Fix duplicates that technically match schema but have wrong ID)
-                                            const variantValues = data.variants ? Object.values(data.variants).map(v => String(v).toLowerCase()).sort() : [];
-                                            const suffix = variantValues.length > 0 ? variantValues.join('-') : 'base';
-                                            const expectedId = `${data.deviceId}_${data.issueId}_${suffix}`;
-
-                                            if (docSnap.id !== expectedId) {
-                                                // Mismatch ID!
-                                                // Check if standard exists?
-                                                const standardExists = snap.docs.some(d => d.id === expectedId);
-                                                if (standardExists) {
-                                                    // Duplicate! Delete this one.
-                                                    batch.delete(docSnap.ref);
-                                                    ops++;
-                                                    ghostsFound++;
-                                                } else {
-                                                    // Wrong ID but Unique?
-                                                    // Move it?
-                                                    // For "Deep Clean", let's Re-create it with correct ID and delete old.
-                                                    // This ensures strictly correct database.
-
-                                                    const newRef = doc(db, 'repair_prices', expectedId);
-                                                    batch.set(newRef, data);
-                                                    batch.delete(docSnap.ref);
-                                                    ops++;
-                                                    fixedCount++;
-                                                }
-                                            }
-                                        });
-
-                                        if (ops > 0) {
-                                            await batch.commit();
-                                        }
-                                    }
-                                }
-                                alert(`Deep Clean Complete!\n\nDeleted ${ghostsFound} invalid/ghost records.\nFixed ${fixedCount} ID mismatches.`);
-                            } catch (e: unknown) {
-                                console.error(e);
-                                const msg = e instanceof Error ? e.message : 'Unknown Error';
-                                alert("Error cleaning: " + msg);
-                            } finally {
-                                setGenerating(false);
-                            }
-                        }}
-                        disabled={generating}
-                        className="w-full px-6 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl font-bold hover:bg-red-100 transition flex items-center justify-center gap-2"
-                    >
-                        🧹 Deep Clean Database (Strict)
-                    </button>
-                </div>
+                </nav>
             </div>
 
-            {/* MARKETPLACE EXPORT SECTION */}
-            <div className="mb-8 p-6 bg-blue-50 dark:bg-slate-800/80 rounded-2xl border border-blue-100 dark:border-slate-700">
+            {selectedTab === 'buyback' ? (
+                <BuybackAnchorManager />
+            ) : (
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 mb-4">
+                        <input
+                            type="checkbox"
+                            id="overwriteMode"
+                            checked={overwriteMode}
+                            onChange={(e) => setOverwriteMode(e.target.checked)}
+                            className="w-5 h-5 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                        />
+                        <label htmlFor="overwriteMode" className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                            ⚠️ Overwrite Existing Prices? (Uncheck for &quot;Safe Mode&quot; to preserve custom edits)
+                        </label>
+                    </div>
+
+                    <div className="flex flex-col gap-2 mb-4">
+                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Target Specific Model (Optional)</label>
+                        <input
+                            type="text"
+                            placeholder="e.g. iphone-air"
+                            value={targetedModel}
+                            onChange={(e) => setTargetedModel(e.target.value)}
+                            className="p-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                        />
+                        <div className="text-xs text-gray-500">Leave empty to seed ALL models. Enter a slug (e.g. &apos;iphone-14&apos;) to limit scope.</div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <button
+                            type="button"
+                            onClick={handleGlobalSeed}
+                            disabled={generating}
+                            className={`px-6 py-4 text-white rounded-xl font-bold shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50 ${overwriteMode ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 dark:bg-slate-700 hover:bg-gray-800'}`}
+                        >
+                            🌍 Seed ALL Repair Prices {overwriteMode ? '(OVERWRITE)' : '(SAFE)'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleCleanInvalidFaceID}
+                            disabled={generating}
+                            className="px-6 py-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl font-bold shadow-sm hover:bg-red-200 transition flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            🧹 Clean FACE ID Data
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700">
+                <button
+                    type="button"
+                    onClick={async () => {
+                        if (!confirm("⚠️ DEEP CLEAN & FIX GHOSTS ⚠️\n\nThis will scan for:\n1. Duplicate IDs (Ghost Records)\n2. Invalid Variant Names (e.g. 'generic' vs 'generic-lcd')\n\nIt will DELETE any record for standard issues (Screen, Battery) that does not match the strict schema.\n\nThis ensures a clean database for deployment.\n\nContinue?")) return;
+
+                        setGenerating(true);
+                        try {
+                            const SUPPORTED_BRANDS = Array.from(new Set(Object.values(DEVICE_BRANDS).flat())).sort();
+                            let fixedCount = 0;
+                            let ghostsFound = 0;
+
+                            for (const brand of SUPPORTED_BRANDS) {
+                                const models = getAllModels(brand);
+                                if (models.length === 0) continue;
+
+                                let generator: ((id: string) => RepairPriceRecord[]) | null = null;
+                                const brandL = brand.toLowerCase();
+                                if (brandL === 'apple') generator = generateAppleDefaults;
+                                else if (brandL === 'samsung') generator = generateSamsungDefaults;
+                                else if (brandL === 'google') generator = generateGoogleDefaults;
+
+                                const CHUNK_SIZE = 10;
+                                for (let i = 0; i < models.length; i += CHUNK_SIZE) {
+                                    const modelChunk = models.slice(i, i + CHUNK_SIZE);
+                                    const chunkSlugs = modelChunk.map(m => createSlug(`${brand} ${m}`));
+
+                                    const q = query(collection(db, 'repair_prices'), where('deviceId', 'in', chunkSlugs));
+                                    const snap = await getDocs(q);
+
+                                    const batch = writeBatch(db);
+                                    let ops = 0;
+
+                                    snap.docs.forEach(docSnap => {
+                                        const data = docSnap.data() as RepairPriceRecord;
+                                        if (!data.deviceId || !data.issueId) return;
+
+                                        if (generator && ['screen', 'battery'].includes(data.issueId)) {
+                                            const blueprints = generator(data.deviceId);
+                                            const validVariants = blueprints
+                                                .filter(b => b.issueId === data.issueId)
+                                                .map(b => JSON.stringify(b.variants || {}));
+
+                                            const currentVariant = JSON.stringify(data.variants || {});
+                                            const isValid = validVariants.includes(currentVariant);
+
+                                            if (!isValid) {
+                                                console.log(`[Deep Clean] Invalid Variant for ${data.deviceId} ${data.issueId}:`, currentVariant);
+                                                batch.delete(docSnap.ref);
+                                                ops++;
+                                                ghostsFound++;
+                                                return;
+                                            }
+                                        }
+
+                                        const variantValues = data.variants ? Object.values(data.variants).map(v => String(v).toLowerCase()).sort() : [];
+                                        const suffix = variantValues.length > 0 ? variantValues.join('-') : 'base';
+                                        const expectedId = `${data.deviceId}_${data.issueId}_${suffix}`;
+
+                                        if (docSnap.id !== expectedId) {
+                                            const standardExists = snap.docs.some(d => d.id === expectedId);
+                                            if (standardExists) {
+                                                batch.delete(docSnap.ref);
+                                                ops++;
+                                                ghostsFound++;
+                                            } else {
+                                                const newRef = doc(db, 'repair_prices', expectedId);
+                                                batch.set(newRef, data);
+                                                batch.delete(docSnap.ref);
+                                                ops++;
+                                                fixedCount++;
+                                            }
+                                        }
+                                    });
+
+                                    if (ops > 0) await batch.commit();
+                                }
+                            }
+                            alert(`Deep Clean Complete!\n\nDeleted ${ghostsFound} invalid/ghost records.\nFixed ${fixedCount} ID mismatches.`);
+                        } catch (e: unknown) {
+                            const msg = e instanceof Error ? e.message : 'Unknown Error';
+                            alert("Error cleaning: " + msg);
+                        } finally {
+                            setGenerating(false);
+                        }
+                    }}
+                    disabled={generating}
+                    className="w-full px-6 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl font-bold hover:bg-red-100 transition flex items-center justify-center gap-2"
+                >
+                    🧹 Deep Clean Database (Strict)
+                </button>
+            </div>
+
+            {/* MARKETPLACE EXPORT SECTION - SHARED */}
+            <div className="mt-12 mb-8 p-6 bg-blue-50 dark:bg-slate-800/80 rounded-2xl border border-blue-100 dark:border-slate-700">
                 <h4 className="text-sm font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wider mb-4">Marketplace Exports (CSV)</h4>
                 <div className="grid grid-cols-3 gap-4">
                     <button
@@ -865,7 +812,6 @@ export const BatchPricingTools = () => {
                     Use these CSV files for 2dehands.be / 2ememain.be bulk upload or other marketplace tools.
                 </p>
             </div>
-
 
             {results.length > 0 && (
                 <div className="space-y-6 animate-fade-in">
@@ -933,8 +879,8 @@ export const BatchPricingTools = () => {
                             </table>
                         </div>
                     </div>
-                </div >
+                </div>
             )}
-        </div >
+        </div>
     );
 };

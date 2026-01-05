@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     // Title & Desc Resolution
     // Priority: SSOT > Helper Backup
-    const title = quote?.seo?.[currentLang]?.title || getSEOTitle({
+    const title = quote?.seo?.[currentLang]?.repair.title || getSEOTitle({
         isRepair: true,
         lang: currentLang,
         deviceName,
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         durationText
     });
 
-    const description = quote?.seo?.[currentLang]?.description || getSEODescription({
+    const description = quote?.seo?.[currentLang]?.repair.description || getSEODescription({
         isRepair: true,
         lang: currentLang,
         deviceName,
@@ -79,6 +79,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         openGraph: {
             title,
             description,
+            type: 'website',
+            locale: currentLang,
+            url: languages[currentLang],
+            siteName: 'Belmobile',
+            images: quote?.deviceImage ? [{
+                url: quote.deviceImage,
+                width: 1200,
+                height: 630,
+                alt: `${decodedBrand} ${decodedModel} Repair`,
+            }] : [],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
             images: quote?.deviceImage ? [quote.deviceImage] : [],
         }
     };
@@ -112,7 +127,7 @@ export default async function RepairModelPage({
     };
 
     // Determine Title for H1 (SSOT prioritized)
-    const h1Title = quote?.seo?.[currentLang]?.title || getSEOTitle({
+    const h1Title = quote?.seo?.[currentLang]?.repair.title || getSEOTitle({
         isRepair: true,
         lang: currentLang,
         deviceName,

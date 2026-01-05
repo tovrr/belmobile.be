@@ -1,4 +1,5 @@
 'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -11,35 +12,83 @@ import { createSlug, slugToDisplayName } from '../../utils/slugs';
 import { useData } from '../../hooks/useData';
 import { getLocalizedProduct } from '../../utils/localization';
 import { Product } from '../../types';
+// SSoT Import
+import { STATIC_SLUG_MAPPINGS } from '../../utils/i18n-helpers';
+import { SERVICES } from '../../data/services';
 
+// Helper to translate segments utilizing SSoT
 const getDisplayName = (slug: string, t: (key: string) => string, products: Product[], language: string) => {
-    // 0. Check Dynamic Products (Best for casing like "iPhone")
+    // 0. Check SERVICES (SSOT for Services)
+    const service = SERVICES.find(s => Object.values(s.slugs).includes(slug));
+    if (service) {
+        return service.name[language as 'en' | 'fr' | 'nl' | 'tr'] || service.name.en;
+    }
+
+    // 0.1 Check Static Mappings (Priority for standard routes)
+    for (const key in STATIC_SLUG_MAPPINGS) {
+        const translations = STATIC_SLUG_MAPPINGS[key];
+        // Check if the current slug is a value in this mapping group
+        const isMatch = Object.values(translations).includes(slug);
+
+        // If it is a known static slug (e.g. 'herstelling' or 'repair'), we want to show the localized display string.
+        // Usually, we want to capitalize it.
+        // However, if the slug IS the translation, we might just want to capitalize it or map it to a "Title" key if we had one.
+        // For now, let's map it to the 'en' key as a unique identifier then translate? 
+        // Or simply if it matches, return the proper casing or translation.
+
+        // Better approach: If slug matches a localized value, find the 'key' (e.g. 'repair') and see if we have a translation key.
+        // Actually, the prompt says "Utiliser le STATIC_SLUG_MAPPINGS... pour traduire les segments".
+        // If the URL is already localized (e.g. /fr/reparation), 'reparation' is the slug.
+        // We want to display "Réparation".
+
+        if (isMatch) {
+            // Find which language key this slug belongs to, or just check if it matches the current lang's version
+            // But we actually just want a readable name.
+            // If the slug is 'reparation' (fr), and language is 'nl', we shouldn't be seeing 'reparation' in the URL usually.
+            // But here we are just displaying the segment name.
+
+            // Let's capitalize it nicely or use t() if available.
+            // Only purely static ones like 'about' -> 'À propos' might need t().
+            // For now, let's fall through to t() but use the key if possible?
+            // Actually, if it's in STATIC_SLUG_MAPPINGS, it's a known structural segment.
+
+            // Let's try to reverse lookup the canonical key
+            const canonicalKey = Object.keys(STATIC_SLUG_MAPPINGS).find(k => Object.values(STATIC_SLUG_MAPPINGS[k]).includes(slug));
+            if (canonicalKey) {
+                // Try to translate the canonical key using our main translation dictionary
+                const translated = t(canonicalKey);
+                if (translated && translated !== canonicalKey) return translated;
+            }
+        }
+    }
+
+    // 1. Check Dynamic Products (Best for casing like "iPhone")
     const product = products.find(p => p.slug === slug);
     if (product) {
         const { name } = getLocalizedProduct(product, language as 'en' | 'fr' | 'nl');
         return product.brand ? `${product.brand} ${name}` : name;
     }
 
-    // 1. Check Device Types
+    // 2. Check Device Types
     const deviceType = DEVICE_TYPES.find(dt => dt.id === slug);
     if (deviceType) return t(deviceType.label);
 
-    // 2. Check Brands
+    // 3. Check Brands
     for (const brands of Object.values(DEVICE_BRANDS)) {
         const brandName = brands.find(b => createSlug(b) === slug);
         if (brandName) return brandName;
     }
 
-    // 3. Check Models (using Search Index - Legacy/Static)
+    // 4. Check Models (using Search Index - Legacy/Static)
     if (SEARCH_INDEX[slug]) {
         return SEARCH_INDEX[slug].model;
     }
 
-    // 4. Check for exact translation match of the slug (e.g. "track-order")
+    // 5. Check for exact translation match of the slug or its canonical
     const translation = t(slug);
     if (translation && translation !== slug) return translation;
 
-    // 5. Fallback to centralized slug utility (strips SEO suffixes and capitalizes)
+    // 6. Fallback to centralized slug utility (strips SEO suffixes and capitalizes)
     return slugToDisplayName(slug);
 };
 
@@ -49,16 +98,64 @@ const Breadcrumbs: React.FC = () => {
     const { language, t } = useLanguage();
     const { products } = useData();
 
+    // Filter out empty strings and locale prefix
     const pathnames = pathname.split('/').filter(x => x && !['en', 'fr', 'nl', 'tr'].includes(x));
 
-    if (pathnames.length === 0 && !pathname.endsWith('/')) { // Only show on sub-pages
+    if (pathnames.length === 0 && !pathname.endsWith('/')) {
+        // Only show on sub-pages
         return null;
     }
 
+    // Generate crumbs list for rendering and JSON-LD
+    const crumbs = pathnames.map((name, index) => {
+        let routeTo = `/${language}/${pathnames.slice(0, index + 1).join('/')}`;
 
+        // Preserve query params (category) for Brand level and deeper
+        if (index >= 1 && searchParams.toString()) {
+            routeTo += `?${searchParams.toString()}`;
+        }
+
+        const isLast = index === pathnames.length - 1;
+        const displayName = getDisplayName(name, t, products, language);
+
+        return {
+            name: displayName,
+            url: routeTo,
+            isLast
+        };
+    });
+
+    // Determine Base URL (safely)
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://belmobile.be';
+
+    // JSON-LD Construction
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": t('Home') || "Home",
+                "item": `${baseUrl}/${language}`
+            },
+            ...crumbs.map((crumb, index) => ({
+                "@type": "ListItem",
+                "position": index + 2,
+                "name": crumb.name,
+                "item": `${baseUrl}${crumb.url.split('?')[0]}` // Strip query params for canonical ID usually
+            }))
+        ]
+    };
 
     return (
         <nav aria-label="Breadcrumb" className="bg-gray-100 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 transition-colors duration-300">
+            {/* JSON-LD Injection */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+
             <div className="w-full max-w-6xl mx-auto px-6">
                 <ol className="flex items-center space-x-2 py-3 text-sm">
                     <li>
@@ -67,33 +164,21 @@ const Breadcrumbs: React.FC = () => {
                             <span className="sr-only">Home</span>
                         </Link>
                     </li>
-                    {pathnames.map((name, index) => {
-                        let routeTo = `/${language}/${pathnames.slice(0, index + 1).join('/')}`;
-
-                        // Preserve query params (category) for Brand level and deeper
-                        if (index >= 1 && searchParams.toString()) {
-                            routeTo += `?${searchParams.toString()}`;
-                        }
-
-                        const isLast = index === pathnames.length - 1;
-                        const displayName = getDisplayName(name, t, products, language);
-
-                        return (
-                            <li key={name} className="flex items-center">
-                                <ChevronRightIcon className="h-4 w-4 text-gray-400 dark:text-gray-600" aria-hidden="true" />
-                                <Link
-                                    href={routeTo}
-                                    className={`ml-2 font-medium transition-colors ${isLast
-                                        ? 'text-gray-700 dark:text-white pointer-events-none'
-                                        : 'text-gray-500 dark:text-gray-400 hover:text-bel-blue dark:hover:text-blue-400'
-                                        }`}
-                                    aria-current={isLast ? 'page' : undefined}
-                                >
-                                    {displayName}
-                                </Link>
-                            </li>
-                        );
-                    })}
+                    {crumbs.map((crumb) => (
+                        <li key={crumb.url} className="flex items-center">
+                            <ChevronRightIcon className="h-4 w-4 text-gray-400 dark:text-gray-600" aria-hidden="true" />
+                            <Link
+                                href={crumb.url}
+                                className={`ml-2 font-medium transition-colors ${crumb.isLast
+                                    ? 'text-gray-700 dark:text-white pointer-events-none'
+                                    : 'text-gray-500 dark:text-gray-400 hover:text-bel-blue dark:hover:text-blue-400'
+                                    }`}
+                                aria-current={crumb.isLast ? 'page' : undefined}
+                            >
+                                {crumb.name}
+                            </Link>
+                        </li>
+                    ))}
                 </ol>
             </div>
         </nav>

@@ -1,30 +1,26 @@
 import { MetadataRoute } from 'next';
 
+/**
+ * ROBOTS.TXT CONFIGURATION
+ * Directs crawlers to the dynamic sitemap and protects private directories.
+ */
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be';
-    const isStaging = baseUrl.includes('dev.') || baseUrl.includes('vercel.app');
-
-    if (isStaging) {
-        return {
-            rules: {
-                userAgent: '*',
-                disallow: '/',
-            },
-        };
-    }
+    const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be';
 
     return {
         rules: {
             userAgent: '*',
             allow: '/',
             disallow: [
-                '/admin/',
                 '/api/',
-                '/recovery/',
+                '/admin/',
                 '/_next/',
-                '/server-sitemap.xml',
+                '/static/',
+                '/monitoring/',
+                '/protected/',
+                '/*?', // Disallow crawling search results/parameterized pages to save crawl budget
             ],
         },
-        sitemap: `${baseUrl}/sitemap.xml`,
+        sitemap: `${BASE_URL}/sitemap.xml`,
     };
 }

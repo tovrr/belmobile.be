@@ -53,6 +53,7 @@ interface SidebarProps {
     isSubmitting?: boolean;
     isProcessing?: boolean;
     processingText?: string;
+    breakdown?: any; // typed as WizardQuoteResponse['breakdown'] ideally
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -78,7 +79,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     hasHydrogel,
     isSubmitting = false,
     isProcessing = false,
-    processingText
+    processingText,
+    breakdown
 }) => {
     const { t, language } = useLanguage();
     const { state } = useWizard();
@@ -182,98 +184,85 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 </div>
                             )}
 
-                            {!isBuyback && repairIssues.length > 0 && (
+                            {/* SSoT Breakdown Display */}
+                            {breakdown && (breakdown.repairs?.length > 0 || breakdown.deductions?.length > 0) ? (
                                 <div className="border-t border-gray-100 dark:border-slate-800 pt-3 mt-3">
-                                    <span className="block text-gray-500 mb-2">{t('Repairs')}</span>
-                                    <ul className="space-y-1">
-                                        {repairIssues.map(issueId => {
-                                            const issue = REPAIR_ISSUES.find(i => i.id === issueId);
-                                            if (!issue) return null;
+                                    <span className="block text-gray-500 mb-2">{t('Details')}</span>
+                                    <ul className="space-y-2">
+                                        {/* Repair Items */}
+                                        {breakdown.repairs?.map((item: any, idx: number) => (
+                                            <li key={`rep-${idx}`} className="flex justify-between text-gray-900 dark:text-white font-medium">
+                                                <span className="text-sm">{item.label}</span>
+                                                <span className="text-sm font-mono">{item.amount > 0 ? `€${item.amount}` : t('free')}</span>
+                                            </li>
+                                        ))}
 
-                                            let label = t(issue.id);
-                                            if (issueId === 'screen') {
-                                                const hasMultiple = [
-                                                    dynamicRepairPrices?.screen_generic >= 0,
-                                                    dynamicRepairPrices?.screen_oled >= 0,
-                                                    dynamicRepairPrices?.screen_original >= 0
-                                                ].filter(Boolean).length > 1;
+                                        {/* Buyback Base */}
+                                        {isBuyback && breakdown.basePrice !== undefined && (
+                                            <li className="flex justify-between text-gray-900 dark:text-white font-medium">
+                                                <span className="text-sm">{t('base_value')}</span>
+                                                <span className="text-sm font-mono">€{breakdown.basePrice}</span>
+                                            </li>
+                                        )}
 
-                                                if (hasMultiple && selectedScreenQuality) {
-                                                    if (selectedScreenQuality === 'oled') label += ` (${t('OLED / Soft')})`;
-                                                    else if (selectedScreenQuality === 'original') label += ` (${t('Original Refurb')})`;
-                                                    else if (selectedScreenQuality === 'generic') label += ` (${t('Generic / LCD')})`;
-                                                }
-                                            }
+                                        {/* Buyback Deductions */}
+                                        {breakdown.deductions?.map((item: any, idx: number) => (
+                                            <li key={`ded-${idx}`} className="flex justify-between text-gray-500 font-medium">
+                                                <span className="text-sm">{item.label}</span>
+                                                <span className="text-sm font-mono text-red-500">-€{item.amount}</span>
+                                            </li>
+                                        ))}
 
-                                            let price = 0;
-                                            if (issueId === 'screen') {
-                                                if (selectedScreenQuality === 'oled') price = repairEstimates.oled;
-                                                else if (selectedScreenQuality === 'original') price = repairEstimates.original;
-                                                else price = repairEstimates.standard;
-                                            } else {
-                                                price = (getSingleIssuePrice && getSingleIssuePrice(issueId)) || 0;
-                                            }
-
-                                            return (
-                                                <li key={issueId} className="flex justify-between text-gray-900 dark:text-white font-medium">
-                                                    <span className="break-all max-w-[150px]" title={label}>{label}</span>
-                                                    <span>
-                                                        {issueId === 'other' ? (
-                                                            <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span>
-                                                        ) : (
-                                                            price && price > 0 ? (
-                                                                <>&euro;{price}</>
-                                                            ) : (
-                                                                price === 0 ? t('contact_for_price') : <span>-</span>
-                                                            )
-                                                        )}
-                                                    </span>
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                </div>
-                            )}
-
-                            {!isBuyback && (deliveryMethod === 'courier' || hasHydrogel) && (
-                                <div className="border-t border-gray-100 dark:border-slate-800 pt-3 mt-3">
-                                    <span className="block text-gray-500 mb-2">{t('Extras')}</span>
-                                    <ul className="space-y-1">
+                                        {/* Extras (Client Side for now if not in breakdown) */}
                                         {hasHydrogel && (
                                             <li className="flex justify-between text-gray-900 dark:text-white font-medium">
-                                                <span>{t('hydrogel_protection')}</span>
-                                                <span>&euro;15</span>
+                                                <span className="text-sm">{t('hydrogel_protection')}</span>
+                                                <span className="text-sm font-mono">€15</span>
                                             </li>
                                         )}
                                         {deliveryMethod === 'courier' && (
                                             <li className="flex justify-between text-gray-900 dark:text-white font-medium">
-                                                <span>{t('Express Courier')}</span>
-                                                <span>{courierTier === 'brussels' ? <>&euro;15</> : <span className="text-bel-blue dark:text-blue-400 font-bold uppercase">{t('free')}</span>}</span>
+                                                <span className="text-sm">{t('Express Courier')}</span>
+                                                <span className="text-sm font-mono">{courierTier === 'brussels' ? '€15' : t('free')}</span>
                                             </li>
                                         )}
                                     </ul>
                                 </div>
+                            ) : (
+                                !isBuyback && repairIssues.length > 0 && (
+                                    // Fallback for initial load mismatch
+                                    <div className="border-t border-gray-100 dark:border-slate-800 pt-3 mt-3">
+                                        <p className="text-sm text-gray-400 italic text-center">{t('calculating_details')}</p>
+                                    </div>
+                                )
                             )}
                         </div>
 
-                        {/* Price Estimation */}
-                        <div className="bg-gray-50 dark:bg-slate-950/50 rounded-xl p-4 text-center group relative mt-6">
+                        {/* Price Estimation Card */}
+                        <div className="bg-gray-50 dark:bg-slate-950/50 rounded-xl p-4 text-center group relative mt-6 transition-all duration-300">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
                                     {isBuyback ? t('Estimated Value') : t('Total Cost')}
                                 </p>
                             </div>
-                            <div className="text-3xl font-extrabold text-bel-dark dark:text-white">
-                                {loading || isTransitioning || (isBuyback && typeof estimateDisplay === 'number' && estimateDisplay === 0 && loading) ? (
+                            <div className="text-3xl font-extrabold text-bel-dark dark:text-white min-h-[40px] flex items-center justify-center">
+                                {loading || isTransitioning || (estimateDisplay === 0 && loading) ? (
                                     <div className="flex space-x-1 h-9 items-center justify-center">
                                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                                     </div>
                                 ) : (
-                                    typeof estimateDisplay === 'number' ? (
-                                        estimateDisplay > 0 ? <>&euro;{estimateDisplay}</> : (estimateDisplay === -1 ? t('contact_for_price') : <span className="text-gray-400">-</span>)
-                                    ) : estimateDisplay
+                                    <motion.span
+                                        key={typeof estimateDisplay === 'number' ? estimateDisplay : 'txt'}
+                                        initial={{ scale: 0.8, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        className="text-bel-blue dark:text-blue-400"
+                                    >
+                                        {typeof estimateDisplay === 'number' ? (
+                                            estimateDisplay > 0 ? `€${estimateDisplay}` : (estimateDisplay === -1 ? t('contact_for_price') : '-')
+                                        ) : estimateDisplay}
+                                    </motion.span>
                                 )}
                             </div>
                             {isBuyback && typeof estimateDisplay === 'number' && estimateDisplay > 0 && !loading && !isTransitioning && (

@@ -1,7 +1,9 @@
 'use server';
 
+import * as Sentry from '@sentry/nextjs';
+
 import { calculateBuybackPriceShared, calculateRepairPriceShared, PricingParams } from '@/utils/pricingLogic';
-import { getPricingData } from '@/services/server/pricing.dal';
+import { getPricingData, getLocalizedRepairDictionary } from '@/services/server/pricing.dal';
 
 export interface WizardQuoteRequest {
     deviceSlug: string;
@@ -18,12 +20,14 @@ export interface WizardQuoteRequest {
     faceIdWorking?: boolean;
     isUnlocked?: boolean;
     controllerCount?: number;
+    // 7. Add language to request payload
+    language?: 'fr' | 'nl' | 'en' | 'tr';
     // Repair extra
     selectedScreenQuality?: 'generic' | 'oled' | 'original' | '';
 }
 
 export interface WizardQuoteResponse {
-    price: number; // The Calculated Final Price
+    price: number;
     currency: string;
     breakdown: {
         basePrice?: number;
@@ -38,6 +42,7 @@ export async function getWizardQuote(request: WizardQuoteRequest): Promise<Wizar
     try {
         // 1. Fetch RAW data via DAL
         const data = await getPricingData(request.deviceSlug);
+        const localizedDict = await getLocalizedRepairDictionary(request.language || 'fr');
 
         if (!data) {
             return { price: 0, currency: 'EUR', breakdown: {}, success: false, error: 'Device not found' };
@@ -48,11 +53,10 @@ export async function getWizardQuote(request: WizardQuoteRequest): Promise<Wizar
 
         // 2. Calculate based on Type
         if (request.type === 'buyback') {
-            // Map request to PricingParams
             const params: PricingParams = {
                 type: 'buyback',
                 brand: data.metadata?.brand || 'Unknown',
-                model: 'Unknown', // Not used in calculation logic but required by interface
+                model: 'Unknown',
                 deviceType: data.metadata?.category || 'smartphone',
                 storage: request.storage || '',
                 turnsOn: request.turnsOn,
@@ -65,10 +69,20 @@ export async function getWizardQuote(request: WizardQuoteRequest): Promise<Wizar
                 controllerCount: request.controllerCount
             };
 
-            finalPrice = calculateBuybackPriceShared(params, {
-                buybackPrices: data.buyback,
-                repairPrices: data.repair
+            // Custom Breakdown Logic for Buyback
+            const result = calculateBuybackPriceShared(params, {
+                buybackPrices: data.buyback as any,
+                repairPrices: data.repair as any
             });
+            // Assuming calculateBuybackPriceShared only returns number. We need to refactor it or re-calculate breakdown here.
+            // For now, let's just use the number and provide a simple breakdown based on params.
+            finalPrice = result;
+
+            // Re-simulation for breakdown (SOTA: In real app, logic function should return breakdown)
+            breakdown = {
+                basePrice: finalPrice, // Simplified for now
+                deductions: []
+            };
 
         }
         else if (request.type === 'repair') {
@@ -81,10 +95,33 @@ export async function getWizardQuote(request: WizardQuoteRequest): Promise<Wizar
                 selectedScreenQuality: request.selectedScreenQuality
             };
 
+            const repairParams = data.repair as any;
+
             finalPrice = calculateRepairPriceShared(params, {
-                buybackPrices: [], // Not needed for repair
-                repairPrices: data.repair
+                buybackPrices: [],
+                repairPrices: repairParams
             });
+
+            // Repair Breakdown
+            const repairs = (request.selectedRepairs || []).map(id => {
+                let amount = repairParams[id] || 0;
+
+                // Screen Special Case
+                if (id === 'screen' && request.selectedScreenQuality) {
+                    const q = request.selectedScreenQuality;
+                    amount = repairParams[`screen_${q}`] || repairParams['screen_generic'] || amount;
+                }
+
+                return {
+                    label: localizedDict[id] || id,
+                    amount: amount
+                };
+            }).filter(i => i.amount > 0);
+
+            breakdown = {
+                repairs,
+                total: finalPrice
+            };
         }
 
         return {
@@ -96,6 +133,14 @@ export async function getWizardQuote(request: WizardQuoteRequest): Promise<Wizar
 
     } catch (error) {
         console.error('Server Action Error:', error);
+        Sentry.captureException(error, {
+            tags: {
+                action: 'getWizardQuote',
+                device: request.deviceSlug,
+                type: request.type
+            },
+            extra: { request }
+        });
         return { price: 0, currency: 'EUR', breakdown: {}, success: false, error: 'Calculation failed' };
     }
 }

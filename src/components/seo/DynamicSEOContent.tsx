@@ -112,14 +112,14 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     // In SOTA, we use the DAL data for title/description if available
     const getTitle = () => {
         if (priceQuote && priceQuote.seo && priceQuote.seo[lang]) {
-            return priceQuote.seo[lang].title;
+            return isRepair ? priceQuote.seo[lang].repair.title : priceQuote.seo[lang].buyback.title;
         }
         return getSEOTitle({ isStore, isRepair, lang, locationName, deviceName, durationText });
     };
 
     const getDescription = () => {
         if (priceQuote && priceQuote.seo && priceQuote.seo[lang]) {
-            return priceQuote.seo[lang].description;
+            return isRepair ? priceQuote.seo[lang].repair.description : priceQuote.seo[lang].buyback.description;
         }
         return getSEODescription({
             isStore, isRepair, lang, locationName, deviceName, isHub, shop, brand, issuesText, durationText
@@ -220,12 +220,33 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                 "@type": "Product",
                 "name": `${lang === 'fr' ? 'Réparation' : (lang === 'nl' ? 'Reparatie' : 'Repair')} ${deviceName}`,
                 "description": getDescription(),
-                "image": priceQuote.deviceImage || undefined, // Add image if available in DAL someday
+                "image": priceQuote.deviceImage || undefined,
                 "offers": {
                     "@type": "Offer",
                     "url": typeof window !== 'undefined' ? window.location.href : undefined,
                     "priceCurrency": "EUR",
-                    "price": startPrice,
+                    "price": Number(startPrice),
+                    "availability": "https://schema.org/InStock",
+                    "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+                    "seller": {
+                        "@type": "LocalBusiness",
+                        "name": "Belmobile"
+                    }
+                }
+            });
+        } else if (priceQuote && !isRepair) {
+            const { buyback } = priceQuote;
+            schemas.push({
+                "@context": "https://schema.org",
+                "@type": "Product",
+                "name": `${lang === 'fr' ? 'Rachat' : (lang === 'nl' ? 'Inkoop' : 'Buyback')} ${deviceName}`,
+                "description": getDescription(),
+                "image": priceQuote.deviceImage || undefined,
+                "offers": {
+                    "@type": "Offer",
+                    "url": typeof window !== 'undefined' ? window.location.href : undefined,
+                    "priceCurrency": "EUR",
+                    "price": Number(buyback.maxPrice),
                     "availability": "https://schema.org/InStock",
                     "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
                     "seller": {

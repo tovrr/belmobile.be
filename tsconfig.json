@@ -42,6 +42,7 @@
   "exclude": [
     "node_modules",
     "legacy-platform",
-    "modern-platform-backup"
+    "modern-platform-backup",
+    "scripts"
   ]
 }

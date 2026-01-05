@@ -1,263 +1,173 @@
+
 import { MetadataRoute } from 'next';
 import { SERVICES } from '../data/services';
 import { LOCATIONS } from '../data/locations';
-import { createSlug } from '../utils/slugs';
-import { MOCK_BLOG_POSTS, MOCK_PRODUCTS } from '../constants';
 import { getAllDevices } from '../services/server/pricing.dal';
+import { MOCK_BLOG_POSTS, MOCK_PRODUCTS } from '../constants';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be';
+const LANGUAGES = ['fr', 'nl', 'en', 'tr'] as const;
+type Locale = typeof LANGUAGES[number];
 
+const HIGH_PRIORITY_KEYWORDS = [
+    'iphone-13', 'iphone-14', 'iphone-15', 'iphone-16',
+    'galaxy-s22', 'galaxy-s23', 'galaxy-s24', 'pixel-7', 'pixel-8'
+];
+
+/**
+ * STRATEGIC SITEMAP GENERATOR
+ * Roles: SEO Optimization, Hreflang Alternates Management, Performance.
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const sitemap: MetadataRoute.Sitemap = [];
-    const languages = ['fr', 'nl', 'en', 'tr'];
 
-    // 1. Static Pages & Home
-    languages.forEach(lang => {
-        sitemap.push({
-            url: `${BASE_URL}/${lang}`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
-            priority: 1.0,
-        });
+    // --- 1. HARMONIZED STATIC PAGES (Aligned with Middleware) ---
+    const pages = [
+        { id: 'home', priority: 1.0, changeFreq: 'daily', slugs: { en: '', fr: '', nl: '', tr: '' } },
+        { id: 'about', priority: 0.8, changeFreq: 'monthly', slugs: { en: 'about', fr: 'a-propos', nl: 'over-ons', tr: 'hakkimizda' } },
+        { id: 'services', priority: 0.8, changeFreq: 'weekly', slugs: { en: 'services', fr: 'services', nl: 'diensten', tr: 'hizmetler' } },
+        { id: 'business', priority: 0.8, changeFreq: 'weekly', slugs: { en: 'business', fr: 'business', nl: 'zakelijk', tr: 'kurumsal' } },
+        { id: 'stores', priority: 0.8, changeFreq: 'weekly', slugs: { en: 'stores', fr: 'magasins', nl: 'winkels', tr: 'magazalar' } },
+        { id: 'contact', priority: 0.8, changeFreq: 'monthly', slugs: { en: 'contact', fr: 'contact', nl: 'contact', tr: 'iletisim' } },
+        { id: 'track', priority: 0.7, changeFreq: 'daily', slugs: { en: 'track-order', fr: 'suivre-commande', nl: 'volg-bestelling', tr: 'siparis-takip' } },
+        { id: 'faq', priority: 0.7, changeFreq: 'weekly', slugs: { en: 'faq', fr: 'faq', nl: 'veelgestelde-vragen', tr: 'sss' } },
+        { id: 'careers', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'careers', fr: 'carrieres', nl: 'vacatures', tr: 'kariyer' } },
 
-        // 1.5 Specialized Services (Microsoldering & Data Recovery & Legal/Support)
-        const specializedServices = [
-            // Services
-            {
-                id: 'microsoldering',
-                slugs: { en: 'services/microsoldering', fr: 'services/microsoudure', nl: 'services/microsolderen', tr: 'hizmetler/mikrosoldering' }
-            },
-            {
-                id: 'data-recovery',
-                slugs: { en: 'services/data-recovery', fr: 'services/recuperation-donnees', nl: 'services/data-recovery', tr: 'hizmetler/veri-kurtarma' }
-            },
-            {
-                id: 'services',
-                slugs: { en: 'services', fr: 'services', nl: 'diensten', tr: 'hizmetler' }
-            },
-            // Business & Corporate
-            {
-                id: 'business',
-                slugs: { en: 'business', fr: 'business', nl: 'zakelijk', tr: 'kurumsal' }
-            },
-            {
-                id: 'franchise',
-                slugs: { en: 'franchise', fr: 'franchise', nl: 'franchise', tr: 'franchise' }
-            },
-            {
-                id: 'careers',
-                slugs: { en: 'careers', fr: 'carrieres', nl: 'vacatures', tr: 'kariyer' }
-            },
-            {
-                id: 'express-courier',
-                slugs: { en: 'express-courier', fr: 'coursier-express', nl: 'express-koerier', tr: 'kurye' }
-            },
-            {
-                id: 'students',
-                slugs: { en: 'students', fr: 'etudiants', nl: 'studenten', tr: 'ogrenci' }
-            },
-            // Company Info
-            {
-                id: 'about',
-                slugs: { en: 'about', fr: 'a-propos', nl: 'over-ons', tr: 'hakkimizda' }
-            },
-            {
-                id: 'training',
-                slugs: { en: 'training', fr: 'formation', nl: 'opleiding', tr: 'egitim' }
-            },
-            {
-                id: 'sustainability',
-                slugs: { en: 'about/sustainability', fr: 'about/durabilite', nl: 'about/duurzaamheid', tr: 'hakkimizda/surdurulebilirlik' }
-            },
-            // Support & Tools
-            {
-                id: 'support',
-                slugs: { en: 'support', fr: 'support', nl: 'ondersteuning', tr: 'destek' }
-            },
-            {
-                id: 'track-order',
-                slugs: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen', tr: 'takip' }
-            },
-            {
-                id: 'stores',
-                slugs: { en: 'stores', fr: 'magasins', nl: 'winkels', tr: 'magazalar' }
-            },
-            {
-                id: 'comp-products',
-                slugs: { en: 'products', fr: 'produits', nl: 'producten', tr: 'urunler' }
-            },
-            // Legal Pages
-            {
-                id: 'warranty',
-                slugs: { en: 'warranty', fr: 'garantie', nl: 'garantie', tr: 'garanti' }
-            },
-            {
-                id: 'terms',
-                slugs: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden', tr: 'kosullar' }
-            },
-            {
-                id: 'privacy',
-                slugs: { en: 'privacy', fr: 'vie-privee', nl: 'privacy', tr: 'gizlilik' }
-            },
-            {
-                id: 'cookies',
-                slugs: { en: 'cookies', fr: 'cookies', nl: 'cookies', tr: 'cerezler' }
-            },
-            {
-                id: 'contact',
-                slugs: { en: 'contact', fr: 'contact', nl: 'contact', tr: 'iletisim' }
-            },
-            {
-                id: 'faq',
-                slugs: { en: 'faq', fr: 'faq', nl: 'faq', tr: 'sss' }
-            }
-        ];
+        // Legal (Low Priority 0.3)
+        { id: 'privacy', priority: 0.3, changeFreq: 'yearly', slugs: { en: 'privacy', fr: 'politique-de-confidentialite', nl: 'privacybeleid', tr: 'gizlilik-politikasi' } },
+        { id: 'terms', priority: 0.3, changeFreq: 'yearly', slugs: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden', tr: 'kullanim-sartlari' } },
+        { id: 'cookies', priority: 0.3, changeFreq: 'yearly', slugs: { en: 'cookies', fr: 'politique-cookies', nl: 'cookiebeleid', tr: 'cerez-politikasi' } },
+    ];
 
-        specializedServices.forEach(service => {
-            // @ts-ignore
-            const slug = service.slugs[lang];
-            if (slug) {
-                sitemap.push({
-                    url: `${BASE_URL}/${lang}/${slug}`,
-                    lastModified: new Date(),
-                    changeFrequency: 'weekly',
-                    priority: 0.85,
-                });
-            }
-        });
-
-        // 1.6 Service Areas (Virtual Location Pages)
-        const brusselsCommunes = [
-            'Auderghem', 'Berchem-Sainte-Agathe', 'Bruxelles-Ville', 'Etterbeek', 'Evere',
-            'Forest', 'Ganshoren', 'Ixelles', 'Jette', 'Koekelberg',
-            'Saint-Gilles', 'Saint-Josse-ten-Noode', 'Uccle', 'Watermael-Boitsfort',
-            'Woluwe-Saint-Lambert', 'Woluwe-Saint-Pierre'
-        ];
-
-        const storeSlugMap = {
-            fr: 'magasins',
-            nl: 'winkels',
-            en: 'stores',
-            tr: 'magazalar'
-        };
-
-        brusselsCommunes.forEach(commune => {
-            const citySlug = commune.toLowerCase().replace(/\s+/g, '-');
-            // @ts-ignore
-            const storePath = storeSlugMap[lang] || 'stores';
+    pages.forEach(page => {
+        LANGUAGES.forEach(lang => {
+            const relSlug = page.slugs[lang];
+            const url = `${BASE_URL}/${lang}${relSlug ? '/' + relSlug : ''}`;
 
             sitemap.push({
-                url: `${BASE_URL}/${lang}/${storePath}?city=${citySlug}`,
+                url,
                 lastModified: new Date(),
-                changeFrequency: 'weekly',
-                priority: 0.8,
+                changeFrequency: page.changeFreq as any,
+                priority: page.priority,
+                alternates: {
+                    languages: Object.fromEntries(
+                        LANGUAGES.map(l => [l, `${BASE_URL}/${l}${page.slugs[l] ? '/' + page.slugs[l] : ''}`])
+                    )
+                }
             });
         });
     });
 
-    // 2. DYNAMIC DEVICES (SSOT FROM DB)
-    const allDeviceIds = await getAllDevices(); // e.g. ['apple-iphone-13', 'samsung-galaxy-s21', ...]
+    // --- 2. DYNAMIC DEVICES (The "Money" Calculator Pages) ---
+    // High Priority: 1.0 (Same as Home)
+    const deviceIds = await getAllDevices();
 
-    // Filter services to just Repair and Buyback for device pages
-    const activeServices = SERVICES.filter(s => s.id === 'repair' || s.id === 'buyback');
+    // Sort devices: Priority > Recent > Others
+    deviceIds.sort((a, b) => {
+        const aPrio = HIGH_PRIORITY_KEYWORDS.some(k => a.includes(k));
+        const bPrio = HIGH_PRIORITY_KEYWORDS.some(k => b.includes(k));
+        if (aPrio && !bPrio) return -1;
+        if (!aPrio && bPrio) return 1;
+        return a.localeCompare(b);
+    });
 
-    for (const service of activeServices) {
-        if (service.id === 'products') continue;
+    const serviceTypes = [
+        { id: 'repair', slugs: { fr: 'reparation', nl: 'reparatie', en: 'repair', tr: 'onarim' } },
+        { id: 'buyback', slugs: { fr: 'rachat', nl: 'inkoop', en: 'buyback', tr: 'geri-alim' } }
+    ];
 
-        for (const lang of languages) {
-            // @ts-ignore
-            const serviceSlug = service.slugs[lang];
+    for (const service of serviceTypes) {
+        for (const deviceId of deviceIds) {
+            const [brand, ...modelParts] = deviceId.split('-');
+            if (!brand || modelParts.length === 0) continue;
+            const model = modelParts.join('-');
 
-            // A. Service Home (e.g., /fr/reparation)
-            sitemap.push({
-                url: `${BASE_URL}/${lang}/${serviceSlug}`,
-                lastModified: new Date(),
-                changeFrequency: 'daily',
-                priority: 0.9,
-            });
+            const isPriority = HIGH_PRIORITY_KEYWORDS.some(k => deviceId.includes(k));
+            const priority = isPriority ? 1.0 : 0.8;
 
-            // B. Device Pages
-            for (const deviceId of allDeviceIds) {
-                // Parse ID: 'apple-iphone-13' -> brand='apple', model='iphone-13'
-                const parts = deviceId.split('-');
-                if (parts.length < 2) continue;
-                const brand = parts[0];
-                const model = parts.slice(1).join('-');
-
-                // deviceSlug is the model (e.g. 'iphone-13')
-                // URL: /fr/reparation/apple/iphone-13
-
-                const url = `${BASE_URL}/${lang}/${serviceSlug}/${brand}/${model}`;
+            LANGUAGES.forEach(lang => {
+                const serviceSlug = service.slugs[lang];
+                const url = `${BASE_URL}/${lang}/${serviceSlug}/${brand}/${model}`.toLowerCase();
 
                 sitemap.push({
-                    url: url.toLowerCase(),
+                    url,
                     lastModified: new Date(),
                     changeFrequency: 'weekly',
-                    priority: 0.75,
+                    priority: priority, // Strategic: High value for crawler
+                    alternates: {
+                        languages: Object.fromEntries(
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${service.slugs[l]}/${brand}/${model}`.toLowerCase()])
+                        )
+                    }
                 });
 
-                // C. Location Pages per Device (High value SEO)
-                // /fr/reparation/apple/iphone-13/schaerbeek
+                // Location-specific landing pages for devices (e.g. Repair iPhone 13 Brussels)
                 for (const location of LOCATIONS) {
-                    // @ts-ignore
-                    const locationSlug = location.slugs[lang];
+                    const locSlug = location.slugs[lang];
                     sitemap.push({
-                        url: `${url}/${locationSlug}`.toLowerCase(),
+                        url: `${url}/${locSlug}`.toLowerCase(),
                         lastModified: new Date(),
-                        changeFrequency: 'weekly',
-                        priority: 0.65,
+                        changeFrequency: 'monthly',
+                        priority: isPriority ? 0.9 : 0.7, // Slightly lower than main device page
+                        alternates: {
+                            languages: Object.fromEntries(
+                                LANGUAGES.map(l => [
+                                    l,
+                                    `${BASE_URL}/${l}/${service.slugs[l]}/${brand}/${model}/${location.slugs[l]}`.toLowerCase()
+                                ])
+                            )
+                        }
                     });
                 }
-            }
+            });
         }
     }
 
-    // 3. Blog
-    languages.forEach(lang => {
+    // --- 3. BLOG & PRODUCTS ---
+    LANGUAGES.forEach(lang => {
+        // Blog Index
         sitemap.push({
             url: `${BASE_URL}/${lang}/blog`,
             lastModified: new Date(),
             changeFrequency: 'weekly',
             priority: 0.7,
+            alternates: {
+                languages: Object.fromEntries(LANGUAGES.map(l => [l, `${BASE_URL}/${l}/blog`]))
+            }
         });
 
+        // Blog Posts
         MOCK_BLOG_POSTS.forEach(post => {
-            // @ts-ignore
-            const slug = post.slugs?.[lang] || post.slug || post.id;
+            const currentSlug = (post.slugs as any)?.[lang] || post.slug || post.id;
             sitemap.push({
-                url: `${BASE_URL}/${lang}/blog/${slug}`,
+                url: `${BASE_URL}/${lang}/blog/${currentSlug}`,
                 lastModified: new Date(),
                 changeFrequency: 'monthly',
                 priority: 0.6,
+                alternates: {
+                    languages: Object.fromEntries(
+                        LANGUAGES.map(l => [l, `${BASE_URL}/${l}/blog/${(post.slugs as any)?.[l] || post.slug || post.id}`])
+                    )
+                }
             });
         });
-    });
 
-    // 3.5 Individual Products (Refurbished/Sales)
-    languages.forEach(lang => {
-        const basePath = lang === 'fr' ? 'acheter' : (lang === 'nl' ? 'kopen' : (lang === 'tr' ? 'urunler' : 'buy'));
+        // Buying Products (Path aligned with middleware if needed, here constant)
+        const productsPath = { fr: 'produits', nl: 'producten', tr: 'urunler', en: 'products' };
         MOCK_PRODUCTS.forEach(product => {
             if (product.slug) {
                 sitemap.push({
-                    url: `${BASE_URL}/${lang}/${basePath}/${product.category}/${product.slug}`,
+                    url: `${BASE_URL}/${lang}/${productsPath[lang]}/${product.category}/${product.slug}`,
                     lastModified: new Date(),
                     changeFrequency: 'weekly',
                     priority: 0.8,
+                    alternates: {
+                        languages: Object.fromEntries(
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${productsPath[l]}/${product.category}/${product.slug}`])
+                        )
+                    }
                 });
             }
-        });
-    });
-
-    // 4. Other Static Pages
-    const staticPages = ['feedback', 'jobs'];
-    languages.forEach(lang => {
-        staticPages.forEach(page => {
-            sitemap.push({
-                url: `${BASE_URL}/${lang}/${page}`,
-                lastModified: new Date(),
-                changeFrequency: 'monthly',
-                priority: 0.5,
-            });
         });
     });
 

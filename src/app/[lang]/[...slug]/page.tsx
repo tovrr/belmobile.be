@@ -1,14 +1,15 @@
+
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 
 import { LOCATIONS } from '@/data/locations';
-import { MOCK_REPAIR_PRICES } from '@/constants';
 import { createSlug, slugToDisplayName } from '@/utils/slugs';
 import { Shop } from '@/types';
 import { parseRouteParams } from '@/utils/route-parser';
 import { generateSeoMetadata, getKeywordsForPage, generateMetaKeywords } from '@/utils/seo-templates';
+import { getPricingData } from '@/services/server/pricing.dal';
 
 import BuybackRepair from '@/components/wizard/BuybackRepair';
 import Hreflang from '@/components/seo/Hreflang';
@@ -42,6 +43,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const { service, location, device, deviceModel, deviceCategory } = routeData;
 
+    // FETCH REAL PRICING FOR SEO (CTR BOOSTER)
+    let price: number | undefined;
+    if (device && deviceModel) {
+        try {
+            const deviceSlug = createSlug(`${device.value} ${deviceModel}`);
+            const pricing = await getPricingData(deviceSlug);
+
+            if (service.id === 'repair' && pricing.repair) {
+                // Find lowest repair price (e.g. Battery often cheapest, or Screen Generic)
+                const prices = Object.values(pricing.repair).filter(v => typeof v === 'number' && v > 0) as number[];
+                if (prices.length > 0) price = Math.min(...prices);
+            } else if (service.id === 'buyback' && pricing.buyback) {
+                // Find highest buyback price (Up to X)
+                const prices = pricing.buyback.map(b => b.price).filter(v => typeof v === 'number' && v > 0);
+                if (prices.length > 0) price = Math.max(...prices);
+            }
+        } catch (err) {
+            console.error('[Metadata] Error fetching price:', err);
+        }
+    }
+
     // Use 'city' if available (e.g. "Schaerbeek") instead of "Liedts" (from "Belmobile Liedts")
     const locationName = location ? (location.city || location.name.replace('Belmobile ', '')) : '';
     const { title, description, ogTitle, ogSubtitle } = generateSeoMetadata({
@@ -52,7 +74,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         deviceCategory: deviceCategory,
         locationName: locationName,
         isHomeConsole: deviceCategory === 'console_home',
-        isPortableConsole: deviceCategory === 'console_portable'
+        isPortableConsole: deviceCategory === 'console_portable',
+        price: price // Inject Dynamic Price
     });
 
     // Keywords generation
@@ -199,16 +222,22 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
         isPortableConsole: deviceCategory === 'console_portable'
     });
 
-    // Calculate minPrice for SchemaOrg
+    // Calculate minPrice for SchemaOrg from REAL DATA
     let minPrice: number | undefined;
-    if (device && deviceModel && service.id === 'repair') {
-        const pricingSlug = createSlug(`${device.value} ${deviceModel}`);
-        const pricing = MOCK_REPAIR_PRICES.find(p => p.id === pricingSlug);
-        if (pricing) {
-            const prices = Object.values(pricing).filter(v => typeof v === 'number' && v > 0) as number[];
-            if (prices.length > 0) {
-                minPrice = Math.min(...prices);
+    if (device && deviceModel) {
+        try {
+            const deviceSlug = createSlug(`${device.value} ${deviceModel}`);
+            const pricing = await getPricingData(deviceSlug);
+
+            if (service.id === 'repair' && pricing.repair) {
+                const prices = Object.values(pricing.repair).filter(v => typeof v === 'number' && v > 0) as number[];
+                if (prices.length > 0) minPrice = Math.min(...prices);
+            } else if (service.id === 'buyback' && pricing.buyback) {
+                const prices = pricing.buyback.map(b => b.price).filter(v => typeof v === 'number' && v > 0);
+                if (prices.length > 0) minPrice = Math.max(...prices);
             }
+        } catch (e) {
+            console.error('Error fetching Schema price:', e);
         }
     }
 
