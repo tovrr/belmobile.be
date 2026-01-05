@@ -1,37 +1,51 @@
 # 🚀 Operation Velocity: Week 1 - SEO Dominance (Completed)
 
 **Date:** 2026-01-05
-**Status:** ✅ READY FOR DEPLOYMENT
-**Focus:** Sitemap, Metadata, and Dynamic Pricing Injection.
+**Status:** ✅ DEPLOYED (Staging)
+**Focus:** Semantic Sitemap Splitting, Metadata Injection, and Vercel Optimization.
 
 ---
 
-## 1. 🗺️ Sitemap Architecture (v2.0)
+## 1. 🗺️ Sitemap Architecture (v2.1 - Semantic Split)
 
-The sitemap logic (`src/app/sitemap.ts`) has been rebuilt to support **High-Velocity Indexing**.
+To resolve Vercel's "Oversized Artifact" limits and improve crawling efficiency, we moved from a monolithic sitemap to a **Semantic Split Architecture**.
 
-### **Hierarchy:**
-The system generates a tree of **~2,500 - 4,000 URLs** based on live database content.
+### **Structure:**
+The system now generates **5 distinct sitemaps** via `generateSitemaps()`:
 
-*   **Level 1: Core Pages** (Priority: 1.0 - 0.8)
-    *   Home, Services, Business, Stores.
-*   **Level 2: Service Hubs**
-    *   `/fr/reparation`, `/fr/rachat`, `/fr/blog`.
-*   **Level 3: Device Landing Pages** (Priority: 1.0 for Top 20 / 0.8 for others)
-    *   **Logic:** `brand` + `model` from Firestore `repair_prices`.
-    *   **Examples:**
-        *   `.../reparation/apple/iphone-13` (Top Priority)
-        *   `.../reparation/sony/playstation-5`
-    *   **Multilingual:** 4 URLs per device (FR, NL, EN, TR).
-*   **Level 4: Hyper-Local SEO**
-    *   **Logic:** Device + Location Slug using **Smart Geo-Fencing**.
-    *   **Examples:**
-        *   `.../reparation/apple/iphone-13/schaerbeek`
-        *   `.../reparation/apple/iphone-13/bruxelles` (Virtual Hub)
+1.  **`sitemap/static.xml`**:
+    *   **Content**: Core pages (Home, Business, Stores) + Legal (Privacy, Terms).
+    *   **Volume**: ~50 URLs.
+    *   **Priority**: High (Core).
 
-### **Key Improvements:**
-*   **Prioritization:** Implemented sorting logic to assign `priority: 1.0` specifically to high-value devices (iPhone 13-16, Samsung S22-24).
-*   **Exclusions:** Blocks query parameters `/*?` in `robots.ts` to prevent "Thin Content" penalties from filter pages.
+2.  **`sitemap/repair.xml`** (The "Money" Makers):
+    *   **Content**: Every device repair page + Local variants.
+    *   **Logic**: `.../reparation/{brand}/{model}` + `.../{location}`.
+    *   **Volume**: ~2,000+ URLs.
+    *   **Priority**: 1.0 (Top 20 Devices) / 0.8 (Rest).
+
+3.  **`sitemap/buyback.xml`**:
+    *   **Content**: Every device buyback/trade-in page.
+    *   **Volume**: ~2,000+ URLs.
+    *   **Priority**: 1.0 (Top 20) / 0.8 (Rest).
+
+4.  **`sitemap/blog.xml`**:
+    *   **Content**: Blog Index + All Articles.
+    *   **Volume**: Dynamic (currently low).
+
+5.  **`sitemap/products.xml`**:
+    *   **Content**: Refurbished Store Products.
+    *   **Volume**: Dynamic inventory.
+
+### **Hierarchy & Logic:**
+*   **Deep Linking**:
+    *   **Device Level:** `.../reparation/apple/iphone-13`
+    *   **Geo-Fenced:** `.../reparation/apple/iphone-13/schaerbeek`
+*   **Prioritization**:
+    *   **Top 20 Devices** (iPhone 13-16, Samsung S22-24) -> **Priority 1.0**.
+    *   **Others** -> Priority 0.8.
+*   **Virtual Hubs**:
+    *   `.../bruxelles` encompasses all 19 communes, acting as a dispatcher hub.
 
 ---
 
@@ -60,7 +74,7 @@ We solved the "Static Price" problem. Google Search Results (SERP) will now disp
 | **Legacy URLs** | ✅ MAPPED | 50+ redirects in `next.config.ts` handling old `/pages/reparation-...` links. |
 | **Typing** | ✅ STRICT | `tsc --noEmit` passing. `scripts/` excluded from build. |
 | **Consoles** | ✅ CONFIRMED | PS5, Xbox, Switch included in sitemap via agnostic device fetch. |
-| **Analytics** | ✅ ACTIVE | GA4 (`G-M3D46BYRSX`) present in `layout.tsx`. |
+| **Sitemap Size** | ✅ OPTIMIZED | Semantic splitting prevents 50MB+ XML files. |
 
 ---
 
@@ -68,7 +82,9 @@ We solved the "Static Price" problem. Google Search Results (SERP) will now disp
 
 1.  **Brand Hubs**: Add `.../reparation/apple` or `.../reparation/samsung` pages to sitemap to capture broad intent traffic.
 2.  **Image Sitemap**: Enrich XML with `<image:image>` tags linking to device photos for Google Images SEO.
-3.  **GSC Verification**: Monitor indexing coverage using Google Search Console after this deployment.
+3.  **GSC Verification**: 
+    *   Submit `sitemap.xml` (Index) to Google.
+    *   Monitor distinct performance of `repair.xml` vs `buyback.xml`.
 
 ---
 
