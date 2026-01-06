@@ -590,3 +590,10 @@ export const ClipboardIcon = (props: IconProps) => (
         <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
     </BaseIcon>
 );
+
+export const CreditCardIcon = (props: IconProps) => (
+    <BaseIcon {...props}>
+        <rect x="2" y="5" width="20" height="14" rx="2" />
+        <line x1="2" y1="10" x2="22" y2="10" />
+    </BaseIcon>
+);

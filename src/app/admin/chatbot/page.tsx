@@ -1,4 +1,5 @@
 import ChatManagement from '../../../components/admin/ChatManagement';
+import { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 
