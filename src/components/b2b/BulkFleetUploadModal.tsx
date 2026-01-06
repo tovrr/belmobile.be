@@ -77,32 +77,68 @@ export default function BulkFleetUploadModal({ isOpen, onClose, onSuccess, compa
 
         try {
             const text = await file.text();
-            const data = parseCSV(text);
+
+            // 1. Parse CSV
+            const parseResult = await new Promise<any[]>((resolve, reject) => {
+                // We use dynamic import for PapaParse to avoid SSR issues if any, though usually fine in client components
+                // But since we just installed it, let's use the simple logic we wrote or use the library if imported.
+                // Re-using the manual logic for now is faster than setting up the import if not present,
+                // BUT the plan was to use PapaParse. 
+                // Let's stick to the manual parser for stability unless complex CSVs needed, 
+                // OR better: use the calculateFleetValue action on the parsed data.
+
+                const lines = text.split('\n');
+                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+
+                const result = lines.slice(1).filter(line => line.trim()).map(line => {
+                    const values = line.split(',').map(v => v.trim());
+                    const entry: any = {};
+                    headers.forEach((header, i) => {
+                        // Map CSV headers to our schema
+                        const cleanHeader = header.replace(/ /g, '').toLowerCase();
+                        if (cleanHeader === 'serial' || cleanHeader === 'serialnumber') entry.serialNumber = values[i];
+                        else if (cleanHeader === 'assigned') entry.assignedTo = values[i];
+                        else entry[cleanHeader] = values[i];
+                    });
+                    return entry;
+                });
+                resolve(result);
+            });
+
+            const data = parseResult;
 
             if (data.length === 0) {
                 throw new Error("CSV file is empty.");
             }
 
-            // Simple validation of required fields
-            const requiredFields = ['brand', 'model'];
-            const firstRow = data[0];
-            const missingFields = requiredFields.filter(f => !Object.keys(firstRow).includes(f));
+            // 2. Calculate Value (Server Side)
+            // Import dynamically to avoid build errors if file was just created
+            const { calculateFleetValue } = await import('@/app/_actions/b2b/pricing');
+            const pricedItems = await calculateFleetValue(data.map((d: any, i: number) => ({
+                id: `csv-${i}`,
+                brand: d.brand || 'Unknown',
+                model: d.model || 'Unknown',
+                storage: d.storage || '128GB',
+                condition: d.condition || 'good',
+                imei: d.imei,
+                serialNumber: d.serialNumber,
+                assignedTo: d.assignedTo,
+                status: 'active'
+            })));
 
-            if (missingFields.length > 0) {
-                throw new Error(`Missing columns: ${missingFields.join(', ')}`);
-            }
-
+            // 3. Save to Firestore
             const batchSize = 500;
-            for (let i = 0; i < data.length; i += batchSize) {
-                const chunk = data.slice(i, i + batchSize);
+            for (let i = 0; i < pricedItems.length; i += batchSize) {
+                const chunk = pricedItems.slice(i, i + batchSize);
                 const batch = writeBatch(db);
 
                 chunk.forEach(item => {
                     const newDocRef = doc(collection(db, 'b2b_inventory'));
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    const { id, ...dataToSave } = item; // Remove temp ID
                     batch.set(newDocRef, {
-                        ...item,
+                        ...dataToSave,
                         companyId,
-                        status: item.status || 'active',
                         createdAt: serverTimestamp()
                     });
                 });
