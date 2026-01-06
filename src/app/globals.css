@@ -184,6 +184,7 @@ body {
 
 .no-spinner {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 /* Strict SR-Only Compliance */
@@ -198,4 +199,9 @@ body {
   border: 0;
   margin: -1px;
   padding: 0;
+}
+
+/* Tactile Feedback */
+.active-press {
+  @apply active:scale-95 transition-transform duration-75;
 }

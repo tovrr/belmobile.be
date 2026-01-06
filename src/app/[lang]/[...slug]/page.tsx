@@ -5,6 +5,7 @@ import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 
 import { LOCATIONS } from '@/data/locations';
+import { SERVICES } from '@/data/services';
 import { createSlug, slugToDisplayName } from '@/utils/slugs';
 import { Shop } from '@/types';
 import { parseRouteParams } from '@/utils/route-parser';
@@ -83,23 +84,52 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const keywords = generateMetaKeywords(keywordsList);
 
     const baseUrl = 'https://belmobile.be';
-    const currentUrl = `${baseUrl}/${lang}/${slug.join('/')}`;
+
+    // BUILD NORMALIZED LOCALIZED ALTERNATES & CANONICAL
+    const languages: Record<string, string> = {};
+    const LOCALES = ['fr', 'nl', 'en', 'tr'] as const;
+
+    LOCALES.forEach(locale => {
+        // Get localized service slug
+        const serviceSlug = service.slugs[locale] || service.id;
+
+        let path = `/${locale}/${serviceSlug}`;
+
+        // Add device/model if they exist
+        if (device && deviceModel) {
+            path += `/${device.value}/${deviceModel}`.toLowerCase();
+        } else if (device) {
+            path += `/${device.value}`.toLowerCase();
+        } else if (deviceCategory && !device) {
+            path += `/${deviceCategory}`.toLowerCase();
+        }
+
+        // Add location if it exists
+        if (location) {
+            const locSlug = location.slugs[locale] || location.id;
+            path += `/${locSlug}`.toLowerCase();
+        }
+
+        languages[locale] = `${baseUrl}${path}`;
+    });
+
+    const canonicalUrl = languages[lang] || `${baseUrl}/${lang}/${slug.join('/')}`;
 
     // Dynamic OG Image Strategy
     const ogTitleEncoded = encodeURIComponent(ogTitle);
     const ogSubtitleEncoded = encodeURIComponent(ogSubtitle);
     const ogImage = `/api/og?title=${ogTitleEncoded}&subtitle=${ogSubtitleEncoded}`;
+    const currentUrl = languages[lang] || canonicalUrl;
 
     return {
         title,
         description,
         keywords,
         alternates: {
-            canonical: currentUrl,
+            canonical: canonicalUrl,
             languages: {
-                'en': `${baseUrl}/en/${slug.join('/')}`,
-                'fr': `${baseUrl}/fr/${slug.join('/')}`,
-                'nl': `${baseUrl}/nl/${slug.join('/')}`,
+                ...languages,
+                'x-default': languages['en'], // Default to English for generic viewers
             }
         },
         openGraph: {

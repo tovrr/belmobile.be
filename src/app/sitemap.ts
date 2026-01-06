@@ -8,15 +8,11 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be';
 const LANGUAGES = ['fr', 'nl', 'en', 'tr'] as const;
 
 const HIGH_PRIORITY_KEYWORDS = [
-    'iphone-13', 'iphone-14', 'iphone-15', 'iphone-16',
-    'galaxy-s22', 'galaxy-s23', 'galaxy-s24', 'pixel-7', 'pixel-8'
+    'iphone-12', 'iphone-13', 'iphone-14', 'iphone-15', 'iphone-16',
+    'galaxy-s', 'galaxy-a', 'playstation-5', 'ps5',
+    'pixel-7', 'pixel-8'
 ];
 
-/**
- * GENERATE SEMANTIC SITEMAPS
- * Creates specialized sitemaps for logical separation and smaller file sizes.
- * result: /sitemap/static.xml, /sitemap/repair.xml, etc.
- */
 export async function generateSitemaps() {
     return [
         { id: 'static' },
@@ -27,15 +23,16 @@ export async function generateSitemaps() {
     ];
 }
 
-/**
- * SEMANTIC SITEMAP GENERATOR
- * Roles: SEO Optimization, Hreflang Alternates Management, Performance.
- */
-export default async function sitemap({ id }: { id: string }): Promise<MetadataRoute.Sitemap> {
+export default async function sitemap(props: any): Promise<MetadataRoute.Sitemap> {
+    // Next.js 15/16 defensive extraction: props and its fields can be Promises
+    const resolvedProps = await props;
+    const resolvedId = await (resolvedProps?.id);
+
+    const sitemapId = (resolvedId || 'static').toString().replace('.xml', '');
     const sitemapEntries: MetadataRoute.Sitemap = [];
 
-    // --- 1. STATIC PAGES (Core & Legal) ---
-    if (id === 'static') {
+    // --- 1. STATIC PAGES ---
+    if (sitemapId === 'static') {
         const pages = [
             { id: 'home', priority: 1.0, changeFreq: 'daily', slugs: { en: '', fr: '', nl: '', tr: '' } },
             { id: 'about', priority: 0.8, changeFreq: 'monthly', slugs: { en: 'about', fr: 'a-propos', nl: 'over-ons', tr: 'hakkimizda' } },
@@ -46,7 +43,7 @@ export default async function sitemap({ id }: { id: string }): Promise<MetadataR
             { id: 'track', priority: 0.7, changeFreq: 'daily', slugs: { en: 'track-order', fr: 'suivre-commande', nl: 'volg-bestelling', tr: 'siparis-takip' } },
             { id: 'faq', priority: 0.7, changeFreq: 'weekly', slugs: { en: 'faq', fr: 'faq', nl: 'veelgestelde-vragen', tr: 'sss' } },
             { id: 'careers', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'careers', fr: 'carrieres', nl: 'vacatures', tr: 'kariyer' } },
-            // Legal
+            { id: 'franchise', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'franchise', fr: 'franchise', nl: 'franchise', tr: 'bayilik' } },
             { id: 'privacy', priority: 0.3, changeFreq: 'yearly', slugs: { en: 'privacy', fr: 'politique-de-confidentialite', nl: 'privacybeleid', tr: 'gizlilik-politikasi' } },
             { id: 'terms', priority: 0.3, changeFreq: 'yearly', slugs: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden', tr: 'kullanim-sartlari' } },
             { id: 'cookies', priority: 0.3, changeFreq: 'yearly', slugs: { en: 'cookies', fr: 'politique-cookies', nl: 'cookiebeleid', tr: 'cerez-politikasi' } },
@@ -55,9 +52,8 @@ export default async function sitemap({ id }: { id: string }): Promise<MetadataR
         pages.forEach(page => {
             LANGUAGES.forEach(lang => {
                 const relSlug = page.slugs[lang];
-                const url = `${BASE_URL}/${lang}${relSlug ? '/' + relSlug : ''}`;
                 sitemapEntries.push({
-                    url,
+                    url: `${BASE_URL}/${lang}${relSlug ? '/' + relSlug : ''}`,
                     lastModified: new Date(),
                     changeFrequency: page.changeFreq as any,
                     priority: page.priority,
@@ -71,8 +67,8 @@ export default async function sitemap({ id }: { id: string }): Promise<MetadataR
         });
     }
 
-    // --- 2. BLOG & CONTENT ---
-    if (id === 'blog') {
+    // --- 2. BLOG ---
+    if (sitemapId === 'blog') {
         LANGUAGES.forEach(lang => {
             sitemapEntries.push({
                 url: `${BASE_URL}/${lang}/blog`,
@@ -99,10 +95,18 @@ export default async function sitemap({ id }: { id: string }): Promise<MetadataR
         });
     }
 
-    // --- 3. PRODUCTS (ECOMMERCE) ---
-    if (id === 'products') {
+    // --- 3. PRODUCTS ---
+    if (sitemapId === 'products') {
         const productsPath = { fr: 'produits', nl: 'producten', tr: 'urunler', en: 'products' };
         LANGUAGES.forEach(lang => {
+            sitemapEntries.push({
+                url: `${BASE_URL}/${lang}/${productsPath[lang]}`,
+                lastModified: new Date(),
+                changeFrequency: 'daily',
+                priority: 0.9,
+                alternates: { languages: Object.fromEntries(LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${productsPath[l]}`])) }
+            });
+
             MOCK_PRODUCTS.forEach(product => {
                 if (product.slug) {
                     sitemapEntries.push({
@@ -121,14 +125,12 @@ export default async function sitemap({ id }: { id: string }): Promise<MetadataR
         });
     }
 
-    // --- 4. DYNAMIC DEVICES (REPAIR & BUYBACK) ---
-    if (id === 'repair' || id === 'buyback') {
+    // --- 4. REPAIR & BUYBACK ---
+    if (sitemapId === 'repair' || sitemapId === 'buyback') {
         const allDeviceIds = await getAllDevices();
-
-        // Configuration for the specific vertical
-        const config = id === 'repair'
-            ? { slugs: { fr: 'reparation', nl: 'reparatie', en: 'repair', tr: 'onarim' }, type: 'repair' }
-            : { slugs: { fr: 'rachat', nl: 'inkoop', en: 'buyback', tr: 'geri-alim' }, type: 'buyback' };
+        const config = sitemapId === 'repair'
+            ? { slugs: { fr: 'reparation', nl: 'reparatie', en: 'repair', tr: 'onarim' } }
+            : { slugs: { fr: 'rachat', nl: 'inkoop', en: 'buyback', tr: 'geri-alim' } };
 
         for (const deviceId of allDeviceIds) {
             const [brand, ...modelParts] = deviceId.split('-');
@@ -154,23 +156,24 @@ export default async function sitemap({ id }: { id: string }): Promise<MetadataR
                     }
                 });
 
-                // Location-specific landing pages
-                for (const location of LOCATIONS) {
-                    const locSlug = location.slugs[lang];
-                    sitemapEntries.push({
-                        url: `${url}/${locSlug}`.toLowerCase(),
-                        lastModified: new Date(),
-                        changeFrequency: 'monthly',
-                        priority: isPriority ? 0.9 : 0.7,
-                        alternates: {
-                            languages: Object.fromEntries(
-                                LANGUAGES.map(l => [
-                                    l,
-                                    `${BASE_URL}/${l}/${config.slugs[l]}/${brand}/${model}/${location.slugs[l]}`.toLowerCase()
-                                ])
-                            )
-                        }
-                    });
+                if (sitemapId === 'repair') {
+                    for (const location of LOCATIONS) {
+                        const locSlug = location.slugs[lang];
+                        sitemapEntries.push({
+                            url: `${url}/${locSlug}`.toLowerCase(),
+                            lastModified: new Date(),
+                            changeFrequency: 'monthly',
+                            priority: isPriority ? 0.9 : 0.7,
+                            alternates: {
+                                languages: Object.fromEntries(
+                                    LANGUAGES.map(l => [
+                                        l,
+                                        `${BASE_URL}/${l}/${config.slugs[l]}/${brand}/${model}/${location.slugs[l]}`.toLowerCase()
+                                    ])
+                                )
+                            }
+                        });
+                    }
                 }
             });
         }

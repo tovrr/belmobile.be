@@ -1018,5 +1018,12 @@
     "Montant Total": "Toplam Tutar",
     "Coût Total": "Toplam Maliyet",
     "Shop": "Mağaza",
-    "Model": "Model"
+    "Model": "Model",
+    "save_for_later": "Kaydet",
+    "save_quote_info": "E-posta adresinizi girin ve teklifi 7 gün boyunca sabitleyin.",
+    "quote_saved_title": "Teklif Kaydedildi!",
+    "quote_saved_desc": "Teklifinizi kaydettik. E-postanız ile istediğiniz zaman devam edebilirsiniz.",
+    "Save Price": "Fiyatı Kaydet",
+    "Email Address": "E-posta Adresi",
+    "Close": "Kapat"
 }

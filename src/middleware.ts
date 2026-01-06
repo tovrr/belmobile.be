@@ -195,6 +195,6 @@ export function middleware(req: NextRequest) {
 export const config = {
     matcher: [
         // Optimized matcher: Skip all dot-files (images, etc) and internal routes
-        '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|sitemap|robots.txt|google).*)',
     ],
 };

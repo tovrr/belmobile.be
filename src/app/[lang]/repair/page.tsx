@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import BuybackRepair from '@/components/wizard/BuybackRepair';
+import { retrieveQuote } from '@/app/_actions/retrieve-quote';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,9 +14,21 @@ export default async function RepairPage({
     const { lang } = await params;
     const resolvedSearchParams = await searchParams;
 
+    // Handle standard params
     const partnerId = typeof resolvedSearchParams?.partnerId === 'string' ? resolvedSearchParams.partnerId : undefined;
     const initialBrand = typeof resolvedSearchParams?.brand === 'string' ? resolvedSearchParams.brand : undefined;
     const initialModel = typeof resolvedSearchParams?.model === 'string' ? resolvedSearchParams.model : undefined;
+
+    // Handle Magic Link Resume
+    const resumeId = typeof resolvedSearchParams?.resume === 'string' ? resolvedSearchParams.resume : undefined;
+    let resumedState: any = {};
+
+    if (resumeId) {
+        const { success, data } = await retrieveQuote(resumeId);
+        if (success && data) {
+            resumedState = data;
+        }
+    }
 
     const initialDevice = initialBrand ? {
         brand: initialBrand,
@@ -32,7 +45,8 @@ export default async function RepairPage({
                         isWidget={false}
                         hideStep1Title={false}
                         initialWizardProps={{
-                            partnerId: partnerId
+                            partnerId: partnerId,
+                            ...resumedState
                         }}
                     />
                 </Suspense>

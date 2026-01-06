@@ -348,6 +348,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = (props) => {
 
     return (
         <WizardProvider initialProps={{
+            ...props.initialWizardProps,
             deviceType: props.initialWizardProps?.deviceType || props.initialCategory || '',
             selectedBrand: props.initialWizardProps?.selectedBrand || props.initialDevice?.brand || '',
             selectedModel: props.initialWizardProps?.selectedModel || props.initialDevice?.model || '',
@@ -355,7 +356,7 @@ const BuybackRepair: React.FC<BuybackRepairProps> = (props) => {
             partnerId: partnerId,
             isWidget: props.isWidget || false,
             isKiosk: props.isKiosk || false,
-            isInitialized: false,
+            isInitialized: !!props.initialWizardProps, // Mark as initialized if we have props (hydration)
             step: props.initialWizardProps?.step || ((props.initialDevice?.model && !['iphone', 'ipad', 'galaxy', 'pixels', 'switch'].includes(props.initialDevice.model.toLowerCase())) ? 3 : (props.initialDevice?.brand || props.initialCategory ? 2 : 1))
         }}>
             <BuybackRepairInner {...props} />

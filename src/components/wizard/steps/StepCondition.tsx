@@ -8,6 +8,7 @@ import { getDeviceContext } from '../../../utils/seoHelpers';
 import { useWizardPricing } from '../../../hooks/useWizardPricing';
 import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useLanguage } from '../../../hooks/useLanguage';
+import { useHaptic } from '../../../hooks/useHaptic';
 import { slugToDisplayName } from '../../../utils/slugs';
 import { WizardFAQ } from '../WizardFAQ';
 import { BoltIcon, BanknotesIcon, ShieldCheckIcon } from '../../ui/BrandIcons';
@@ -26,6 +27,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
     const { state, dispatch } = useWizard();
     const { t } = useLanguage();
     const { handleNext, handleBack } = useWizardActions(type);
+    const haptic = useHaptic();
     const [activeCategory, setActiveCategory] = useState<string>('all');
 
     const step = state.step;
@@ -61,16 +63,17 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
     } = state;
 
     // Dispatch helpers
-    const setStorage = (val: string) => dispatch({ type: 'SET_WIZARD_DATA', payload: { storage: val } });
-    const setTurnsOn = (val: boolean | null) => dispatch({ type: 'SET_WIZARD_DATA', payload: { turnsOn: val } });
-    const setWorksCorrectly = (val: boolean | null) => dispatch({ type: 'SET_WIZARD_DATA', payload: { worksCorrectly: val } });
-    const setIsUnlocked = (val: boolean | null) => dispatch({ type: 'SET_WIZARD_DATA', payload: { isUnlocked: val } });
-    const setFaceIdWorking = (val: boolean | null) => dispatch({ type: 'SET_WIZARD_DATA', payload: { faceIdWorking: val } });
-    const setBatteryHealth = (val: 'normal' | 'service' | null) => dispatch({ type: 'SET_WIZARD_DATA', payload: { batteryHealth: val } });
-    const setSelectedScreenQuality = (val: 'generic' | 'oled' | 'original' | '') => dispatch({ type: 'SET_WIZARD_DATA', payload: { selectedScreenQuality: val } });
-    const setControllerCount = (val: number) => dispatch({ type: 'SET_WIZARD_DATA', payload: { controllerCount: val } });
+    const setStorage = (val: string) => { haptic.trigger('light'); dispatch({ type: 'SET_WIZARD_DATA', payload: { storage: val } }); };
+    const setTurnsOn = (val: boolean | null) => { haptic.trigger('light'); dispatch({ type: 'SET_WIZARD_DATA', payload: { turnsOn: val } }); };
+    const setWorksCorrectly = (val: boolean | null) => { haptic.trigger('light'); dispatch({ type: 'SET_WIZARD_DATA', payload: { worksCorrectly: val } }); };
+    const setIsUnlocked = (val: boolean | null) => { haptic.trigger('light'); dispatch({ type: 'SET_WIZARD_DATA', payload: { isUnlocked: val } }); };
+    const setFaceIdWorking = (val: boolean | null) => { haptic.trigger('light'); dispatch({ type: 'SET_WIZARD_DATA', payload: { faceIdWorking: val } }); };
+    const setBatteryHealth = (val: 'normal' | 'service' | null) => { haptic.trigger('light'); dispatch({ type: 'SET_WIZARD_DATA', payload: { batteryHealth: val } }); };
+    const setSelectedScreenQuality = (val: 'generic' | 'oled' | 'original' | '') => { haptic.trigger('light'); dispatch({ type: 'SET_WIZARD_DATA', payload: { selectedScreenQuality: val } }); };
+    const setControllerCount = (val: number) => { haptic.trigger('light'); dispatch({ type: 'SET_WIZARD_DATA', payload: { controllerCount: val } }); };
 
     const toggleRepairIssue = (issue: string) => {
+        haptic.trigger('light');
         const currentIssues = repairIssues || [];
         const newIssues = currentIssues.includes(issue)
             ? currentIssues.filter(i => i !== issue)
@@ -144,9 +147,9 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                 <div className="flex-1 min-w-0 space-y-8">
                     <div className="flex items-center gap-2 mb-6">
                         <button
-                            onClick={onBack}
+                            onClick={() => { haptic.trigger('light'); onBack(); }}
                             type="button"
-                            className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors`}
+                            className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors active-press`}
                             aria-label={t('Back')}
                         >
                             <ChevronLeftIcon className="h-6 w-6" />
@@ -204,7 +207,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                             key={`storage-${opt}`}
                                             type="button"
                                             onClick={() => setStorage(opt)}
-                                            className={`py-3 rounded-xl font-bold transition-all ${storage === opt
+                                            className={`py-3 rounded-xl font-bold transition-all active-press ${storage === opt
                                                 ? 'bg-bel-yellow text-gray-900 shadow-lg shadow-yellow-500/20 ring-1 ring-yellow-400'
                                                 : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
                                         >
@@ -239,7 +242,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                             type="button"
                                             onClick={() => item.setter!(true)}
                                             disabled={isDisabled}
-                                            className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border ${item.state === true ? 'bg-green-600 text-white border-green-600' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}
+                                            className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border active-press ${item.state === true ? 'bg-green-600 text-white border-green-600' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}
                                         >
                                             {t('Yes')}
                                         </button>
@@ -247,7 +250,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                             type="button"
                                             onClick={() => item.setter!(false)}
                                             disabled={isDisabled}
-                                            className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border ${item.state === false ? 'bg-red-600 text-white border-red-600' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'}`}
+                                            className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border active-press ${item.state === false ? 'bg-red-600 text-white border-red-600' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'}`}
                                         >
                                             {t('No')}
                                         </button>
@@ -262,8 +265,8 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         <div className={turnsOn === false ? 'opacity-50 pointer-events-none' : ''}>
                             <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Battery Health')}</label>
                             <div className="grid grid-cols-2 gap-3">
-                                <button type="button" onClick={() => setBatteryHealth('normal')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border ${batteryHealth === 'normal' ? 'bg-green-600 text-white border-green-600' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}>{t('battery_normal_desc')}</button>
-                                <button type="button" onClick={() => setBatteryHealth('service')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border ${batteryHealth === 'service' ? 'bg-red-600 text-white border-red-600' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'}`}>{t('battery_service_desc')}</button>
+                                <button type="button" onClick={() => setBatteryHealth('normal')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border active-press ${batteryHealth === 'normal' ? 'bg-green-600 text-white border-green-600' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}>{t('battery_normal_desc')}</button>
+                                <button type="button" onClick={() => setBatteryHealth('service')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border active-press ${batteryHealth === 'service' ? 'bg-red-600 text-white border-red-600' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'}`}>{t('battery_service_desc')}</button>
                             </div>
                         </div>
                     )}
@@ -279,7 +282,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                         type="button"
                                         onClick={() => setControllerCount(count)}
                                         disabled={turnsOn === false}
-                                        className={`py-3 px-4 rounded-xl font-bold transition-all border ${controllerCount === count
+                                        className={`py-3 px-4 rounded-xl font-bold transition-all border active-press ${controllerCount === count
                                             ? 'bg-bel-yellow text-gray-900 border-bel-yellow'
                                             : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800'
                                             }`}
@@ -320,9 +323,9 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                     <div className="mb-10">
                         <div className="flex items-center gap-4 mb-4">
                             <button
-                                onClick={onBack}
+                                onClick={() => { haptic.trigger('light'); onBack(); }}
                                 type="button"
-                                className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors`}
+                                className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors active-press`}
                                 aria-label={t('Back')}
                             >
                                 <ChevronLeftIcon className="h-6 w-6" />
@@ -348,8 +351,8 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         {['all', 'display', 'power', 'camera', 'body', 'technical'].map((cat) => (
                             <button
                                 key={cat}
-                                onClick={() => setActiveCategory(cat)}
-                                className={`px-6 py-3 rounded-2xl whitespace-nowrap font-black text-xs uppercase tracking-widest transition-all snap-start ${activeCategory === cat
+                                onClick={() => { haptic.trigger('light'); setActiveCategory(cat); }}
+                                className={`px-6 py-3 rounded-2xl whitespace-nowrap font-black text-xs uppercase tracking-widest transition-all snap-start active-press ${activeCategory === cat
                                     ? 'bg-[#6366F1] text-white shadow-xl shadow-indigo-500/40 ring-4 ring-indigo-500/10'
                                     : 'bg-white/50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:scale-105'
                                     }`}
@@ -406,7 +409,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             const showScreenOptionsForIssue = isScreenIssue && isSelected && (deviceType === 'smartphone' || selectedBrand?.toLowerCase() === 'nintendo');
 
                             return (
-                                <div key={issue.id} className={`group relative flex flex-col p-4 rounded-[1.5rem] border-2 transition-all duration-300 ${isSelected ? 'border-[#6366F1] bg-indigo-50/50 dark:bg-indigo-900/10 shadow-xl shadow-indigo-500/5' : 'border-slate-100 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-900'} ${showScreenOptionsForIssue ? 'md:col-span-2 shadow-2xl shadow-indigo-500/10' : ''}`}>
+                                <div key={issue.id} className={`group relative flex flex-col p-4 rounded-[1.5rem] border-2 transition-all duration-300 active-press ${isSelected ? 'border-[#6366F1] bg-indigo-50/50 dark:bg-indigo-900/10 shadow-xl shadow-indigo-500/5' : 'border-slate-100 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-900'} ${showScreenOptionsForIssue ? 'md:col-span-2 shadow-2xl shadow-indigo-500/10' : ''}`}>
                                     <div className="flex items-start h-full cursor-pointer" onClick={() => toggleRepairIssue(issue.id)}>
                                         <div className={`p-4 rounded-2xl mr-4 shrink-0 transition-all duration-500 ${isSelected ? 'bg-[#6366F1] text-white shadow-lg shadow-indigo-500/30 scale-110' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 group-hover:scale-110 group-hover:bg-slate-200 group-hover:text-slate-600'} `}>
                                             <issue.icon className="h-6 w-6" />
@@ -448,7 +451,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                         <div className="mt-4 space-y-3 animate-fade-in border-t border-blue-100 dark:border-blue-800 pt-4">
                                             {/* Generic / Standard */}
                                             {(dynamicRepairPrices?.screen_generic !== undefined ? dynamicRepairPrices.screen_generic : (repairEstimates.hasScreen ? repairEstimates.standard : -1)) >= 0 && (
-                                                <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'generic' ? 'border-gray-400 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
+                                                <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all active-press ${selectedScreenQuality === 'generic' ? 'border-gray-400 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
                                                     <input type="radio" name="screenQuality" value="generic" checked={selectedScreenQuality === 'generic'} onChange={() => setSelectedScreenQuality('generic')} className="w-5 h-5 text-gray-600 focus:ring-gray-500 border-gray-300" />
                                                     <div className="ml-3 flex-1">
                                                         <div className="flex justify-between">
@@ -466,7 +469,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
 
                                             {/* OLED / Premium */}
                                             {dynamicRepairPrices?.screen_oled !== undefined && dynamicRepairPrices.screen_oled >= 0 && (
-                                                <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'oled' ? 'border-blue-500 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
+                                                <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all active-press ${selectedScreenQuality === 'oled' ? 'border-blue-500 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
                                                     <input type="radio" name="screenQuality" value="oled" checked={selectedScreenQuality === 'oled'} onChange={() => setSelectedScreenQuality('oled')} className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300" />
                                                     <div className="ml-3 flex-1">
                                                         <div className="flex justify-between">
@@ -481,7 +484,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
 
                                             {/* Original / Refurb */}
                                             {dynamicRepairPrices?.screen_original !== undefined && dynamicRepairPrices.screen_original >= 0 && (
-                                                <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedScreenQuality === 'original' ? 'border-purple-500 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
+                                                <label className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all active-press ${selectedScreenQuality === 'original' ? 'border-purple-500 bg-white dark:bg-slate-900' : 'border-transparent hover:bg-white/50'}`}>
                                                     <input type="radio" name="screenQuality" value="original" checked={selectedScreenQuality === 'original'} onChange={() => setSelectedScreenQuality('original')} className="w-5 h-5 text-purple-600 focus:ring-purple-500 border-gray-300" />
                                                     <div className="ml-3 flex-1">
                                                         <div className="flex justify-between">

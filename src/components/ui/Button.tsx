@@ -3,17 +3,25 @@
 import React, { forwardRef } from 'react';
 
 import BrandLoader from './BrandLoader';
+import { useHaptic } from '../../hooks/useHaptic';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'cyber' | 'action';
     isLoading?: boolean;
     icon?: React.ReactNode;
+    haptic?: 'light' | 'medium' | 'heavy' | 'success' | 'warning' | 'error';
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant = 'primary', isLoading, icon, children, disabled, ...props }, ref) => {
+    ({ className, variant = 'primary', isLoading, icon, children, disabled, haptic: hapticType = 'medium', onClick, ...props }, ref) => {
+        const haptic = useHaptic();
 
-        const baseStyles = "font-black py-3 px-6 rounded-ui transition-all duration-300 flex items-center justify-center gap-2 group active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide text-sm";
+        const baseStyles = "font-black py-3 px-6 rounded-ui transition-all duration-300 flex items-center justify-center gap-2 group active-press disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide text-sm";
+
+        const handleInternalClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+            haptic.trigger(hapticType);
+            if (onClick) onClick(e);
+        };
 
         const variants = {
             primary: "bg-primary text-white hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5",
@@ -30,6 +38,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 ref={ref}
                 className={`${baseStyles} ${variants[variant]} ${className || ''}`}
                 disabled={disabled || isLoading}
+                onClick={handleInternalClick}
                 {...props}
             >
                 {isLoading ? (

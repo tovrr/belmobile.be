@@ -11,7 +11,7 @@ export default function NotFound() {
 
     // Simple language detection from URL
     const lang = pathname?.split('/')[1];
-    const currentLang = ['en', 'fr', 'nl'].includes(lang) ? lang : 'fr'; // Default to FR for Brussels
+    const currentLang = ['en', 'fr', 'nl', 'tr'].includes(lang) ? lang : 'fr'; // Default to FR for Brussels
 
     const translations = {
         en: {
@@ -34,6 +34,13 @@ export default function NotFound() {
             home: "Startpagina",
             products: "Bekijk Producten",
             contact: "Contact"
+        },
+        tr: {
+            title: "Sayfa Bulunamadı",
+            text: "Eyvah! Aradığınız sayfa dijital boşlukta kayboldu. Taşınmış veya hiç var olmamış olabilir.",
+            home: "Ana Sayfa",
+            products: "Ürünlere Göz At",
+            contact: "İletişim"
         }
     };
 

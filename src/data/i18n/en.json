@@ -1635,5 +1635,13 @@
     "pdf_label_pickup_address": "Pickup Address",
     "pdf_res_step_preparing": "We are preparing your parcel for shipping.",
     "pdf_res_step_tracking": "A tracking number will be sent to you by email once shipped.",
-    "pdf_res_step_inspection": "Check the parcel's condition upon reception before signing."
+    "pdf_res_step_inspection": "Check the parcel's condition upon reception before signing.",
+    "save_for_later": "Save quote for later",
+    "save_quote_info": "Not ready? Enter your email to save this quote and lock the price for 7 days.",
+    "quote_saved_title": "Quote Saved!",
+    "quote_saved_desc": "We have saved your estimate. You can resume anytime using your email.",
+    "Save Price": "Save Price",
+    "Email Address": "Email Address",
+    "Save Quote": "Save Quote",
+    "Close": "Close"
 }

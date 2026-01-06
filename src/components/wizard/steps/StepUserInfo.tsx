@@ -25,6 +25,7 @@ import { TrustBar } from '../TrustBar';
 import { WizardFAQ } from '../WizardFAQ';
 import { orderService } from '../../../services/orderService';
 import { sendGAEvent } from '../../../utils/analytics';
+import { useHaptic } from '../../../hooks/useHaptic';
 
 interface StepUserInfoProps {
     type: 'buyback' | 'repair';
@@ -47,6 +48,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     const { handleBack, handleNext, handleSubmit } = useWizardActions(type);
     const router = useRouter();
     const { selectedShop, setSelectedShop } = useShop();
+    const haptic = useHaptic();
 
     const [processingStep, setProcessingStep] = React.useState(0);
 
@@ -133,6 +135,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     const setScreenState = (val: any) => dispatch({ type: 'SET_WIZARD_DATA', payload: { screenState: val } });
     const setBodyState = (val: any) => dispatch({ type: 'SET_WIZARD_DATA', payload: { bodyState: val } });
     const setDeliveryMethod = (val: any) => {
+        haptic.trigger('light');
         dispatch({ type: 'SET_WIZARD_DATA', payload: { deliveryMethod: val } });
         if (val) sendGAEvent({ action: 'select_delivery', category: 'Wizard', label: val });
     };
@@ -511,9 +514,9 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 <>
                                     <div className="flex items-center gap-2 mb-8">
                                         <button
-                                            onClick={onBack}
+                                            onClick={() => { haptic.trigger('light'); onBack(); }}
                                             type="button"
-                                            className="lg:hidden p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white transition-colors"
+                                            className="lg:hidden p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white transition-colors active-press"
                                             aria-label={t('Back')}
                                         >
                                             <ChevronLeftIcon className="h-6 w-6" />
@@ -527,7 +530,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
 
                             <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 ${isKiosk ? 'hidden' : ''}`}>
                                 {/* Visit Store */}
-                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'dropoff' ? null : 'dropoff')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'dropoff' ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-bel-yellow' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue'}` : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-700'}`}>
+                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'dropoff' ? null : 'dropoff')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col active-press ${deliveryMethod === 'dropoff' ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-bel-yellow' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue'}` : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-700'}`}>
                                     <div className="flex items-start">
                                         <BuildingStorefrontIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'dropoff' ? `${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}` : 'text-gray-400'}`} />
                                         <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'dropoff' ? `${type === 'buyback' ? 'text-gray-900 dark:text-white' : 'text-bel-blue dark:text-blue-400'}` : 'text-gray-900 dark:text-white'}`}>{t('delivery_visit_store_title')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('delivery_visit_store_desc')}</p></div>
@@ -546,9 +549,10 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                             type="button"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
+                                                                haptic.trigger('light');
                                                                 setIsShopListOpen(true);
                                                             }}
-                                                            className={`w-full py-4 px-6 bg-white dark:bg-slate-900 text-left rounded-xl border-2 border-gray-200 dark:border-slate-700 ${type === 'buyback' ? 'hover:border-bel-yellow' : 'hover:border-bel-blue'} transition font-medium text-gray-900 dark:text-white flex items-center justify-between`}
+                                                            className={`w-full py-4 px-6 bg-white dark:bg-slate-900 text-left rounded-xl border-2 border-gray-200 dark:border-slate-700 ${type === 'buyback' ? 'hover:border-bel-yellow' : 'hover:border-bel-blue'} transition font-medium text-gray-900 dark:text-white flex items-center justify-between active-press`}
                                                         >
                                                             <span>{t('Select a shop')}</span>
                                                             <ChevronRightIcon className="h-5 w-5 text-gray-400" />
@@ -559,8 +563,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                                 <span className="font-bold text-sm text-gray-500 uppercase tracking-wider">{t('Available Shops')}</span>
                                                                 <button
                                                                     type="button"
-                                                                    onClick={(e) => { e.stopPropagation(); setIsShopListOpen(false); }}
-                                                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                                                    onClick={(e) => { e.stopPropagation(); haptic.trigger('light'); setIsShopListOpen(false); }}
+                                                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 active-press"
                                                                 >
                                                                     <XMarkIcon className="h-5 w-5" />
                                                                 </button>
@@ -575,11 +579,12 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                                             type="button"
                                                                             onClick={(e) => {
                                                                                 e.stopPropagation();
+                                                                                haptic.trigger('medium');
                                                                                 setSelectedShop(shop);
                                                                                 setShopSelectionError(false);
                                                                                 setIsShopListOpen(false);
                                                                             }}
-                                                                            className={`w-full py-4 px-6 text-left hover:bg-gray-50 dark:hover:bg-slate-800 transition flex items-center justify-between group ${shop.isPrimary ? (type === 'buyback' ? 'bg-yellow-50/30 dark:bg-yellow-900/10' : 'bg-blue-50/30 dark:bg-blue-900/10') : ''}`}
+                                                                            className={`w-full py-4 px-6 text-left hover:bg-gray-50 dark:hover:bg-slate-800 transition flex items-center justify-between group active-press ${shop.isPrimary ? (type === 'buyback' ? 'bg-yellow-50/30 dark:bg-yellow-900/10' : 'bg-blue-50/30 dark:bg-blue-900/10') : ''}`}
                                                                         >
                                                                             <div className="flex-1">
                                                                                 <div className="flex items-center gap-2">
@@ -610,10 +615,11 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                             type="button"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
+                                                                haptic.trigger('light');
                                                                 setSelectedShop(null);
                                                                 setIsShopListOpen(true);
                                                             }}
-                                                            className={`text-sm font-medium underline ${type === 'buyback' ? 'text-bel-yellow hover:text-yellow-600' : 'text-bel-blue hover:text-blue-700'}`}
+                                                            className={`text-sm font-medium underline active-press ${type === 'buyback' ? 'text-bel-yellow hover:text-yellow-600' : 'text-bel-blue hover:text-blue-700'}`}
                                                         >
                                                             {t('Change')}
                                                         </button>
@@ -625,7 +631,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 </div>
 
                                 {/* Send by Post */}
-                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'send' ? null : 'send')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-bel-yellow' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue'}` : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-700'}`}>
+                                <div onClick={() => setDeliveryMethod(deliveryMethod === 'send' ? null : 'send')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col active-press ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-bel-yellow' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue'}` : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-700'}`}>
                                     <div className="flex items-start">
                                         <TruckIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}` : 'text-gray-400'}`} />
                                         <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'text-gray-900 dark:text-white' : 'text-bel-blue dark:text-blue-400'}` : 'text-gray-900 dark:text-white'}`}>{t('Send by Post')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Free shipping label provided. Secure and insured.')}</p></div>
@@ -636,9 +642,10 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                 type="button"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
+                                                    haptic.trigger('light');
                                                     openServicePointPicker();
                                                 }}
-                                                className={`w-full py-3 px-4 rounded-xl font-bold text-sm transition shadow-lg shadow-blue-200 dark:shadow-none ${type === 'buyback' ? 'bg-bel-yellow text-gray-900 hover:bg-yellow-400' : 'bg-bel-blue text-white hover:bg-blue-700'}`}
+                                                className={`w-full py-3 px-4 rounded-xl font-bold text-sm transition shadow-lg active-press shadow-blue-200 dark:shadow-none ${type === 'buyback' ? 'bg-bel-yellow text-gray-900 hover:bg-yellow-400' : 'bg-bel-blue text-white hover:bg-blue-700'}`}
                                             >
                                                 {servicePoint ? t('Change Service Point') : t('Choose Service Point')}
                                             </button>
@@ -648,9 +655,10 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                         type="button"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
+                                                            haptic.trigger('light');
                                                             setServicePoint(null);
                                                         }}
-                                                        className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
+                                                        className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors active-press"
                                                         title={t('Remove')}
                                                     >
                                                         <XMarkIcon className="h-5 w-5" />
@@ -664,10 +672,9 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                     )}
                                 </div>
 
-                                {/* Express Courier */}
                                 <div
                                     onClick={() => setDeliveryMethod(deliveryMethod === 'courier' ? null : 'courier')}
-                                    className={`col-span-1 md:col-span-2 cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col ${deliveryMethod === 'courier' ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-bel-yellow' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue'}` : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-700'}`}
+                                    className={`col-span-1 md:col-span-2 cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col active-press ${deliveryMethod === 'courier' ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-bel-yellow' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue'}` : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-700'}`}
                                 >
                                     <div className="flex items-start">
                                         <div className="relative">
@@ -687,8 +694,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                     {deliveryMethod === 'courier' && (
                                         <div className="mt-4 space-y-3 animate-fade-in">
                                             <div
-                                                onClick={(e) => { e.stopPropagation(); setCourierTier('bridge'); }}
-                                                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between ${courierTier === 'bridge' ? 'border-bel-blue bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-blue' : 'border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 hover:border-bel-blue/30'}`}
+                                                onClick={(e) => { e.stopPropagation(); haptic.trigger('light'); setCourierTier('bridge'); }}
+                                                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between active-press ${courierTier === 'bridge' ? 'border-bel-blue bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-blue' : 'border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 hover:border-bel-blue/30'}`}
                                             >
                                                 <div className="flex items-center gap-3">
                                                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${courierTier === 'bridge' ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-800 text-gray-400'}`}>
@@ -703,8 +710,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                             </div>
 
                                             <div
-                                                onClick={(e) => { e.stopPropagation(); setCourierTier('brussels'); }}
-                                                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between ${courierTier === 'brussels' ? 'border-bel-blue bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-blue' : 'border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 hover:border-bel-blue/30'}`}
+                                                onClick={(e) => { e.stopPropagation(); haptic.trigger('light'); setCourierTier('brussels'); }}
+                                                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between active-press ${courierTier === 'brussels' ? 'border-bel-blue bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-blue' : 'border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 hover:border-bel-blue/30'}`}
                                             >
                                                 <div className="flex items-center gap-3">
                                                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${courierTier === 'brussels' ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-800 text-gray-400'}`}>
@@ -822,6 +829,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                     name="name"
                                     autoComplete="name"
                                     autoCapitalize="words"
+                                    inputMode="text"
+                                    enterKeyHint="next"
                                     value={customerName}
                                     placeholder={t('contact_placeholder_name')}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerName(e.target.value.replace(/\b\w/g, c => c.toUpperCase()))}
@@ -833,6 +842,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                     name="phone"
                                     type="tel"
                                     autoComplete="tel"
+                                    inputMode="tel"
+                                    enterKeyHint="next"
                                     value={customerPhone}
                                     placeholder={t('contact_phone_placeholder')}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerPhone(e.target.value)}
@@ -846,6 +857,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                     name="email"
                                     type="email"
                                     autoComplete="email"
+                                    inputMode="email"
+                                    enterKeyHint="next"
                                     value={customerEmail}
                                     placeholder={t('contact_placeholder_email')}
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerEmail(e.target.value)}
@@ -918,6 +931,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         name="address"
                                         autoComplete="street-address"
                                         autoCapitalize="words"
+                                        inputMode="text"
+                                        enterKeyHint="next"
                                         placeholder="Rue de la Loi 16"
                                         value={customerAddress}
                                         onPaste={handleAddressPaste}
@@ -930,6 +945,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                             required
                                             name="zip"
                                             autoComplete="postal-code"
+                                            inputMode="numeric"
+                                            enterKeyHint="next"
                                             value={customerZip}
                                             placeholder="1000"
                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerZip(e.target.value)}
@@ -941,6 +958,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                             name="city"
                                             autoComplete="address-level2"
                                             autoCapitalize="words"
+                                            inputMode="text"
+                                            enterKeyHint="next"
                                             value={customerCity}
                                             placeholder="Bruxelles"
                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerCity(e.target.value.replace(/\b\w/g, c => c.toUpperCase()))}
@@ -955,6 +974,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                 label={t('IBAN Number')}
                                                 required
                                                 value={iban}
+                                                inputMode="text"
+                                                enterKeyHint="done"
                                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIban(e.target.value)}
                                                 placeholder="BE00 0000 0000 0000"
                                             />
@@ -1047,6 +1068,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 </label>
                             </div>
                             <Button
+                                haptic="success"
                                 type="submit"
                                 disabled={!termsAccepted || state.isTransitioning}
                                 variant="cyber"

@@ -69,19 +69,31 @@ export async function generateMetadata({ params }: StorePageProps): Promise<Meta
     const isHub = !!shop.isHub;
 
     const baseUrl = 'https://belmobile.be';
+    const LOCALES = ['fr', 'nl', 'en', 'tr'] as const;
     const alternates: { [key: string]: string } = {};
-    ['en', 'fr', 'nl', 'tr'].forEach(l => {
-        alternates[l] = `${baseUrl}/${l}/stores/${shop.slugs?.[l as keyof typeof shop.slugs] || String(shop.id)}`;
+
+    LOCALES.forEach(l => {
+        const storeSlug = shop.slugs?.[l] || String(shop.id);
+        alternates[l] = `${baseUrl}/${l}/stores/${storeSlug}`.toLowerCase();
     });
+
+    const canonicalUrl = alternates[lang] || `${baseUrl}/${lang}/stores/${slug}`.toLowerCase();
 
     const cityPrefix = lang === 'fr' ? `à ${shop.city}` : `in ${shop.city}`;
 
     return {
-        title: isHub ? (lang === 'fr' ? `Réparation et Rachat de Smartphone à ${shop.city} | Belmobile Expert` : lang === 'nl' ? `Smartphone Reparatie en Inkoop in ${shop.city} | Belmobile Expert` : `Smartphone Repair and Buyback in ${shop.city} | Belmobile Expert`) : `${shop.name} ${cityPrefix} - Belmobile Repair & Buyback`,
-        description: isHub ? (lang === 'fr' ? `Belmobile est votre expert local à ${shop.city}. Service de réparation express (iPhone, Samsung) et rachat immédiat au meilleur prix à Schaerbeek, Molenbeek et Anderlecht.` : lang === 'nl' ? `Belmobile is uw lokale expert in ${shop.city}. Snelle reparatie (iPhone, Samsung) en inkoop direct tegen de beste prijs in Schaerbeek, Molenbeek en Anderlecht.` : `Belmobile is your local expert in ${shop.city}. Express repair service (iPhone, Samsung) and immediate buyback at the best price in Schaerbeek, Molenbeek and Anderlecht.`) : `Visit ${shop.name} at ${shop.address}. Expert smartphone repair (screen, battery) and immediate cash buyback in ${shop.city}. No appointment needed.`,
+        title: isHub
+            ? (lang === 'fr' ? `Réparation et Rachat de Smartphone à ${shop.city} | Belmobile Expert` : lang === 'nl' ? `Smartphone Reparatie en Inkoop in ${shop.city} | Belmobile Expert` : `Smartphone Repair and Buyback in ${shop.city} | Belmobile Expert`)
+            : `${shop.name} ${cityPrefix} - Belmobile Repair & Buyback`,
+        description: isHub
+            ? (lang === 'fr' ? `Belmobile est votre expert local à ${shop.city}. Service de réparation express (iPhone, Samsung) et rachat immédiat au meilleur prix à Schaerbeek, Molenbeek et Anderlecht.` : lang === 'nl' ? `Belmobile is uw lokale expert in ${shop.city}. Snelle reparatie (iPhone, Samsung) en inkoop direct tegen de beste prijs in Schaerbeek, Molenbeek en Anderlecht.` : `Belmobile is your local expert in ${shop.city}. Express repair service (iPhone, Samsung) and immediate buyback at the best price in Schaerbeek, Molenbeek and Anderlecht.`)
+            : `Visit ${shop.name} at ${shop.address}. Expert smartphone repair (screen, battery) and immediate cash buyback in ${shop.city}. No appointment needed.`,
         alternates: {
-            canonical: `${baseUrl}/${lang}/stores/${slug}`,
-            languages: alternates
+            canonical: canonicalUrl,
+            languages: {
+                ...alternates,
+                'x-default': alternates['en'],
+            }
         }
     };
 }

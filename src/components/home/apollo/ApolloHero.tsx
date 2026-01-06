@@ -2,6 +2,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../../hooks/useLanguage';
+import { useHaptic } from '../../../hooks/useHaptic';
 import { ArrowRightIcon, BoltIcon, StarIcon, CheckCircleIcon, SearchIcon, XMarkIcon } from '../../ui/BrandIcons';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -28,6 +29,7 @@ interface ApolloHeroProps {
 const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
     const { language, t } = useLanguage();
     const router = useRouter();
+    const haptic = useHaptic();
 
     // --- APOLLO ENGINE: State ---
     const [query, setQuery] = useState('');
@@ -73,13 +75,10 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
 
     // --- APOLLO ENGINE: Actions ---
     const handleSelect = (device: DeviceOption) => {
+        haptic.trigger('medium');
         setSelectedDevice(device);
         setQuery(device.label);
         setShowResults(false);
-        // Instant feedback vibration for mobile if supported
-        if (typeof window !== 'undefined' && window.navigator && window.navigator.vibrate) {
-            window.navigator.vibrate(10);
-        }
     };
 
     const handleClear = () => {
@@ -89,6 +88,7 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
 
     const handleAction = () => {
         if (!selectedDevice) return;
+        haptic.trigger('medium');
         setIsAnimating(true);
         setTimeout(() => {
             const baseUrl = `/${language}/${mode === 'repair' ? (language === 'fr' ? 'reparation' : 'repair') : (language === 'fr' ? 'rachat' : 'buyback')}`;
@@ -157,18 +157,18 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                     {/* Glowing Aura - Optimized for no-jank */}
                     <div className={`absolute -inset-0.5 bg-linear-to-r rounded-2xl blur-sm opacity-20 transition-all duration-300 ${mode === 'repair' ? 'from-electric-indigo to-purple-600' : 'from-cyber-citron to-lime-500'}`}></div>
 
-                    <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 flex flex-col z-20 overflow-hidden">
+                    <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 flex flex-col z-20">
                         {/* Mode Switcher - Large Touch Targets */}
-                        <div className="flex bg-slate-50 dark:bg-slate-950 p-1.5 gap-1.5 border-b border-slate-100 dark:border-slate-800">
+                        <div className="flex bg-slate-50 dark:bg-slate-950 p-1.5 gap-1.5 border-b border-slate-100 dark:border-slate-800 rounded-t-2xl">
                             <button
-                                onClick={() => setMode('repair')}
-                                className={`flex-1 py-3 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 ${mode === 'repair' ? 'bg-white dark:bg-slate-900 text-electric-indigo shadow-md' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
+                                onClick={() => { haptic.trigger('light'); setMode('repair'); }}
+                                className={`flex-1 py-3 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 active-press ${mode === 'repair' ? 'bg-white dark:bg-slate-900 text-electric-indigo shadow-md' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
                             >
                                 {t('Repair')}
                             </button>
                             <button
-                                onClick={() => setMode('buyback')}
-                                className={`flex-1 py-3 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 ${mode === 'buyback' ? 'bg-white dark:bg-slate-900 text-cyber-citron shadow-md' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
+                                onClick={() => { haptic.trigger('light'); setMode('buyback'); }}
+                                className={`flex-1 py-3 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 active-press ${mode === 'buyback' ? 'bg-white dark:bg-slate-900 text-cyber-citron shadow-md' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
                             >
                                 {t('Buyback')}
                             </button>
@@ -219,7 +219,7 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                                                 <button
                                                     key={device.id}
                                                     onClick={() => handleSelect(device)}
-                                                    className="w-full text-left px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 flex justify-between items-center border-b border-slate-100 dark:border-slate-900 last:border-0"
+                                                    className="w-full text-left px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 flex justify-between items-center border-b border-slate-100 dark:border-slate-900 last:border-0 active-press"
                                                 >
                                                     <span className="font-bold text-slate-700 dark:text-slate-200">{device.label}</span>
                                                     {mode === 'buyback' && (

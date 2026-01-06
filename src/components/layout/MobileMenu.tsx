@@ -6,6 +6,8 @@ import { usePathname } from 'next/navigation';
 import { PhoneIcon } from '@heroicons/react/24/outline';
 import { NAV_LINKS } from '../../constants';
 import { getLocalizedPath } from '@/utils/i18n-helpers';
+import { useLockBodyScroll } from '../../hooks/useLockBodyScroll';
+import { useHaptic } from '../../hooks/useHaptic';
 
 interface MobileMenuProps {
     isOpen: boolean;
@@ -17,6 +19,10 @@ interface MobileMenuProps {
 
 const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t }) => {
     const pathname = usePathname();
+    const haptic = useHaptic();
+
+    // Prevent background scroll when menu is open
+    useLockBodyScroll(isOpen);
 
     const handleLanguageChange = (newLang: 'en' | 'fr' | 'nl' | 'tr') => {
         const currentPath = pathname;
@@ -25,6 +31,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
         // Actually best to accept a callback from Header to keep router logic central or safe.
         // But for lazy loading, self-contained is nice.
         // Let's implement localized path logic here or reuse helper.
+        haptic.trigger('light');
         const newPath = getLocalizedPath(currentPath, newLang);
         window.location.href = newPath; // Simple client navigation for language switch in mobile menu
     };
@@ -66,8 +73,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
                         return (
                             <div key={link.name} className="flex flex-col">
                                 <button
-                                    onClick={() => setIsProExpanded(!isProExpanded)}
-                                    className={`w-full px-6 py-4 rounded-2xl text-lg font-bold transition-all flex items-center justify-between text-left ${isProExpanded
+                                    onClick={() => {
+                                        haptic.trigger('light');
+                                        setIsProExpanded(!isProExpanded);
+                                    }}
+                                    className={`w-full px-6 py-4 rounded-2xl text-lg font-bold transition-all flex items-center justify-between text-left active-press ${isProExpanded
                                         ? 'bg-slate-50 dark:bg-slate-800/50 text-electric-indigo dark:text-indigo-400'
                                         : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
                                         }`}
@@ -82,24 +92,24 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
                                     <div className="grid grid-cols-1 gap-1 px-4 mb-2">
                                         <Link
                                             href={`/${language}/business`}
-                                            onClick={onClose}
-                                            className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2"
+                                            onClick={() => { haptic.trigger('light'); onClose(); }}
+                                            className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2 active-press"
                                         >
                                             <div className="w-1.5 h-1.5 rounded-full bg-electric-indigo/40" />
                                             B2B
                                         </Link>
                                         <Link
                                             href={`/${language}/franchise`}
-                                            onClick={onClose}
-                                            className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2"
+                                            onClick={() => { haptic.trigger('light'); onClose(); }}
+                                            className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2 active-press"
                                         >
                                             <div className="w-1.5 h-1.5 rounded-full bg-electric-indigo/40" />
                                             {t('Franchise')}
                                         </Link>
                                         <Link
                                             href={`/${language}${language === 'nl' ? '/opleiding' : language === 'tr' ? '/egitim' : language === 'fr' ? '/formation' : '/training'}`}
-                                            onClick={onClose}
-                                            className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2"
+                                            onClick={() => { haptic.trigger('light'); onClose(); }}
+                                            className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2 active-press"
                                         >
                                             <div className="w-1.5 h-1.5 rounded-full bg-electric-indigo/40" />
                                             {t('formation')}
@@ -114,9 +124,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
                         <Link
                             key={link.name}
                             href={href}
-                            onClick={onClose}
+                            onClick={() => { haptic.trigger('light'); onClose(); }}
                             aria-label={t(link.name)}
-                            className={`px-6 py-4 rounded-2xl text-lg font-bold transition-all flex items-center justify-between cursor-pointer ${isActive
+                            className={`px-6 py-4 rounded-2xl text-lg font-bold transition-all flex items-center justify-between cursor-pointer active-press ${isActive
                                 ? 'bg-slate-100 dark:bg-slate-800 text-electric-indigo dark:text-indigo-400'
                                 : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50'
                                 }`
@@ -136,7 +146,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
                         key={l}
                         onClick={() => { handleLanguageChange(l); onClose(); }}
                         aria-label={`Switch to ${l.toUpperCase()}`}
-                        className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold uppercase transition-all cursor-pointer ${language === l
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold uppercase transition-all cursor-pointer active-press ${language === l
                             ? 'bg-electric-indigo text-white shadow-md'
                             : 'bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400'
                             }`}

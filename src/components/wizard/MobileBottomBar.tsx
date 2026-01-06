@@ -17,11 +17,14 @@ interface MobileBottomBarProps {
 
 import { useWizard } from '../../context/WizardContext';
 import { slugToDisplayName, createSlug } from '../../utils/slugs';
-import { useState, useEffect } from 'react';
-import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
+import { useState, useEffect, useRef } from 'react';
+import { ChevronUpIcon, ChevronDownIcon, BookmarkIcon } from '@heroicons/react/24/solid';
 import { getDeviceImage } from '../../data/deviceImages';
 import Image from 'next/image';
 import { shimmer, toBase64 } from '../../utils/shimmer';
+import SaveQuoteModal from './SaveQuoteModal';
+import { useLockBodyScroll } from '../../hooks/useLockBodyScroll';
+import { useHaptic } from '../../hooks/useHaptic';
 
 const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
     type,
@@ -40,11 +43,41 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
         repairIssues,
         storage,
         deviceType,
-        isLoadingData
+        isLoadingData,
+        step
     } = state;
 
     const [isExpanded, setIsExpanded] = useState(false);
+    const [saveModalOpen, setSaveModalOpen] = useState(false);
     const isBuyback = type === 'buyback';
+
+    // Lock body scroll when expanded
+    useLockBodyScroll(isExpanded);
+    const haptic = useHaptic();
+
+    // Swipe Logic
+    const touchStartY = useRef<number | null>(null);
+    const minSwipeDistance = 50;
+
+    const onTouchStart = (e: React.TouchEvent) => {
+        touchStartY.current = e.targetTouches[0].clientY;
+    };
+
+    const onTouchEnd = (e: React.TouchEvent) => {
+        if (!touchStartY.current) return;
+        const touchEndY = e.changedTouches[0].clientY;
+        const distance = touchStartY.current - touchEndY;
+        const isSwipeUp = distance > minSwipeDistance;
+        const isSwipeDown = distance < -minSwipeDistance;
+
+        if (isSwipeUp && !isExpanded) {
+            haptic.trigger('light');
+            setIsExpanded(true);
+        } else if (isSwipeDown && isExpanded) {
+            haptic.trigger('light');
+            setIsExpanded(false);
+        }
+    };
 
     // Intelligent CTA Logic
     const isLoading = isLoadingData; // Or passed prop?
@@ -80,21 +113,32 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
 
     return (
         <>
+            <SaveQuoteModal
+                isOpen={saveModalOpen}
+                onClose={() => setSaveModalOpen(false)}
+                type={type}
+            />
+
             {/* Backdrop for expansion */}
             {isExpanded && (
                 <div
-                    className="fixed inset-0 bg-black/20 z-40 lg:hidden backdrop-blur-sm transition-opacity"
+                    className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-sm transition-opacity"
                     onClick={() => setIsExpanded(false)}
                 />
             )}
 
             <div
-                className={`lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) rounded-t-3xl overflow-hidden ${isExpanded ? 'h-[45vh]' : 'h-auto'}`}
+                className={`lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) rounded-t-3xl overflow-hidden flex flex-col ${isExpanded ? 'max-h-[85vh]' : 'h-auto'}`}
+                onTouchStart={onTouchStart}
+                onTouchEnd={onTouchEnd}
             >
                 {/* Drag Handle / Toggle */}
                 <div
-                    className="w-full pt-3 pb-2 flex flex-col items-center justify-center cursor-pointer active:opacity-70"
-                    onClick={() => setIsExpanded(!isExpanded)}
+                    onClick={() => {
+                        haptic.trigger('light');
+                        setIsExpanded(!isExpanded);
+                    }}
+                    className="w-full pt-3 pb-2 flex flex-col items-center justify-center cursor-pointer active-press shrink-0"
                 >
                     <div className="w-10 h-1 bg-gray-300 dark:bg-slate-700 rounded-full mb-1" />
                     {!isExpanded && hasDevice && (
@@ -106,12 +150,28 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
                 </div>
 
                 {/* Main Content Container */}
-                <div className="px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] flex flex-col h-full">
+                <div className="px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] flex flex-col flex-1 min-h-0">
 
                     {/* EXPANDED CONTENT: Summary View */}
-                    <div className={`flex-1 overflow-y-auto transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0 hidden'}`}>
-                        <div className="space-y-4 pt-2 pb-6">
-                            <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">{t('Summary')}</h3>
+                    <div className={`overflow-y-auto transition-all duration-300 flex-1 ${isExpanded ? 'opacity-100 mb-4' : 'opacity-0 h-0 hidden'}`}>
+                        <div className="space-y-4 pt-2 pb-2">
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">{t('Summary')}</h3>
+
+                                {/* Save for Later Trigger */}
+                                {(step >= 4 || (step === 3 && repairIssues.length > 0)) && (
+                                    <button
+                                        onClick={() => {
+                                            haptic.trigger('medium');
+                                            setSaveModalOpen(true);
+                                        }}
+                                        className="flex items-center gap-1.5 text-xs font-bold text-bel-blue hover:text-bel-blue/80 transition-colors px-3 py-1.5 bg-bel-blue/10 rounded-full active-press"
+                                    >
+                                        <BookmarkIcon className="w-3.5 h-3.5" />
+                                        {t('Save Quote')}
+                                    </button>
+                                )}
+                            </div>
 
                             {/* Device Card */}
                             {hasDevice && (
@@ -209,9 +269,12 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
 
                             {!hideNextButton && (
                                 <button
-                                    onClick={onNext}
+                                    onClick={() => {
+                                        haptic.trigger('medium');
+                                        onNext();
+                                    }}
                                     disabled={nextDisabled || isLoading}
-                                    className={`relative overflow-hidden group flex-1 h-14 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 ${nextDisabled
+                                    className={`relative overflow-hidden group flex-1 h-14 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 active-press ${nextDisabled
                                         ? 'bg-gray-100 dark:bg-slate-800 text-gray-400 cursor-not-allowed'
                                         : `${btnGradient} shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95`
                                         }`}
@@ -236,7 +299,7 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
         </>
     );
 };

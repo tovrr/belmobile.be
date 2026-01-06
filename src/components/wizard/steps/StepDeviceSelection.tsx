@@ -11,6 +11,7 @@ import { useWizard } from '../../../context/WizardContext';
 import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useWizardPricing } from '../../../hooks/useWizardPricing';
 import { useLanguage } from '../../../hooks/useLanguage';
+import { useHaptic } from '../../../hooks/useHaptic';
 import { slugToDisplayName } from '../../../utils/slugs';
 import { shimmer, toBase64 } from '../../../utils/shimmer';
 
@@ -30,6 +31,7 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
 }) => {
     const { state, dispatch } = useWizard();
     const { t } = useLanguage();
+    const haptic = useHaptic();
 
     // Actions
     const { handleBrandSelect, handleModelSelect, handleBack, handleNext } = useWizardActions(type);
@@ -68,6 +70,7 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
 
     // Local handler to wrap the action if needed, or stick to direct usage
     const onBrandClick = (brand: string) => {
+        haptic.trigger('light');
         handleBrandSelect(brand, deviceType);
         // Wait for state update/render then scroll and focus
         // Slower delay (400ms) to allow "processing" visualization
@@ -90,9 +93,9 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-8">
                     <button
-                        onClick={onBack}
+                        onClick={() => { haptic.trigger('light'); onBack(); }}
                         type="button"
-                        className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors`}
+                        className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors active-press`}
                         aria-label={t('Back')}
                     >
                         <ChevronLeftIcon className="h-6 w-6" />
@@ -109,7 +112,7 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                             <button
                                 key={brand}
                                 onClick={() => onBrandClick(brand)}
-                                className={`group py-4 px-4 rounded-ui font-bold text-sm transition-all flex flex-col items-center justify-center gap-3 h-32 ${selectedBrand === brand
+                                className={`group py-4 px-4 rounded-ui font-bold text-sm transition-all flex flex-col items-center justify-center gap-3 h-32 active-press ${selectedBrand === brand
                                     ? (type === 'buyback'
                                         ? 'bg-bel-yellow text-gray-900 shadow-lg shadow-yellow-500/20 dark:shadow-none'
                                         : 'bg-[#6366F1] text-white shadow-lg shadow-indigo-500/20 dark:shadow-none')
@@ -151,7 +154,10 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                         <div className="relative min-h-[56px]">
                             <Select
                                 value={selectedModel || ''}
-                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleModelSelect(e.target.value)}
+                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                                    haptic.trigger('medium');
+                                    handleModelSelect(e.target.value);
+                                }}
                                 options={[
                                     { value: "", label: isLoadingData ? t('Loading models...') : `👇 ${t('Select your model...')}` },
                                     ...availableModels.map(model => ({ value: model, label: model }))

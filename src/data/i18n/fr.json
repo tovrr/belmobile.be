@@ -1674,5 +1674,13 @@
     "pdf_label_pickup_address": "Adresse de Ramassage",
     "pdf_res_step_preparing": "Nous préparons votre colis pour l'expédition.",
     "pdf_res_step_tracking": "Un numéro de suivi vous sera envoyé par e-mail dès l'envoi.",
-    "pdf_res_step_inspection": "Vérifiez l'état du colis à la réception avant de signer."
+    "pdf_res_step_inspection": "Vérifiez l'état du colis à la réception avant de signer.",
+    "save_for_later": "Sauvegarder pour plus tard",
+    "save_quote_info": "Pas prêt ? Entrez votre email pour sauvegarder cette estimation et bloquer le prix pendant 7 jours.",
+    "quote_saved_title": "Estimation Sauvegardée !",
+    "quote_saved_desc": "Nous avons sauvegardé votre estimation. Vous pouvez reprendre à tout moment via votre email.",
+    "Save Price": "Sauvegarder le prix",
+    "Email Address": "Adresse Email",
+    "Save Quote": "Sauvegarder le devis",
+    "Close": "Fermer"
 }

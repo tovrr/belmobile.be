@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -13,11 +13,14 @@ import { getDeviceImage } from '../../data/deviceImages';
 import { createSlug, slugToDisplayName } from '../../utils/slugs';
 import { TRUST_SIGNALS, SignalContext } from '../../data/trustSignals';
 import { getDeviceContext } from '../../utils/seoHelpers';
+import { useHaptic } from '../../hooks/useHaptic';
 import Button from '../ui/Button';
 
 import { useWizard } from '../../context/WizardContext';
 import { PriceLockTimer } from '../ui/PriceLockTimer';
 import { BoltIcon } from '../ui/BrandIcons';
+import SaveQuoteModal from './SaveQuoteModal';
+import { useExitIntent } from '../../hooks/useExitIntent';
 
 // Map string icon names to components
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -53,7 +56,7 @@ interface SidebarProps {
     isSubmitting?: boolean;
     isProcessing?: boolean;
     processingText?: string;
-    breakdown?: any; // typed as WizardQuoteResponse['breakdown'] ideally
+    breakdown?: any;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -84,8 +87,27 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
     const { t, language } = useLanguage();
     const { state } = useWizard();
+    const haptic = useHaptic();
     const isTransitioning = state.isTransitioning;
     const isBuyback = type === 'buyback';
+
+    // State for Save Quote Modal
+    const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+
+    // --- EXIT INTENT CRO ---
+    // Trigger only if we have a price and user is engaged (step > 1)
+    const hasValue = typeof estimateDisplay === 'number' && estimateDisplay > 0;
+    const isEngaged = step > 1;
+
+    useExitIntent({
+        onExit: () => {
+            if (!isSaveModalOpen && !loading && !isSubmitting) {
+                console.log("[CRO] Exit Intent Triggered");
+                setIsSaveModalOpen(true);
+            }
+        },
+        enabled: hasValue && isEngaged && step >= 4 && !state.isWidget && !state.isKiosk // Only trigger on Step 4+, Desktop, Main Site
+    });
 
     // Consolidate processing state
     const isLoadingState = isSubmitting || isProcessing;
@@ -213,7 +235,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                             </li>
                                         ))}
 
-                                        {/* Extras (Client Side for now if not in breakdown) */}
+                                        {/* Extras */}
                                         {hasHydrogel && (
                                             <li className="flex justify-between text-gray-900 dark:text-white font-medium">
                                                 <span className="text-sm">{t('hydrogel_protection')}</span>
@@ -230,7 +252,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 </div>
                             ) : (
                                 !isBuyback && repairIssues.length > 0 && (
-                                    // Fallback for initial load mismatch
                                     <div className="border-t border-gray-100 dark:border-slate-800 pt-3 mt-3">
                                         <p className="text-sm text-gray-400 italic text-center">{t('calculating_details')}</p>
                                     </div>
@@ -345,13 +366,33 @@ const Sidebar: React.FC<SidebarProps> = ({
                                     {t('Back')}
                                 </Button>
                             )}
+
+                            {/* --- SAVE QUOTE FEATURE (CRO) --- */}
+                            {/* Only show after specs/condition are selected (Step 4+) */}
+                            {step >= 4 && typeof estimateDisplay === 'number' && estimateDisplay > 0 && !loading && (
+                                <button
+                                    onClick={() => { haptic.trigger('light'); setIsSaveModalOpen(true); }}
+                                    className="w-full text-center text-xs font-bold text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 underline decoration-dashed underline-offset-4 py-2 transition-colors active-press"
+                                >
+                                    {t('save_for_later', 'Save quote for later')}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
+
+            <AnimatePresence>
+                {isSaveModalOpen && (
+                    <SaveQuoteModal
+                        isOpen={isSaveModalOpen}
+                        onClose={() => setIsSaveModalOpen(false)}
+                        type={type}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };
 
-// Optimization: Prevent re-renders on text input changes in main form
 export default memo(Sidebar);

@@ -10,7 +10,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "generate-search-index": "node scripts/build-search-index.mjs"
+    "generate-search-index": "node scripts/build-search-index.mjs",
+    "sitemap:submit": "node scripts/submit-sitemap.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -28,6 +29,7 @@
     "firebase": "^12.6.0",
     "firebase-admin": "^13.6.0",
     "framer-motion": "^12.23.25",
+    "googleapis": "^169.0.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.562.0",
     "next": "^16.0.7",

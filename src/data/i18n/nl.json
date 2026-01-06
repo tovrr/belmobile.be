@@ -1648,5 +1648,13 @@
     "pdf_res_step_tracking": "U ontvangt een trackingnummer per e-mail zodra het is verzonden.",
     "pdf_res_step_inspection": "Controleer de staat van het pakket bij ontvangst voordat u tekent.",
     "pdf_label_repair_details": "REPARATIE DETAILS",
-    "pdf_label_reservation_details": "RESERVERING DETAILS"
+    "pdf_label_reservation_details": "RESERVERING DETAILS",
+    "save_for_later": "Offerte opslaan voor later",
+    "save_quote_info": "Nog niet klaar? Voer uw e-mailadres in om deze offerte op te slaan en de prijs 7 dagen vast te leggen.",
+    "quote_saved_title": "Offerte Opgeslagen!",
+    "quote_saved_desc": "We hebben uw schatting opgeslagen. U kunt op elk moment hervatten via uw e-mail.",
+    "Save Price": "Prijs Opslaan",
+    "Email Address": "E-mailadres",
+    "Save Quote": "Offerte Opslaan",
+    "Close": "Sluiten"
 }

@@ -320,3 +320,58 @@ export const getOrderConfirmationEmail = (order: any, id: string, lang: 'en' | '
         html: LAYOUT(content, lang, trackingUrl, t('email_track_button'), id, '#4338ca')
     };
 };
+
+export const getMagicLinkEmail = (email: string, magicLink: string, lang: 'en' | 'fr' | 'nl' | 'tr', deviceName: string, type: 'buyback' | 'repair' = 'buyback') => {
+    const isBuyback = type === 'buyback';
+    const accentColor = isBuyback ? '#ca8a04' : '#4338ca'; // Darker yellow for text readability vs indigo
+
+    const subjects = {
+        en: isBuyback ? "✨ Resume your Sale" : "✨ Resume your Repair Quote",
+        fr: isBuyback ? "✨ Reprendre votre Vente" : "✨ Retrouvez votre Devis de Réparation",
+        nl: isBuyback ? "✨ Hervat uw Verkoop" : "✨ Hervat uw Reparatie Offerte",
+        tr: isBuyback ? "✨ Satışınıza Devam Edin" : "✨ Onarım Teklifinize Devam Edin"
+    };
+
+    const content = {
+        en: {
+            title: isBuyback ? "Your Offer is Saved" : "Your Repair Quote is Saved",
+            body: isBuyback
+                ? `You saved a buyback offer for your <strong>${deviceName}</strong>. Prices change daily, but we've locked yours. Resume now to secure it.`
+                : `You saved a repair quote for your <strong>${deviceName}</strong>. You can resume exactly where you left off. This quote is valid for 7 days.`,
+            cta: isBuyback ? "Resume Selling" : "Resume Repair"
+        },
+        fr: {
+            title: isBuyback ? "Votre Offre de Rachat est Sauvegardée" : "Votre Devis de Réparation est Sauvegardé",
+            body: isBuyback
+                ? `Vous avez sauvegardé une offre de rachat pour votre <strong>${deviceName}</strong>. Les prix changent quotidiennement, mais nous avons bloqué le vôtre. Reprenez maintenant pour le sécuriser.`
+                : `Vous avez sauvegardé un devis de réparation pour votre <strong>${deviceName}</strong>. Vous pouvez reprendre exactement là où vous en étiez. Ce devis est valable 7 jours.`,
+            cta: isBuyback ? "Reprendre la Vente" : "Reprendre la Réparation"
+        },
+        nl: {
+            title: isBuyback ? "Uw Verkoopaanbod is Opgeslagen" : "Uw Reparatie Offerte is Opgeslagen",
+            body: isBuyback
+                ? `U heeft een verkoopaanbod opgeslagen voor uw <strong>${deviceName}</strong>. Prijzen veranderen dagelijks, maar die van u staat vast. Hervat nu om het te verzekeren.`
+                : `U heeft een reparatie-offerte opgeslagen voor uw <strong>${deviceName}</strong>. U kunt precies verdergaan waar u gebleven was. Deze offerte is 7 dagen geldig.`,
+            cta: isBuyback ? "Verkoop Hervatten" : "Reparatie Hervatten"
+        },
+        tr: {
+            title: isBuyback ? "Satış Teklifiniz Kaydedildi" : "Onarım Teklifiniz Kaydedildi",
+            body: isBuyback
+                ? `<strong>${deviceName}</strong> için geri alım teklifini kaydettiniz. Fiyatlar günlük değişir, ancak sizinkini sabitledik. Şimdi devam edin.`
+                : `<strong>${deviceName}</strong> için onarım teklifini kaydettiniz. Kaldığınız yerden devam edebilirsiniz. Bu teklif 7 gün geçerlidir.`,
+            cta: isBuyback ? "Satışa Devam Et" : "Onarıma Devam Et"
+        }
+    };
+
+    const t = content[lang] || content['en'];
+
+    const htmlContent = `
+        <h1 style="color: ${accentColor}; font-size: 24px; font-weight: 800; margin: 0 0 24px 0;">${t.title}</h1>
+        <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin: 0 0 24px 0;">${t.body}</p>
+    `;
+
+    return {
+        subject: subjects[lang] || subjects['en'],
+        html: LAYOUT(htmlContent, lang, magicLink, t.cta, "QUOTE-SAVED", accentColor)
+    };
+};

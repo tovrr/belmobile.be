@@ -5,8 +5,8 @@
     "start_url": "/",
     "display": "standalone",
     "orientation": "portrait",
-    "background_color": "#ffffff",
-    "theme_color": "#005bb5",
+    "background_color": "#020617",
+    "theme_color": "#4338ca",
     "categories": [
         "shopping",
         "business",
@@ -14,6 +14,46 @@
     ],
     "lang": "fr",
     "dir": "ltr",
+    "id": "/",
+    "scope": "/",
+    "shortcuts": [
+        {
+            "name": "Vendre mon appareil",
+            "short_name": "Rachat",
+            "url": "/fr/rachat",
+            "description": "Estimez et vendez votre appareil instantanément",
+            "icons": [
+                {
+                    "src": "/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Réparer mon appareil",
+            "short_name": "Réparation",
+            "url": "/fr/reparation",
+            "description": "Demandez une réparation rapide",
+            "icons": [
+                {
+                    "src": "/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Suivre ma commande",
+            "short_name": "Suivi",
+            "url": "/fr/suivre-commande",
+            "description": "Consultez l'état de votre demande",
+            "icons": [
+                {
+                    "src": "/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ],
     "icons": [
         {
             "src": "/favicon.svg",

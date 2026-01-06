@@ -14,6 +14,8 @@ import { useAuth } from '../../context/AuthContext';
 import { db } from '../../firebase';
 import { serverTimestamp, setDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import ChatActionCard from './ChatActionCard';
+import { useLockBodyScroll } from '../../hooks/useLockBodyScroll';
+import { useHaptic } from '../../hooks/useHaptic';
 
 interface Message {
     id: string;
@@ -41,6 +43,7 @@ const AIChatAssistant: React.FC = () => {
     const { language, t } = useLanguage();
     const { user } = useAuth(); // Get authenticated user
     const [sessionId, setSessionId] = useState<string | null>(null);
+    const haptic = useHaptic();
 
     // Initialize/Sync from Firestore
     const [messages, setMessages] = useState<Message[]>([]);
@@ -55,6 +58,18 @@ const AIChatAssistant: React.FC = () => {
 
     // Load placeholders from i18n
     const placeholders = (t('chat_placeholders') || "").split('|').filter(Boolean);
+
+    // Only verify "isMobile" on Client side to avoid hydration mismatch
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // Prevent background scroll on mobile when chat is open
+    useLockBodyScroll(isOpen && isMobile);
 
     // Placeholder typewriter effect
     useEffect(() => {
@@ -352,20 +367,22 @@ const AIChatAssistant: React.FC = () => {
     };
 
     // AIChatAssistant.tsx Floating Logic
-    const [mobileBottomOffset, setMobileBottomOffset] = useState('24px'); // Default to native place (bottom-6)
+    const [mobileBottomOffset, setMobileBottomOffset] = useState('24px'); // Default to native place
+    const [isBarExpanded, setIsBarExpanded] = useState(false);
 
     useEffect(() => {
         const handleResize = (e: Event) => {
             const customEvent = e as CustomEvent;
-            const { expanded, h } = customEvent.detail; // accepts height if provided
+            const { expanded, h } = customEvent.detail;
+
+            setIsBarExpanded(expanded);
 
             // Use provided height or fallback logic
             if (window.innerWidth < 1024) {
                 if (expanded) {
                     setMobileBottomOffset('calc(45vh + 20px)');
                 } else {
-                    // If height provided use it, else default to 130px for standard bar
-                    setMobileBottomOffset(h ? `${h + 20}px` : '130px');
+                    setMobileBottomOffset(h ? `${h + 24}px` : '130px'); // Increased padding slightly
                 }
             } else {
                 setMobileBottomOffset('24px');
@@ -373,20 +390,32 @@ const AIChatAssistant: React.FC = () => {
         };
 
         window.addEventListener('apollo-mobile-bar-resize', handleResize);
-
-        // No initial force set to 130px - we assume 24px (native) until the bar announces itself.
-
         return () => window.removeEventListener('apollo-mobile-bar-resize', handleResize);
     }, []);
 
+    // Dynamic styles based on Open State
+    // const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024; // REMOVED: Using state-based isMobile from lines 60-67
+    const shouldHide = !isOpen && isBarExpanded && isMobile;
+
+    // When Open on Mobile: Full Screen Overlay
+    // When Closed on Mobile: Floating Button above Bottom Bar
+    // Desktop: Standard Floating Widget
+
+    const containerClasses = isOpen && isMobile
+        ? `fixed inset-0 z-[100] flex items-end justify-center bg-black/40 backdrop-blur-sm transition-all duration-300`
+        : `fixed z-[100] flex flex-col items-end font-sans transition-all duration-500 
+           ${isMobileMenuOpen || shouldHide ? 'opacity-0 pointer-events-none translate-y-10' : 'opacity-100'} 
+           max-md:right-4 max-md:left-auto
+           md:bottom-6 md:right-6`;
+
+    const containerStyle: React.CSSProperties = (isOpen && isMobile)
+        ? {}
+        : { bottom: isMobile ? mobileBottomOffset : undefined };
+
     return (
         <div
-            className={`fixed z-100 flex items-end font-sans transition-all duration-500 ${isMobileMenuOpen ? 'hidden' : ''} 
-            max-md:flex-col-reverse max-md:right-4 max-md:bottom-auto max-md:left-auto
-            md:flex-col md:bottom-6 md:right-6`}
-            style={{
-                bottom: typeof window !== 'undefined' && window.innerWidth < 1024 ? mobileBottomOffset : undefined
-            }}
+            className={containerClasses}
+            style={containerStyle}
         >
             <style jsx>{`
                 @keyframes apollo-float {
@@ -404,15 +433,20 @@ const AIChatAssistant: React.FC = () => {
                 }
             `}</style>
 
-            {/* Proactive Bubble - Outside main chat */}
+            {/* Overlay Close Trigger (Mobile Only) */}
+            {isOpen && isMobile && (
+                <div className="absolute inset-0 z-0" onClick={() => setIsOpen(false)} />
+            )}
+
+            {/* Proactive Bubble - Outside main chat (Only when closed) */}
             {!isOpen && showProactiveBubble && (
                 <div
-                    onClick={handleBubbleClick}
-                    className="mb-4 mr-2 max-w-[280px] bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-br-none shadow-xl border border-gray-100 dark:border-slate-700 animate-fade-in-up cursor-pointer relative group hover:-translate-y-1 transition-transform duration-300"
+                    onClick={(e) => { haptic.trigger('medium'); handleBubbleClick(); }}
+                    className="mb-4 mr-2 max-w-[280px] bg-white dark:bg-slate-800 p-4 rounded-2xl rounded-br-none shadow-xl border border-gray-100 dark:border-slate-700 animate-fade-in-up cursor-pointer relative group hover:-translate-y-1 transition-transform duration-300 active-press"
                 >
                     <button
-                        onClick={handleDismissBubble}
-                        className="absolute -top-2 -left-2 bg-gray-200 dark:bg-slate-700 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => { e.stopPropagation(); haptic.trigger('light'); handleDismissBubble(e); }}
+                        className="absolute -top-2 -left-2 bg-gray-200 dark:bg-slate-700 rounded-full p-1 opacity-100 shadow-sm hover:bg-gray-300 transition-colors z-10 active-press"
                     >
                         <XMarkIcon className="w-3 h-3 text-gray-500 dark:text-gray-300" />
                     </button>
@@ -433,8 +467,13 @@ const AIChatAssistant: React.FC = () => {
             )}
 
             {isOpen && (
-                <div className="bg-white/95 backdrop-blur-xl w-80 sm:w-96 h-[500px] max-h-[calc(100vh-140px)] rounded-3xl shadow-2xl flex flex-col overflow-hidden mb-4 border border-white/20 animate-fade-in-up ring-1 ring-black/5 font-sans">
-                    <div className="p-4 px-5 border-b border-white/10 flex justify-between items-center bg-linear-to-r from-slate-900 via-[#0B0F19] to-slate-900 relative overflow-hidden">
+                <div className={`
+                    relative z-10 flex flex-col overflow-hidden bg-white/95 backdrop-blur-xl border border-white/20 shadow-2xl animate-fade-in-up font-sans
+                    ${isMobile
+                        ? 'w-full h-[85vh] rounded-t-3xl rounded-b-none' // Mobile Sheet
+                        : 'w-80 sm:w-96 h-[500px] max-h-[calc(100vh-140px)] rounded-3xl mb-4 ring-1 ring-black/5'} // Desktop Popup
+                `}>
+                    <div className="p-4 px-5 border-b border-white/10 flex justify-between items-center bg-linear-to-r from-slate-900 via-[#0B0F19] to-slate-900 relative overflow-hidden shrink-0">
                         {/* Header Background Effects */}
                         <div className="absolute inset-0 bg-linear-to-r from-bel-blue/20 to-purple-500/20 mix-blend-overlay"></div>
                         <div className="absolute top-0 right-0 w-32 h-32 bg-bel-blue/30 rounded-full blur-[50px] -mr-16 -mt-16 pointer-events-none"></div>
@@ -550,13 +589,13 @@ const AIChatAssistant: React.FC = () => {
                         <div ref={messagesEndRef} />
                     </div>
 
-                    <div className="px-4 py-1.5 bg-white border-t border-gray-50 flex justify-center items-center">
+                    <div className="px-4 py-1.5 bg-white border-t border-gray-50 flex justify-center items-center shrink-0">
                         <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
                             Powered by Belmobile.be
                         </span>
                     </div>
 
-                    <div className="p-3 bg-white/80 backdrop-blur-md border-t border-gray-100">
+                    <div className="p-3 bg-white/80 backdrop-blur-md border-t border-gray-100 shrink-0 mb-[env(safe-area-inset-bottom)]">
                         <form onSubmit={handleSend} className="relative group">
                             <div className="absolute -inset-0.5 bg-linear-to-r from-bel-blue/30 to-purple-500/30 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-200"></div>
                             <div className="relative flex items-center bg-white rounded-xl shadow-sm border border-gray-200 focus-within:border-bel-blue/50 focus-within:ring-2 focus-within:ring-bel-blue/10 transition-all overflow-hidden">
@@ -580,30 +619,34 @@ const AIChatAssistant: React.FC = () => {
                 </div>
             )}
 
-            <button
-                onClick={() => {
-                    setIsOpen(!isOpen);
-                    setShowProactiveBubble(false);
-                }}
-                className={`group p-3 md:p-4 rounded-full shadow-xl transition-all duration-300 border-4 border-white ${isOpen
-                    ? 'bg-gray-100 text-gray-600 scale-100'
-                    : 'bg-linear-to-br from-bel-blue to-blue-600 text-white apollo-alive'
-                    }`}
-            >
-                {isOpen ? (
-                    <XMarkIcon className="h-6 w-6 transition-transform duration-300 group-hover:rotate-90" />
-                ) : (
-                    <div className="relative">
-                        <ChatBubbleLeftRightIcon className="h-6 w-6 md:h-7 md:w-7 relative z-10" />
-                        <span className="absolute -top-1 -right-1 flex h-3 w-3 z-20">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-bel-yellow opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-bel-yellow"></span>
-                        </span>
-                        {/* Glow Effect */}
-                        <div className="absolute inset-0 bg-blue-400 rounded-full blur-md opacity-20 apollo-glow-ring"></div>
-                    </div>
-                )}
-            </button>
+            {/* Floating Toggle Button (Hidden when open on mobile) */}
+            {(!isOpen || !isMobile) && (
+                <button
+                    onClick={() => {
+                        haptic.trigger('medium');
+                        setIsOpen(!isOpen);
+                        setShowProactiveBubble(false);
+                    }}
+                    className={`active-press group p-3 md:p-4 rounded-full shadow-xl transition-all duration-300 border-4 border-white ${isOpen
+                        ? 'bg-gray-100 text-gray-600 scale-100'
+                        : 'bg-linear-to-br from-bel-blue to-blue-600 text-white apollo-alive'
+                        }`}
+                >
+                    {isOpen ? (
+                        <XMarkIcon className="h-6 w-6 transition-transform duration-300 group-hover:rotate-90" />
+                    ) : (
+                        <div className="relative">
+                            <ChatBubbleLeftRightIcon className="h-6 w-6 md:h-7 md:w-7 relative z-10" />
+                            <span className="absolute -top-1 -right-1 flex h-3 w-3 z-20">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-bel-yellow opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-3 w-3 bg-bel-yellow"></span>
+                            </span>
+                            {/* Glow Effect */}
+                            <div className="absolute inset-0 bg-blue-400 rounded-full blur-md opacity-20 apollo-glow-ring"></div>
+                        </div>
+                    )}
+                </button>
+            )}
         </div>
     );
 };

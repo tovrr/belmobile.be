@@ -13,9 +13,11 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { lang } = await params;
+    const locales = ['fr', 'nl', 'en', 'tr'];
+    const currentLang = locales.includes(lang) ? lang : 'fr';
 
     // Load translations manually for metadata as this is a server component
-    const translations = await import(`@/data/i18n/${lang}.json`).then(m => m.default);
+    const translations = await import(`@/data/i18n/${currentLang}.json`).then(m => m.default);
 
     const baseUrl = 'https://belmobile.be';
 

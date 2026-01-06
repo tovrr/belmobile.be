@@ -24,8 +24,9 @@ async function getTranslations(lang: string): Promise<TranslationDict> {
         const fileContent = await fs.readFile(filePath, 'utf8');
         return JSON.parse(fileContent);
     } catch (error) {
-        // Ignorer les erreurs pour les fichiers système ou robots
-        if (lang === 'favicon.ico' || lang === 'robots.txt' || lang === 'sitemap.xml' || lang.startsWith('.well-known')) {
+        // Ignore errors for system files, robots, or sitemaps accidentally hitting the [lang] route
+        const ignored = ['favicon.ico', 'robots.txt', 'sitemap.xml', 'sitemap'];
+        if (ignored.includes(lang) || lang.startsWith('.well-known')) {
             return {};
         }
         console.warn(`Missing translation file for ${lang}`);

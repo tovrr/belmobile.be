@@ -11,6 +11,7 @@ import { useWizard } from '../../../context/WizardContext';
 import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useDebounce } from '../../../hooks/useDebounce';
+import { useHaptic } from '../../../hooks/useHaptic';
 import { POPULAR_REPAIR_KEYS, POPULAR_BUYBACK_KEYS } from '../../../data/popularDevices';
 import Select from '../../ui/Select';
 import Button from '../../ui/Button';
@@ -42,6 +43,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
     const { state, dispatch } = useWizard();
     const { t } = useLanguage();
     const router = useRouter();
+    const haptic = useHaptic();
     // We can get handleNext from useWizardActions if not passed, but passing is fine
     const { handleNext: actionHandleNext, handleCategorySelect, typeSlug } = useWizardActions(type);
 
@@ -105,6 +107,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
     };
 
     const onSearchSelect = (item: SearchResult) => {
+        haptic.trigger('medium');
         dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: item.category, selectedBrand: item.brand, selectedModel: item.model } });
 
         // SEO NAV FIX: Force URL update to match selection
@@ -190,6 +193,9 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                             onChange={handleSearchChange}
                             onFocus={() => setIsFocused(true)}
                             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                            inputMode="search"
+                            autoComplete="off"
+                            enterKeyHint="search"
                             className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-4 transition-all text-lg shadow-xl ${type === 'buyback' ? 'focus:border-bel-yellow focus:ring-yellow-500/10 shadow-yellow-500/5 hover:shadow-yellow-500/10 hover:border-yellow-200' : 'focus:border-bel-blue focus:ring-blue-500/10 shadow-blue-500/5 hover:shadow-blue-500/10 hover:border-blue-200'} dark:hover:border-blue-900`}
                             aria-expanded={showDropdown}
                             aria-haspopup="listbox"
@@ -345,6 +351,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                         <button
                             key={dt.id}
                             onClick={() => {
+                                haptic.trigger('light');
                                 if (handleCategorySelect) {
                                     handleCategorySelect(dt.id);
                                 } else {
@@ -353,7 +360,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                                     onNext();
                                 }
                             }}
-                            className={`group flex flex-col items-center justify-center p-4 lg:p-8 rounded-3xl border-2 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl ${state.deviceType === dt.id
+                            className={`group flex flex-col items-center justify-center p-4 lg:p-8 rounded-3xl border-2 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl active-press ${state.deviceType === dt.id
                                 ? (state.deviceType === dt.id && type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 shadow-yellow-500/20' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 shadow-blue-500/20')
                                 : 'border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300'
                                 }`}
@@ -395,7 +402,7 @@ const SearchResultItem: React.FC<SearchResultItemProps> = ({ item, onSelect, typ
                 e.preventDefault(); // Prevent input onBlur
                 onSelect(item);
             }}
-            className="w-full px-4 py-3 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-slate-800 transition rounded-xl text-left"
+            className="w-full px-4 py-3 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-slate-800 transition rounded-xl text-left active-press"
         >
             <div className="w-14 h-14 relative bg-gray-50 dark:bg-slate-200 rounded-xl overflow-hidden shrink-0 border border-gray-100 dark:border-slate-700">
                 {deviceImg ? (
