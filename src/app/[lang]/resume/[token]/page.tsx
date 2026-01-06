@@ -10,6 +10,11 @@ interface PageProps {
     };
 }
 
+// Explicitly tell Next.js this segment is dynamic but has `[lang]` parent
+export async function generateStaticParams() {
+    return [];
+}
+
 export const dynamic = 'force-dynamic';
 
 export default async function ResumePage(props: any) { // Type 'any' for props due to Next.js type quirks
