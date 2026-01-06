@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, CheckCircle, Smartphone, AlertCircle } from 'lucide-react';
 import { useWizard } from '@/context/WizardContext';
+import { useLanguage } from '@/hooks/useLanguage';
 import { saveLead } from '@/app/_actions/lead';
 
 interface ExitIntentModalProps {
@@ -14,6 +15,7 @@ interface ExitIntentModalProps {
 
 export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
     const { state } = useWizard();
+    const { language } = useLanguage();
     const [mounted, setMounted] = useState(false);
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -32,7 +34,7 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
         setStatus('loading');
         setErrorMessage('');
 
-        const result = await saveLead(email, state);
+        const result = await saveLead(email, state, language);
 
         if (result.success && result.token) {
             setStatus('success');
