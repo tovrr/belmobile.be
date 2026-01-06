@@ -204,7 +204,7 @@ export interface ContactMessage {
     phone?: string;
     subject?: string;
     message: string;
-    attachmentUrl?: string;
+    attachmentUrl?: string | null;
     status: 'new' | 'read' | 'replied';
     date: string;
     createdAt: string;

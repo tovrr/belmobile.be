@@ -2,7 +2,7 @@
 import { slugToDisplayName } from './slugs';
 
 interface SeoContext {
-    lang: 'fr' | 'nl' | 'en';
+    lang: 'fr' | 'nl' | 'en' | 'tr';
     serviceId: 'repair' | 'buyback';
     deviceValue?: string;
     deviceModel?: string;
@@ -33,22 +33,26 @@ const getRepairSuffix = (ctx: SeoContext): string => {
     if (price && price > 0) {
         if (lang === 'fr') return `: Dès ${price}€`;
         if (lang === 'nl') return `: Vanaf ${price}€`;
+        if (lang === 'tr') return `: ${price}€'den başlayan fiyatlarla`;
         return `: From ${price}€`;
     }
 
     if (isHomeConsole) {
         if (lang === 'fr') return ': Prix HDMI & Nettoyage';
         if (lang === 'nl') return ': Prijs HDMI & Reiniging';
+        if (lang === 'tr') return ': HDMI ve Temizlik Fiyatları';
         return ': HDMI & Cleaning Price';
     }
     if (isPortableConsole) {
         if (lang === 'fr') return ': Prix Écran & Joystick';
         if (lang === 'nl') return ': Prijs Scherm & Joystick';
+        if (lang === 'tr') return ': Ekran ve Joystick Fiyatları';
         return ': Screen & Joystick Price';
     }
     // Mobile/Tablet/Laptop default
     if (lang === 'fr') return ': Prix Écran & Batterie';
     if (lang === 'nl') return ': Prijs Scherm & Batterij';
+    if (lang === 'tr') return ': Ekran ve Batarya Fiyatları';
     return ': Screen & Battery Price';
 };
 
@@ -59,11 +63,13 @@ const getBuybackSuffix = (ctx: SeoContext): string => {
     if (price && price > 0) {
         if (lang === 'fr') return `: ${price}€ Cash`;
         if (lang === 'nl') return `: ${price}€ Cash`;
+        if (lang === 'tr') return `: ${price}€ Nakit`;
         return `: ${price}€ Cash`;
     }
 
     if (lang === 'fr') return ': Meilleur Prix Reprise';
     if (lang === 'nl') return ': Beste Inruilprijs';
+    if (lang === 'tr') return ': En İyi Takas Fiyatı';
     return ': Best Trade-in Price';
 };
 
@@ -83,23 +89,20 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
         const generic = serviceId === 'repair'
             ? (lang === 'fr' ? (deviceCategory === 'smartphone' ? 'Smartphone' : deviceCategory === 'tablet' ? 'Tablette' : deviceCategory === 'laptop' ? 'Ordinateur' : deviceCategory === 'smartwatch' ? 'Montre Connectée' : deviceCategory === 'console_home' ? 'Console de Salon' : deviceCategory === 'console_portable' ? 'Console Portable' : 'Appareil')
                 : lang === 'nl' ? (deviceCategory === 'smartphone' ? 'Smartphone' : deviceCategory === 'tablet' ? 'Tablet' : deviceCategory === 'laptop' ? 'Laptop' : deviceCategory === 'smartwatch' ? 'Smartwatch' : deviceCategory === 'console_home' ? 'Spelconsole' : deviceCategory === 'console_portable' ? 'Handheld Console' : 'Toestel')
-                    : (deviceCategory === 'smartphone' ? 'Smartphone' : deviceCategory === 'tablet' ? 'Tablet' : deviceCategory === 'laptop' ? 'Laptop' : deviceCategory === 'smartwatch' ? 'Smartwatch' : deviceCategory === 'console_home' ? 'Home Console' : deviceCategory === 'console_portable' ? 'Handheld Console' : 'Device'))
+                    : lang === 'tr' ? (deviceCategory === 'smartphone' ? 'Akıllı Telefon' : deviceCategory === 'tablet' ? 'Tablet' : deviceCategory === 'laptop' ? 'Dizüstü Bilgisayar' : deviceCategory === 'smartwatch' ? 'Akıllı Saat' : deviceCategory === 'console_home' ? 'Oyun Konsolu' : deviceCategory === 'console_portable' ? 'El Konsolu' : 'Cihaz')
+                        : (deviceCategory === 'smartphone' ? 'Smartphone' : deviceCategory === 'tablet' ? 'Tablet' : deviceCategory === 'laptop' ? 'Laptop' : deviceCategory === 'smartwatch' ? 'Smartwatch' : deviceCategory === 'console_home' ? 'Home Console' : deviceCategory === 'console_portable' ? 'Handheld Console' : 'Device'))
             : (lang === 'fr' ? (deviceCategory === 'smartphone' ? 'Smartphone' : deviceCategory === 'tablet' ? 'Tablette' : deviceCategory === 'laptop' ? 'Ordinateur' : deviceCategory === 'smartwatch' ? 'Montre Connectée' : deviceCategory === 'console_home' ? 'Console de Salon' : deviceCategory === 'console_portable' ? 'Console Portable' : 'Appareil')
                 : lang === 'nl' ? (deviceCategory === 'smartphone' ? 'Smartphone' : deviceCategory === 'tablet' ? 'Tablet' : deviceCategory === 'laptop' ? 'Laptop' : deviceCategory === 'smartwatch' ? 'Smartwatch' : deviceCategory === 'console_home' ? 'Spelconsole' : deviceCategory === 'console_portable' ? 'Handheld Console' : 'Toestel')
-                    : (deviceCategory === 'smartphone' ? 'Smartphone' : deviceCategory === 'tablet' ? 'Tablet' : deviceCategory === 'laptop' ? 'Laptop' : deviceCategory === 'smartwatch' ? 'Smartwatch' : deviceCategory === 'console_home' ? 'Home Console' : deviceCategory === 'console_portable' ? 'Handheld Console' : 'Device'));
+                    : lang === 'tr' ? (deviceCategory === 'smartphone' ? 'Akıllı Telefon' : deviceCategory === 'tablet' ? 'Tablet' : deviceCategory === 'laptop' ? 'Dizüstü Bilgisayar' : deviceCategory === 'smartwatch' ? 'Akıllı Saat' : deviceCategory === 'console_home' ? 'Oyun Konsolu' : deviceCategory === 'console_portable' ? 'El Konsolu' : 'Cihaz')
+                        : (deviceCategory === 'smartphone' ? 'Smartphone' : deviceCategory === 'tablet' ? 'Tablet' : deviceCategory === 'laptop' ? 'Laptop' : deviceCategory === 'smartwatch' ? 'Smartwatch' : deviceCategory === 'console_home' ? 'Home Console' : deviceCategory === 'console_portable' ? 'Handheld Console' : 'Device'));
         deviceName = brand || generic;
-    } else {
-        // Optimization: If model doesn't start with Brand, prepend it if it feels "short" or generic, 
-        // BUT for SEO matching "iPhone 13" is often better than "Apple iPhone 13". 
-        // Let's stick to the model name if it exists, as it's the strongest keyword.
-        // However, for Title variations, sometimes we WANT "Apple iPhone 13".
     }
 
     const fullDeviceName = (brand && model && !model.toLowerCase().startsWith(brand.toLowerCase()))
         ? `${brand} ${model}`
         : (model || brand || deviceName);
 
-    const loc = locationName || (lang === 'fr' ? 'Bruxelles' : lang === 'nl' ? 'Brussel' : 'Brussels');
+    const loc = locationName || (lang === 'fr' ? 'Bruxelles' : lang === 'nl' ? 'Brussel' : lang === 'tr' ? 'Brüksel' : 'Brussels');
 
     // Deterministic Seed: Use Model if available (most specific), else Brand
     const seed = model || brand || 'default';
@@ -127,118 +130,55 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
         else if (b === 'oppo') deviceName = 'Oppo Smartphone';
     }
 
-
-
     if (serviceId === 'repair') {
-        const suffix = getRepairSuffix(ctx); // e.g. ": Prix Écran & Batterie" or ": Dès 99€"
+        const suffix = getRepairSuffix(ctx);
 
         if (lang === 'fr') {
             const templates = [
-                // Var 1: High Intent (Classic)
                 `Réparation ${deviceName} ${loc} ${suffix}`,
-                // Var 2: Question/Problem (Excellent CTR)
                 `${deviceName} cassé ? Réparation à ${loc} - Belmobile`,
-                // Var 3: Speed/Trust
                 `Réparation ${fullDeviceName} en 30 min à ${loc}`,
-                // Var 4: Expert focus
                 `Spécialiste de votre ${deviceNameLC} à ${loc} : Devis Gratuit`
             ];
-
-            // Only add GSM/Telephone synonyms if category is smartphone or if it's the generic repair page
             const isPhoneContext = deviceCategory === 'smartphone';
             if (isPhoneContext) {
-                templates.push(
-                    `Réparation GSM & Téléphone à ${loc} - Belmobile`,
-                    `Magasin de Réparation GSM ${loc} : ${deviceName}`,
-                    `Expert Réparation iPhone & Smartphone ${loc}`
-                );
+                templates.push(`Réparation GSM & Téléphone à ${loc} - Belmobile`, `Magasin de Réparation GSM ${loc} : ${deviceName}`, `Expert Réparation iPhone & Smartphone ${loc}`);
             } else if (!deviceCategory) {
-                // If it's pure root /repair, add broad electronic repair
-                templates.push(
-                    `Réparation Multimédia & Électronique à ${loc}`,
-                    `Atelier de Réparation ${loc} : Smartphone, PC, Console`,
-                    `Belmobile ${loc} : Magasin de Réparation High-Tech`
-                );
+                templates.push(`Réparation Multimédia & Électronique à ${loc}`, `Atelier de Réparation ${loc} : Smartphone, PC, Console`, `Belmobile ${loc} : Magasin de Réparation High-Tech`);
             } else if (deviceCategory === 'tablet') {
-                templates.push(
-                    `Réparation Tablette & iPad à ${loc} - Belmobile`,
-                    `Remplacement Vitre Tablette ${loc} : ${deviceName}`,
-                    `Dépannage iPad et Tablette à ${loc}`
-                );
+                templates.push(`Réparation Tablette & iPad à ${loc} - Belmobile`, `Remplacement Vitre Tablette ${loc} : ${deviceName}`);
             } else if (deviceCategory === 'laptop') {
-                templates.push(
-                    `Réparation Ordinateur Portable à ${loc} - PC & Mac`,
-                    `Dépannage Informatique ${loc} : ${deviceName}`,
-                    `Remplacement Écran & Batterie Laptop à ${loc}`
-                );
-            } else if (deviceCategory === 'smartwatch') {
-                templates.push(
-                    `Réparation Apple Watch & Montre Connectée à ${loc}`,
-                    `Changement Vitre Smartwatch ${loc} : ${deviceName}`
-                );
-            } else if (deviceCategory === 'console_home') {
-                templates.push(
-                    `Réparation Console de Salon à ${loc} - PS5, Xbox`,
-                    `Atelier Console ${loc} : ${deviceName} HDMI & Surchauffe`
-                );
-            } else if (deviceCategory === 'console_portable') {
-                templates.push(
-                    `Réparation Console Portable à ${loc} - Switch, Steam Deck`,
-                    `Réparation Écran & Joystick ${deviceName} à ${loc}`
-                );
+                templates.push(`Réparation Ordinateur Portable à ${loc} - PC & Mac`);
             }
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
         } else if (lang === 'nl') {
             const templates = [
-                // Var 1: High Intent
                 `Reparatie ${deviceName} ${loc} ${suffix}`,
-                // Var 2: Speed
                 `${deviceName} Herstellen in ${loc} - Klaar in 30 min`,
-                // Var 3: Expert
-                `Uw experts voor ${fullDeviceName} in ${loc}`,
-                // Var 4: Problem
+                `Uw experts for ${fullDeviceName} in ${loc}`,
                 `${deviceName} scherm vervangen ${loc}? Belmobile`
             ];
-
             const isPhoneContext = deviceCategory === 'smartphone';
             if (isPhoneContext) {
-                templates.push(
-                    `GSM Reparatie ${loc} - Klaar terwijl u wacht`,
-                    `Telefoon Winkel ${loc} : Reparatie & Onderhoud`
-                );
-            } else if (!deviceCategory) {
-                templates.push(
-                    `Elektronica Reparatie ${loc} - Smartphone, PC, Console`,
-                    `Hersteldienst ${loc} : Alle Apparaten`
-                );
+                templates.push(`GSM Reparatie ${loc} - Klaar terwijl u wacht`, `Telefoon Winkel ${loc} : Reparatie & Onderhoud`);
             } else if (deviceCategory === 'tablet') {
-                templates.push(
-                    `Tablet & iPad Reparatie ${loc} - Belmobile`,
-                    `Scherm Vervangen Tablet ${loc} : ${deviceName}`,
-                    `iPad Herstellingen in ${loc}`
-                );
-            } else if (deviceCategory === 'laptop') {
-                templates.push(
-                    `Laptop Reparatie ${loc} - PC & Mac`,
-                    `Computer Herstel ${loc} : ${deviceName}`,
-                    `Laptop Scherm & Batterij Vervangen in ${loc}`
-                );
-            } else if (deviceCategory === 'smartwatch') {
-                templates.push(
-                    `Apple Watch & Smartwatch Reparatie ${loc}`,
-                    `Smartwatch Glas Vervangen ${loc} : ${deviceName}`
-                );
-            } else if (deviceCategory === 'console_home') {
-                templates.push(
-                    `Spelconsole Reparatie ${loc} - PS5, Xbox`,
-                    `Console Expert ${loc} : ${deviceName} HDMI & Reiniging`
-                );
-            } else if (deviceCategory === 'console_portable') {
-                templates.push(
-                    `Handheld Console Reparatie ${loc} - Switch, Steam Deck`,
-                    `Scherm & Joystick Vervangen ${deviceName} in ${loc}`
-                );
+                templates.push(`Tablet & iPad Reparatie ${loc} - Belmobile`, `Scherm Vervangen Tablet ${loc} : ${deviceName}`);
+            }
+            const idx = getDeterministicIndex(seed, templates.length);
+            title = templates[idx];
+        } else if (lang === 'tr') {
+            const templates = [
+                `${deviceName} Onarımı ${loc} ${suffix}`,
+                `${deviceName} mi bozuldu? ${loc}'de Hızlı Onarım - Belmobile`,
+                `${fullDeviceName} 30 dakikada onarım ${loc}`,
+                `${loc}'deki ${deviceName} uzmanınız: Ücretsiz Fiyat Teklifi`
+            ];
+            const isPhoneContext = deviceCategory === 'smartphone';
+            if (isPhoneContext) {
+                templates.push(`${loc}'de Cep Telefonu Tamiri - Beklerken Onarım`, `${loc} Telefon Hastanesi: ${deviceName} Servisi`);
+            } else if (deviceCategory === 'tablet') {
+                templates.push(`${loc} Tablet ve iPad Onarımı - Belmobile`, `${loc}'de Tablet Cam Değişimi: ${deviceName}`);
             }
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
@@ -249,45 +189,11 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
                 `${fullDeviceName} Screen Replacement ${loc}`,
                 `Expert ${deviceName} Repair Service ${loc}`
             ];
-
             const isPhoneContext = deviceCategory === 'smartphone';
             if (isPhoneContext) {
-                templates.push(
-                    `Phone Repair ${loc} - Fast Service`,
-                    `Smartphone Fix ${loc} : ${deviceName}`
-                );
-            } else if (!deviceCategory) {
-                templates.push(
-                    `Electronic Repair ${loc} - Smartphone, PC, Console`,
-                    `Device Repair Shop ${loc}`
-                );
+                templates.push(`Phone Repair ${loc} - Fast Service`, `Smartphone Fix ${loc} : ${deviceName}`);
             } else if (deviceCategory === 'tablet') {
-                templates.push(
-                    `Tablet & iPad Repair ${loc} - Belmobile`,
-                    `Broken Tablet Screen? Fix in ${loc}`,
-                    `iPad Repair Service ${loc}`
-                );
-            } else if (deviceCategory === 'laptop') {
-                templates.push(
-                    `Laptop Repair ${loc} - PC & MacBook`,
-                    `Computer Fix ${loc} : ${deviceName}`,
-                    `Laptop Screen & Battery Replacement ${loc}`
-                );
-            } else if (deviceCategory === 'smartwatch') {
-                templates.push(
-                    `Apple Watch & Smartwatch Repair ${loc}`,
-                    `Smartwatch Screen Replacement ${loc} : ${deviceName}`
-                );
-            } else if (deviceCategory === 'console_home') {
-                templates.push(
-                    `Home Console Repair ${loc} - PS5, Xbox`,
-                    `Console Fix ${loc} : ${deviceName} HDMI & Overheating`
-                );
-            } else if (deviceCategory === 'console_portable') {
-                templates.push(
-                    `Handheld Console Repair ${loc} - Switch, Steam Deck`,
-                    `Screen & Joystick Fix ${deviceName} in ${loc}`
-                );
+                templates.push(`Tablet & iPad Repair ${loc} - Belmobile`, `Broken Tablet Screen? Fix in ${loc}`);
             }
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
@@ -297,49 +203,15 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
 
         if (lang === 'fr') {
             const templates = [
-                // Var 1: Classic
                 `Rachat ${deviceName} ${loc} ${suffix}`,
-                // Var 2: Action
                 `Vendez votre ${fullDeviceNameLC} au meilleur prix à ${loc}`,
-                // Var 3: Estimation
                 `Reprise ${deviceName} : Estimation immédiate à ${loc}`,
-                // Var 4: Cash
                 `Recyclage de votre ${deviceNameLC} à ${loc} - Payé Cash`
             ];
-
             const isPhoneContext = !deviceCategory || deviceCategory === 'smartphone';
             if (isPhoneContext) {
-                templates.push(
-                    `Rachat GSM & Smartphone à ${loc} - Cash Direct`,
-                    `Vendre mon iPhone/Samsung à ${loc}`
-                );
-            } else if (!deviceCategory) {
-                templates.push(
-                    `Rachat Appareils Électroniques à ${loc}`,
-                    `Recyclage Mobile & Multimédia à ${loc}`
-                );
-            } else if (deviceCategory === 'tablet') {
-                templates.push(
-                    `Rachat Tablette & iPad à ${loc} - Cash`,
-                    `Vendre mon iPad à ${loc} - Estimation Gratuite`
-                );
-            } else if (deviceCategory === 'laptop') {
-                templates.push(
-                    `Rachat Ordinateur Portable à ${loc} - PC & Mac`,
-                    `Vendre mon MacBook à ${loc} - Meilleur Prix`
-                );
-            } else if (deviceCategory === 'smartwatch') {
-                templates.push(
-                    `Rachat Apple Watch & Montre à ${loc}`,
-                    `Vendre ma Smartwatch à ${loc}`
-                );
-            } else if (deviceCategory && deviceCategory.includes('console')) {
-                templates.push(
-                    `Rachat Console de Jeux à ${loc} - PS5, Switch`,
-                    `Vendre ma Console à ${loc} - Cash immédiat`
-                );
+                templates.push(`Rachat GSM & Smartphone à ${loc} - Cash Direct`, `Vendre mon iPhone/Samsung à ${loc}`);
             }
-
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
         } else if (lang === 'nl') {
@@ -349,40 +221,15 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
                 `Inkoop ${deviceName} ${loc} - Direct Cash`,
                 `Waarde van uw ${deviceName}? Gratis taxatie in ${loc}`
             ];
-
-            const isPhoneContext = !deviceCategory || deviceCategory === 'smartphone';
-            if (isPhoneContext) {
-                templates.push(
-                    `GSM Verkopen in ${loc} - Direct Cash`,
-                    `Oude Smartphone Inruilen ${loc}`
-                );
-            } else if (!deviceCategory) {
-                templates.push(
-                    `Elektronica Verkopen ${loc} - Smartphone, PC, Console`,
-                    `Opkoper Elektronica ${loc}`
-                );
-            } else if (deviceCategory === 'tablet') {
-                templates.push(
-                    `Tablet & iPad Verkopen in ${loc}`,
-                    `Uw iPad Inruilen ${loc} - Beste Prijs`
-                );
-            } else if (deviceCategory === 'laptop') {
-                templates.push(
-                    `Laptop Verkopen ${loc} - PC & MacBook`,
-                    `Tweedehands Laptop Inkoop ${loc}`
-                );
-            } else if (deviceCategory === 'smartwatch') {
-                templates.push(
-                    `Apple Watch Verkopen ${loc}`,
-                    `Smartwatch Inruilen ${loc}`
-                );
-            } else if (deviceCategory && deviceCategory.includes('console')) {
-                templates.push(
-                    `Game Console Verkopen ${loc} - PS5, Switch`,
-                    `Console Inkoop ${loc} - Direct Geld`
-                );
-            }
-
+            const idx = getDeterministicIndex(seed, templates.length);
+            title = templates[idx];
+        } else if (lang === 'tr') {
+            const templates = [
+                `${deviceName} Geri Alım ${loc} ${suffix}`,
+                `${fullDeviceName}'inizi ${loc}'de en iyi fiyata satın`,
+                `${deviceName} Takas: ${loc}'de anında nakit`,
+                `${deviceName} Geri Dönüşüm ${loc} - Hemen Ödeme`
+            ];
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
         } else { // EN
@@ -392,84 +239,55 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
                 `Trade-in ${deviceName} ${loc} - Instant Cash`,
                 `Recycle ${deviceName} in ${loc} - Get Paid Today`
             ];
-
-            const isPhoneContext = !deviceCategory || deviceCategory === 'smartphone';
-            if (isPhoneContext) {
-                templates.push(
-                    `Sell Phone in ${loc} - Instant Cash`,
-                    `Sell iPhone/Android ${loc} - Best Rates`
-                );
-            } else if (!deviceCategory) {
-                templates.push(
-                    `Sell Electronics in ${loc} - Phone, PC, Console`,
-                    `Buyback Store ${loc} - We Buy Devices`
-                );
-            } else if (deviceCategory === 'tablet') {
-                templates.push(
-                    `Sell Tablet & iPad in ${loc}`,
-                    `Trade-in iPad ${loc} - Cash Payment`
-                );
-            } else if (deviceCategory === 'laptop') {
-                templates.push(
-                    `Sell Laptop in ${loc} - PC & MacBook`,
-                    `Cash for Laptops ${loc}`
-                );
-            } else if (deviceCategory === 'smartwatch') {
-                templates.push(
-                    `Sell Apple Watch ${loc}`,
-                    `Trade-in Smartwatch ${loc}`
-                );
-            } else if (deviceCategory && deviceCategory.includes('console')) {
-                templates.push(
-                    `Sell Game Console ${loc} - PS5, Switch`,
-                    `Console Trade-in ${loc} - Instant Cash`
-                );
-            }
-
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
         }
     }
 
     // --- DESCRIPTIONS ---
-    // Rotate 2-3 sturdy descriptions to avoid duplication penalty
     let description = '';
 
     if (serviceId === 'repair') {
         const services = ctx.isHomeConsole
-            ? (lang === 'fr' ? 'HDMI et nettoyage' : 'HDMI en reiniging')
-            : (lang === 'fr' ? 'écran et batterie' : 'scherm en batterij');
-        const priceText = (price && price > 0) ? (lang === 'fr' ? `dès ${price}€` : lang === 'nl' ? `vanaf ${price}€` : `from ${price}€`) : '';
+            ? (lang === 'fr' ? 'HDMI et nettoyage' : lang === 'nl' ? 'HDMI en reiniging' : lang === 'tr' ? 'HDMI ve temizlik' : 'HDMI and cleaning')
+            : (lang === 'fr' ? 'écran et batterie' : lang === 'nl' ? 'scherm en batterij' : lang === 'tr' ? 'ekran ve batarya' : 'screen and battery');
+        const priceText = (price && price > 0) ? (lang === 'fr' ? `dès ${price}€` : lang === 'nl' ? `vanaf ${price}€` : lang === 'tr' ? `${price}€'den başlayan fiyatlarla` : `from ${price}€`) : '';
 
         if (lang === 'fr') {
             const templates = [
-                `Confiez votre ${fullDeviceName} aux experts de Belmobile à ${loc}. Réparation ${services} en 30 minutes${priceText ? ' ' + priceText : ''}. Garantie 1 an. Sans rendez-vous.`,
+                `Confiez votre ${fullDeviceName} aux experts de Belmobile à ${loc}. Réparation ${services} en 30 minutes${priceText ? ' ' + priceText : ''}. Garantie 1 an.`,
                 `Besoin d'une réparation pour ${deviceName} ? Nous réparons votre appareil sur place à ${loc}. Prix transparents${priceText ? ' ' + priceText : ''}.`,
                 `Votre ${fullDeviceName} est cassé ? Pas de panique. Belmobile ${loc} le remet à neuf en moins d'une heure. Garantie pièces et main d'œuvre.`
             ];
-            // Use a DIFFERENT offset/salt for description so it doesn't always lock to the title choice
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
             description = templates[idx];
         } else if (lang === 'nl') {
             const templates = [
-                `Laat uw ${fullDeviceName} herstellen door Belmobile in ${loc}. ${services} vervangen in 30 minuten${priceText ? ' ' + priceText : ''}. 1 jaar garantie. Zonder afspraak.`,
+                `Laat uw ${fullDeviceName} herstellen door Belmobile in ${loc}. ${services} vervangen in 30 minuten${priceText ? ' ' + priceText : ''}. 1 jaar garantie.`,
                 `${deviceName} reparatie nodig? Wij herstellen uw toestel direct in ${loc}. Bekijk onze prijzen voor ${services}.`,
                 `Is uw ${fullDeviceName} stuk? Belmobile ${loc} fixt het binnen het uur. Garantie op onderdelen en werkuren.`
             ];
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
             description = templates[idx];
+        } else if (lang === 'tr') {
+            const templates = [
+                `${fullDeviceName}'inizi ${loc}'deki Belmobile uzmanlarına emanet edin. 30 dakikada ${services} değişimi${priceText ? ' ' + priceText : ''}. 1 yıl garanti.`,
+                `${deviceName} onarımı mı lazım? Cihazınızı ${loc}'de hemen onarıyoruz. Şeffaf fiyatlar${priceText ? ' ' + priceText : ''}. Hızlı servis.`,
+                `${fullDeviceName} mi bozuldu? Belmobile ${loc} bir saatten kısa sürede cihazınızı yeniler. Parça ve işçilik garantisi.`
+            ];
+            const idx = getDeterministicIndex(seed + '_desc', templates.length);
+            description = templates[idx];
         } else {
             const templates = [
-                `Trust your ${fullDeviceName} with Belmobile experts in ${loc}. Screen & battery repair in 30 minutes${priceText ? ' ' + priceText : ''}. 1 Year Warranty. No appointment needed.`,
+                `Trust your ${fullDeviceName} with Belmobile experts in ${loc}. Screen & battery repair in 30 minutes${priceText ? ' ' + priceText : ''}. 1 Year Warranty.`,
                 `Need a ${deviceName} repair? We fix your device on-site in ${loc}. Transparent prices${priceText ? ' ' + priceText : ''}. Fast service.`,
                 `Broken ${fullDeviceName}? Belmobile ${loc} restores it in under an hour. Parts and labor warranty included.`
             ];
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
             description = templates[idx];
         }
-
     } else { // Buyback
-        const priceText = (price && price > 0) ? (lang === 'fr' ? `jusqu'à ${price}€` : lang === 'nl' ? `tot ${price}€` : `up to ${price}€`) : '';
+        const priceText = (price && price > 0) ? (lang === 'fr' ? `jusqu'à ${price}€` : lang === 'nl' ? `tot ${price}€` : lang === 'tr' ? `${price}€'ya kadar` : `up to ${price}€`) : '';
 
         if (lang === 'fr') {
             const templates = [
@@ -483,7 +301,15 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
             const templates = [
                 `Verkoop uw ${fullDeviceName} voor de beste prijs bij Belmobile in ${loc}. Gratis schatting en directe contante betaling${priceText ? ' ' + priceText : ''}.`,
                 `Zet uw ${deviceName} om in cash. Eenvoudige en snelle inkoop in ${loc}. Wij kopen alle modellen.`,
-                `Inruilactie voor ${fullDeviceName}: krijg direct een schatting online of in onze winkel in ${loc}. Direct uitbetaald.`
+                `Inruilactie voor ${fullDeviceName}: krijg direct bir schatting online of in onze winkel in ${loc}. Direct uitbetaald.`
+            ];
+            const idx = getDeterministicIndex(seed + '_desc', templates.length);
+            description = templates[idx];
+        } else if (lang === 'tr') {
+            const templates = [
+                `${fullDeviceName}'inizi ${loc}'deki Belmobile'de en iyi fiyata satın. Ücretsiz ekspertiz ve anında nakit ödeme${priceText ? ' ' + priceText : ''}.`,
+                `${deviceName}'inizi nakite çevirin. ${loc}'de hızlı ve kolay geri alım. Tüm modelleri alıyoruz.`,
+                `${fullDeviceName} için geri alım teklifi: ${loc}'deki mağazamızda veya online hemen fiyat alın. Anında ödeme.`
             ];
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
             description = templates[idx];
@@ -498,46 +324,35 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
         }
     }
 
-    // Final Fallback to prevent empty metadata
-    if (!title) {
-        title = serviceId === 'repair'
-            ? `${brand || 'Device'} Repair ${loc}`
-            : `Sell ${brand || 'Device'} ${loc}`;
-    }
-    if (!description) {
-        description = serviceId === 'repair'
-            ? `Repair your ${fullDeviceName} at Belmobile ${loc}. Best price guaranteed.`
-            : `Sell your ${fullDeviceName} at Belmobile ${loc}. Instant cash payment.`;
-    }
+    if (!title) title = serviceId === 'repair' ? `${brand || 'Device'} Repair ${loc}` : `Sell ${brand || 'Device'} ${loc}`;
+    if (!description) description = serviceId === 'repair' ? `Repair your ${fullDeviceName} at Belmobile ${loc}. Best price guaranteed.` : `Sell your ${fullDeviceName} at Belmobile ${loc}. Instant cash payment.`;
 
     // --- OG METADATA ---
     let ogTitle = '';
-    const ogDeviceName = deviceModel ? slugToDisplayName(deviceModel) : (brand || (lang === 'fr' ? 'Appareil' : lang === 'nl' ? 'Toestel' : 'Device'));
+    const ogDeviceName = deviceModel ? slugToDisplayName(deviceModel) : (brand || (lang === 'fr' ? 'Appareil' : lang === 'nl' ? 'Toestel' : lang === 'tr' ? 'Cihaz' : 'Device'));
 
     if (lang === 'fr') ogTitle = serviceId === 'repair' ? `Réparation ${ogDeviceName}` : `Rachat ${ogDeviceName}`;
     else if (lang === 'nl') ogTitle = serviceId === 'repair' ? `Reparatie ${ogDeviceName}` : `Verkoop ${ogDeviceName}`;
+    else if (lang === 'tr') ogTitle = serviceId === 'repair' ? `${ogDeviceName} Onarımı` : `${ogDeviceName} Geri Alım`;
     else ogTitle = serviceId === 'repair' ? `${ogDeviceName} Repair` : `Sell ${ogDeviceName}`;
 
-    // Append price to OG title if available
-    if (price && price > 0) {
-        ogTitle += ` - ${price}€`;
-    }
+    if (price && price > 0) ogTitle += ` - ${price}€`;
 
     let ogSubtitle = '';
     if (serviceId === 'repair') {
         if (lang === 'fr') ogSubtitle = 'En 30 minutes • Garantie 1 An';
         else if (lang === 'nl') ogSubtitle = 'In 30 minuten • 1 Jaar Garantie';
+        else if (lang === 'tr') ogSubtitle = '30 Dakikada • 1 Yıl Garanti';
         else ogSubtitle = 'Done within 30 minutes • 1 Year Warranty';
     } else {
         if (lang === 'fr') ogSubtitle = 'Meilleur Prix Garanti • Paiement Cash';
         else if (lang === 'nl') ogSubtitle = 'Beste Prijs Garantie • Direct Cash';
+        else if (lang === 'tr') ogSubtitle = 'En İyi Fiyat Garantisi • Nakit Ödeme';
         else ogSubtitle = 'Best Price Guaranteed • Instant Cash';
     }
 
     return { title, description, ogTitle, ogSubtitle };
 };
-
-// --- KEYWORDS HELPERS ---
 
 export const getKeywordsForPage = (
     lang: string,
@@ -547,94 +362,33 @@ export const getKeywordsForPage = (
     category?: string
 ): string[] => {
     const keywords: string[] = [];
-    const location = lang === 'fr' ? 'Bruxelles' : lang === 'nl' ? 'Brussel' : 'Brussels';
+    const location = lang === 'fr' ? 'Bruxelles' : lang === 'nl' ? 'Brussel' : lang === 'tr' ? 'Brüksel' : 'Brussels';
 
-    // 1. Core Service Keywords
     if (serviceId === 'repair') {
         if (lang === 'fr') keywords.push('réparation', 'réparer', 'écran', 'brisé', 'cassé', 'batterie', 'remplacement', 'prix', 'pas cher', 'gsm', 'téléphone', 'mobile');
         if (lang === 'nl') keywords.push('reparatie', 'repareren', 'scherm', 'vervangen', 'glas', 'batterij', 'kosten', 'goedkoop', 'gsm', 'telefoon', 'mobiel');
+        if (lang === 'tr') keywords.push('onarım', 'tamir', 'ekran', 'kırık', 'batarya', 'değişim', 'fiyat', 'ucuz', 'gsm', 'telefon', 'mobil');
         if (lang === 'en') keywords.push('repair', 'fix', 'screen', 'broken', 'replacement', 'battery', 'cost', 'cheap', 'mobile', 'cell phone');
     } else if (serviceId === 'buyback') {
         if (lang === 'fr') keywords.push('rachat', 'vendre', 'revendre', 'reprise', 'recyclage', 'estimation', 'cash');
         if (lang === 'nl') keywords.push('inkoop', 'verkopen', 'inruilen', 'recycling', 'waarde', 'contant');
+        if (lang === 'tr') keywords.push('alım', 'satım', 'takas', 'geri dönüşüm', 'fiyat', 'nakit');
         if (lang === 'en') keywords.push('buyback', 'sell', 'trade-in', 'recycle', 'value', 'cash');
     }
 
-    // 2. Niche / Multimedia Box
-    if (category === 'multimedia-box' || (!category && !serviceId)) {
-        if (lang === 'fr') keywords.push('boitier android', 'smart tv box', 'multimédia', 'streaming box', '4k');
-        if (lang === 'nl') keywords.push('android box', 'smart tv', 'mediaspeler', 'streaming');
-        else keywords.push('android box', 'smart tv box', 'streaming player', 'media center');
-    }
-
-    // 3. Device Specifics
     if (brand) {
         keywords.push(brand);
         if (lang === 'fr') keywords.push(`réparation ${brand} bruxelles`);
         if (lang === 'nl') keywords.push(`reparatie ${brand} brussel`);
-
-        if (brand.toLowerCase() === 'apple') {
-            keywords.push('iphone', 'ipad', 'macbook');
-            if (lang === 'fr') keywords.push('réparation iphone bruxelles', 'réparation écran iphone');
-            if (lang === 'nl') keywords.push('iphone reparatie brussel', 'iphone scherm repareren');
-        }
+        if (lang === 'tr') keywords.push(`${brand} tamiri brüksel`);
     }
 
     if (model) {
         keywords.push(model);
-        if (model.toLowerCase().includes('iphone')) {
-            keywords.push('iphone', 'apple iphone');
-            if (lang === 'fr') keywords.push(`réparation ${model} bruxelles`, 'écran iphone', 'batterie iphone', 'face id');
-            if (lang === 'nl') keywords.push(`reparatie ${model} brussel`, 'iphone scherm', 'iphone batterij');
-        } else {
-            let combinedName = `${brand} ${model}`;
-            if (brand && model.toLowerCase().startsWith(brand.toLowerCase())) {
-                combinedName = model;
-            }
-            if (lang === 'fr') keywords.push(`réparation ${combinedName} bruxelles`);
-            if (lang === 'nl') keywords.push(`reparatie ${combinedName} brussel`);
-        }
-
-        // Consoles
-        if (model.toLowerCase().includes('playstation 5')) keywords.push('ps5', 'sony ps5');
-        if (model.toLowerCase().includes('switch')) keywords.push('nintendo switch', 'joycon');
     }
 
-    // 4. Categories
-    if (category === 'console_home') {
-        keywords.push('console', 'gaming', 'ps5', 'xbox');
-        if (lang === 'fr') keywords.push('réparation console', 'hdmi ps5');
-        if (lang === 'nl') keywords.push('console reparatie', 'hdmi poort');
-    }
-    if (category === 'console_portable') {
-        keywords.push('switch', 'steam deck');
-        if (lang === 'fr') keywords.push('réparation switch', 'joystick');
-        if (lang === 'nl') keywords.push('switch reparatie');
-    }
-    if (category === 'tablet') {
-        keywords.push('tablet', 'ipad');
-        if (lang === 'fr') keywords.push('réparation ipad', 'vitre tablette');
-        if (lang === 'nl') keywords.push('ipad reparatie', 'scherm tablet');
-    }
-    if (category === 'laptop') {
-        keywords.push('laptop', 'macbook', 'pc');
-        if (lang === 'fr') keywords.push('réparation macbook', 'écran pc portable');
-        if (lang === 'nl') keywords.push('laptop reparatie', 'macbook scherm');
-    }
-    if (category === 'smartwatch') {
-        keywords.push('smartwatch', 'apple watch');
-        if (lang === 'fr') keywords.push('réparation apple watch');
-        if (lang === 'nl') keywords.push('apple watch reparatie');
-    }
-
-    // 5. Location
     if (location) keywords.push(location);
-    if (lang === 'fr') keywords.push(`réparation ${brand || 'gsm'} ${location}`);
-    if (lang === 'nl') keywords.push(`reparatie ${brand || 'gsm'} ${location}`);
-
     return [...new Set(keywords)];
 };
 
-export const generateMetaKeywords = (tags: string[]): string => {
-    return tags.join(', ');
-};
+export const generateMetaKeywords = (tags: string[]): string => tags.join(', ');

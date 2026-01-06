@@ -12,14 +12,10 @@ const AegisHero: React.FC = () => {
     const { language, t } = useLanguage();
 
     const getAegisTitle = () => {
-        const titles = {
-            en: { t1: "Corporate & Consumer", t2: "Mobile Solutions." },
-            fr: { t1: "Solutions Mobiles", t2: "Pro & Particuliers." },
-            nl: { t1: "Mobiele Oplossingen", t2: "Zakelijk & Privé." },
-            tr: { t1: "Kurumsal & Bireysel", t2: "Mobil Çözümler." }
+        return {
+            t1: t('aegis_hero_title_1'),
+            t2: t('aegis_hero_title_2')
         };
-        // @ts-ignore
-        return titles[language] || titles.en;
     };
 
     const title = getAegisTitle();
@@ -47,10 +43,7 @@ const AegisHero: React.FC = () => {
                         >
                             <ShieldCheckIcon className="w-4 h-4 text-emerald-500 mr-2" />
                             <span className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-300">
-                                {language === 'fr' ? 'Infrastructure Mobile • Bruxelles HQ' :
-                                    language === 'nl' ? 'Mobiele Infrastructuur • Brussel HQ' :
-                                        language === 'tr' ? 'Mobil Altyapı • Brüksel HQ' :
-                                            'Mobile Infrastructure • Brussels HQ'}
+                                {t('aegis_hero_badge')}
                             </span>
                         </motion.div>
 
@@ -62,10 +55,7 @@ const AegisHero: React.FC = () => {
                         </h1>
 
                         <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-10 max-w-lg mx-auto lg:mx-0 font-medium">
-                            {language === 'fr' ? "Réparation Grade Industriel. Gestion de Flotte Corporate. Reprise Certifiée. L'épicentre de la mobilité bruxelloise." :
-                                language === 'nl' ? "Industriële Reparatie. Corporate Vlootbeheer. Gecertificeerde Inkoop. Het mobiele epicentrum van Brussel." :
-                                    language === 'tr' ? "Endüstriyel Onarım. Kurumsal Filo Yönetimi. Sertifikalı Geri Alım. Brüksel mobilite merkezi." :
-                                        "Industrial Grade Repair. Corporate Fleet Management. Certified Buyback. The mobile infrastructure of Brussels."}
+                            {t('aegis_hero_desc')}
                         </p>
 
                         {/* Dual Action Buttons */}
@@ -73,7 +63,7 @@ const AegisHero: React.FC = () => {
                             {/* Primary: Repair Service */}
                             <Link href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : 'repair'}`} className="w-full sm:w-auto group">
                                 <Button variant="cyber" className="w-full h-14 px-10 text-lg shadow-xl shadow-electric-indigo/20 rounded-2xl" icon={<WrenchScrewdriverIcon className="w-5 h-5 group-hover:rotate-12 transition-transform" />}>
-                                    {language === 'fr' ? 'Réparer Maintenant' : language === 'nl' ? 'Nu Repareren' : language === 'tr' ? 'Hemen Tamir' : 'Repair Now'}
+                                    {t('aegis_btn_repair')}
                                 </Button>
                             </Link>
 
@@ -82,7 +72,7 @@ const AegisHero: React.FC = () => {
                                 <button className="w-full h-14 px-8 rounded-2xl font-bold text-slate-900 bg-white border border-slate-200 shadow-sm hover:shadow-lg hover:bg-slate-50 dark:bg-slate-900 dark:text-white dark:border-slate-700 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
                                     <BriefcaseIcon className="w-5 h-5 text-electric-indigo group-hover:scale-110 transition-transform" />
                                     <span>
-                                        {language === 'fr' ? 'Solutions Pro' : language === 'nl' ? 'Business Oplossingen' : language === 'tr' ? 'Kurumsal Çözümler' : 'Business Solutions'}
+                                        {t('aegis_btn_business')}
                                     </span>
                                 </button>
                             </Link>

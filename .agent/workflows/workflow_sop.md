@@ -94,3 +94,9 @@ If `main` is broken:
 *   **Generation**: All Page Titles/Descriptions are generated in `page.tsx` using `pricing.dal.ts` to ensure the "Starting From" price matches the actual content.
 *   **JSON-LD**: Product Schema and Breadcrumbs must be injected on every product page using the same SSoT data.
 
+### D. Metadata & Sitemap Routing ⚠️
+*   **Collision Prevention**: NEVER create a physical route folder named `sitemap` (e.g. `src/app/[lang]/sitemap`) as it conflicts with the `sitemap.ts` dynamic generator.
+*   **Redirect Strategy**: Localized metadata requests (e.g. `/fr/sitemap.xml`) MUST be redirected to the root `/sitemap.xml` in `proxy.ts`.
+*   **Gatekeeper Rule**: `proxy.ts` must catch `.xml` and `.txt` files early and return `NextResponse.next()` to bypass catch-all UI routes.
+
+

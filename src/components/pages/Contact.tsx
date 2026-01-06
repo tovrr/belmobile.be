@@ -127,7 +127,7 @@ const Contact: React.FC = () => {
             await addContactMessage({
                 name,
                 email,
-                phone: phone || null,
+                phone: phone || undefined,
                 subject: subject || 'General Inquiry',
                 message,
                 attachmentUrl
@@ -235,7 +235,7 @@ const Contact: React.FC = () => {
                     <span className="inline-block py-1 px-3 rounded-full bg-bel-blue/10 text-bel-blue dark:text-blue-400 text-sm font-bold mb-6 animate-fade-in-up">
                         {t('contact_hero_badge')}
                     </span>
-                    <h1 className="text-5xl lg:text-7xl font-extrabold text-bel-dark dark:text-white tracking-tight mb-6 animate-fade-in-up delay-100">
+                    <h1 className="text-4xl lg:text-7xl font-extrabold text-bel-dark dark:text-white tracking-tight mb-6 animate-fade-in-up delay-100">
                         {t('contact_hero_title')}
                     </h1>
                     <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto animate-fade-in-up delay-200">

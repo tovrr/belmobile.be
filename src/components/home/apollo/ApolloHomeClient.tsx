@@ -7,6 +7,7 @@ import TrustSignals from '../../sections/TrustSignals';
 import SEOContentBlock from '../../sections/SEOContentBlock';
 import ReviewsSection from '../../sections/ReviewsSection';
 import BentoServices from '../../sections/BentoServices';
+import BrandVideo from '../../sections/BrandVideo';
 import FAQ from '../../common/FAQ';
 
 interface Props { initialReviews?: any[]; }
@@ -30,6 +31,9 @@ const ApolloHomeClient: React.FC<Props> = ({ initialReviews = [] }) => {
 
             {/* 4. Services Grid (Visual Navigation) */}
             <BentoServices variant="apollo" />
+
+            {/* 4.5 Brand Story (Video) */}
+            <BrandVideo />
 
             {/* 5. Trust Badges (Reassurance) */}
             <TrustSignals variant="apollo" />

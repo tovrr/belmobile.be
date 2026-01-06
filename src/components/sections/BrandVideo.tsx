@@ -13,7 +13,7 @@ const BrandVideo: React.FC = () => {
 
     // Placeholder until the real video is produced using the script
     const videoSrc = "/videos/Belmobile_corporate_video_2026.mp4";
-    const posterSrc = "/images/video-poster.jpg"; // Need to generate/add this asset
+    const posterSrc = "/images/microsoldering-lab-motherboard-repair-brussels.webp";
 
     const togglePlay = () => {
         if (!videoRef.current) return;
@@ -56,10 +56,10 @@ const BrandVideo: React.FC = () => {
                     <span className="inline-block py-1 px-3 rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 text-xs font-bold mb-4 uppercase tracking-widest">
                         {t('video_watch_story')}
                     </span>
-                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-4">
+                    <h2 className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-4 break-words">
                         {t('video_section_title') || '30 Minutes. Lifetime Guarantee.'}
                     </h2>
-                    <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                    <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
                         {t('video_section_desc') || "See how our certified technicians in Brussels bring your dead devices back to life using state-of-the-art microsoldering labs."}
                     </p>
                 </div>
@@ -100,8 +100,8 @@ const BrandVideo: React.FC = () => {
                                 </div>
 
                                 <div className="absolute bottom-8 left-8 text-white text-left">
-                                    <div className="font-bold text-xl">The Belmobile Standard</div>
-                                    <div className="text-sm opacity-80">Inside our Schaerbeek Lab</div>
+                                    <div className="font-bold text-xl">{t('video_overlay_title')}</div>
+                                    <div className="text-sm opacity-80">{t('video_overlay_subtitle')}</div>
                                 </div>
                             </div>
                         )}
@@ -125,7 +125,7 @@ const BrandVideo: React.FC = () => {
                     <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-8">
                         {t('certified_and_recognized_by') || 'Certified and Recognized By'}
                     </p>
-                    <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50 dark:opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
+                    <div className="grid grid-cols-2 md:flex md:flex-row justify-center items-center gap-6 md:gap-16 opacity-50 dark:opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
                         <div className="flex flex-col items-center group">
                             <span className="text-2xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">Google</span>
                             <span className="text-[10px] font-bold uppercase tracking-widest bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded-full mt-1">4.9/5 Rating</span>

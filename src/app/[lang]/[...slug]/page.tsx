@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Use 'city' if available (e.g. "Schaerbeek") instead of "Liedts" (from "Belmobile Liedts")
     const locationName = location ? (location.city || location.name.replace('Belmobile ', '')) : '';
     const { title, description, ogTitle, ogSubtitle } = generateSeoMetadata({
-        lang: lang as 'fr' | 'nl' | 'en',
+        lang: lang as 'fr' | 'nl' | 'en' | 'tr',
         serviceId: service.id as 'repair' | 'buyback',
         deviceValue: device?.value,
         deviceModel: deviceModel,

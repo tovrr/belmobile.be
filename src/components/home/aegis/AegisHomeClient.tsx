@@ -7,6 +7,7 @@ import FAQ from '../../common/FAQ';
 import SEOContentBlock from '../../sections/SEOContentBlock';
 import ReviewsSection from '../../sections/ReviewsSection';
 import BentoServices from '../../sections/BentoServices';
+import BrandVideo from '../../sections/BrandVideo';
 
 interface Props { initialReviews?: any[]; }
 
@@ -20,6 +21,9 @@ const AegisHomeClient: React.FC<Props> = ({ initialReviews = [] }) => {
 
             {/* 2. Service Hub (Visual Grid) */}
             <BentoServices variant="aegis" />
+
+            {/* 2.5 Show the brand action */}
+            <BrandVideo />
 
             {/* 3. Social Proof */}
             <ReviewsSection initialReviews={initialReviews} variant="aegis" />

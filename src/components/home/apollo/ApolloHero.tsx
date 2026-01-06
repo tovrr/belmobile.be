@@ -100,23 +100,15 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
 
     const getTitle = () => {
         if (mode === 'repair') {
-            const titles = {
-                en: { t1: "Repairs.", t2: "Instant." },
-                fr: { t1: "Réparations.", t2: "Instantanées." },
-                nl: { t1: "Reparaties.", t2: "Direct." },
-                tr: { t1: "Tamir.", t2: "Anında." }
+            return {
+                t1: t('apollo_hero_title_repair_1'),
+                t2: t('apollo_hero_title_repair_2')
             };
-            // @ts-ignore
-            return titles[language] || titles.en;
         } else {
-            const titlesBuyback = {
-                en: { t1: "Buyback.", t2: "Instant." },
-                fr: { t1: "Rachats.", t2: "Instantanés." },
-                nl: { t1: "Inkoop.", t2: "Direct." },
-                tr: { t1: "Satış.", t2: "Anında." }
+            return {
+                t1: t('apollo_hero_title_buyback_1'),
+                t2: t('apollo_hero_title_buyback_2')
             };
-            // @ts-ignore
-            return titlesBuyback[language] || titlesBuyback.en;
         }
     };
 
@@ -136,7 +128,7 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                         className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyber-citron text-slate-900 font-black uppercase tracking-tighter text-[10px] mb-4 shadow-xl shadow-cyber-citron/20"
                     >
                         <BoltIcon className="w-3 h-3" />
-                        <span>Apollo Engine v2.0 (Static Index)</span>
+                        <span>{t('apollo_engine_badge')}</span>
                     </motion.div>
 
                     <h1 className="text-5xl font-black text-slate-900 dark:text-white mb-2 leading-tight tracking-tighter">
@@ -195,7 +187,7 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                                             setShowResults(true);
                                         }}
                                         onFocus={() => setShowResults(true)}
-                                        placeholder={language === 'fr' ? "Modèle (ex: iPhone 14)" : "Model (e.g. iPhone 14)"}
+                                        placeholder={t('apollo_search_placeholder')}
                                         className="w-full h-full px-3 bg-transparent font-bold text-lg text-slate-900 dark:text-white outline-none placeholder:text-slate-400 placeholder:font-medium [-webkit-appearance:none]"
                                         autoComplete="off"
                                     />
@@ -237,7 +229,7 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                                             animate={{ opacity: 1 }}
                                             className="absolute top-full left-0 right-0 bg-white dark:bg-slate-950 border-2 border-t-0 border-slate-200 dark:border-slate-800 rounded-b-xl shadow-xl p-4 text-center z-50"
                                         >
-                                            <p className="text-slate-400 text-sm font-medium">No results found.</p>
+                                            <p className="text-slate-400 text-sm font-medium">{t('apollo_no_results')}</p>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
@@ -267,13 +259,13 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                                                 <div>
                                                     <p className="text-[10px] font-black uppercase text-slate-500 tracking-tighter">
                                                         {mode === 'buyback'
-                                                            ? (language === 'fr' ? 'Offre Estimée' : 'Estimated Offer')
-                                                            : (language === 'fr' ? 'Disponibilité' : 'Availability')}
+                                                            ? t('apollo_selected_offer_label')
+                                                            : t('apollo_selected_availability_label')}
                                                     </p>
                                                     <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
                                                         {mode === 'buyback'
-                                                            ? `€${selectedDevice.price} Cash`
-                                                            : (language === 'fr' ? 'Aujourd\'hui: 30-45min' : 'Today: 30-45min')}
+                                                            ? `€${selectedDevice.price} ${t('apollo_selected_offer_value')}`
+                                                            : t('apollo_selected_availability_value')}
                                                     </p>
                                                 </div>
                                             </div>
@@ -286,7 +278,7 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                                             animate={{ opacity: 0.5 }}
                                             className="w-full text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest"
                                         >
-                                            {language === 'fr' ? 'Choisissez votre appareil ci-dessus' : 'Pick your device above'}
+                                            {t('apollo_placeholder_cta')}
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
@@ -311,9 +303,9 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                                 ) : (
                                     <>
                                         {selectedDevice ? (
-                                            mode === 'repair' ? (language === 'fr' ? 'Réparer Maintenant' : 'Repair Now') : (language === 'fr' ? 'Vendre en 30s' : 'Sell in 30s')
+                                            mode === 'repair' ? t('apollo_btn_repair') : t('apollo_btn_buyback')
                                         ) : (
-                                            language === 'fr' ? 'Commencer' : 'Start'
+                                            t('apollo_btn_start')
                                         )}
                                         <ArrowRightIcon className="w-6 h-6" />
                                     </>

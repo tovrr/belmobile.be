@@ -4,16 +4,24 @@ import { i18n } from './i18n-config';
 
 const PUBLIC_FILE = /\.(.*)$/;
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
     // Critical: Explicitly skip Sitemap and Robots to prevent localization loops or rewrites
-    if (
-        pathname === '/sitemap.xml' ||
-        pathname === '/robots.txt' ||
-        pathname.startsWith('/sitemap/')
-    ) {
-        return;
+    // Handle both root (/sitemap.xml) and localized (/fr/sitemap.xml) requests
+    const isMetadataFile = pathname.endsWith('/sitemap.xml') || pathname.endsWith('/robots.txt') || pathname.includes('/sitemap/');
+
+    if (isMetadataFile) {
+        const parts = pathname.split('/');
+        const fileName = parts[parts.length - 1];
+
+        if (parts.length > 2 && !pathname.startsWith('/sitemap/')) {
+            console.log(`[Proxy] Redirecting localized metadata: ${pathname} -> /${fileName}`);
+            return NextResponse.redirect(new URL(`/${fileName}`, req.url));
+        }
+
+        console.log(`[Proxy] Metadata File Access: ${pathname}`);
+        return NextResponse.next();
     }
 
     // 1. Skip if it's an internal Next.js request, API, static file, or Admin panel
@@ -200,6 +208,8 @@ export function middleware(req: NextRequest) {
 
     return NextResponse.redirect(url);
 }
+
+export default proxy;
 
 export const config = {
     matcher: [

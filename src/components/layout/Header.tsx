@@ -118,10 +118,10 @@ const Header: React.FC = () => {
                                 <meta itemProp="url" content="https://belmobile.be/belmobile-logo.png" />
                             </div>
                             <div className="flex flex-col">
-                                <span className="font-black text-xl sm:text-2xl tracking-tighter text-gray-900 dark:text-white leading-none">
+                                <span className="font-black text-lg sm:text-2xl tracking-tighter text-gray-900 dark:text-white leading-none">
                                     BELMOBILE<span className="text-cyber-citron">.BE</span>
                                 </span>
-                                <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.14em] sm:tracking-[0.19em] text-slate-500 uppercase leading-none mt-1 group-hover:text-cyber-citron transition-colors">
+                                <span className="text-[8px] sm:text-[10px] font-bold tracking-[0.1em] sm:tracking-[0.19em] text-slate-500 uppercase leading-none mt-1 group-hover:text-cyber-citron transition-colors">
                                     BUYBACK & REPAIR
                                 </span>
                             </div>

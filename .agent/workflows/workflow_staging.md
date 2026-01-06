@@ -12,14 +12,13 @@ The staging environment (`dev.belmobile.be` or Vercel Preview URL) is a mirror o
 ### 1. Accessing Staging
 - **URL**: `https://dev.belmobile.be` (or your Vercel preview link)
 - **PIN Code**: `2580`
-- **Protection**: The site is protected by `src/proxy.ts` application-level logic.
+- **Protection**: The site is protected by `src/proxy.ts` application-level logic (Staging Gate).
 
 ### 2. Deployment Architecture
 - **Frontend**: Hosted on Vercel (Preview Environment).
-- **Backend**: Connected to Firebase Production (Same as main, but protected by PIN).
+- **Backend**: Connected to Firebase Production (Same as main, but protected by PIN on staging hosts).
 
 ### 3. Vercel Configuration
-- **Vercel Authentication**: Ensure "Deployment Protection" is **DISABLED** to allow our application-level `src/proxy.ts` PIN protection to function.
 - **Trigger**: Push to `staging` branch (or Pull Request).
 
 ### 4. Verification

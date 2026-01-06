@@ -4,7 +4,7 @@ This guide explains how to activate and use the "Eyes & Ears" (Gözün Kulağın
 
 ---
 
-## 1. 🔑 Activation (One-Time Setup)
+# # 1. 🔑 Activation (One-Time Setup)
 
 To move from "Simulation Mode" to "Live Production", you must add two keys to your environment:
 

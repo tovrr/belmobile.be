@@ -18,6 +18,13 @@ import {
     UserIcon
 } from '@/components/ui/BrandIcons';
 
+export const metadata = {
+    robots: {
+        index: false,
+        follow: false,
+    },
+};
+
 export default function B2BAppLayout({ children }: { children: React.ReactNode }) {
     const { language, t } = useLanguage();
     const pathname = usePathname();

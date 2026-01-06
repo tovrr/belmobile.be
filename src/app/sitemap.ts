@@ -4,69 +4,32 @@ import { LOCATIONS } from '../data/locations';
 import { getAllDevices } from '../services/server/pricing.dal';
 import { MOCK_BLOG_POSTS, MOCK_PRODUCTS } from '../constants';
 
+// --- CONFIGURATION ---
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be';
 const LANGUAGES = ['fr', 'nl', 'en', 'tr'] as const;
 
+// Priority Keywords for SEO Weighting
 const HIGH_PRIORITY_KEYWORDS = [
-    'iphone-12', 'iphone-13', 'iphone-14', 'iphone-15', 'iphone-16',
-    'galaxy-s', 'galaxy-a', 'playstation-5', 'ps5',
-    'pixel-7', 'pixel-8'
+    'iphone-12', 'iphone-14', 'iphone-15', 'iphone-16',
+    'galaxy-s', 'ps5', 'pixel-8'
 ];
 
-export async function generateSitemaps() {
-    try {
-        const devices = await getAllDevices();
-        const CHUNK_SIZE = 50;
-
-        const repairChunks = Math.max(1, Math.ceil(devices.length / CHUNK_SIZE));
-        const buybackChunks = Math.max(1, Math.ceil(devices.length / CHUNK_SIZE));
-
-        const sitemaps = [
-            { id: 'static' },
-            { id: 'blog' },
-            { id: 'products' }
-        ];
-
-        // Splitting into chunks to avoid Vercel 50MB Sitemap / ISR body limits (86MB observed due to circular duplication bug)
-        for (let i = 0; i < repairChunks; i++) sitemaps.push({ id: `repair-${i}` });
-        for (let i = 0; i < buybackChunks; i++) sitemaps.push({ id: `buyback-${i}` });
-
-        return sitemaps;
-    } catch (error) {
-        console.error('[Sitemap] Critical Error in generateSitemaps:', error);
-        // Return minimal sitemap to avoid 404/Crash
-        return [{ id: 'static' }];
-    }
-}
-
-export default async function sitemap(props: any): Promise<MetadataRoute.Sitemap> {
-    // Next.js 15/16 defensive extraction: props and its fields can be Promises
-    const resolvedProps = await props;
-    const resolvedId = await (resolvedProps?.id);
-
-    const idString = (resolvedId || 'static').toString().replace('.xml', '');
-    const [baseId, chunkIndexStr] = idString.split('-');
-    const sitemapId = baseId;
-    const chunkIndex = parseInt(chunkIndexStr || '0');
-
+/**
+ * ELITE SEO SITEMAP GENERATOR
+ * Includes multilingual alternates, brand silos, and prioritized weighting.
+ */
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const sitemapEntries: MetadataRoute.Sitemap = [];
+    const lastmodStatic = new Date('2026-01-05').toISOString(); // Stable date for authority pages
 
-    // --- 1. STATIC PAGES ---
-    if (sitemapId === 'static') {
+    try {
+        // 1. Static Pages (High Priority Infrastructure)
         const pages = [
             { id: 'home', priority: 1.0, changeFreq: 'daily', slugs: { en: '', fr: '', nl: '', tr: '' } },
-            { id: 'about', priority: 0.8, changeFreq: 'monthly', slugs: { en: 'about', fr: 'a-propos', nl: 'over-ons', tr: 'hakkimizda' } },
-            { id: 'services', priority: 0.8, changeFreq: 'weekly', slugs: { en: 'services', fr: 'services', nl: 'diensten', tr: 'hizmetler' } },
-            { id: 'business', priority: 0.8, changeFreq: 'weekly', slugs: { en: 'business', fr: 'business', nl: 'zakelijk', tr: 'kurumsal' } },
-            { id: 'stores', priority: 0.8, changeFreq: 'weekly', slugs: { en: 'stores', fr: 'magasins', nl: 'winkels', tr: 'magazalar' } },
-            { id: 'contact', priority: 0.8, changeFreq: 'monthly', slugs: { en: 'contact', fr: 'contact', nl: 'contact', tr: 'iletisim' } },
-            { id: 'track', priority: 0.7, changeFreq: 'daily', slugs: { en: 'track-order', fr: 'suivre-commande', nl: 'volg-bestelling', tr: 'siparis-takip' } },
-            { id: 'faq', priority: 0.7, changeFreq: 'weekly', slugs: { en: 'faq', fr: 'faq', nl: 'veelgestelde-vragen', tr: 'sss' } },
-            { id: 'careers', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'careers', fr: 'carrieres', nl: 'vacatures', tr: 'kariyer' } },
-            { id: 'franchise', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'franchise', fr: 'franchise', nl: 'franchise', tr: 'bayilik' } },
-            { id: 'privacy', priority: 0.3, changeFreq: 'yearly', slugs: { en: 'privacy', fr: 'politique-de-confidentialite', nl: 'privacybeleid', tr: 'gizlilik-politikasi' } },
-            { id: 'terms', priority: 0.3, changeFreq: 'yearly', slugs: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden', tr: 'kullanim-sartlari' } },
-            { id: 'cookies', priority: 0.3, changeFreq: 'yearly', slugs: { en: 'cookies', fr: 'politique-cookies', nl: 'cookiebeleid', tr: 'cerez-politikasi' } },
+            { id: 'services', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'services', fr: 'services', nl: 'diensten', tr: 'hizmetler' } },
+            { id: 'stores', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'stores', fr: 'magasins', nl: 'winkels', tr: 'magazalar' } },
+            { id: 'about', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'about', fr: 'a-propos', nl: 'over-ons', tr: 'hakkimizda' } },
+            { id: 'contact', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'contact', fr: 'contact', nl: 'contact', tr: 'iletisim' } },
         ];
 
         pages.forEach(page => {
@@ -74,7 +37,7 @@ export default async function sitemap(props: any): Promise<MetadataRoute.Sitemap
                 const relSlug = page.slugs[lang];
                 sitemapEntries.push({
                     url: `${BASE_URL}/${lang}${relSlug ? '/' + relSlug : ''}`,
-                    lastModified: new Date(),
+                    lastModified: lastmodStatic,
                     changeFrequency: page.changeFreq as any,
                     priority: page.priority,
                     alternates: {
@@ -85,26 +48,16 @@ export default async function sitemap(props: any): Promise<MetadataRoute.Sitemap
                 });
             });
         });
-    }
 
-    // --- 2. BLOG ---
-    if (sitemapId === 'blog') {
-        LANGUAGES.forEach(lang => {
-            sitemapEntries.push({
-                url: `${BASE_URL}/${lang}/blog`,
-                lastModified: new Date(),
-                changeFrequency: 'weekly',
-                priority: 0.7,
-                alternates: { languages: Object.fromEntries(LANGUAGES.map(l => [l, `${BASE_URL}/${l}/blog`])) }
-            });
-
-            MOCK_BLOG_POSTS.forEach(post => {
+        // 2. Blog Posts (Content Authority)
+        MOCK_BLOG_POSTS.forEach(post => {
+            LANGUAGES.forEach(lang => {
                 const currentSlug = (post.slugs as any)?.[lang] || post.slug || post.id;
                 sitemapEntries.push({
                     url: `${BASE_URL}/${lang}/blog/${currentSlug}`,
-                    lastModified: new Date(),
+                    lastModified: lastmodStatic,
                     changeFrequency: 'monthly',
-                    priority: 0.6,
+                    priority: 0.5,
                     alternates: {
                         languages: Object.fromEntries(
                             LANGUAGES.map(l => [l, `${BASE_URL}/${l}/blog/${(post.slugs as any)?.[l] || post.slug || post.id}`])
@@ -113,89 +66,86 @@ export default async function sitemap(props: any): Promise<MetadataRoute.Sitemap
                 });
             });
         });
-    }
 
-    // --- 3. PRODUCTS ---
-    if (sitemapId === 'products') {
+        // 3. Products
         const productsPath = { fr: 'produits', nl: 'producten', tr: 'urunler', en: 'products' };
-        LANGUAGES.forEach(lang => {
-            sitemapEntries.push({
-                url: `${BASE_URL}/${lang}/${productsPath[lang]}`,
-                lastModified: new Date(),
-                changeFrequency: 'daily',
-                priority: 0.9,
-                alternates: { languages: Object.fromEntries(LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${productsPath[l]}`])) }
-            });
-
-            MOCK_PRODUCTS.forEach(product => {
-                if (product.slug) {
+        MOCK_PRODUCTS.forEach(product => {
+            if (product.slug) {
+                LANGUAGES.forEach(lang => {
                     sitemapEntries.push({
                         url: `${BASE_URL}/${lang}/${productsPath[lang]}/${product.category}/${product.slug}`,
                         lastModified: new Date(),
                         changeFrequency: 'weekly',
-                        priority: 0.8,
+                        priority: 0.7,
                         alternates: {
                             languages: Object.fromEntries(
                                 LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${productsPath[l]}/${product.category}/${product.slug}`])
                             )
                         }
                     });
-                }
-            });
+                });
+            }
         });
-    }
 
-    // --- 4. REPAIR & BUYBACK ---
-    if (sitemapId === 'repair' || sitemapId === 'buyback') {
-        const allDeviceIds = await getAllDevices();
+        // 4. Dynamic Devices & Brand Silos
+        const allDevices = await getAllDevices();
+        const repairConfig = { slugs: { fr: 'reparation', nl: 'reparatie', en: 'repair', tr: 'onarim' } };
+        const buybackConfig = { slugs: { fr: 'rachat', nl: 'inkoop', en: 'buyback', tr: 'geri-alim' } };
 
-        // Chunking Logic (Limit to 50 device models per sitemap file)
-        const CHUNK_SIZE = 50;
-        const start = chunkIndex * CHUNK_SIZE;
-        const end = start + CHUNK_SIZE;
-        const chunkedIds = allDeviceIds.slice(start, end);
+        const uniqueBrands = new Set<string>();
 
-        const config = sitemapId === 'repair'
-            ? { slugs: { fr: 'reparation', nl: 'reparatie', en: 'repair', tr: 'onarim' } }
-            : { slugs: { fr: 'rachat', nl: 'inkoop', en: 'buyback', tr: 'geri-alim' } };
-
-        for (const deviceId of chunkedIds) {
+        for (const deviceId of allDevices) {
             const [brand, ...modelParts] = deviceId.split('-');
             if (!brand || modelParts.length === 0) continue;
-            const model = modelParts.join('-');
+            uniqueBrands.add(brand);
 
+            const model = modelParts.join('-');
             const isPriority = HIGH_PRIORITY_KEYWORDS.some(k => deviceId.includes(k));
             const priority = isPriority ? 1.0 : 0.8;
 
             LANGUAGES.forEach(lang => {
-                const serviceSlug = config.slugs[lang];
-                const url = `${BASE_URL}/${lang}/${serviceSlug}/${brand}/${model}`.toLowerCase();
+                const repUrl = `${BASE_URL}/${lang}/${repairConfig.slugs[lang]}/${brand}/${model}`.toLowerCase();
 
+                // Repair Model
                 sitemapEntries.push({
-                    url,
+                    url: repUrl,
                     lastModified: new Date(),
-                    changeFrequency: 'weekly',
+                    changeFrequency: 'daily',
                     priority: priority,
                     alternates: {
                         languages: Object.fromEntries(
-                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${config.slugs[l]}/${brand}/${model}`.toLowerCase()])
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${repairConfig.slugs[l]}/${brand}/${model}`.toLowerCase()])
                         )
                     }
                 });
 
-                if (sitemapId === 'repair') {
+                // Buyback Model
+                sitemapEntries.push({
+                    url: `${BASE_URL}/${lang}/${buybackConfig.slugs[lang]}/${brand}/${model}`.toLowerCase(),
+                    lastModified: new Date(),
+                    changeFrequency: 'daily',
+                    priority: priority,
+                    alternates: {
+                        languages: Object.fromEntries(
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${buybackConfig.slugs[l]}/${brand}/${model}`.toLowerCase()])
+                        )
+                    }
+                });
+
+                // Local Optimized Landing Pages (Priority Only)
+                if (isPriority) {
                     for (const location of LOCATIONS) {
                         const locSlug = location.slugs[lang];
                         sitemapEntries.push({
-                            url: `${url}/${locSlug}`.toLowerCase(),
-                            lastModified: new Date(),
+                            url: `${repUrl}/${locSlug}`.toLowerCase(),
+                            lastModified: lastmodStatic,
                             changeFrequency: 'monthly',
-                            priority: isPriority ? 0.9 : 0.7,
+                            priority: 0.9,
                             alternates: {
                                 languages: Object.fromEntries(
                                     LANGUAGES.map(l => [
                                         l,
-                                        `${BASE_URL}/${l}/${config.slugs[l]}/${brand}/${model}/${location.slugs[l]}`.toLowerCase()
+                                        `${BASE_URL}/${l}/${repairConfig.slugs[l]}/${brand}/${model}/${location.slugs[l]}`.toLowerCase()
                                     ])
                                 )
                             }
@@ -204,7 +154,41 @@ export default async function sitemap(props: any): Promise<MetadataRoute.Sitemap
                 }
             });
         }
-    }
 
-    return sitemapEntries;
+        // 5. Brand Silos (The "Authority" Headers)
+        uniqueBrands.forEach(brand => {
+            LANGUAGES.forEach(lang => {
+                // Repair Brand
+                sitemapEntries.push({
+                    url: `${BASE_URL}/${lang}/${repairConfig.slugs[lang]}/${brand}`.toLowerCase(),
+                    lastModified: lastmodStatic,
+                    changeFrequency: 'weekly',
+                    priority: 0.9,
+                    alternates: {
+                        languages: Object.fromEntries(
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${repairConfig.slugs[l]}/${brand}`.toLowerCase()])
+                        )
+                    }
+                });
+                // Buyback Brand
+                sitemapEntries.push({
+                    url: `${BASE_URL}/${lang}/${buybackConfig.slugs[lang]}/${brand}`.toLowerCase(),
+                    lastModified: lastmodStatic,
+                    changeFrequency: 'weekly',
+                    priority: 0.9,
+                    alternates: {
+                        languages: Object.fromEntries(
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${buybackConfig.slugs[l]}/${brand}`.toLowerCase()])
+                        )
+                    }
+                });
+            });
+        });
+
+        return sitemapEntries;
+
+    } catch (error) {
+        console.error('[Sitemap] Critical Error:', error);
+        return [{ url: `${BASE_URL}/error`, lastModified: new Date() }];
+    }
 }

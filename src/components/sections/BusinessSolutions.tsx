@@ -71,7 +71,7 @@ const BusinessSolutions: React.FC = () => {
             {/* THE COMMAND CENTER HERO (Business Edition) */}
             <BusinessHeroTerminal />
 
-            <div className="max-w-7xl mx-auto px-4 py-20 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 py-20 relative z-10 overflow-x-hidden">
 
                 <TrustedPartnersCloud title={t('biz_trust_title')} />
 
@@ -350,7 +350,7 @@ const BusinessSolutions: React.FC = () => {
                 </motion.div>
 
                 {/* Dashboard Experience Section */}
-                <div className="mb-32">
+                <div className="mb-32 overflow-hidden px-4 md:px-0">
                     <div className="text-center mb-24">
                         <motion.span
                             initial={{ opacity: 0 }}
@@ -370,7 +370,7 @@ const BusinessSolutions: React.FC = () => {
                         </motion.h2>
                     </div>
 
-                    <div className="relative perspective-2000">
+                    <div className="relative perspective-2000 py-10">
                         {/* Ambient Glow */}
                         <div className="absolute -inset-20 bg-cyber-citron/20 blur-[150px] rounded-full opacity-30 animate-pulse pointer-events-none"></div>
 

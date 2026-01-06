@@ -10,6 +10,13 @@ import { auth, db } from '@/firebase';
 import { ShieldCheckIcon, LockClosedIcon, ComputerDesktopIcon } from '@/components/ui/BrandIcons';
 import { motion } from 'framer-motion';
 
+export const metadata = {
+    robots: {
+        index: false,
+        follow: false,
+    },
+};
+
 export default function B2BLoginPage() {
     const { t, language } = useLanguage();
     const [email, setEmail] = useState('');

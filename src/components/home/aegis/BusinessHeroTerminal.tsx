@@ -77,7 +77,7 @@ const BusinessHeroTerminal: React.FC = () => {
                                 </span>
                             </div>
 
-                            <h1 className="text-6xl md:text-8xl lg:text-[100px] font-black tracking-[-0.04em] leading-[0.85] text-white mb-10 uppercase">
+                            <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[100px] font-black tracking-[-0.04em] leading-[0.85] text-white mb-10 uppercase break-words">
                                 {title.t1}<br />
                                 <span className="bg-clip-text text-transparent bg-linear-to-r from-indigo-500 via-indigo-400 to-indigo-600 drop-shadow-[0_0_30px_rgba(99,102,241,0.3)]">
                                     {title.t2}

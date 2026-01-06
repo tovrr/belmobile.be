@@ -165,7 +165,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                     <h4 className="text-xs font-bold text-cyber-citron uppercase tracking-wider mb-6 text-center md:text-left">
                         {t('Popular Repairs')}
                     </h4>
-                    <ul className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {POPULAR_REPAIRS.map((item, index) => (
                             <li key={index}>
                                 <Link
@@ -185,7 +185,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                     <h4 className="text-xs font-bold text-cyber-citron uppercase tracking-wider mb-6 text-center md:text-left">
                         {t('Our Stores')}
                     </h4>
-                    <ul className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                         {LOCATIONS.map((loc) => (
                             <li key={loc.id}>
                                 <Link

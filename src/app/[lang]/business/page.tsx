@@ -23,6 +23,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
                 'tr': `${baseUrl}/tr/is-ortakligi`,
             }
         },
+        robots: {
+            index: false,
+            follow: false,
+        },
     };
 }
 
