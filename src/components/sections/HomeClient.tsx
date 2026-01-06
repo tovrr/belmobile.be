@@ -1,35 +1,46 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { FormattedReview } from '../../services/reviewService';
-import AegisHomeClient from '../home/aegis/AegisHomeClient';
-import ApolloHomeClient from '../home/apollo/ApolloHomeClient';
+
+// Dynamic imports to split bundles (Mobile vs Desktop code)
+// This ensures mobile users don't download heavy desktop assets/code and vice-versa.
+const AegisHomeClient = dynamic(() => import('../home/aegis/AegisHomeClient'), {
+    ssr: true, // We want SSR for SEO since we now have server-side detection
+});
+
+const ApolloHomeClient = dynamic(() => import('../home/apollo/ApolloHomeClient'), {
+    ssr: true, // We want SSR for SEO since we now have server-side detection
+});
 
 interface HomeClientProps {
     initialReviews?: FormattedReview[];
+    isMobileServer: boolean;
 }
 
-const HomeClient: React.FC<HomeClientProps> = ({ initialReviews = [] }) => {
-    const [isMobile, setIsMobile] = useState<boolean | null>(null);
+const HomeClient: React.FC<HomeClientProps> = ({ initialReviews = [], isMobileServer }) => {
+    // Initialize with server-side detection to allow immediate render (Crucial for LCP)
+    const [isMobile, setIsMobile] = useState<boolean>(isMobileServer);
 
     useEffect(() => {
         const checkMobile = () => {
             // Standard mobile breakpoint: < 768px (MD)
-            setIsMobile(window.innerWidth < 768);
+            const isWindowMobile = window.innerWidth < 768;
+            // Only update if different to avoid unnecessary re-renders
+            if (isWindowMobile !== isMobile) {
+                setIsMobile(isWindowMobile);
+            }
         };
-
-        // Initial check
-        checkMobile();
 
         // Listen for resize
         window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
 
-    // Prevent hydration mismatch: render nothing or skeleton until client-side check completes
-    if (isMobile === null) {
-        return <div className="min-h-screen bg-slate-50 dark:bg-deep-space" />;
-    }
+        // Check once on mount to correct if UA prediction was wrong (e.g. tablet lying about UA)
+        checkMobile();
+
+        return () => window.removeEventListener('resize', checkMobile);
+    }, [isMobile]);
 
     return (
         <>

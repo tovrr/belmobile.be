@@ -1,5 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
+import { headers } from 'next/headers';
 import HomeClient from '@/components/sections/HomeClient';
 import { getReviews } from '@/services/reviewService';
 
@@ -58,5 +59,10 @@ export default async function Home({ params }: PageProps) {
     // const initialReviews = await getReviews(lang);
     const initialReviews: any[] = [];
 
-    return <HomeClient initialReviews={initialReviews} />;
+    // Server-side mobile detection for LCP optimization
+    const headersList = await headers();
+    const userAgent = headersList.get('user-agent') || '';
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+
+    return <HomeClient initialReviews={initialReviews} isMobileServer={isMobile} />;
 }
