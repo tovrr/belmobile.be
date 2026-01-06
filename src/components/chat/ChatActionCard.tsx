@@ -3,11 +3,11 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingBagIcon, MapPinIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { ShoppingBagIcon, MapPinIcon, ArrowRightIcon, TruckIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../../hooks/useLanguage';
 
 interface ChatActionCardProps {
-    type: 'product' | 'shop' | 'whatsapp';
+    type: 'product' | 'shop' | 'whatsapp' | 'order';
     data: {
         id?: string;
         name?: string;
@@ -17,6 +17,8 @@ interface ChatActionCardProps {
         city?: string;
         path?: string;
         message?: string;
+        status?: string;
+        phoneNumber?: string;
     };
     onAction?: () => void;
 }
@@ -24,7 +26,8 @@ interface ChatActionCardProps {
 const ChatActionCard: React.FC<ChatActionCardProps> = ({ type, data, onAction }) => {
     const { t } = useLanguage();
 
-    if (type === 'product' && data.image && data.name) {
+    // 1. PRODUCT CARD
+    if (type === 'product' && data.name) {
         return (
             <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm overflow-hidden my-2 flex flex-col group transition-all hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900">
                 <div className="relative h-32 w-full bg-slate-50 dark:bg-slate-900/50">
@@ -61,11 +64,55 @@ const ChatActionCard: React.FC<ChatActionCardProps> = ({ type, data, onAction })
         );
     }
 
+    // 2. ORDER TRACKING CARD (New Design)
+    if (type === 'order') {
+        const isCompleted = data.status === 'Completed' || data.status === 'Repaired';
+        return (
+            <div className="bg-slate-900 text-white rounded-2xl shadow-xl p-4 my-2 group transition-all hover:shadow-indigo-500/20 relative overflow-hidden ring-1 ring-white/10">
+                {/* Decorative Background */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-10 -mt-10 blur-3xl"></div>
+
+                <div className="flex items-start gap-3 relative z-10">
+                    <div className={`p-2.5 rounded-xl backdrop-blur-md ring-1 ring-white/20 ${isCompleted ? 'bg-green-500/20' : 'bg-indigo-500/20'}`}>
+                        {isCompleted ? (
+                            <CheckBadgeIcon className="w-6 h-6 text-green-400" />
+                        ) : (
+                            <TruckIcon className="w-6 h-6 text-indigo-400" />
+                        )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start">
+                            <h4 className="font-bold text-sm text-white truncate pr-2">{data.name || t('order_tracking')}</h4>
+                            {data.status && (
+                                <span className={`text-[9px] px-1.5 py-0.5 rounded border ${isCompleted ? 'border-green-500/30 text-green-400' : 'border-indigo-400/30 text-indigo-300'}`}>
+                                    {data.status}
+                                </span>
+                            )}
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                            {data.message || t('click_to_view_your_order_status')}
+                        </p>
+                    </div>
+                </div>
+
+                <Link
+                    href={data.path || '#'}
+                    onClick={onAction}
+                    className="flex items-center justify-center gap-2 w-full mt-4 py-2.5 px-3 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold text-white transition-all active:scale-[0.98]"
+                >
+                    <span>{t('view_live_status')}</span>
+                    <ArrowRightIcon className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+            </div>
+        );
+    }
 
 
+    // 3. WHATSAPP CARD
     if (type === 'whatsapp') {
+        const phoneNumber = data.phoneNumber || '32484837560';
         const message = data.message || t('chat_default_whatsapp_message');
-        const whatsappUrl = `https://wa.me/32484837560?text=${encodeURIComponent(message)}`;
+        const whatsappUrl = `https://wa.me/${phoneNumber.replace('+', '')}?text=${encodeURIComponent(message)}`;
 
         return (
             <div className="bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-100 dark:border-green-800 shadow-sm p-4 my-2 group transition-all hover:shadow-md">
@@ -96,6 +143,7 @@ const ChatActionCard: React.FC<ChatActionCardProps> = ({ type, data, onAction })
         );
     }
 
+    // 4. DEFAULT: SHOP / LOCATION CARD
     return (
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm p-3 my-2 group transition-all hover:shadow-md">
             <div className="flex items-start gap-3">

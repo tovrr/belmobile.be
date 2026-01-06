@@ -32,7 +32,8 @@ const BusinessSolutions: React.FC = () => {
 
     const calculateSavings = (size: number) => {
         // Average saving: €120 per repair vs replacement + Time saved (€50)
-        return (size * 0.3 * 170).toLocaleString('fr-BE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+        const locale = language === 'nl' ? 'nl-BE' : language === 'fr' ? 'fr-BE' : 'en-BE';
+        return (size * 0.3 * 170).toLocaleString(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
         // Assuming 30% break rate per year
     };
 
@@ -41,25 +42,25 @@ const BusinessSolutions: React.FC = () => {
             icon: WrenchScrewdriverIcon,
             title: t('biz_benefit_priority_title'),
             desc: t('biz_benefit_priority_desc'),
-            path: '/repair'
+            path: '/business/portal/login'
         },
         {
             icon: CurrencyEuroIcon,
             title: t('biz_benefit_pricing_title'),
             desc: t('biz_benefit_pricing_desc'),
-            path: '/contact'
+            path: '/contact?subject=b2b'
         },
         {
             icon: DevicePhoneMobileIcon,
             title: t('biz_benefit_fleet_title'),
             desc: t('biz_benefit_fleet_desc'),
-            path: '/contact?subject=business'
+            path: '/business/portal/login'
         },
         {
             icon: BuildingOffice2Icon,
             title: t('biz_benefit_onsite_title'),
             desc: t('biz_benefit_onsite_desc'),
-            path: '/express-courier'
+            path: '/contact?subject=b2b'
         }
     ];
 
@@ -211,11 +212,17 @@ const BusinessSolutions: React.FC = () => {
                                 {t('biz_portal_desc')}
                             </p>
                         </div>
-                        <div className="mt-12 pt-8 border-t border-slate-100 dark:border-white/10">
-                            <Link href={`/${language}/contact`} className="flex items-center gap-4 text-midnight dark:text-white font-black text-lg uppercase group/link">
+                        <div className="mt-12 pt-8 border-t border-slate-100 dark:border-white/10 flex flex-col sm:flex-row gap-6">
+                            <Link href={`/${language}/contact?subject=b2b_demo`} className="flex items-center gap-4 text-midnight dark:text-white font-black text-lg uppercase group/link">
                                 {t('biz_saas_cta')}
-                                <div className="w-10 h-10 bg-slate-100 dark:bg-white/10 rounded-full flex items-center justify-center group-hover/link:bg-cyber-citron group-hover/link:text-midnight transition-all">
+                                <div className="w-10 h-10 bg-slate-100 dark:bg-white/10 rounded-full flex items-center justify-center group-hover/link:bg-indigo-500 group-hover/link:text-white transition-all">
                                     <ArrowRightIcon className="h-5 w-5" />
+                                </div>
+                            </Link>
+                            <Link href={`/${language}/business/portal/login`} className="flex items-center gap-4 text-blue-600 font-black text-lg uppercase group/signup">
+                                Create B2B Account
+                                <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center group-hover/signup:bg-blue-600 group-hover/signup:text-white transition-all">
+                                    <WrenchScrewdriverIcon className="h-5 w-5" />
                                 </div>
                             </Link>
                         </div>
@@ -248,31 +255,57 @@ const BusinessSolutions: React.FC = () => {
                             <div className="space-y-12">
                                 <div>
                                     <label className="flex justify-between text-white font-bold mb-4 text-lg">
-                                        <span>{t('biz_fleet_size_label')}: {fleetSize} devices</span>
+                                        <span>{t('biz_fleet_size_label')}: <span className="text-cyber-citron tabular-nums">{fleetSize}</span> {t('items_count').replace('{0}', '').trim()}</span>
                                         <span className="text-cyber-citron">{t('biz_fleet_break_rate')}</span>
                                     </label>
                                     <input
                                         type="range"
-                                        min="10"
+                                        min="0"
                                         max="500"
-                                        step="10"
+                                        step="5"
                                         value={fleetSize}
                                         onChange={(e) => setFleetSize(parseInt(e.target.value))}
                                         className="w-full h-3 bg-white/10 rounded-full appearance-none cursor-pointer hover:bg-white/20 transition-all accent-cyber-citron"
                                     />
                                     <div className="flex justify-between text-xs text-slate-500 mt-2 font-mono uppercase">
-                                        <span>10 Devices</span>
+                                        <span>0 Devices</span>
                                         <span>500+ Devices</span>
                                     </div>
                                 </div>
 
-                                <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-md">
-                                    <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-2">{t('biz_fleet_savings_label')}</p>
-                                    <div className="text-6xl font-black text-white tracking-tighter">
-                                        {calculateSavings(fleetSize)} <span className="text-2xl text-cyber-citron">/ yr</span>
+                                {fleetSize < 10 ? (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="bg-amber-500/10 border border-amber-500/30 p-8 rounded-3xl backdrop-blur-md"
+                                    >
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-2 transition-transform bg-amber-500 rounded-lg text-midnight animate-bounce">
+                                                <DevicePhoneMobileIcon className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xl font-black text-amber-500 uppercase tracking-tighter mb-2">Standard Account Only</h4>
+                                                <p className="text-slate-300 font-medium leading-tight mb-6">
+                                                    Professional Fleet Management requires a minimum of <span className="text-amber-500 font-black">10 devices</span>.
+                                                    For smaller volumes, please use our instant consumer wizard.
+                                                </p>
+                                                <Link href={`/${language}/repair`}>
+                                                    <button className="px-6 py-3 bg-white text-midnight font-black rounded-xl hover:bg-amber-500 transition-all uppercase text-xs tracking-widest">
+                                                        Use Consumer Wizard
+                                                    </button>
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ) : (
+                                    <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-md">
+                                        <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-2">{t('biz_fleet_savings_label')}</p>
+                                        <div className="text-6xl font-black text-white tracking-tighter">
+                                            {calculateSavings(fleetSize)} <span className="text-2xl text-cyber-citron">/ yr</span>
+                                        </div>
+                                        <p className="text-xs text-slate-500 mt-4">{t('biz_fleet_savings_desc')}</p>
                                     </div>
-                                    <p className="text-xs text-slate-500 mt-4">{t('biz_fleet_savings_desc')}</p>
-                                </div>
+                                )}
                             </div>
                         </div>
 

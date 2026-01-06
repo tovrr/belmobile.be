@@ -16,6 +16,8 @@ import { serverTimestamp, setDoc, doc, getDoc, updateDoc } from 'firebase/firest
 import ChatActionCard from './ChatActionCard';
 import { useLockBodyScroll } from '../../hooks/useLockBodyScroll';
 import { useHaptic } from '../../hooks/useHaptic';
+import { MOCK_PRODUCTS } from '../../constants';
+import { sendGAEvent } from '../../utils/analytics';
 
 interface Message {
     id: string;
@@ -23,7 +25,7 @@ interface Message {
     sender: 'user' | 'bot';
     timestamp?: number;
     metadata?: {
-        type?: 'product' | 'shop' | 'whatsapp';
+        type?: 'product' | 'shop' | 'whatsapp' | 'order';
         data?: {
             id?: string;
             name?: string;
@@ -33,6 +35,8 @@ interface Message {
             city?: string;
             path?: string;
             message?: string;
+            status?: string;
+            phoneNumber?: string;
         };
     };
 }
@@ -49,6 +53,13 @@ const AIChatAssistant: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    // Analytics: Track Chat Open
+    useEffect(() => {
+        if (isOpen) {
+            sendGAEvent({ action: 'apollo_chat_open', category: 'Chat', label: 'Open' });
+        }
+    }, [isOpen]);
 
     // Typewriter effect states
     const [currentPlaceholder, setCurrentPlaceholder] = useState('');
@@ -205,11 +216,11 @@ const AIChatAssistant: React.FC = () => {
             // 1. Sync User Message to Firestore (Background)
             const sessionRef = doc(db, 'chatbot_sessions', sessionId);
             const sanitizedMessages = JSON.parse(JSON.stringify(updatedMessages));
-            updateDoc(sessionRef, {
+            setDoc(sessionRef, {
                 messages: sanitizedMessages,
                 lastActive: serverTimestamp(),
                 lastUserMessage: userText
-            }).catch(console.warn);
+            }, { merge: true }).catch(console.warn);
 
 
             // 2. Call Server-Side AI API
@@ -243,11 +254,71 @@ const AIChatAssistant: React.FC = () => {
                 const token = trackMatch[1];
                 text = text.replace(trackMatch[0], '').trim();
                 metadata = {
+                    type: 'order',
+                    data: {
+                        name: t('track_order_status'),
+                        path: `/track/${token}`,
+                        status: t('click_to_view_live_updates'),
+                        message: t('click_to_view_your_order_status')
+                    }
+                };
+            }
+
+            // Parse [PRODUCT: slug]
+            const productMatch = text.match(/\[PRODUCT:\s*(.+?)\]/);
+            if (productMatch) {
+                const slug = productMatch[1];
+                text = text.replace(productMatch[0], '').trim();
+
+                // Lookup product
+                const product = MOCK_PRODUCTS.find(p => p.slug === slug || p.id.toString() === slug) || MOCK_PRODUCTS[0];
+
+                metadata = {
                     type: 'product',
                     data: {
-                        name: t('Track Order Status'),
-                        path: `/track/${token}`,
-                        message: t('Click to view your order status')
+                        name: product.name,
+                        price: product.price,
+                        image: product.imageUrl,
+                        path: `/products/${product.slug}`
+                    }
+                };
+                sendGAEvent({ action: 'apollo_proactive_offer', category: 'Chat', label: slug });
+            }
+
+            // Parse [SHOP: location]
+            // Parse [SHOP: location]
+            // We use a broader regex to catch [SHOP: anderlecht] even if there are weird spaces or brackets mismatch
+            const shopMatch = text.match(/\[SHOP:\s*([a-zA-Z]+)(?:\])?/i);
+            if (shopMatch) {
+                const location = shopMatch[1].toLowerCase();
+                // Replace the FULL matched string to remove it cleanly
+                text = text.replace(shopMatch[0], '').trim();
+                // Double check for lingering brackets if regex missed
+                text = text.replace(']', '').trim();
+
+                metadata = {
+                    type: 'shop',
+                    data: {
+                        name: location.includes('schaerbeek') ? 'Schaerbeek (Liedts)' : 'Anderlecht (Bara)',
+                        address: location.includes('schaerbeek') ? 'Rue Gallait 4' : 'Rue Lambert Crickx 12',
+                        city: location.includes('schaerbeek') ? '1030 Schaerbeek' : '1070 Anderlecht',
+                        path: location.includes('schaerbeek')
+                            ? 'https://www.google.com/maps/search/?api=1&query=Belmobile+Liedts&query_place_id=ChIJk6VQXpHDw0cRNEdLpSrOUkY'
+                            : 'https://www.google.com/maps/search/?api=1&query=Belmobile+Bara&query_place_id=ChIJY6KmKtLDw0cRy7JDeNAZ2wQ'
+                    }
+                };
+            }
+
+            // Parse [WHATSAPP: message]
+            const waMatch = text.match(/\[WHATSAPP:\s*(.+?)\]/);
+            if (waMatch) {
+                const waMessage = waMatch[1];
+                text = text.replace(waMatch[0], '').trim();
+                metadata = {
+                    type: 'whatsapp',
+                    data: {
+                        message: waMessage,
+                        phoneNumber: '+32484837560' // Liedts primary mobile
                     }
                 };
             }

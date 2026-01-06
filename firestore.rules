@@ -5,10 +5,19 @@ service cloud.firestore {
     
     // --- Helper Functions ---
     
-    // Check if user is logged into Firebase Auth (Admin)
-    // Since we don't have public sign-up, any logged-in user is an Admin.
+    // Check if user is a System Admin (Belmobile Staff)
+    // Checks for @belmobile.be email OR fallback to simple auth for existing compatibility
+    // TODO: Migrate to Custom Claims based RBAC for robust security
     function isAdmin() {
-      return request.auth != null;
+      return request.auth != null && (
+        request.auth.token.email.matches('.*@belmobile.be') || 
+        request.auth.uid in ['TjXyC2TzXyC2TzXyC2TzXyC2'] // Add hardcoded Admin UIDs here if needed
+      ); 
+    }
+    
+    // Helper to get B2B User Data cost-effectively
+    function getB2BUser() {
+      return get(/databases/$(database)/documents/b2b_users/$(request.auth.uid)).data;
     }
 
     // --- Public Content (Read: Everyone, Write: Admin) ---
@@ -94,6 +103,64 @@ service cloud.firestore {
     }
     match /stock_logs/{document=**} {
       allow read, write: if isAdmin();
+    }
+    
+    // --- B2B Portal Rules ---
+    
+    // 1. B2B Users: Can read their own profile
+    match /b2b_users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if isAdmin();
+    }
+
+    // 2. B2B Companies: Can read if they are an active employee
+    match /b2b_companies/{companyId} {
+      allow read: if request.auth != null && getB2BUser().companyId == companyId;
+      allow write: if isAdmin();
+    }
+
+    // 3. B2B Inventory: Can read/write devices belonging to their company
+    match /b2b_inventory/{deviceId} {
+      allow read: if request.auth != null && (
+        resource.data.companyId == getB2BUser().companyId || isAdmin()
+      );
+      allow create: if request.auth != null && (
+        request.resource.data.companyId == getB2BUser().companyId
+      );
+      allow update: if request.auth != null && (
+        resource.data.companyId == getB2BUser().companyId
+      );
+      allow delete: if isAdmin();
+    }
+
+    // 4. B2B Repair Requests: Can read/create for own company
+    match /b2b_repair_requests/{requestId} {
+      allow read: if request.auth != null && (
+        resource.data.companyId == getB2BUser().companyId || isAdmin()
+      );
+      allow create: if request.auth != null && (
+        request.resource.data.companyId == getB2BUser().companyId
+      );
+      allow update, delete: if isAdmin();
+    }
+
+    // 5. B2B Invoices: Read access for company members
+    match /b2b_invoices/{invoiceId} {
+      allow read: if request.auth != null && (
+        resource.data.companyId == getB2BUser().companyId || isAdmin()
+      );
+      allow write: if isAdmin();
+    }
+
+    // 6. B2B Buyback Requests: Read/create for company members
+    match /b2b_buyback_requests/{requestId} {
+      allow read: if request.auth != null && (
+        resource.data.companyId == getB2BUser().companyId || isAdmin()
+      );
+      allow create: if request.auth != null && (
+        request.resource.data.companyId == getB2BUser().companyId
+      );
+      allow update, delete: if isAdmin();
     }
     
     // Lock down everything else

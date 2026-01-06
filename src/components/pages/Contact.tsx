@@ -347,7 +347,8 @@ const Contact: React.FC = () => {
                                             { value: '', label: t('contact_subject_placeholder') },
                                             { value: 'info', label: t('contact_subject_info') },
                                             { value: 'training', label: t('contact_subject_training') || 'Training & Academy' },
-                                            { value: 'b2b-partnership', label: t('contact_subject_b2b') || 'B2B Partnership' },
+                                            { value: 'b2b', label: t('contact_subject_b2b') || 'B2B & Partnership' },
+                                            { value: 'b2b_demo', label: t('contact_subject_demo') || 'Request B2B Demo' },
                                             { value: 'tracking', label: t('contact_subject_tracking') },
                                             { value: 'complaint', label: t('contact_subject_complaint') },
                                             { value: 'other', label: t('contact_subject_other') }

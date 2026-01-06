@@ -5,11 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
     ChartPieIcon, CubeIcon, WrenchScrewdriverIcon, BuildingStorefrontIcon, PhoneIcon, DocumentTextIcon,
-    Cog6ToothIcon, UserGroupIcon, NewspaperIcon, XMarkIcon, EnvelopeIcon, PaperAirplaneIcon
+    Cog6ToothIcon, UserGroupIcon, NewspaperIcon, XMarkIcon, EnvelopeIcon, PaperAirplaneIcon, ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
 const adminNavLinks = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: ChartPieIcon },
+    { name: 'AI Chat', path: '/admin/chatbot', icon: ChatBubbleLeftRightIcon },
     { name: 'Reservations', path: '/admin/reservations', icon: PhoneIcon },
     { name: 'Messages', path: '/admin/messages', icon: EnvelopeIcon },
     { name: 'Products', path: '/admin/products', icon: CubeIcon },

@@ -24,6 +24,7 @@
     "Back": "Geri",
     "Cancel": "İptal",
     "Close": "Kapat",
+    "chat_error_fallback": "Şu an bağlantı hatası alıyorum. Lütfen tekrar deneyin veya WhatsApp üzerinden bize ulaşın!",
     "Submit": "Gönder",
     "Sitemap": "Site Haritası",
     "Popular Repairs": "Popüler Onarımlar",
@@ -303,6 +304,15 @@
     "order_status_payment_pending": "Ödeme Bekleniyor",
     "order_status_paid": "Ödendi",
     "order_status_cancelled": "İptal Edildi",
+    "track_order_status": "Sipariş Durumu",
+    "click_to_view_live_updates": "Canlı güncellemeleri görmek için tıklayın",
+    "click_to_view_your_order_status": "Tamir takibinizi buradan kontrol edin",
+    "order_tracking": "Takip",
+    "click_to_see_status": "Canlı durumu gör",
+    "view_live_status": "Canlı Durumu Görüntüle",
+    "chat_continued_support": "Canlı Destek",
+    "chat_move_to_whatsapp": "Daha fazla detay mı lazım? WhatsApp üzerinden bizimle iletişime geçin.",
+    "chat_continue_on_whatsapp": "WhatsApp'ta Devam Et",
     "order_not_found": "Sipariş Bulunamadı",
     "Privacy Policy": "Gizlilik Politikası",
     "Terms of Service": "Kullanım Şartları",
@@ -1023,7 +1033,5 @@
     "save_quote_info": "E-posta adresinizi girin ve teklifi 7 gün boyunca sabitleyin.",
     "quote_saved_title": "Teklif Kaydedildi!",
     "quote_saved_desc": "Teklifinizi kaydettik. E-postanız ile istediğiniz zaman devam edebilirsiniz.",
-    "Save Price": "Fiyatı Kaydet",
-    "Email Address": "E-posta Adresi",
-    "Close": "Kapat"
+    "Save Price": "Fiyatı Kaydet"
 }

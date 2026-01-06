@@ -371,3 +371,49 @@ export interface BrevoEmailPayload {
     attachment?: { name: string; content: string }[];
     tags?: string[];
 }
+
+// -- B2B Fleet Portal Types --
+
+export interface Address {
+    street: string;
+    number: string;
+    box?: string;
+    city: string;
+    zip: string;
+    country: string;
+}
+
+export interface B2BCompany {
+    id: string;             // Auto-ID
+    name: string;           // "Acme Corp"
+    vatNumber: string;      // "BE0123456789"
+    billingAddress: Address;
+    deliveryAddresses: Address[]; // Multiple site support
+    contactEmail: string;   // Main billing contact
+    contractTier: 'standard' | 'premium' | 'enterprise'; // Determines pricing/SLA
+    priceMultiplier: number; // e.g. 0.9 for 10% discount
+    createdAt: any; // Firestore Timestamp
+}
+
+export interface B2BUser {
+    uid: string;            // Firebase Auth UID
+    companyId: string;      // Link to b2b_companies
+    email: string;
+    fullName: string;
+    role: 'admin' | 'manager' | 'viewer';
+    isActive: boolean;
+}
+
+export interface FleetDevice {
+    id: string;
+    companyId: string;
+    brand: string;          // "Apple"
+    model: string;          // "iPhone 13"
+    imei?: string;          // Optional
+    serialNumber?: string;
+    assignedTo?: string;    // "John Doe" (Employee Name)
+    status: 'active' | 'in_repair' | 'sold' | 'retired';
+    purchaseDate?: string;
+    warrantyExpiration?: string;
+    currentCondition?: 'good' | 'damaged';
+}
