@@ -12,7 +12,8 @@ interface PageProps {
 
 export const dynamic = 'force-dynamic';
 
-export default async function ResumePage({ params }: any) { // Type 'any' for params due to Next.js type quirks in page props if not strictly typed
+export default async function ResumePage(props: any) { // Type 'any' for props due to Next.js type quirks
+    const params = await props.params;
     const { lang, token } = params;
 
     if (!adminDb) {
