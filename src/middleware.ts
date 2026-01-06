@@ -7,6 +7,15 @@ const PUBLIC_FILE = /\.(.*)$/;
 export function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
+    // Critical: Explicitly skip Sitemap and Robots to prevent localization loops or rewrites
+    if (
+        pathname === '/sitemap.xml' ||
+        pathname === '/robots.txt' ||
+        pathname.startsWith('/sitemap/')
+    ) {
+        return;
+    }
+
     // 1. Skip if it's an internal Next.js request, API, static file, or Admin panel
     if (
         pathname.startsWith('/_next') ||

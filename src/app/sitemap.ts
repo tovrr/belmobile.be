@@ -14,23 +14,29 @@ const HIGH_PRIORITY_KEYWORDS = [
 ];
 
 export async function generateSitemaps() {
-    const devices = await getAllDevices();
-    const CHUNK_SIZE = 50;
+    try {
+        const devices = await getAllDevices();
+        const CHUNK_SIZE = 50;
 
-    const repairChunks = Math.max(1, Math.ceil(devices.length / CHUNK_SIZE));
-    const buybackChunks = Math.max(1, Math.ceil(devices.length / CHUNK_SIZE));
+        const repairChunks = Math.max(1, Math.ceil(devices.length / CHUNK_SIZE));
+        const buybackChunks = Math.max(1, Math.ceil(devices.length / CHUNK_SIZE));
 
-    const sitemaps = [
-        { id: 'static' },
-        { id: 'blog' },
-        { id: 'products' }
-    ];
+        const sitemaps = [
+            { id: 'static' },
+            { id: 'blog' },
+            { id: 'products' }
+        ];
 
-    // Splitting into chunks to avoid Vercel 50MB Sitemap / ISR body limits (86MB observed due to circular duplication bug)
-    for (let i = 0; i < repairChunks; i++) sitemaps.push({ id: `repair-${i}` });
-    for (let i = 0; i < buybackChunks; i++) sitemaps.push({ id: `buyback-${i}` });
+        // Splitting into chunks to avoid Vercel 50MB Sitemap / ISR body limits (86MB observed due to circular duplication bug)
+        for (let i = 0; i < repairChunks; i++) sitemaps.push({ id: `repair-${i}` });
+        for (let i = 0; i < buybackChunks; i++) sitemaps.push({ id: `buyback-${i}` });
 
-    return sitemaps;
+        return sitemaps;
+    } catch (error) {
+        console.error('[Sitemap] Critical Error in generateSitemaps:', error);
+        // Return minimal sitemap to avoid 404/Crash
+        return [{ id: 'static' }];
+    }
 }
 
 export default async function sitemap(props: any): Promise<MetadataRoute.Sitemap> {
