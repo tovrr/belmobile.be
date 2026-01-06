@@ -37,6 +37,8 @@ interface ChatSession {
     initialLandingPage?: string;
     lastSeenByUser?: any;
     botMuted?: boolean;
+    isTyping?: boolean;
+    currentDraft?: string;
 }
 
 const ChatManagement: React.FC = () => {
@@ -372,8 +374,8 @@ const ChatManagement: React.FC = () => {
                                     </div>
 
                                     <div className="flex justify-between items-start gap-2">
-                                        <p className={`text-xs line-clamp-2 mb-1 flex-1 ${isUnread ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-                                            {session.lastMessage}
+                                        <p className={`text-xs line-clamp-2 mb-1 flex-1 ${isUnread ? 'text-gray-900 font-medium' : 'text-gray-500'} ${session.isTyping ? 'text-indigo-600 font-semibold italic animate-pulse' : ''}`}>
+                                            {session.isTyping ? 'Typing...' : session.lastMessage}
                                         </p>
                                         {isUnread && (
                                             <span className="w-2 h-2 bg-red-500 rounded-full shadow-sm mt-1 shrink-0 animate-pulse"></span>
@@ -406,7 +408,17 @@ const ChatManagement: React.FC = () => {
                     <>
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
                             <div>
-                                <h3 className="font-bold text-lg text-gray-900">{selectedSession.userEmail || 'Anonymous Visitor'}</h3>
+                                <h3 className="font-bold text-lg text-gray-900 flex items-center gap-2">
+                                    {selectedSession.userEmail || 'Anonymous Visitor'}
+                                    {selectedSession.isTyping && (
+                                        <span className="text-xs font-normal text-indigo-600 animate-pulse bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100 flex items-center gap-1">
+                                            <span className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce"></span>
+                                            <span className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce delay-75"></span>
+                                            <span className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce delay-150"></span>
+                                            <span className="ml-1">Typing</span>
+                                        </span>
+                                    )}
+                                </h3>
                                 <div className="text-xs text-gray-500 flex flex-col gap-1 mt-1">
                                     <p className="flex items-center gap-2">
                                         <ClockIcon className="w-3 h-3" />
@@ -495,6 +507,18 @@ const ChatManagement: React.FC = () => {
                                     </p>
                                 </div>
                             )}
+
+                            {/* Live Draft Preview */}
+                            {selectedSession.isTyping && selectedSession.currentDraft && (
+                                <div className="flex flex-col items-start animate-pulse transition-opacity duration-300 opacity-80 mt-2">
+                                    <div className="max-w-[80%] p-3 rounded-2xl text-sm bg-gray-50 border border-gray-200 text-gray-600 rounded-bl-none italic flex items-center gap-2 shadow-sm">
+                                        <span className="mb-0.5"><span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce inline-block"></span></span>
+                                        <span className="line-clamp-3">{selectedSession.currentDraft}...</span>
+                                    </div>
+                                    <span className="text-[10px] text-gray-400 mt-1 ml-2">User is typing...</span>
+                                </div>
+                            )}
+
                             <div ref={messagesEndRef} />
                         </div>
 

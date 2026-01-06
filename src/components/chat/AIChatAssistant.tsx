@@ -12,7 +12,7 @@ import ReactMarkdown from 'react-markdown';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../firebase';
-import { serverTimestamp, setDoc, doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { serverTimestamp, setDoc, doc, getDoc, updateDoc, onSnapshot, deleteField } from 'firebase/firestore';
 import ChatActionCard from './ChatActionCard';
 import { useLockBodyScroll } from '../../hooks/useLockBodyScroll';
 import { useHaptic } from '../../hooks/useHaptic';
@@ -228,6 +228,46 @@ const AIChatAssistant: React.FC = () => {
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const isTypingRef = useRef(false);
+    const lastDraftUpdateRef = useRef(0);
+
+    const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setInput(val);
+
+        if (!sessionId) return;
+
+        // 1. Initial Typing Trigger (Instant)
+        if (!isTypingRef.current) {
+            isTypingRef.current = true;
+            updateDoc(doc(db, 'chatbot_sessions', sessionId), {
+                isTyping: true,
+                currentDraft: val
+            }).catch(() => { });
+        }
+
+        // 2. Throttled Draft Update (Live Preview)
+        const now = Date.now();
+        if (now - lastDraftUpdateRef.current > 300) {
+            updateDoc(doc(db, 'chatbot_sessions', sessionId), { currentDraft: val }).catch(() => { });
+            lastDraftUpdateRef.current = now;
+        }
+
+        // 3. Reset Timeout
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+        typingTimeoutRef.current = setTimeout(() => {
+            isTypingRef.current = false;
+            if (sessionId) {
+                updateDoc(doc(db, 'chatbot_sessions', sessionId), {
+                    isTyping: false,
+                    currentDraft: deleteField() // Cleanup
+                }).catch(() => { });
+            }
+        }, 2000);
     };
 
     useEffect(() => {
@@ -728,7 +768,7 @@ const AIChatAssistant: React.FC = () => {
                                 <input
                                     type="text"
                                     value={input}
-                                    onChange={(e) => setInput(e.target.value)}
+                                    onChange={handleInput}
                                     placeholder={currentPlaceholder || t('ai_placeholder')}
                                     className="flex-1 p-3.5 bg-transparent border-none focus:ring-0 text-sm text-slate-900 placeholder:text-slate-400 font-medium"
                                 />
