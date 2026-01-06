@@ -343,17 +343,31 @@ const PRIORITY_DEVICES = [
 /**
  * FETCHES ALL DEVICES FOR SITEMAP GENERATION
  * Returns a list of standardized slugs (e.g. 'apple-iphone-13')
- * Optimized via listDocuments() to avoid document reads.
  */
 export const getAllDevices = cache(async (): Promise<string[]> => {
     try {
         const db = adminDb;
         if (!db) return PRIORITY_DEVICES;
 
-        // Optimized: listDocuments() stays on the control plane, no doc reads ($)
-        // We use the repair_prices collection as the master catalog
-        const refs = await db.collection('repair_prices').listDocuments();
-        const ids = refs.map(ref => ref.id);
+        // CRITICAL BUG FIX (SEO): We now use pricing_anchors or market_values as a de-duplicated master catalog.
+        // repair_prices contains multiple docs per device (screen, battery, etc).
+        // Using it directly via listDocuments() caused a 10x-20x multiplier in sitemap URLs.
+
+        // 1. Try pricing_anchors (1:1 with device models) - Fastest/Most accurate for model list
+        const anchorRefs = await db.collection('pricing_anchors').listDocuments();
+        if (anchorRefs.length > 0) {
+            return anchorRefs.map(ref => ref.id);
+        }
+
+        // 2. Fallback: Deduplicate from market_values
+        const marketRefs = await db.collection('market_values').listDocuments();
+        if (marketRefs.length > 0) {
+            return marketRefs.map(ref => ref.id);
+        }
+
+        // 3. Last Resort: Deduplicate from repair_prices 'deviceId' field
+        const snap = await db.collection('repair_prices').select('deviceId').get();
+        const ids = Array.from(new Set(snap.docs.map(doc => doc.data().deviceId).filter(Boolean))) as string[];
 
         return ids.length > 0 ? ids : PRIORITY_DEVICES;
     } catch (error) {

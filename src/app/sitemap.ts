@@ -14,13 +14,23 @@ const HIGH_PRIORITY_KEYWORDS = [
 ];
 
 export async function generateSitemaps() {
-    return [
+    const devices = await getAllDevices();
+    const CHUNK_SIZE = 50;
+
+    const repairChunks = Math.max(1, Math.ceil(devices.length / CHUNK_SIZE));
+    const buybackChunks = Math.max(1, Math.ceil(devices.length / CHUNK_SIZE));
+
+    const sitemaps = [
         { id: 'static' },
         { id: 'blog' },
-        { id: 'products' },
-        { id: 'repair' },
-        { id: 'buyback' }
+        { id: 'products' }
     ];
+
+    // Splitting into chunks to avoid Vercel 50MB Sitemap / ISR body limits (86MB observed due to circular duplication bug)
+    for (let i = 0; i < repairChunks; i++) sitemaps.push({ id: `repair-${i}` });
+    for (let i = 0; i < buybackChunks; i++) sitemaps.push({ id: `buyback-${i}` });
+
+    return sitemaps;
 }
 
 export default async function sitemap(props: any): Promise<MetadataRoute.Sitemap> {
@@ -28,7 +38,11 @@ export default async function sitemap(props: any): Promise<MetadataRoute.Sitemap
     const resolvedProps = await props;
     const resolvedId = await (resolvedProps?.id);
 
-    const sitemapId = (resolvedId || 'static').toString().replace('.xml', '');
+    const idString = (resolvedId || 'static').toString().replace('.xml', '');
+    const [baseId, chunkIndexStr] = idString.split('-');
+    const sitemapId = baseId;
+    const chunkIndex = parseInt(chunkIndexStr || '0');
+
     const sitemapEntries: MetadataRoute.Sitemap = [];
 
     // --- 1. STATIC PAGES ---
@@ -128,11 +142,18 @@ export default async function sitemap(props: any): Promise<MetadataRoute.Sitemap
     // --- 4. REPAIR & BUYBACK ---
     if (sitemapId === 'repair' || sitemapId === 'buyback') {
         const allDeviceIds = await getAllDevices();
+
+        // Chunking Logic (Limit to 50 device models per sitemap file)
+        const CHUNK_SIZE = 50;
+        const start = chunkIndex * CHUNK_SIZE;
+        const end = start + CHUNK_SIZE;
+        const chunkedIds = allDeviceIds.slice(start, end);
+
         const config = sitemapId === 'repair'
             ? { slugs: { fr: 'reparation', nl: 'reparatie', en: 'repair', tr: 'onarim' } }
             : { slugs: { fr: 'rachat', nl: 'inkoop', en: 'buyback', tr: 'geri-alim' } };
 
-        for (const deviceId of allDeviceIds) {
+        for (const deviceId of chunkedIds) {
             const [brand, ...modelParts] = deviceId.split('-');
             if (!brand || modelParts.length === 0) continue;
             const model = modelParts.join('-');

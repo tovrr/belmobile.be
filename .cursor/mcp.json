@@ -2,6 +2,16 @@
   "mcpServers": {
     "Sentry": {
       "url": "https://mcp.sentry.dev/mcp/tovrr/belmobile-next-platform"
+    },
+    "Google-Search-Console": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-server-gsc"
+      ],
+      "env": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "C:/Users/omero/Downloads/belmobile-firebase-d2b49fe21b90.json"
+      }
     }
   }
 }
