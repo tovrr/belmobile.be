@@ -53,6 +53,7 @@ export default function FleetTable({ devices, selectedIds = [], onToggleSelectio
                             <th className="p-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Asset Configuration</th>
                             <th className="p-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Protocol.Status</th>
                             <th className="p-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Assigned Entity</th>
+                            <th className="p-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Est. Value</th>
                             <th className="p-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Network Identifiers</th>
                             <th className="p-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Actions</th>
                         </tr>
@@ -110,6 +111,15 @@ export default function FleetTable({ devices, selectedIds = [], onToggleSelectio
                                             </div>
                                         ) : (
                                             <span className="text-[10px] text-slate-600 font-black uppercase tracking-widest italic opacity-50">Null_Pointer</span>
+                                        )}
+                                    </td>
+                                    <td className="p-6">
+                                        {device.estimatedPrice !== undefined ? (
+                                            <span className="inline-flex items-center px-3 py-1 bg-cyber-citron/10 text-cyber-citron border border-cyber-citron/20 rounded-lg text-xs font-black">
+                                                €{device.estimatedPrice}
+                                            </span>
+                                        ) : (
+                                            <span className="text-[10px] text-slate-600 font-mono">—</span>
                                         )}
                                     </td>
                                     <td className="p-6">

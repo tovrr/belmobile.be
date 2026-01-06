@@ -416,4 +416,5 @@ export interface FleetDevice {
     purchaseDate?: string;
     warrantyExpiration?: string;
     currentCondition?: 'good' | 'damaged';
+    estimatedPrice?: number;
 }
