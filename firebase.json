@@ -1,6 +1,5 @@
 {
     "firestore": {
-        "database": "belmobile-database",
         "rules": "firestore.rules"
     },
     "storage": {

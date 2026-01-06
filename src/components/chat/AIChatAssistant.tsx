@@ -12,7 +12,7 @@ import ReactMarkdown from 'react-markdown';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../firebase';
-import { serverTimestamp, setDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { serverTimestamp, setDoc, doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import ChatActionCard from './ChatActionCard';
 import { useLockBodyScroll } from '../../hooks/useLockBodyScroll';
 import { useHaptic } from '../../hooks/useHaptic';
@@ -41,6 +41,8 @@ interface Message {
     };
 }
 
+import { usePathname } from 'next/navigation';
+
 const AIChatAssistant: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState('');
@@ -48,9 +50,16 @@ const AIChatAssistant: React.FC = () => {
     const { user } = useAuth(); // Get authenticated user
     const [sessionId, setSessionId] = useState<string | null>(null);
     const haptic = useHaptic();
+    const pathname = usePathname(); // Track Landing Page
 
     // Initialize/Sync from Firestore
     const [messages, setMessages] = useState<Message[]>([]);
+    const messagesRef = useRef(messages);
+
+    useEffect(() => {
+        messagesRef.current = messages;
+    }, [messages]);
+
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -110,48 +119,60 @@ const AIChatAssistant: React.FC = () => {
         return () => clearTimeout(timer);
     }, [currentPlaceholder, isDeleting, placeholderIndex, placeholderSpeed, placeholders]);
 
-    // 1. Session & History Initialization
+    // 1. Initialize Session ID
     useEffect(() => {
-        const initChat = async () => {
-            let sId = localStorage.getItem('chat_session_id');
-            if (!sId) {
-                sId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
-                localStorage.setItem('chat_session_id', sId);
-            }
-            setSessionId(sId);
-
-            // Fetch history from Firestore
-            try {
-                const sessionRef = doc(db, 'chatbot_sessions', sId);
-                const sessionSnap = await getDoc(sessionRef);
-
-                if (sessionSnap.exists()) {
-                    setMessages(sessionSnap.data().messages || []);
-                } else {
-                    const welcomeMsg: Message = { id: 'welcome', text: t('ai_welcome_message'), sender: 'bot' };
-                    setMessages([welcomeMsg]);
-                    // Create session in Firestore
-                    await setDoc(sessionRef, {
-                        sessionId: sId,
-                        language,
-                        createdAt: serverTimestamp(),
-                        lastActive: serverTimestamp(),
-                        messages: [welcomeMsg]
-                    });
-                }
-            } catch (error) {
-                console.error("Failed to sync chat history", error);
-                // Fallback to local if Firebase fails
-                const saved = localStorage.getItem('chat_history');
-                const defaultWelcome: Message = { id: 'welcome', text: t('ai_welcome_message'), sender: 'bot' };
-                setMessages(saved ? JSON.parse(saved) : [defaultWelcome]);
-            }
-        };
-
-        if (!sessionId) {
-            initChat();
+        let sId = localStorage.getItem('chat_session_id');
+        if (!sId) {
+            sId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+            localStorage.setItem('chat_session_id', sId);
         }
-    }, [t, sessionId, language]);
+        setSessionId(sId);
+    }, []);
+
+    // 2. Real-time Sync with Firestore
+    useEffect(() => {
+        if (!sessionId) return;
+
+        const sessionRef = doc(db, 'chatbot_sessions', sessionId);
+
+        const unsubscribe = onSnapshot(sessionRef, async (snap) => {
+            if (snap.exists()) {
+                const data = snap.data();
+                if (data.messages) {
+                    setMessages(data.messages);
+                }
+            } else {
+                // Session deleted by Admin OR First load.
+                // If we had active messages, it means the session was deleted.
+                if (messagesRef.current.length > 1) {
+                    // Force new Session ID to avoid resurrection loop
+                    const newId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+                    localStorage.setItem('chat_session_id', newId);
+                    setSessionId(newId);
+                    // Reset UI
+                    setMessages([{ id: 'welcome', text: t('ai_welcome_message'), sender: 'bot' }]);
+                } else {
+                    // Fresh load or just reset.
+                    setMessages([{ id: 'welcome', text: t('ai_welcome_message'), sender: 'bot' }]);
+                }
+            }
+        });
+
+        return () => unsubscribe();
+    }, [sessionId, t, language]); // Reduced dependencies to avoid excessive reconnects
+
+    // 3. Mark Messages as Seen by User
+    useEffect(() => {
+        if (!sessionId || !isOpen || messages.length === 0) return;
+
+        const markSeen = async () => {
+            const sessionRef = doc(db, 'chatbot_sessions', sessionId);
+            updateDoc(sessionRef, {
+                lastSeenByUser: serverTimestamp()
+            }).catch(e => console.error("Error marking seen", e));
+        };
+        markSeen();
+    }, [sessionId, isOpen, messages.length]);
 
     // Persist to local storage for instant feedback/fallback
     useEffect(() => {
@@ -159,6 +180,19 @@ const AIChatAssistant: React.FC = () => {
             localStorage.setItem('chat_history', JSON.stringify(messages));
         }
     }, [messages]);
+
+    // Track Landing Page Navigation logic
+    useEffect(() => {
+        if (sessionId && pathname) {
+            const sessionRef = doc(db, 'chatbot_sessions', sessionId);
+            // Only update if session exists (we use updateDoc, not setDoc)
+            updateDoc(sessionRef, {
+                landingPage: pathname
+            }).catch(() => {
+                // Ignore errors (e.g. session deleted), don't resurrect
+            });
+        }
+    }, [pathname, sessionId]);
 
     useEffect(() => {
         const handleOpen = () => setIsOpen(true);
@@ -219,7 +253,9 @@ const AIChatAssistant: React.FC = () => {
             setDoc(sessionRef, {
                 messages: sanitizedMessages,
                 lastActive: serverTimestamp(),
-                lastUserMessage: userText
+                lastUserMessage: userText,
+                userEmail: user?.email || null,
+                landingPage: pathname || '/'
             }, { merge: true }).catch(console.warn);
 
 
@@ -357,7 +393,7 @@ const AIChatAssistant: React.FC = () => {
         }
     };
     // --- PROACTIVE ENGAGEMENT LOGIC ---
-    const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+
     const [showProactiveBubble, setShowProactiveBubble] = useState(false);
     const [proactiveMessageText, setProactiveMessageText] = useState('');
     const proactiveTimerRef = useRef<NodeJS.Timeout | null>(null);

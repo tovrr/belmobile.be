@@ -20,12 +20,16 @@ import {
     NewspaperIcon,
     UsersIcon,
     ArrowTrendingUpIcon,
-    DocumentTextIcon
+    DocumentTextIcon,
+    ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
 const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, profile, loading, logout } = useAuth();
-    const { quotes, reservations, contactMessages, shops, adminShopFilter, setAdminShopFilter } = useData();
+    const {
+        quotes, reservations, contactMessages, shops, adminShopFilter, setAdminShopFilter,
+        newQuotesCount, pendingReservationsCount
+    } = useData();
     const router = useRouter();
     const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -49,8 +53,9 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         }
     }, [user, profile, loading, router, pathname]);
 
-    const newQuotesCount = quotes.filter(q => q.status === 'new').length;
-    const newReservationsCount = reservations.filter(r => r.status === 'pending').length;
+    // Use dedicated real-time counters instead of paginated list filtering
+    // const newQuotesCount = quotes.filter(q => q.status === 'new').length;
+    // const newReservationsCount = reservations.filter(r => r.status === 'pending').length;
 
     if (loading) {
         return (
@@ -70,9 +75,10 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
     const navigation = [
         { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon },
+        { name: 'AI Chat', href: '/admin/chatbot', icon: ChatBubbleLeftRightIcon },
         { name: 'Technician Portal', href: '/admin/technician', icon: WrenchScrewdriverIcon },
         { name: 'Orders & Quotes', href: '/admin/quotes', icon: ShoppingBagIcon, badge: newQuotesCount },
-        { name: 'Reservations', href: '/admin/reservations', icon: CalendarIcon, badge: newReservationsCount },
+        { name: 'Reservations', href: '/admin/reservations', icon: CalendarIcon, badge: pendingReservationsCount },
         { name: 'Messages', href: '/admin/messages', icon: NewspaperIcon, badge: contactMessages.filter(m => m.status === 'new').length },
         { name: 'Products', href: '/admin/products', icon: DevicePhoneMobileIcon },
         { name: 'Pricing', href: '/admin/pricing', icon: CurrencyEuroIcon },

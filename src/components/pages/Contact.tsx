@@ -117,7 +117,7 @@ const Contact: React.FC = () => {
         const message = formData.get('message') as string;
 
         try {
-            let attachmentUrl: string | undefined = undefined;
+            let attachmentUrl: string | null = null;
             if (attachment) {
                 attachmentUrl = await handleFileUpload(attachment);
             }
@@ -127,7 +127,7 @@ const Contact: React.FC = () => {
             await addContactMessage({
                 name,
                 email,
-                phone: phone || undefined,
+                phone: phone || null,
                 subject: subject || 'General Inquiry',
                 message,
                 attachmentUrl

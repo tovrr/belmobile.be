@@ -11,7 +11,10 @@ import {
     updateDoc,
     deleteDoc,
     getDoc,
-    arrayUnion
+    arrayUnion,
+    query,
+    where,
+    onSnapshot
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from './AuthContext';
@@ -36,6 +39,8 @@ interface OrderContextType {
     quotes: Quote[];
     franchiseApplications: FranchiseApplication[];
     contactMessages: ContactMessage[];
+    newQuotesCount: number;
+    pendingReservationsCount: number;
     adminShopFilter: string;
     setAdminShopFilter: (shopId: string) => void;
     loadingOrders: boolean;
@@ -77,6 +82,31 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const { quotes, loading: loadQuotes, hasMore: hasMoreQuotes, loadMore: loadMoreQuotes } = useQuotes(user, adminShopFilter);
     const { applications: franchiseApplications, loading: loadFran } = useFranchiseApplications(user);
     const { messages: contactMessages, loading: loadMsg } = useContactMessages(user, adminShopFilter);
+
+    // --- Real-time Badge Counters (Unpaginated) ---
+    const [newQuotesCount, setNewQuotesCount] = useState(0);
+    const [pendingReservationsCount, setPendingReservationsCount] = useState(0);
+
+    React.useEffect(() => {
+        if (!user) return;
+
+        // Count New Quotes
+        const qQuotes = query(collection(db, 'quotes'), where('status', '==', 'new'));
+        const unsubQuotes = onSnapshot(qQuotes, (snap) => {
+            setNewQuotesCount(snap.size);
+        });
+
+        // Count Pending Reservations
+        const qRes = query(collection(db, 'reservations'), where('status', '==', 'pending'));
+        const unsubRes = onSnapshot(qRes, (snap) => {
+            setPendingReservationsCount(snap.size);
+        });
+
+        return () => {
+            unsubQuotes();
+            unsubRes();
+        };
+    }, [user]);
 
     const loadingOrders = loadRes || loadQuotes || loadFran || loadMsg;
 
@@ -275,6 +305,8 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         quotes,
         franchiseApplications,
         contactMessages,
+        newQuotesCount,
+        pendingReservationsCount,
         adminShopFilter,
         setAdminShopFilter,
         loadingOrders,

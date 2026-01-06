@@ -2,9 +2,14 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     // Allow guest uploads to contact-attachments
+    // Allow guest uploads to contact_attachments (Match code: underscore)
+    match /contact_attachments/{allPaths=**} {
+      allow read, write: if true;
+    }
+    
+    // Also keep legacy hyphen support just in case
     match /contact-attachments/{allPaths=**} {
-      allow write: if true;
-      allow read: if request.auth != null;
+      allow read, write: if true;
     }
     
     // Default rules: require auth
