@@ -55,6 +55,7 @@ const AIChatAssistant: React.FC = () => {
     // Initialize/Sync from Firestore
     const [messages, setMessages] = useState<Message[]>([]);
     const messagesRef = useRef(messages);
+    const [botMuted, setBotMuted] = useState(false);
 
     useEffect(() => {
         messagesRef.current = messages;
@@ -141,6 +142,7 @@ const AIChatAssistant: React.FC = () => {
                 if (data.messages) {
                     setMessages(data.messages);
                 }
+                setBotMuted(data.botMuted || false);
             } else {
                 // Session deleted by Admin OR First load.
                 // If we had active messages, it means the session was deleted.
@@ -235,6 +237,9 @@ const AIChatAssistant: React.FC = () => {
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
         const userText = input;
+        // Debug Mute Status
+        console.log(`[Chat] Sending: "${userText}". Bot Muted:`, botMuted);
+
         if (!userText.trim() || !sessionId) return;
 
         // Prevent spam
@@ -250,14 +255,26 @@ const AIChatAssistant: React.FC = () => {
             // 1. Sync User Message to Firestore (Background)
             const sessionRef = doc(db, 'chatbot_sessions', sessionId);
             const sanitizedMessages = JSON.parse(JSON.stringify(updatedMessages));
-            setDoc(sessionRef, {
+
+            const isFirstUserMessage = messages.length <= 1;
+            const updatePayload: any = {
                 messages: sanitizedMessages,
                 lastActive: serverTimestamp(),
                 lastUserMessage: userText,
                 userEmail: user?.email || null,
                 landingPage: pathname || '/'
-            }, { merge: true }).catch(console.warn);
+            };
 
+            if (isFirstUserMessage) {
+                updatePayload.initialLandingPage = pathname || '/';
+            }
+
+            await setDoc(sessionRef, updatePayload, { merge: true });
+
+            if (botMuted) {
+                setIsLoading(false);
+                return;
+            }
 
             // 2. Call Server-Side AI API
             const response = await fetch('/api/chat', {
@@ -591,10 +608,12 @@ const AIChatAssistant: React.FC = () => {
                                 <div className="absolute top-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-slate-900"></div>
                             </div>
                             <div>
-                                <h3 className="font-extrabold text-sm tracking-wide">Apollo AI</h3>
+                                <h3 className="font-extrabold text-sm tracking-wide">
+                                    {botMuted ? 'Live Support 👨‍💻' : 'Apollo AI'}
+                                </h3>
                                 <p className="text-[10px] text-blue-200 font-medium tracking-wider uppercase flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
-                                    {t('Online')}
+                                    <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${botMuted ? 'bg-amber-400' : 'bg-emerald-400'}`}></span>
+                                    {botMuted ? 'Agent Active' : t('Online')}
                                 </p>
                             </div>
                         </div>

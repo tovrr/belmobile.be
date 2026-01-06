@@ -36,6 +36,7 @@ interface ChatSession {
     landingPage?: string;
     initialLandingPage?: string;
     lastSeenByUser?: any;
+    botMuted?: boolean;
 }
 
 const ChatManagement: React.FC = () => {
@@ -228,19 +229,32 @@ const ChatManagement: React.FC = () => {
                 messages: updatedMessages,
                 lastMessage: `[Admin] ${text}`,
                 lastActive: serverTimestamp(),
-                status: 'active'
+                status: 'active',
+                botMuted: true // Auto-pause on admin intervention
             });
 
             // Optimistic update locally to show instant feedback
             setSelectedSession(prev => prev ? {
                 ...prev,
-                messages: updatedMessages
+                messages: updatedMessages,
+                botMuted: true
             } : null);
 
         } catch (error) {
             console.error("Failed to send admin reply:", error);
             alert("Failed to send message: " + error);
         }
+    };
+
+    const handleToggleMute = async (mute: boolean) => {
+        if (!selectedSession) return;
+        try {
+            await updateDoc(doc(db, 'chatbot_sessions', selectedSession.id), {
+                botMuted: mute
+            });
+            // Optimistic update
+            setSelectedSession(prev => prev ? { ...prev, botMuted: mute } : null);
+        } catch (e) { console.error("Mute failed", e); }
     };
 
     const handleToggleStatus = async () => {
@@ -407,10 +421,20 @@ const ChatManagement: React.FC = () => {
                             </div>
                             <div className="flex gap-2">
                                 <button
-                                    onClick={() => setTimeout(() => replyInputRef.current?.focus(), 50)}
-                                    className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium hover:bg-gray-50 text-gray-700 shadow-sm transition-colors"
+                                    onClick={() => {
+                                        if (selectedSession.botMuted) {
+                                            handleToggleMute(false); // Resume
+                                        } else {
+                                            handleToggleMute(true); // Pause
+                                            setTimeout(() => replyInputRef.current?.focus(), 50);
+                                        }
+                                    }}
+                                    className={`px-4 py-2 border rounded-xl text-sm font-medium shadow-sm transition-colors ${selectedSession.botMuted
+                                        ? 'bg-amber-100 text-amber-900 border-amber-200 hover:bg-amber-200'
+                                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                                        }`}
                                 >
-                                    Take Over (Live)
+                                    {selectedSession.botMuted ? 'Resume AI ▶️' : 'Take Over ✋'}
                                 </button>
                                 <button
                                     onClick={handleToggleStatus}
