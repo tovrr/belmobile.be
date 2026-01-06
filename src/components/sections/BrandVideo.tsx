@@ -56,7 +56,7 @@ const BrandVideo: React.FC = () => {
                     <span className="inline-block py-1 px-3 rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 text-xs font-bold mb-4 uppercase tracking-widest">
                         {t('video_watch_story')}
                     </span>
-                    <h2 className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-4 break-words">
+                    <h2 className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-4 break-all">
                         {t('video_section_title') || '30 Minutes. Lifetime Guarantee.'}
                     </h2>
                     <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
