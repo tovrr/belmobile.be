@@ -369,4 +369,5 @@ export interface BrevoEmailPayload {
     subject: string;
     htmlContent: string;
     attachment?: { name: string; content: string }[];
+    tags?: string[];
 }

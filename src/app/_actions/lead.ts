@@ -2,6 +2,7 @@
 
 import { adminDb } from '@/lib/firebase-admin';
 import { WizardState } from '@/context/WizardContext';
+import { sendMagicLinkEmail } from '@/services/server/email/magicLink';
 
 export interface SaveLeadResponse {
     success: boolean;
@@ -35,14 +36,27 @@ export async function saveLead(email: string, state: WizardState): Promise<SaveL
             estimate: state.currentEstimate
         };
 
+
         if (adminDb) {
             await adminDb.collection('leads').doc(token).set(leadData);
         } else {
             console.warn('[MOCK MODE] Lead would be saved to Firestore:', leadData);
         }
 
-        // TRIGGER EMAIL (Placeholder for Phase 3)
-        // await sendRecoveryEmail(email, token, state.currentEstimate);
+        // TRIGGER EMAIL (Phase 3 Complete)
+        try {
+            await sendMagicLinkEmail({
+                to: email,
+                token: token,
+                estimate: state.currentEstimate,
+                deviceModel: `${state.selectedBrand} ${state.selectedModel}`,
+                lang: 'fr' // TODO: Pass language from client state
+            });
+        } catch (mailErr) {
+            console.error('Failed to send magic link email:', mailErr);
+            // We don't fail the whole request if email fails, as the link is shown in UI too? 
+            // Actually, UI shows token, but email is better.
+        }
 
         return { success: true, token };
     } catch (error) {
