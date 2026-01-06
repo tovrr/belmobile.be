@@ -26,7 +26,7 @@ export async function sendMagicLinkEmail({ to, token, estimate, deviceModel, lan
     const dictionary = {
         fr: {
             greeting: "Bonjour,",
-            intro: `Bonne nouvelle ! Nous avez sauvegardé votre estimation de prix pour votre <strong>${deviceModel}</strong>.`,
+            intro: `Bonne nouvelle ! Nous avons sauvegardé votre estimation de prix pour votre <strong>${deviceModel}</strong>.`,
             labelInfo: "Estimation :",
             lockedInfo: `Cette offre est garantie pendant <strong>7 jours</strong>. Vous pouvez reprendre votre session exactement là où vous l'avez laissée :`,
             cta: "Reprendre mon estimation",
