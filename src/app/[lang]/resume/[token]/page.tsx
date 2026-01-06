@@ -2,6 +2,7 @@
 import { notFound } from 'next/navigation';
 import { adminDb } from '@/lib/firebase-admin';
 import { ResumeLoader } from '@/components/wizard/ResumeLoader';
+import { unstable_noStore as noStore } from 'next/cache';
 
 interface PageProps {
     params: {
@@ -10,26 +11,40 @@ interface PageProps {
     };
 }
 
-// Explicitly tell Next.js this segment is dynamic but has `[lang]` parent
-export async function generateStaticParams() {
-    return [];
-}
+// We do NOT use generateStaticParams here because this path is strictly dynamic
+// and we want to opt-out of parent static generation attempts.
 
 export const dynamic = 'force-dynamic';
 
 export default async function ResumePage(props: any) { // Type 'any' for props due to Next.js type quirks
+    noStore(); // Opt out of static data fetching completely
+
+    // Await params for Next.js 15+
     const params = await props.params;
     const { lang, token } = params;
 
-    if (!adminDb) {
-        console.error("Admin DB not initialized");
-        return notFound();
+    let data = null;
+
+    try {
+        if (!adminDb) {
+            console.warn("Admin DB not initialized (Build time or Missing Config)");
+            // During build, this might be null. Return 404 behavior safely.
+            if (process.env.NEXT_PHASE === 'phase-production-build') return null;
+            return notFound();
+        }
+
+        // Fetch lead from Firestore
+        const docRef = await adminDb.collection('leads').doc(token).get();
+
+        if (docRef.exists) {
+            data = docRef.data();
+        }
+    } catch (error) {
+        console.error("Error fetching resume token:", error);
+        // Fallthrough to 404
     }
 
-    // Fetch lead from Firestore
-    const docRef = await adminDb.collection('leads').doc(token).get();
-
-    if (!docRef.exists) {
+    if (!data) {
         return (
             <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-900">
                 <div className="max-w-md w-full bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl text-center">
@@ -47,8 +62,6 @@ export default async function ResumePage(props: any) { // Type 'any' for props d
             </div>
         );
     }
-
-    const data = docRef.data();
 
     // Check expiration
     if (data?.expiresAt && new Date(data.expiresAt) < new Date()) {
