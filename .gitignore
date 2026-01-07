@@ -32,7 +32,10 @@ yarn-error.log*
 *.log
 *.log.txt
 tsc_errors*
+tsc_errors*
 ts_errors*
+tsc_error_log.txt
+sitemap_debug.xml
 
 # temp tools and artifacts
 *.html
