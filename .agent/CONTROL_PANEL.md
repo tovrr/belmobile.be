@@ -5,15 +5,15 @@
 ---
 
 ## 🧠 1. Architecture & Vision (Core)
-* **[CORE_BRAIN.md](CORE_BRAIN.md)** : Architecture V3, Multi-site (Schaerbeek/Molenbeek), et moteur de prix. **(Priorité IA)**
-* **[Strategic Plan 2026](../docs/business/2026_STRATEGIC_PLAN.md)** : Vision globale "Empire" et expansion nationale.
+* **[CORE_BRAIN.md](docs/technical/CORE_BRAIN.md)** : Architecture V3, Multi-site (Schaerbeek/Molenbeek), et moteur de prix. **(Priorité IA)**
+* **[Strategic Plan 2026](docs/business/2026_STRATEGIC_PLAN.md)** : Vision globale "Empire" et expansion nationale.
 * **[Behavior Rules](behavior.md)** : Comment coder pour Belmobile (Interdiction du middleware, builds zéro-régression).
 
 ---
 
 ## 🏢 2. B2B & Molenbeek Hub
-* **[Fleet Portal Masterplan](implementation_plans/B2B_FLEET_PORTAL_MASTERPLAN.md)** : Roadmap du portail entreprise.
-* **[Aegis Roadmap](../docs/business/ROADMAP_AEGIS_B2B.md)** : Automatisation backend et SaaS.
+* **[Fleet Portal Masterplan](docs/business/B2B_FLEET_PORTAL_MASTERPLAN.md)** : Roadmap du portail entreprise.
+* **[Aegis Roadmap](docs/staff/ROADMAP_AEGIS_B2B.md)** : Automatisation backend et SaaS.
 * **Note Critique** : Molenbeek est un hub **B2B exclusif** (sur rendez-vous uniquement).
 
 ---
@@ -22,7 +22,7 @@
 * **[Wizard Development](workflows/wizard-development.md)** : Guide pour modifier le tunnel Buyback/Repair.
 * **[Admin Dashboard](workflows/admin-development.md)** : Guide pour étendre le panneau d'administration.
 * **[Design System](design-system.md)** : Codes couleurs (Bel Blue, Cyber Citron) et règles UI.
-* **[Sitemap Recovery](../docs/technical/SITEMAP_RECOVERY.md)** : Plan d'action pour le SEO et le fichier XML.
+* **[Sitemap Recovery](docs/technical/SITEMAP_RECOVERY.md)** : Plan d'action pour le SEO et le fichier XML.
 
 ---
 
@@ -34,12 +34,12 @@
 ---
 
 ## 📢 5. Marketing & Opérations
-* **[Marketing Plan 2026](../docs/business/2026_MARKETING_PLAN.md)** : NAP Strategy et conquête TikTok.
-* **[Guide WhatsApp](../docs/staff/ADMIN_GUIDE_WHATSAPP.md)** : Système "Gözün Kulağın" pour les techniciens.
+* **[Marketing Plan 2026](docs/business/2026_MARKETING_PLAN.md)** : NAP Strategy et conquête TikTok.
+* **[Guide WhatsApp](docs/staff/ADMIN_GUIDE_WHATSAPP.md)** : Système "Gözün Kulağın" pour les techniciens.
 * **[Lead Recovery](workflows/lead-recovery.md)** : Stratégie Magic Links et conversion.
 
 ---
 
 ## 📝 6. Journal de Bord
-* **[Release Notes](implementation_plans/docs/RELEASE_NOTES.md)** : Historique des versions et changements majeurs.
-* **[Omer Boss Actions](../docs/staff/OMER_BOSS_ACTION_2026.md)** : Priorités du leader.
+* **[Release Notes](docs/staff/RELEASE_NOTES.md)** : Historique des versions et changements majeurs.
+* **[Omer Boss Actions](docs/staff/OMER_BOSS_ACTION_2026.md)** : Priorités du leader.
