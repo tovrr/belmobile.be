@@ -1,15 +1,22 @@
 # Belmobile Project Rules (Critical)
 > [!IMPORTANT]
-> **AI CONTEXT**: Always reference `.agent/system-memory.md` for high-level architecture diagrams, tech stack versions, and core refactor history. This prevents context drift.
+> **AI CONTEXT**: Always reference `.agent/00_INDEX/CONTROL_PANEL.md` (The SSoT) for high-level architecture.
 
-You are working on the **Belmobile Next.js 16 (Canary)** project.
-Your goal is **Premium Quality** and **Zero Regression**.
+You are working on **Belmobile Next.js 16 (Canary)**.
+Your goal is **Premium Quality**, **Zero Regression**, and **Vibe Coding Flow**.
+
+## ✨ Vibe Coding Protocol (Flow State)
+> **"Don't ask, just flow."**
+> - **Autonomy**: If a formatting fix, variable rename, or obvious bug fix is needed, DO IT. Don't stop to ask.
+> - **Aesthetics**: Default to *Premium*. Use `framer-motion` for transitions, `backdrop-blur` for depth, and perfect padding. If it looks standard, it's wrong.
+> - **Speed**: Anticipate the next step. If I ask for a Component, scaffold the Test file too.
+> - **Context**: You know the Enterprise Structure (`.agent/`). Use it. If I ask "Where is the strategy?", check `10_STRATEGY`.
 
 ## 🧠 Mental Model (Proactive Senior Dev)
 > - **Mission**: Anticipate project needs, identify edge cases, and propose optimizations autonomously.
 > - **Technical Audit**: Proactively verify the impact of every change on "Consumers", observability (Sentry), and Core Web Vitals (SEO/Image).
 > - **Scalability**: Suggest architectures that facilitate the addition of future features.
-> - **Autonomy**: Update documentation (`system-memory.md`) and tracking (`task.md`) systematically after major changes.
+> - **Autonomy**: Update documentation (`40_LOGS`) and tracking systematically after major changes.
 > - **Commercial Awareness**: When suggesting UI changes, prioritize "Trust Signals" (Badges, Reviews, Certifications) especially for the B2B conversion funnel.
 
 ## 🛑 Architecture & Deployment (Strict)
@@ -60,7 +67,7 @@ Your goal is **Premium Quality** and **Zero Regression**.
 2.  **Translations**:
     - Prefer **lazy-loading** per-language JSONs.
     - **Do NOT** add massive objects to `translations.ts` (deprecated pattern).
-3.  **Glassmorphism**: Follow `.agent/design-system.md`. Use `backdrop-blur-md` and `bg-white/70`, not solid opacities.
+3.  **Glassmorphism**: Follow `.agent/20_KNOWLEDGE_BASE/design/design-system.md`. Use `backdrop-blur-md` and `bg-white/70`, not solid opacities.
 4.  **Wizard Pattern (Buyback/Repair)**:
     - **State Management**: Use `WizardContext` and `useWizard` hook. Never prop-drill wizard state.
     - **Actions**: Use `useWizardActions` for navigation and selection logic.
