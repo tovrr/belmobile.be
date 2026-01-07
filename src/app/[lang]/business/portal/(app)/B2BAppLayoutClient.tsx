@@ -25,6 +25,8 @@ export default function B2BAppLayoutClient({ children }: { children: React.React
     const pathname = usePathname();
     const router = useRouter();
     const [isSidebarOpen, setSidebarOpen] = useState(true);
+    const [isAuthorized, setIsAuthorized] = useState(false); // Security Gate
+    const [isLoading, setIsLoading] = useState(true);
 
     const navItems = [
         { name: 'Overview', path: '/dashboard', icon: HomeIcon },
@@ -35,6 +37,25 @@ export default function B2BAppLayoutClient({ children }: { children: React.React
         { name: 'Settings', path: '/settings', icon: Cog6ToothIcon },
     ];
 
+    // SECURITY CHECK
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Optional: Check custom claim here if we have 'b2b' role
+                setIsAuthorized(true);
+            } else {
+                // Kick out
+                const loginPath = `/${language}/business/portal/login`;
+                if (pathname !== loginPath) {
+                    router.push(loginPath);
+                }
+            }
+            setIsLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [router, language, pathname]);
+
     const handleLogout = async () => {
         try {
             await signOut(auth);
@@ -43,6 +64,18 @@ export default function B2BAppLayoutClient({ children }: { children: React.React
             console.error('Logout error:', error);
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            </div>
+        );
+    }
+
+    if (!isAuthorized) {
+        return null; // Prevents flash of content before redirect
+    }
 
     return (
         <div className="min-h-screen bg-[#0B0F19] text-slate-300 font-sans flex overflow-hidden">
