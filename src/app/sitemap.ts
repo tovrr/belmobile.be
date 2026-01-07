@@ -33,10 +33,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         // 1. Static Pages (High Priority Infrastructure)
         const pages = [
             { id: 'home', priority: 1.0, changeFreq: 'daily', slugs: { en: '', fr: '', nl: '', tr: '' } },
-            { id: 'services', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'services', fr: 'services', nl: 'diensten', tr: 'hizmetler' } },
-            { id: 'stores', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'stores', fr: 'magasins', nl: 'winkels', tr: 'magazalar' } },
-            { id: 'about', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'about', fr: 'a-propos', nl: 'over-ons', tr: 'hakkimizda' } },
-            { id: 'contact', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'contact', fr: 'contact', nl: 'contact', tr: 'iletisim' } },
+            { id: 'services', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'services', fr: 'services', nl: 'services', tr: 'services' } }, // Safe fallback
+            { id: 'stores', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'stores', fr: 'stores', nl: 'stores', tr: 'stores' } },
+            { id: 'about', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'about', fr: 'about', nl: 'about', tr: 'about' } },
+            { id: 'contact', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'contact', fr: 'contact', nl: 'contact', tr: 'contact' } },
+            // New High Value Pages
+            { id: 'business', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'business', fr: 'business', nl: 'business', tr: 'business' } },
+            { id: 'franchise', priority: 0.8, changeFreq: 'monthly', slugs: { en: 'franchise', fr: 'franchise', nl: 'franchise', tr: 'franchise' } },
+            { id: 'formation', priority: 0.8, changeFreq: 'monthly', slugs: { en: 'formation', fr: 'formation', nl: 'formation', tr: 'formation' } },
+            { id: 'express-courier', priority: 0.8, changeFreq: 'monthly', slugs: { en: 'express-courier', fr: 'express-courier', nl: 'express-courier', tr: 'express-courier' } },
+            { id: 'faq', priority: 0.7, changeFreq: 'monthly', slugs: { en: 'faq', fr: 'faq', nl: 'faq', tr: 'faq' } },
+            { id: 'track-order', priority: 0.7, changeFreq: 'daily', slugs: { en: 'track-order', fr: 'track-order', nl: 'track-order', tr: 'track-order' } },
+            { id: 'warranty', priority: 0.5, changeFreq: 'yearly', slugs: { en: 'warranty', fr: 'warranty', nl: 'warranty', tr: 'warranty' } },
         ];
 
         pages.forEach(page => {
