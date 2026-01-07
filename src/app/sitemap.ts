@@ -45,6 +45,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             { id: 'faq', priority: 0.7, changeFreq: 'monthly', slugs: { en: 'faq', fr: 'faq', nl: 'faq', tr: 'faq' } },
             { id: 'track-order', priority: 0.7, changeFreq: 'daily', slugs: { en: 'track-order', fr: 'track-order', nl: 'track-order', tr: 'track-order' } },
             { id: 'warranty', priority: 0.5, changeFreq: 'yearly', slugs: { en: 'warranty', fr: 'warranty', nl: 'warranty', tr: 'warranty' } },
+            // Major Category Hubs (The Roots)
+            { id: 'repair-home', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'repair', fr: 'reparation', nl: 'reparatie', tr: 'onarim' } },
+            { id: 'buyback-home', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'buyback', fr: 'rachat', nl: 'inkoop', tr: 'geri-alim' } },
+            { id: 'blog-index', priority: 0.7, changeFreq: 'weekly', slugs: { en: 'blog', fr: 'blog', nl: 'blog', tr: 'blog' } },
+            { id: 'catalogue', priority: 0.8, changeFreq: 'weekly', slugs: { en: 'products', fr: 'produits', nl: 'producten', tr: 'urunler' } },
         ];
 
         pages.forEach(page => {
