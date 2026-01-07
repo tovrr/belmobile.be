@@ -1,69 +1,76 @@
-# Belmobile.be - The Device Lifecycle OS (v2026)
+# 📱 Belmobile.be - The Device Lifecycle OS (v2026)
 
-**Belmobile** is not just a website; it's the "Operating System" for modern device repair and buyback shops in Belgium. 
-Built with a "Family Business" philosophy by **Omer (Visionary)**, **Aegis (Architect)**, and **Apollo (AI Operator)**.
+Belmobile is the "Operating System" for modern device repair and buyback shops in Belgium.  
+Built with a "Family Business" philosophy by **Omer** (Visionary), **Aegis** (Architect), and **Apollo** (AI Operator).
 
 ## 🚀 Tech Stack 2026
-- **Framework**: [Next.js 16+](https://nextjs.org) (App Router, Turbopack)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com) (Local installation, custom typography)
-- **Database**: [Firebase](https://firebase.google.com) (Firestore Realtime & Auth)
-- **AI Brain**: [Gemini Pro](https://ai.google.dev) (Apollo: The Digital Esnaf)
-- **Reporting**: [pdfMake](http://pdfmake.org) (Client-side PDF generation with signature support)
 
-## ✨ Core Ecosystem
-### 1. The "Walk-in" Experience 🛍️
-- Relentlessly optimized for physical shops (Bruxelles/Anderlecht).
-- **One-Click Receipt**: Instant PDF generation with thermal printer support.
-- **Anonymous Flow**: No mandated email/phone for quick drop-offs.
+*   **Framework**: Next.js 16+ (App Router, Turbopack)
+*   **Styling**: Tailwind CSS 4
+*   **Database**: Firebase (Firestore Realtime & Auth)
+*   **AI Brain**: Gemini Pro (Apollo: The Digital Esnaf)
+*   **Pricing Engine**: Hybrid GSMArena Scraper + Firestore Anchors.
 
-### 2. Apollo AI Assistant 🤖
-- **Role**: The "Digital Shopkeeper".
-- **Personality**: Warm, trusted, and commercially savvy ("Ready before you finish your coffee").
-- **Knowledge**: Aware of real-time shop hours, locations, and pricing strategies.
+## 🏛️ The Three-Pillar Presence (Brussels)
 
-### 3. Project Aegis (B2B Expansion) 🛡️ *[Beta]*
-- White-label widgets allowing other repair shops to use Belmobile's Buyback engine.
-- Shared inventory and logistics network.
+| Location | Role | Access | SSoT Strategy |
+| :--- | :--- | :--- | :--- |
+| **Schaerbeek (Liedts)** | Retail & History | Walk-in | High-flux consumer repairs |
+| **Anderlecht (Bara)** | Transit & Buyback | Walk-in | Gare du Midi fast cash flow |
+| **Molenbeek (B2B)** | Business Hub | By Appt Only | Fleet management & Pro accounts |
 
-## 🛠️ Getting Started
+## 🧪 The "Secret Sauce" (Proprietary Logic)
 
-### 1. Installation
+### 1. The Anchor System (SSoT)
+We don't chase volatile market prices. We use **Technical Specification Anchors** (GSMArena) mapped in `src/data/gsmarena-links.ts`.
+*   **Logic**: `Market Value (Scraped) -> Firestore Anchor -> User Quote`.
+*   **Benefit**: Stable pricing that resists "fake" low-market listings.
+
+### 2. Profit Floor Protection
+Our `BulkPriceEditor` ensures no repair is sold at a loss.
+*   **Formula**: `MAX( (Part + Labor) * Margin, Competitive_Cap )`.
+
+### 3. Apollo B2B Routing
+Apollo (AI) is trained to filter leads. High-volume fleet requests are automatically routed to the **Molenbeek Hub** schedule, while single repairs are sent to Schaerbeek/Anderlecht maps.
+
+## 🛠️ Operational Workflow
+
+### 🔄 Syncing Market Prices
+To refresh the global pricing anchors:
+
 ```bash
-npm install
+node scripts/sync-device-data.mjs
 ```
 
-### 2. Environment Setup
-Copy `.env.example` to `.env.local` and fill in your Firebase and Gemini API keys.
-*Critical: Ensure `NEXT_PUBLIC_GEMINI_API_KEY` is active for Apollo.*
+> **Note**: Always review changes in the Admin Dashboard before pushing live.
 
-### 3. Development
-```bash
-npm run dev
-```
+### 📄 Documenting Workflows
+All markdown files have been organized into the `/docs` (or `.agent`) directory:
+*   `docs/business/`: B2B Strategy & Molenbeek Expansion.
+*   `docs/staff/`: Social Media scripts & Shop Checklists.
+*   `docs/technical/`: Firestore schemas & Code Constitution.
 
-## 🗺️ Project Architecture (Strict Modular)
-This project follows a strict code constitution defined in `FULL_PROJECT_RULES.md`.
+## 🗺️ Project Architecture
 
-```text
+```plaintext
 📦 next-platform
-├── 📂 .agent/              # 🤖 AI Workflows & Persona Rules
-├── 📂 docs/                # 📚 The Knowledge Base (Snapshot, Roadmap, Rules)
+├── 📂 .agent/              # 🤖 AI Persona & Workflow Rules
+├── 📂 docs/                # 📚 The Knowledge Base (Business, Staff, Tech)
+├── 📂 scripts/             # ⚙️ Automation (Scrapers, DB Maintenance)
 ├── 📂 src/
-│   ├── 📂 app/             # App Router (Pages & API Routes)
-│   ├── 📂 components/      # React Components (Atomic Design)
-│   │   ├── 📅 admin/       # Dashboard & Walk-in Modals
-│   │   ├── 🧙 wizard/      # The Core Pricing Engine
-│   │   └── ...
-│   ├── 📂 utils/           # Business Logic (pdfGenerator, priceCalculators)
-│   └── 📂 types/           # Rigid TypeScript Definitions
-├── 📜 FULL_PROJECT_RULES.md # 👑 The Constitution
-└── 📜 STRATEGIC_ROADMAP.md  # 🗺️ The 2026 Plan
+│   ├── 📂 app/             # App Router & API
+│   ├── 📂 components/      # UI (Admin, Wizard, Walk-in)
+│   ├── 📂 data/            # SSoT Mappings (gsmarena-links.ts)
+│   ├── 📂 utils/           # Business Logic (Price Calculators, PDF)
+└── 📜 CONTROL_PANEL.md     # 🎛️ The Master Index for all Docs
 ```
 
 ## 📊 Administrative Dashboard
-Access the admin panel at `/login`.
-Features: **Walk-in Mode**, **Inventory Control**, **Technician Kanban**, **PDF Reports**.
+
+*   **Access**: `/login`
+*   **Features**: Walk-in Mode, Inventory Control, Buyback Wizard, Technician Kanban, B2B Fleet Reports.
 
 ---
-© 2026 Belmobile.be - A Family Business.
-*Built with ❤️ by Omer, Aegis & Apollo.*
+
+**© 2026 Belmobile.be - A Family Business.**  
+Built with ❤️ by Omer, Aegis & Apollo.
