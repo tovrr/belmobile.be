@@ -78,17 +78,10 @@ export default function FleetPage() {
             const { mapFleetToPdfData } = await import('@/utils/b2bPdfMapper');
 
             // TODO: Fetch real company data. Using basic placeholder for now.
-            const companyData = {
-                id: companyId,
-                name: 'My Company',
-                vatNumber: 'N/A',
-                billingAddress: { street: 'Main St', number: '1', zip: '1000', city: 'Brussels', country: 'BE' },
-                contactEmail: 'user@example.com',
-                deliveryAddresses: [],
-                contractTier: 'standard' as const,
-                priceMultiplier: 1,
-                createdAt: new Date()
-            };
+            // Fetch real company details
+            const companyDoc = await getDoc(doc(db, 'b2b_companies', companyId));
+            if (!companyDoc.exists()) throw new Error("Company not found");
+            const companyData = { id: companyId, ...companyDoc.data() } as any;
 
             const pdfData = mapFleetToPdfData(devices, companyData, 'FLEET VALUATION');
             const { blob } = await generatePDFFromPdfData(pdfData, 'Fleet_Valuation');
