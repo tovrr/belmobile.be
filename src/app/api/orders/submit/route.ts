@@ -37,7 +37,10 @@ export async function POST(req: NextRequest) {
             brand,
             model,
             repairIssues: issues,
-            selectedScreenQuality: body.selectedScreenQuality || 'generic'
+            selectedScreenQuality: body.selectedScreenQuality || 'generic',
+            // Fix: Map nested condition object back to flat properties for pricingLogic
+            screenState: body.screenState || body.condition?.screen,
+            bodyState: body.bodyState || body.condition?.body
         };
 
         const calculatedPrice = type === 'buyback'
