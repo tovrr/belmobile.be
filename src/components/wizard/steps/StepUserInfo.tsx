@@ -571,7 +571,12 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                             </div>
                                                             <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-slate-800 max-h-60 overflow-y-auto bg-white dark:bg-slate-900">
                                                                 {shops
-                                                                    .filter((s: any) => s.status === 'open')
+                                                                    .filter((s: any) => {
+                                                                        if (s.status !== 'open') return false;
+                                                                        // GATEKEEPER: Molenbeek is B2B Only
+                                                                        if (s.id === 'molenbeek' && !isCompany) return false;
+                                                                        return true;
+                                                                    })
                                                                     .sort((a: any, b: any) => (a.isPrimary ? -1 : 1))
                                                                     .map((shop: any) => (
                                                                         <button
