@@ -5,7 +5,14 @@ import { MetadataRoute } from 'next';
  * Directs crawlers to the dynamic sitemap and protects private directories.
  */
 export default function robots(): MetadataRoute.Robots {
-    const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be';
+    const getBaseUrl = () => {
+        let url = process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be';
+        if (!url.startsWith('http')) {
+            url = `https://${url}`;
+        }
+        return url.replace(/\/$/, '');
+    };
+    const BASE_URL = getBaseUrl();
 
     return {
         rules: {

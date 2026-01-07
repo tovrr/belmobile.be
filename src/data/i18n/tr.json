@@ -1056,5 +1056,12 @@
     "save_quote_info": "E-posta adresinizi girin ve teklifi 7 gün boyunca sabitleyin.",
     "quote_saved_title": "Teklif Kaydedildi!",
     "quote_saved_desc": "Teklifinizi kaydettik. E-postanız ile istediğiniz zaman devam edebilirsiniz.",
-    "Save Price": "Fiyatı Kaydet"
+    "Save Price": "Fiyatı Kaydet",
+    "Save Quote": "Teklifi Kaydet",
+    "you_save": "Kazancınız",
+    "got_it_thanks": "Anlaşıldı, teşekkürler!",
+    "exit_intent_title": "Bekleyin! Bu fiyatı kaçırmayın.",
+    "exit_intent_desc": "Piyasa fiyatları günlük değişiyor. Teklifinizi şimdi kaydedin ve 7 gün boyunca sabitleyin:",
+    "save_my_price": "Fiyatımı Sabitle",
+    "no_thanks_risk": "Hayır teşekkürler, risk alıyorum"
 }

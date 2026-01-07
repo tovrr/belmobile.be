@@ -5,7 +5,14 @@ import { getAllDevices } from '../services/server/pricing.dal';
 import { MOCK_BLOG_POSTS, MOCK_PRODUCTS } from '../constants';
 
 // --- CONFIGURATION ---
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be';
+const getBaseUrl = () => {
+    let url = process.env.NEXT_PUBLIC_BASE_URL || 'https://belmobile.be';
+    if (!url.startsWith('http')) {
+        url = `https://${url}`;
+    }
+    return url.replace(/\/$/, ''); // Remove trailing slash
+};
+const BASE_URL = getBaseUrl();
 const LANGUAGES = ['fr', 'nl', 'en', 'tr'] as const;
 
 // Priority Keywords for SEO Weighting

@@ -1698,5 +1698,11 @@
     "quote_saved_title": "Estimation Sauvegardée !",
     "quote_saved_desc": "Nous avons sauvegardé votre estimation. Vous pouvez reprendre à tout moment via votre email.",
     "Save Price": "Sauvegarder le prix",
-    "Save Quote": "Sauvegarder le devis"
+    "Save Quote": "Sauvegarder le devis",
+    "you_save": "Vous économisez",
+    "got_it_thanks": "Compris, merci !",
+    "exit_intent_title": "Attendez ! Ne perdez pas ce prix.",
+    "exit_intent_desc": "Les prix du marché changent quotidiennement. Sauvegardez votre estimation maintenant et bloquez-la pendant",
+    "save_my_price": "Sauvegarder mon Prix",
+    "no_thanks_risk": "Non merci, je prends le risque"
 }

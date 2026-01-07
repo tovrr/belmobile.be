@@ -321,7 +321,7 @@ export const getOrderConfirmationEmail = (order: any, id: string, lang: 'en' | '
     };
 };
 
-export const getMagicLinkEmail = (email: string, magicLink: string, lang: 'en' | 'fr' | 'nl' | 'tr', deviceName: string, type: 'buyback' | 'repair' = 'buyback') => {
+export const getMagicLinkEmail = (email: string, magicLink: string, lang: 'en' | 'fr' | 'nl' | 'tr', deviceName: string, type: 'buyback' | 'repair' = 'buyback', id: string = 'QUOTE-SAVED') => {
     const isBuyback = type === 'buyback';
     const accentColor = isBuyback ? '#ca8a04' : '#4338ca'; // Darker yellow for text readability vs indigo
 
@@ -372,6 +372,6 @@ export const getMagicLinkEmail = (email: string, magicLink: string, lang: 'en' |
 
     return {
         subject: subjects[lang] || subjects['en'],
-        html: LAYOUT(htmlContent, lang, magicLink, t.cta, "QUOTE-SAVED", accentColor)
+        html: LAYOUT(htmlContent, lang, magicLink, t.cta, id, accentColor)
     };
 };

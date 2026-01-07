@@ -1681,5 +1681,11 @@
     "quote_saved_title": "Offerte Opgeslagen!",
     "quote_saved_desc": "We hebben uw schatting opgeslagen. U kunt op elk moment hervatten via uw e-mail.",
     "Save Price": "Prijs Opslaan",
-    "Save Quote": "Offerte Opslaan"
+    "Save Quote": "Offerte Opslaan",
+    "you_save": "U bespaart",
+    "got_it_thanks": "Begrepen, bedankt!",
+    "exit_intent_title": "Wacht! Verlies deze prijs niet.",
+    "exit_intent_desc": "Marktprijzen veranderen dagelijks. Sla uw schatting nu op en zet hem vast voor",
+    "save_my_price": "Mijn Prijs Opslaan",
+    "no_thanks_risk": "Nee bedankt, ik neem het risico"
 }
