@@ -11,6 +11,8 @@ import AddDeviceModal from '@/components/b2b/AddDeviceModal';
 import RepairRequestModal from '@/components/b2b/RepairRequestModal';
 import BulkFleetUploadModal from '@/components/b2b/BulkFleetUploadModal';
 import { PlusIcon, ArrowPathIcon, WrenchScrewdriverIcon, ArrowUpTrayIcon, DocumentArrowDownIcon } from '@/components/ui/BrandIcons';
+import { generatePDFFromPdfData, savePDFBlob } from '@/utils/pdfGenerator';
+import { mapFleetToPdfData } from '@/utils/b2bPdfMapper';
 
 export default function FleetPage() {
     const [loading, setLoading] = useState(true);
@@ -74,8 +76,7 @@ export default function FleetPage() {
     const handleGeneratePdf = async () => {
         if (!companyId) return;
         try {
-            const { generatePDFFromPdfData, savePDFBlob } = await import('@/utils/pdfGenerator');
-            const { mapFleetToPdfData } = await import('@/utils/b2bPdfMapper');
+            // Static imports used at top level
 
             // TODO: Fetch real company data. Using basic placeholder for now.
             // Fetch real company details

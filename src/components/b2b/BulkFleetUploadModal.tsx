@@ -3,7 +3,9 @@
 import React, { useState, useRef } from 'react';
 import { collection, doc, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { db } from '@/firebase';
-import { XMarkIcon, ArrowUpTrayIcon, DocumentTextIcon, CheckCircleIcon } from '@/components/ui/BrandIcons';
+import { ArrowUpTrayIcon, XMarkIcon, DocumentTextIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@/components/ui/BrandIcons';
+import Papa from 'papaparse';
+import { calculateFleetValue } from '@/app/_actions/b2b/pricing';
 
 interface BulkFleetUploadModalProps {
     isOpen: boolean;
@@ -112,8 +114,7 @@ export default function BulkFleetUploadModal({ isOpen, onClose, onSuccess, compa
             }
 
             // 2. Calculate Value (Server Side)
-            // Import dynamically to avoid build errors if file was just created
-            const { calculateFleetValue } = await import('@/app/_actions/b2b/pricing');
+            // Using static import now
             const pricedItems = await calculateFleetValue(data.map((d: any, i: number) => ({
                 id: `csv-${i}`,
                 brand: d.brand || 'Unknown',
