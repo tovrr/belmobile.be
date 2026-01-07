@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon, WrenchScrewdriverIcon, CurrencyEuroIcon, PowerIcon } from '@heroicons/react/24/outline';
 
 export default function KioskPage() {
-    const { user, loading } = useAuth();
+    const { user, profile, loading } = useAuth();
     const router = useRouter();
     const [mode, setMode] = useState<'select' | 'buy' | 'repair'>('select');
     const [resetTimer, setResetTimer] = useState(0);
@@ -109,6 +109,20 @@ export default function KioskPage() {
         );
     }
 
+    const handlePrint = async (data: any) => {
+        const { printKioskLabel } = await import('@/utils/printKioskLabel');
+        printKioskLabel({
+            type: data.type === 'buyback' ? 'BUYBACK' : 'REPAIR',
+            model: `${data.brand} ${data.model}`,
+            price: data.price ? `€${data.price}` : '€-',
+            orderId: `K-${Math.floor(Math.random() * 10000)}`, // Temp ID until real sync
+            date: new Date().toLocaleDateString('fr-BE')
+        });
+
+        // Auto-reset after print
+        setTimeout(() => setMode('select'), 5000);
+    };
+
     // Wizard Mode
     return (
         <div className="min-h-screen bg-white dark:bg-zinc-950 flex flex-col">
@@ -131,6 +145,11 @@ export default function KioskPage() {
                     isKiosk={true}
                     // Force start at step 1
                     initialCategory=""
+                    initialWizardProps={{
+                        shopId: profile?.shopId || 'kiosk-default',
+                        partnerId: profile?.uid
+                    }}
+                    onSuccess={handlePrint}
                 />
             </div>
         </div>

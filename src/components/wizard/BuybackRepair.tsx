@@ -58,9 +58,10 @@ interface BuybackRepairProps {
     initialWizardProps?: any;
     isWidget?: boolean;
     isKiosk?: boolean;
+    onSuccess?: (data: any) => void;
 }
 
-const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, hideStep1Title, initialCategory }) => {
+const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, hideStep1Title, initialCategory, onSuccess }) => {
     const { state, dispatch } = useWizard();
 
     const {
@@ -216,14 +217,24 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         nextLabel = t('Confirm Offer');
     }
 
-    const handleMobileNext = () => {
+    const handleMobileNext = async () => {
         if (state.isWidget) {
             handleNext();
             return;
         }
         const isFinalStep = (type === 'buyback' && step === 5) || (type === 'repair' && step === 4);
         if (isFinalStep) {
-            if (formRef.current) formRef.current.requestSubmit();
+            if (formRef.current) {
+                // Trigger native submit
+                formRef.current.requestSubmit();
+                // Optimistic Kiosk Print Trigger
+                if (onSuccess) onSuccess({
+                    brand: selectedBrand,
+                    model: selectedModel,
+                    price: sidebarEstimate,
+                    type: type
+                });
+            }
         } else {
             handleNext();
         }
@@ -232,7 +243,15 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     const handleDesktopNext = () => {
         const isFinalStep = (type === 'buyback' && step === 5) || (type === 'repair' && step === 4);
         if (isFinalStep) {
-            if (formRef.current) formRef.current.requestSubmit();
+            if (formRef.current) {
+                formRef.current.requestSubmit();
+                if (onSuccess) onSuccess({
+                    brand: selectedBrand,
+                    model: selectedModel,
+                    price: sidebarEstimate,
+                    type: type
+                });
+            }
         } else {
             handleNext();
         }

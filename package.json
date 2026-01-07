@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:turbo": "next dev --turbo",
+    "dev:webpack": "next dev --turbo=false",
     "build": "npm run generate-search-index && next build",
     "start": "next start",
     "lint": "eslint",
