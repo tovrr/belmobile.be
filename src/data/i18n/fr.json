@@ -1704,5 +1704,8 @@
     "exit_intent_title": "Attendez ! Ne perdez pas ce prix.",
     "exit_intent_desc": "Les prix du marché changent quotidiennement. Sauvegardez votre estimation maintenant et bloquez-la pendant",
     "save_my_price": "Sauvegarder mon Prix",
+    "Current Offer": "Offre Actuelle",
+    "Enter your email": "Entrez votre email",
+    "days": "jours",
     "no_thanks_risk": "Non merci, je prends le risque"
 }
