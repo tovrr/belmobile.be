@@ -34,6 +34,7 @@ This strategy enforces a **Safety-First Flow** to prevent "catastrophes", rollba
 2.  **Verify**:
     *   Go to **Vercel Dashboard** → **Project** → **Deployments**.
     *   Find the **Staging** deployment (top of list).
+    *   **Access PIN**: `2580` (If Vercel Auth is active, though we avoid it per rules).
     *   **Open the URL on your PHONE** (not just desktop simulator).
     *   *Check critical flows (Hero, Purchase, etc.).*
 
