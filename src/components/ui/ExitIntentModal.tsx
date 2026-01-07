@@ -21,11 +21,21 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
     const [savedToken, setSavedToken] = useState('');
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         setMounted(true);
+    }, []);
+
+    useEffect(() => {
         if (isOpen) {
             // Optional: Analytics event for 'Exit Intent Shown'
+
+            // Focus the input after a small delay to allow animation specifically
+            const timer = setTimeout(() => {
+                inputRef.current?.focus();
+            }, 100);
+            return () => clearTimeout(timer);
         }
     }, [isOpen]);
 
@@ -143,6 +153,7 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
                                                 <div className="relative">
                                                     <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                                                     <input
+                                                        ref={inputRef}
                                                         type="email"
                                                         required
                                                         placeholder={t('Enter your email')}
