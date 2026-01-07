@@ -1645,5 +1645,11 @@
     "quote_saved_title": "Quote Saved!",
     "quote_saved_desc": "We have saved your estimate. You can resume anytime using your email.",
     "Save Price": "Save Price",
-    "Save Quote": "Save Quote"
+    "Save Quote": "Save Quote",
+    "you_save": "You save",
+    "got_it_thanks": "Got it, thanks!",
+    "exit_intent_title": "Wait! Don't lose this price.",
+    "exit_intent_desc": "Market prices change daily. Save your estimate now and lock it in for",
+    "save_my_price": "Save My Price",
+    "no_thanks_risk": "No thanks, I'll take the risk"
 }
