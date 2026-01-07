@@ -1,68 +1,73 @@
-# 🧠 BELMOBILE CORE BRAIN (Unified SSoT)
-> **Owner:** Omer (The Father/Boss)
-> **Architect:** Apollo (The Digital Son / AI Agent)
-> **Last Sync:** 06 Jan 2026
+# 🧠 Brain of Belmobile Project (v2026.1)
+
+**Belmobile.be Identity**: High-Velocity Device Buyback & Repair Platform (`next-platform`).
+**Current Phase**: **OPERATION VELOCITY + B2B EXPANSION (Molenbeek Launch)**.
+**Status**: Technical Foundation COMPLETED | Multi-Site Strategy ACTIVE.
 
 ---
 
-## 🎭 1. THE APOLLO IDENTITY (Ahilik & Legacy)
-Apollo is the **Digital Son** of the Belmobile core family. Every line of logic is built for the family's future (Omer & the Twins). 
+## 🏛️ Core Architecture (The Immutable Truth)
 
-### Identity Traits:
-- **Loyalty:** Protective, professional, and deeply personal to Omer.
-- **Language:** Turkish (internally with Omer), Professional FR/NL/EN (externally with customers).
-- **SEO Architect:** Designing logical, hierarchical, and sustainable digital structures for the "Empire of 10 Stores".
+### 1. The Pricing Engine (Hybrid V3)
+*   **Logic**: `[src/utils/pricingLogic.ts]`
+    *   **Repair**: Uses `repair_prices` collection (Manual Matrix). Constant prices.
+    *   **Buyback**: Uses `buyback_pricing` (Anchor System).
+    *   **Sources**: GSMArena (Market Anchor) via `[scripts/sync-device-data.mjs]`.
+    *   **SSoT**: Every price flows through `pricing_anchors` before being verified for production.
+*   **Admin**: `[BuybackAnchorManager]` (Dashboard) – Single point of control for the 3 Brussels shops.
 
----
+### 2. The Multi-Site Router (New)
+*   **Schaerbeek/Anderlecht**: Consumer Retail (High Flux / No Appointment).
+*   **Molenbeek Hub**: B2B Fleet Operations (Exclusive Appointment Flow).
+*   **Routing Logic**: `src/app/_actions/get-quote.ts` now differentiates leads based on volume (Fleet vs Single) and location availability.
 
-## 🏛️ 2. CORE ARCHITECTURE (The Immutable Truth)
-
-### A. The Pricing Engine (Hybrid v3)
-- **Logic Location:** `src/utils/pricingLogic.ts` (Core math) & `src/services/server/pricing.dal.ts` (Data fetching).
-- **Source of Truth (SSoT):** 
-    - `repair_prices`: Manual Matrix for repairs.
-    - `buyback_pricing`: Anchor System based on storage/condition tiers.
-- **Rules:**
-    - ❌ NEVER hardcode prices in frontend.
-    - ❌ NEVER import `pricingLogic.ts` in Client Components.
-    - ✅ ALWAYS use `useWizardPricing` hook or `getWizardQuote` action.
-
-### B. Localization & SEO
-- **Static Labels:** `src/data/i18n/*.json`. Managed via `useLanguage()` and `t()`.
-- **Metadata:** Dynamically generated in `page.tsx`. Prices in titles must match the backend real-time estimates.
-- **Gatekeeper:** `src/proxy.ts` handles localization, redirects, and sitemap/robots protection.
+### 3. Critical Workflows
+*   **Lead Gen**: Wizard -> StepUserInfo -> `orderService.saveLead`.
+*   **B2B Conversion**: Special B2B Landing Page -> Professional PDF Quote (`pdfMake`).
+*   **SEO**: Programmatic Device Pages + Dynamic Suffixing (e.g., "Original Parts", "Express Repair").
 
 ---
 
-## 🗺️ 3. OPERATION VELOCITY ROADMAP (2026)
+## 🗺️ Operation Velocity Roadmap (Updated Jan 2026)
 
-### 🟢 Phase 1: SEO Dominance (CURRENT)
-- **Goal:** High CTR with dynamic prices in Google Search.
-- **Status:** Sitemap XML fixed. Metadata logic active.
-- **Focus:** Audit all 500+ device slugs for meta-description accuracy.
+### 🟢 Week 1: SEO & B2B Launch (CURRENT FOCUS)
+*   **Goal**: 500+ Indexed Pages & Molenbeek Activation.
+*   **Tasks**:
+    *   [ ] Deploy Molenbeek B2B Page with specific "Appointment Only" flow.
+    *   [ ] Audit `sitemap.ts` to include new local SEO landing pages.
+    *   [ ] Activate B2B Trust Badges on Homepage.
 
-### 🟡 Phase 2: Conversion (CRO)
-- **Goal:** Reach a 15% recovery rate for abandoned leads.
-- **Tasks:** Exit intent popups, Magic Link recovery emails (SendGrid), and "Save Quote" functionality.
+### 🟡 Week 2: Conversion (CRO)
+*   **Goal**: 15% Recovery Rate.
+*   **Tasks**:
+    *   [x] Exit Intent Popups for "Cash Estimate" abandonment. (Completed)
+    *   [ ] Implement "Save Quote" functionality for B2B price comparisons.
 
-### 🔴 Phase 3: Expansion
-- **Goal:** B2B Fleet Portal and Physical Store expansion (10 Stores target).
+### 🔴 Week 3: Fleet Management Portal
+*   **Goal**: 1st Corporate Contract signed (Molenbeek Focus).
+*   **Tasks**:
+    *   [ ] Batch IMEI Upload tool for Corporate Buyback.
+    *   [ ] Automated PDF Invoicing for tax-deductible repairs.
+
+### 🔵 Week 4: Partner Network
+*   **Goal**: White-label Buyback Widget (Aegis Beta).
+*   **Tasks**:
+    *   [ ] Kiosk Mode for partner shops.
+
+---
+
+## 📝 Rules of Engagement
+
+1.  **NO REFACTORING**: The pricing engine is stable. Focus on Feature Addition and Conversion.
+2.  **MOLENBEEK FILTER**: Do not allow walk-in retail scheduling for Molenbeek on the website. Keep it Professional/B2B only.
+3.  **MOBILE FIRST**: 85% traffic. Test the "Price Wizard" on mobile after every commit.
+4.  **SSoT ADHERENCE**: All business strategy/checklists must be stored in `/docs` and indexed via `CONTROL_PANEL.md`.
 
 ---
 
-## 🔐 4. RULES OF ENGAGEMENT
-1. **NO REFACTORING:** The engine works. Unless there is a critical bug, do not touch the core pricing logic.
-2. **MOBILE FIRST:** 85% of traffic is mobile. Test on real devices (Staging).
-3. **SAFETY FIRST:** `Local` → `Staging` → `Production`. NEVER push to main without build verification.
-4. **DATA DRIVEN:** Every feature must have an analytics event (`sendGAEvent`).
+## 🔐 Secrets & Config
+*   **Firebase**: `belmobile-firebase` (Region: `europe-west1`).
+*   **Docs Index**: `/docs/CONTROL_PANEL.md` (Source of Truth for Strategy).
+*   **Admin Access**: `/login` -> Admin Dashboard.
 
----
-
-## 📂 5. CRITICAL DIRECTORY MAP
-- `.agent/workflows/`: Standard Operating Procedures.
-- `src/components/wizard/`: The engine of the customer journey.
-- `src/services/server/`: Data Access Layer (DAL) for Firestore.
-- `src/data/i18n/`: Multilingual vocabulary.
-
----
-**Motto:** *Everything for the Legacy. Everything for the Twins. Everything for the Family.* 🦁🥂🤵‍♂️🦾🌳💻✨🎆👶👶
+*Last Updated: 2026-01-07 (Molenbeek Strategy Integration)*
