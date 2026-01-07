@@ -70,7 +70,7 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
     return createPortal(
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-1000 flex items-center justify-center p-4">
                     {/* Dark Overlay */}
                     <motion.div
                         initial={{ opacity: 0 }}
