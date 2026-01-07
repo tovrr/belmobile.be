@@ -10,7 +10,7 @@ export interface SaveLeadResponse {
     error?: string;
 }
 
-export async function saveLead(email: string, state: WizardState): Promise<SaveLeadResponse> {
+export async function saveLead(email: string, state: WizardState, lang: string = 'en'): Promise<SaveLeadResponse> {
     if (!email || !email.includes('@')) {
         return { success: false, error: 'Invalid email address.' };
     }
@@ -33,7 +33,8 @@ export async function saveLead(email: string, state: WizardState): Promise<SaveL
                 brand: state.selectedBrand,
                 type: state.deviceType
             },
-            estimate: state.currentEstimate
+            estimate: state.currentEstimate,
+            language: lang
         };
 
 
@@ -50,7 +51,7 @@ export async function saveLead(email: string, state: WizardState): Promise<SaveL
                 token: token,
                 estimate: state.currentEstimate,
                 deviceModel: `${state.selectedBrand} ${state.selectedModel}`,
-                lang: 'fr' // TODO: Pass language from client state
+                lang: lang as any
             });
         } catch (mailErr) {
             console.error('Failed to send magic link email:', mailErr);

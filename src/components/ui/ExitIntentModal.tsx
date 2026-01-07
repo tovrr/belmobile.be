@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, CheckCircle, Smartphone, AlertCircle } from 'lucide-react';
 import { useWizard } from '@/context/WizardContext';
+import { useLanguage } from '@/hooks/useLanguage';
 import { saveLead } from '@/app/_actions/lead';
 
 interface ExitIntentModalProps {
@@ -14,6 +15,7 @@ interface ExitIntentModalProps {
 
 export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
     const { state } = useWizard();
+    const { language } = useLanguage();
     const [mounted, setMounted] = useState(false);
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -32,7 +34,7 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
         setStatus('loading');
         setErrorMessage('');
 
-        const result = await saveLead(email, state);
+        const result = await saveLead(email, state, language);
 
         if (result.success && result.token) {
             setStatus('success');
@@ -50,6 +52,8 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
         localStorage.setItem('belmobile_exit_intent_dismissed', 'true');
         onClose();
     };
+
+    const { t } = useLanguage();
 
     if (!mounted) return null;
 
@@ -88,10 +92,10 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
                                         <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
                                     </div>
                                     <h3 className="mb-2 text-2xl font-bold text-slate-900 dark:text-white">
-                                        Quote Saved!
+                                        {t('quote_saved_title')}
                                     </h3>
                                     <p className="mb-6 text-slate-600 dark:text-slate-400">
-                                        We've secured your price estimate. Resume securely anytime using this code:
+                                        {t('quote_saved_desc')}
                                     </p>
                                     <div className="mb-6 rounded-lg border border-indigo-100 bg-indigo-50 p-4 text-center dark:border-indigo-900/50 dark:bg-indigo-900/20">
                                         <code className="text-xl font-mono font-bold tracking-widest text-indigo-600 dark:text-indigo-400">
@@ -102,7 +106,7 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
                                         onClick={handleClose}
                                         className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white transition hover:bg-indigo-700"
                                     >
-                                        Got it thanks!
+                                        {t('got_it_thanks')}
                                     </button>
                                 </div>
                             ) : (
@@ -119,17 +123,17 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
 
                                     <div className="text-center">
                                         <h2 className="mb-2 text-2xl font-bold text-slate-900 dark:text-white">
-                                            Wait! Don't lose this price.
+                                            {t('exit_intent_title') || "Wait! Don't lose this price."}
                                         </h2>
                                         <p className="mb-6 text-slate-600 dark:text-slate-400">
-                                            Market prices change daily. Save your estimate now and lock it in for <strong>7 days</strong>.
+                                            {t('exit_intent_desc')} <strong>7 {t('days')}</strong>.
                                         </p>
 
                                         {state.currentEstimate > 0 && (
                                             <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
                                                 <Smartphone className="h-4 w-4" />
                                                 <span className="font-semibold">
-                                                    Current Offer: €{state.currentEstimate}
+                                                    {t('Current Offer')}: €{state.currentEstimate}
                                                 </span>
                                             </div>
                                         )}
@@ -141,7 +145,7 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
                                                     <input
                                                         type="email"
                                                         required
-                                                        placeholder="Enter your email"
+                                                        placeholder={t('Enter your email')}
                                                         value={email}
                                                         onChange={(e) => setEmail(e.target.value)}
                                                         className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
@@ -160,7 +164,7 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
                                                 disabled={status === 'loading'}
                                                 className="w-full rounded-xl bg-indigo-600 py-3 font-bold text-white shadow-lg shadow-indigo-500/20 transition hover:bg-indigo-700 hover:shadow-indigo-500/30 disabled:opacity-70"
                                             >
-                                                {status === 'loading' ? 'Securing Check...' : 'Save My Price'}
+                                                {status === 'loading' ? t('Processing...') : t('save_my_price')}
                                             </button>
 
                                             <button
@@ -168,7 +172,7 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
                                                 onClick={handleClose}
                                                 className="text-sm font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                                             >
-                                                No thanks, I'll risk it
+                                                {t('no_thanks_risk')}
                                             </button>
                                         </form>
                                     </div>
