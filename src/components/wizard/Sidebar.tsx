@@ -110,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     });
 
     // Consolidate processing state
-    const isLoadingState = isSubmitting || isProcessing;
+    const isLoadingState = state.isSubmitting || isProcessing;
     const loadingText = processingText || t('Processing...');
 
     // Image Logic

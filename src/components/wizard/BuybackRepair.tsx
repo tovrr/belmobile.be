@@ -17,6 +17,7 @@ import { auth } from '../../firebase';
 import { signInAnonymously } from 'firebase/auth';
 import { useExitIntent } from '../../hooks/useExitIntent';
 import { ExitIntentModal } from '../ui/ExitIntentModal';
+import { ToastProvider } from '../ui/Toast';
 
 const ApolloLoader = () => (
     <div className="w-full h-96 rounded-4xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden relative">
@@ -376,7 +377,9 @@ const BuybackRepair: React.FC<BuybackRepairProps> = (props) => {
             isInitialized: !!props.initialWizardProps, // Mark as initialized if we have props (hydration)
             step: props.initialWizardProps?.step || ((props.initialDevice?.model && !['iphone', 'ipad', 'galaxy', 'pixels', 'switch'].includes(props.initialDevice.model.toLowerCase())) ? 3 : (props.initialDevice?.brand || props.initialCategory ? 2 : 1))
         }}>
-            <BuybackRepairInner {...props} />
+            <ToastProvider>
+                <BuybackRepairInner {...props} />
+            </ToastProvider>
         </WizardProvider>
     );
 };

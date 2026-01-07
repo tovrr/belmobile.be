@@ -125,7 +125,7 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyber-citron text-slate-900 font-black uppercase tracking-tighter text-[10px] mb-4 shadow-xl shadow-cyber-citron/20"
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-black uppercase tracking-tighter text-[10px] mb-4 shadow-xl ${mode === 'repair' ? 'bg-electric-indigo text-white shadow-electric-indigo/20' : 'bg-cyber-citron text-slate-900 shadow-cyber-citron/20'}`}
                     >
                         <BoltIcon className="w-3 h-3" />
                         <span>{t('apollo_engine_badge')}</span>
@@ -134,7 +134,7 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                     <h1 className="text-5xl font-black text-slate-900 dark:text-white mb-2 leading-tight tracking-tighter">
                         {titleTxt.t1}
                         <br />
-                        <span className="text-transparent bg-clip-text bg-linear-to-r from-cyber-citron to-lime-500">
+                        <span className={`text-transparent bg-clip-text bg-linear-to-r ${mode === 'repair' ? 'from-electric-indigo to-purple-500' : 'from-cyber-citron to-lime-500'}`}>
                             {titleTxt.t2}
                         </span>
                     </h1>
@@ -154,13 +154,13 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                         <div className="flex bg-slate-50 dark:bg-slate-950 p-1.5 gap-1.5 border-b border-slate-100 dark:border-slate-800 rounded-t-2xl">
                             <button
                                 onClick={() => { haptic.trigger('light'); setMode('repair'); }}
-                                className={`flex-1 py-3 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 active-press ${mode === 'repair' ? 'bg-white dark:bg-slate-900 text-electric-indigo shadow-md' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
+                                className={`flex-1 py-3 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 active-press ${mode === 'repair' ? 'bg-electric-indigo text-white shadow-lg shadow-electric-indigo/30' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
                             >
                                 {t('Repair')}
                             </button>
                             <button
                                 onClick={() => { haptic.trigger('light'); setMode('buyback'); }}
-                                className={`flex-1 py-3 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 active-press ${mode === 'buyback' ? 'bg-white dark:bg-slate-900 text-cyber-citron shadow-md' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
+                                className={`flex-1 py-3 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 active-press ${mode === 'buyback' ? 'bg-cyber-citron text-slate-900 shadow-lg shadow-cyber-citron/30' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
                             >
                                 {t('Buyback')}
                             </button>
@@ -169,8 +169,9 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                         <div className="p-5 space-y-5">
                             {/* Smart Search Bar - Input Optimized */}
                             <div className="relative" ref={searchRef}>
-                                <div className={`flex items-center bg-slate-50 dark:bg-slate-950 border-2 rounded-xl transition-all h-16 ${showResults && filteredDevices.length > 0 ? 'border-electric-indigo ring-4 ring-electric-indigo/10 rounded-b-none border-b-0'
-                                    : 'border-slate-100 dark:border-slate-800 focus-within:border-electric-indigo'
+                                <div className={`flex items-center bg-slate-50 dark:bg-slate-950 border-2 rounded-xl transition-all h-16 ring-offset-0 ${showResults && filteredDevices.length > 0
+                                    ? (mode === 'repair' ? 'border-electric-indigo ring-4 ring-electric-indigo/10 rounded-b-none border-b-0' : 'border-cyber-citron ring-4 ring-cyber-citron/10 rounded-b-none border-b-0')
+                                    : `border-slate-100 dark:border-slate-800 ${mode === 'repair' ? 'focus-within:border-electric-indigo' : 'focus-within:border-cyber-citron'}`
                                     }`}>
                                     <div className="pl-4 text-slate-400 shrink-0">
                                         <SearchIcon className="w-6 h-6" />
@@ -205,7 +206,7 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                                             initial={{ opacity: 0, scaleY: 0.95 }}
                                             animate={{ opacity: 1, scaleY: 1 }}
                                             exit={{ opacity: 0, scaleY: 0.95 }}
-                                            className="absolute top-full left-0 right-0 bg-white dark:bg-slate-950 border-2 border-t-0 border-electric-indigo rounded-b-xl shadow-2xl overflow-hidden z-50 origin-top max-h-[300px] overflow-y-auto"
+                                            className={`absolute top-full left-0 right-0 bg-white dark:bg-slate-950 border-2 border-t-0 rounded-b-xl shadow-2xl overflow-hidden z-50 origin-top max-h-[300px] overflow-y-auto ${mode === 'repair' ? 'border-electric-indigo' : 'border-cyber-citron'}`}
                                         >
                                             {filteredDevices.map((device, idx) => (
                                                 <button
@@ -292,7 +293,9 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                                     ? (mode === 'repair'
                                         ? 'bg-electric-indigo text-white shadow-electric-indigo/40'
                                         : 'bg-cyber-citron text-slate-900 shadow-cyber-citron/40')
-                                    : 'bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-700 grayscale pointer-events-none'
+                                    : (mode === 'repair'
+                                        ? 'bg-electric-indigo/10 text-electric-indigo/40 dark:bg-electric-indigo/20 dark:text-electric-indigo/50 pointer-events-none'
+                                        : 'bg-cyber-citron/10 text-cyber-citron/40 dark:bg-cyber-citron/20 dark:text-cyber-citron/50 pointer-events-none')
                                     }`}
                             >
                                 {isAnimating ? (

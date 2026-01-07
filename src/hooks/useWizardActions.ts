@@ -11,6 +11,7 @@ import { useData } from './useData';
 import { useShop } from './useShop';
 import * as Sentry from "@sentry/nextjs";
 import { sendGAEvent } from '../utils/analytics';
+import { useToast } from '../components/ui/Toast';
 
 const BRAND_DATA_CACHE = new Set<string>();
 
@@ -21,6 +22,7 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
     const { language: lang, t } = useLanguage();
     const { sendEmail } = useData();
     const [isPending, startTransition] = useTransition();
+    const { showToast } = useToast();
 
     const getLocalizedTypeSlug = useCallback((currentType: 'buyback' | 'repair') => {
         if (currentType === 'repair') {
@@ -246,7 +248,8 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                 data: { brand: state.selectedBrand, model: state.selectedModel, type }
             });
 
-            dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: true } });
+            // Start Submission Feedback
+            dispatch({ type: 'SET_UI_STATE', payload: { isSubmitting: true } });
 
             // Use Server-Calculated Estimate (SSOT) instead of client-side math
             const price = state.currentEstimate;
@@ -284,8 +287,9 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
 
         } catch (error: any) {
             console.error('Submission error:', error);
-            alert(t('error_submitting_order'));
-            dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: false } });
+            console.error('Submission error:', error);
+            showToast('error', t('error_submitting_order'), t('please_try_again'));
+            dispatch({ type: 'SET_UI_STATE', payload: { isSubmitting: false } });
         }
         // Note: isTransitioning is NOT set to false in finally because we want the spinner 
         // to persist until the next page (TrackOrder) loads and takes over.
