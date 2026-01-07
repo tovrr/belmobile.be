@@ -64,7 +64,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             });
         });
 
-        // 2. Blog Posts (Content Authority)
+        // 2. Store Profiles (Local SEO Pillars)
+        const storesPath = { fr: 'magasins', nl: 'winkels', tr: 'magazalar', en: 'stores' };
+        LOCATIONS.forEach(loc => {
+            LANGUAGES.forEach(lang => {
+                // Determine layout path segment: /stores/ or /magasins/
+                // Note: If no middleware rewrite exists, we might need to stick to /stores/ everywhere.
+                // Based on Step 2431 decision, let's use the english path 'stores' if that's the folder name,
+                // OR check if dynamic routing handles localized slugs.
+                // Assuming /stores/[slug] handles the lookup via slug.
+
+                const locSlug = loc.slugs[lang] || loc.id;
+                // Currently folder is src/app/[lang]/stores/[slug] so /stores/ is hardcoded in folder name?
+                // Let's assume standard Next.js routing: /[lang]/stores/[slug]
+
+                // Correction: If the static page "stores" uses "slugs: { fr: 'stores' }", then it is English path.
+
+                sitemapEntries.push({
+                    url: `${BASE_URL}/${lang}/stores/${locSlug}`,
+                    lastModified: lastmodStatic,
+                    changeFrequency: 'weekly',
+                    priority: 0.9,
+                    alternates: {
+                        languages: Object.fromEntries(
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/stores/${loc.slugs[l] || loc.id}`])
+                        )
+                    }
+                });
+            });
+        });
+
+        // 3. Blog Posts (Content Authority)
         MOCK_BLOG_POSTS.forEach(post => {
             LANGUAGES.forEach(lang => {
                 const currentSlug = (post.slugs as any)?.[lang] || post.slug || post.id;
