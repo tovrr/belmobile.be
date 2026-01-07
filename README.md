@@ -62,7 +62,7 @@ All markdown files have been organized into the `/docs` (or `.agent`) directory:
 │   ├── 📂 components/      # UI (Admin, Wizard, Walk-in)
 │   ├── 📂 data/            # SSoT Mappings (gsmarena-links.ts)
 │   ├── 📂 utils/           # Business Logic (Price Calculators, PDF)
-└── 📜 CONTROL_PANEL.md     # 🎛️ The Master Index for all Docs
+└── 📜 .agent/CONTROL_PANEL.md     # 🎛️ The Master Index for all Docs
 ```
 
 ## 📊 Administrative Dashboard
