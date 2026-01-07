@@ -33,11 +33,22 @@ export default async function ResumePage(props: any) { // Type 'any' for props d
             return notFound();
         }
 
-        // Fetch lead from Firestore
-        const docRef = await adminDb.collection('leads').doc(token).get();
+        // Fetch lead from Firestore (Legacy)
+        let docRef = await adminDb.collection('leads').doc(token).get();
 
         if (docRef.exists) {
             data = docRef.data();
+        } else {
+            // Check 'quotes' collection (New Standard)
+            docRef = await adminDb.collection('quotes').doc(token).get();
+            if (docRef.exists) {
+                const quoteData = docRef.data();
+                // Map quote data to legacy format expected by loader
+                data = {
+                    ...quoteData,
+                    wizardState: JSON.stringify(quoteData?.state) // Convert object state to string for loader
+                };
+            }
         }
     } catch (error) {
         console.error("Error fetching resume token:", error);
