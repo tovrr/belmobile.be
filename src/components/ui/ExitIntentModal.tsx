@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, CheckCircle, Smartphone, AlertCircle } from 'lucide-react';
 import { useWizard } from '@/context/WizardContext';
 import { useLanguage } from '@/hooks/useLanguage';
-import { saveLead } from '@/app/_actions/lead';
+import { saveQuote } from '@/app/_actions/save-quote';
 
 interface ExitIntentModalProps {
     isOpen: boolean;
@@ -44,11 +44,11 @@ export const ExitIntentModal = ({ isOpen, onClose }: ExitIntentModalProps) => {
         setStatus('loading');
         setErrorMessage('');
 
-        const result = await saveLead(email, state, language);
+        const result = await saveQuote(email, state, language);
 
-        if (result.success && result.token) {
+        if (result.success && result.quoteId) {
             setStatus('success');
-            setSavedToken(result.token);
+            setSavedToken(result.quoteId);
             // Optional: Cookie to prevent showing again
             localStorage.setItem('belmobile_exit_intent_dismissed', 'true');
         } else {

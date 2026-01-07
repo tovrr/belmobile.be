@@ -72,7 +72,7 @@ export async function saveQuote(
 
             const magicLink = `${baseUrl}/${lang}/resume/${quoteId}`;
             const deviceName = `${state.selectedBrand} ${state.selectedModel}`;
-            const emailData = getMagicLinkEmail(email, magicLink, lang, deviceName, inferredType);
+            const emailData = getMagicLinkEmail(email, magicLink, lang, deviceName, inferredType, quoteId);
 
             await serverEmailService.sendEmail(email, emailData.subject, emailData.html);
             console.log(`[SaveQuote] Email sent to ${email}`);
