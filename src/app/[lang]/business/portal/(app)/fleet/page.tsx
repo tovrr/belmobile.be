@@ -10,7 +10,7 @@ import { FleetDevice } from '@/types/models';
 import AddDeviceModal from '@/components/b2b/AddDeviceModal';
 import RepairRequestModal from '@/components/b2b/RepairRequestModal';
 import BulkFleetUploadModal from '@/components/b2b/BulkFleetUploadModal';
-import { PlusIcon, ArrowPathIcon, WrenchScrewdriverIcon, ArrowUpTrayIcon } from '@/components/ui/BrandIcons';
+import { PlusIcon, ArrowPathIcon, WrenchScrewdriverIcon, ArrowUpTrayIcon, DocumentArrowDownIcon } from '@/components/ui/BrandIcons';
 
 export default function FleetPage() {
     const [loading, setLoading] = useState(true);
@@ -71,6 +71,35 @@ export default function FleetPage() {
         );
     };
 
+    const handleGeneratePdf = async () => {
+        if (!companyId) return;
+        try {
+            const { generatePDFFromPdfData, savePDFBlob } = await import('@/utils/pdfGenerator');
+            const { mapFleetToPdfData } = await import('@/utils/b2bPdfMapper');
+
+            // TODO: Fetch real company data. Using basic placeholder for now.
+            const companyData = {
+                id: companyId,
+                name: 'My Company',
+                vatNumber: 'N/A',
+                billingAddress: { street: 'Main St', number: '1', zip: '1000', city: 'Brussels', country: 'BE' },
+                contactEmail: 'user@example.com',
+                deliveryAddresses: [],
+                contractTier: 'standard' as const,
+                priceMultiplier: 1,
+                createdAt: new Date()
+            };
+
+            const pdfData = mapFleetToPdfData(devices, companyData, 'FLEET VALUATION');
+            const { blob } = await generatePDFFromPdfData(pdfData, 'Fleet_Valuation');
+            savePDFBlob(blob, `Fleet_Valuation_${new Date().toISOString().split('T')[0]}.pdf`);
+
+        } catch (error) {
+            console.error("Failed to generate PDF:", error);
+            alert("Could not generate PDF.");
+        }
+    };
+
     const selectedDevices = devices.filter(d => selectedDeviceIds.includes(d.id));
 
     if (loading) {
@@ -98,6 +127,13 @@ export default function FleetPage() {
                             Request Repair ({selectedDeviceIds.length})
                         </button>
                     )}
+                    <button
+                        onClick={handleGeneratePdf}
+                        className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all group"
+                    >
+                        <DocumentArrowDownIcon className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+                        Export PDF
+                    </button>
                     <button
                         onClick={() => setIsBulkModalOpen(true)}
                         className="flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all group"
