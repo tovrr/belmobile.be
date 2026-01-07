@@ -126,7 +126,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
             const { findDefaultBrandCategory } = require('../../utils/deviceLogic');
             const defaultMatch = findDefaultBrandCategory(createSlug(state.selectedBrand));
             if (defaultMatch) {
-                console.log(`[BuybackRepair] Inferred category '${defaultMatch.deviceType}' for brand '${state.selectedBrand}'`);
+                // console.log(`[BuybackRepair] Inferred category '${defaultMatch.deviceType}' for brand '${state.selectedBrand}'`);
                 dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: defaultMatch.deviceType } });
             }
         }
