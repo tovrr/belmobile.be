@@ -15,8 +15,7 @@ import { useWizardPricing } from '../../hooks/useWizardPricing';
 import { orderService } from '../../services/orderService';
 import { auth } from '../../firebase';
 import { signInAnonymously } from 'firebase/auth';
-import { useExitIntent } from '../../hooks/useExitIntent';
-import { ExitIntentModal } from '../ui/ExitIntentModal';
+import { WizardExitIntent } from '../features/WizardExitIntent';
 
 const ApolloLoader = () => (
     <div className="w-full h-96 rounded-4xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden relative">
@@ -238,22 +237,11 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         }
     }
 
-    // EXIT INTENT LOGIC
-    const [showExitModal, setShowExitModal] = React.useState(false);
 
-    useExitIntent({
-        enabled: step >= 2 && !state.isWidget && !state.isKiosk, // Only trigger if user is invested (Step 2+)
-        onExit: () => {
-            // Check local storage to prevent annoyance
-            if (typeof window !== 'undefined' && !localStorage.getItem('belmobile_exit_intent_dismissed')) {
-                setShowExitModal(true);
-            }
-        }
-    });
 
     return (
         <div className={`w-full ${state.isWidget ? 'py-0' : 'pb-32'}`}>
-            <ExitIntentModal isOpen={showExitModal} onClose={() => setShowExitModal(false)} />
+            <WizardExitIntent />
 
             <StepIndicator step={step} type={type} t={t} isWidget={state.isWidget} />
 
