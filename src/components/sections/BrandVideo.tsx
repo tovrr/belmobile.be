@@ -136,11 +136,11 @@ const BrandVideo: React.FC = () => {
                         </div>
                         <div className="flex flex-col items-center group">
                             <span className="text-2xl font-black text-red-600 dark:text-red-500 tracking-tighter">Test-Achats</span>
-                            <span className="text-[10px] font-bold uppercase tracking-widest bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded-full mt-1">Certified</span>
+                            <span className="text-[10px] font-bold uppercase tracking-widest bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded-full mt-1">{t('Coming Soon')}</span>
                         </div>
                         <div className="flex flex-col items-center group">
-                            <span className="text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tighter">Repair.org</span>
-                            <span className="text-[10px] font-bold uppercase tracking-widest bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded-full mt-1">Member</span>
+                            <span className="text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tighter">Repair.eu</span>
+                            <span className="text-[10px] font-bold uppercase tracking-widest bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded-full mt-1">{t('Coming Soon')}</span>
                         </div>
                     </div>
                 </div>

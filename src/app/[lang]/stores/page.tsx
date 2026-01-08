@@ -105,8 +105,7 @@ export default async function StoresPage({ params, searchParams }: PageProps) {
 
     return (
         <div className="min-h-screen bg-transparent">
-            {/* Inject Schema via SchemaMarkup */}
-            <SchemaMarkup type="organization" />
+
 
             {/* Full width layout for Map + Sidebar */}
             <StoresLayout

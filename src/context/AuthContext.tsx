@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                             setProfile({ ...profileData, uid: currentUser.uid });
                         } else {
                             if (isOwner) {
-                                console.log('[Auth] Creating FRESH super_admin for OWNER:', userEmail);
+                                // console.log('[Auth] Creating FRESH super_admin for OWNER:', userEmail);
                                 const freshProfile: AdminProfile = {
                                     uid: currentUser.uid,
                                     email: userEmail!,
@@ -91,7 +91,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                                 await setDoc(doc(db, 'users', currentUser.uid), freshProfile);
                                 setProfile(freshProfile);
                             } else {
-                                console.warn('[Auth] No admin profile for:', userEmail);
+                                // console.warn('[Auth] No admin profile for:', userEmail);
                                 setProfile(null);
                             }
                         }

@@ -9,7 +9,7 @@
 ### 1. The "10-Shop" Service Point Network
 - **Strategy:** Transition from a "Local Shop" model to a "Service Point Network".
 - **Action:** Active recruitment of repair shop partners using the new "Become a Belmobile Service Point" portal.
-- **KPI:** Secure the first 5 partner locations in major Belgian cities (Antwerp, Ghent, Charleroi).
+- **KPI:** Secure the first 5 partner locations in major Belgian cities (Antwerp, Ghent, Charleroi) and **Active Molenbeek B2B Hub**.
 
 ### 2. Belmobile Academy Scaling
 - **Strategy:** Monetize expertise.

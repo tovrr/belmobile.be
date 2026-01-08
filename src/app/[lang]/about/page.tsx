@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getFixedT } from '../../../utils/i18n-server';
+import SchemaMarkup from '../../../components/seo/SchemaMarkup';
 import {
     HeartIcon,
     SparklesIcon,
@@ -63,6 +64,13 @@ export default async function AboutPage({ params }: PageProps) {
 
     return (
         <div className="bg-slate-50 dark:bg-black min-h-screen">
+            <SchemaMarkup
+                type="breadcrumb"
+                breadcrumbs={[
+                    { name: t('Home_link') || "Home", item: `https://belmobile.be/${lang}` },
+                    { name: t('About Us') || "About Us", item: `https://belmobile.be/${lang}/about` }
+                ]}
+            />
             {/* Hero Section */}
             <div className="relative text-white py-24 sm:py-32 overflow-hidden">
                 <div className="absolute inset-0 bg-slate-900 z-0">

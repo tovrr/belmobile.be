@@ -16,6 +16,8 @@ import { orderService } from '../../services/orderService';
 import { auth } from '../../firebase';
 import { signInAnonymously } from 'firebase/auth';
 import { WizardExitIntent } from '../features/WizardExitIntent';
+import { ToastProvider } from '../ui/Toast';
+import { useWizardSEO } from '../../hooks/useWizardSEO';
 
 const ApolloLoader = () => (
     <div className="w-full h-96 rounded-4xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden relative">
@@ -79,6 +81,17 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     const { handleNext, handleBack, handleModelSelect, loadBrandData, handleSubmit } = useWizardActions(type);
     const { sidebarEstimate, buybackEstimate, repairEstimates, loading: pricingLoading, dynamicRepairPrices, getSingleIssuePrice } = useWizardPricing(type);
 
+    // --- SEO & META MANAGEMENT ---
+    const { breadcrumbList, softwareApp } = useWizardSEO({
+        type,
+        step,
+        selectedBrand: selectedBrand || undefined,
+        selectedModel: selectedModel || undefined,
+        deviceCategory: deviceType || undefined,
+        estimateDisplay: type === 'buyback' ? buybackEstimate : sidebarEstimate,
+        loading: pricingLoading
+    });
+
     const formRef = useRef<HTMLFormElement>(null);
     const modelSelectRef = useRef<HTMLDivElement>(null);
 
@@ -125,7 +138,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
             const { findDefaultBrandCategory } = require('../../utils/deviceLogic');
             const defaultMatch = findDefaultBrandCategory(createSlug(state.selectedBrand));
             if (defaultMatch) {
-                console.log(`[BuybackRepair] Inferred category '${defaultMatch.deviceType}' for brand '${state.selectedBrand}'`);
+                // console.log(`[BuybackRepair] Inferred category '${defaultMatch.deviceType}' for brand '${state.selectedBrand}'`);
                 dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: defaultMatch.deviceType } });
             }
         }
@@ -242,6 +255,16 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     return (
         <div className={`w-full ${state.isWidget ? 'py-0' : 'pb-32'}`}>
             <WizardExitIntent />
+
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@graph": [breadcrumbList, softwareApp]
+                    })
+                }}
+            />
 
             <StepIndicator step={step} type={type} t={t} isWidget={state.isWidget} />
 
@@ -364,7 +387,9 @@ const BuybackRepair: React.FC<BuybackRepairProps> = (props) => {
             isInitialized: !!props.initialWizardProps, // Mark as initialized if we have props (hydration)
             step: props.initialWizardProps?.step || ((props.initialDevice?.model && !['iphone', 'ipad', 'galaxy', 'pixels', 'switch'].includes(props.initialDevice.model.toLowerCase())) ? 3 : (props.initialDevice?.brand || props.initialCategory ? 2 : 1))
         }}>
-            <BuybackRepairInner {...props} />
+            <ToastProvider>
+                <BuybackRepairInner {...props} />
+            </ToastProvider>
         </WizardProvider>
     );
 };

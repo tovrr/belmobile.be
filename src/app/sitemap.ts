@@ -33,10 +33,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         // 1. Static Pages (High Priority Infrastructure)
         const pages = [
             { id: 'home', priority: 1.0, changeFreq: 'daily', slugs: { en: '', fr: '', nl: '', tr: '' } },
-            { id: 'services', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'services', fr: 'services', nl: 'diensten', tr: 'hizmetler' } },
-            { id: 'stores', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'stores', fr: 'magasins', nl: 'winkels', tr: 'magazalar' } },
-            { id: 'about', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'about', fr: 'a-propos', nl: 'over-ons', tr: 'hakkimizda' } },
-            { id: 'contact', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'contact', fr: 'contact', nl: 'contact', tr: 'iletisim' } },
+            { id: 'services', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'services', fr: 'services', nl: 'services', tr: 'services' } }, // Safe fallback
+            { id: 'stores', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'stores', fr: 'stores', nl: 'stores', tr: 'stores' } },
+            { id: 'about', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'about', fr: 'about', nl: 'about', tr: 'about' } },
+            { id: 'contact', priority: 0.6, changeFreq: 'monthly', slugs: { en: 'contact', fr: 'contact', nl: 'contact', tr: 'contact' } },
+            // New High Value Pages
+            { id: 'business', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'business', fr: 'business', nl: 'business', tr: 'business' } },
+            { id: 'franchise', priority: 0.8, changeFreq: 'monthly', slugs: { en: 'franchise', fr: 'franchise', nl: 'franchise', tr: 'franchise' } },
+            { id: 'formation', priority: 0.8, changeFreq: 'monthly', slugs: { en: 'formation', fr: 'formation', nl: 'formation', tr: 'formation' } },
+            { id: 'express-courier', priority: 0.8, changeFreq: 'monthly', slugs: { en: 'express-courier', fr: 'express-courier', nl: 'express-courier', tr: 'express-courier' } },
+            { id: 'faq', priority: 0.7, changeFreq: 'monthly', slugs: { en: 'faq', fr: 'faq', nl: 'faq', tr: 'faq' } },
+            { id: 'track-order', priority: 0.7, changeFreq: 'daily', slugs: { en: 'track-order', fr: 'track-order', nl: 'track-order', tr: 'track-order' } },
+            { id: 'warranty', priority: 0.5, changeFreq: 'yearly', slugs: { en: 'warranty', fr: 'warranty', nl: 'warranty', tr: 'warranty' } },
+            // Major Category Hubs (The Roots)
+            { id: 'repair-home', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'repair', fr: 'reparation', nl: 'reparatie', tr: 'onarim' } },
+            { id: 'buyback-home', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'buyback', fr: 'rachat', nl: 'inkoop', tr: 'geri-alim' } },
+            { id: 'blog-index', priority: 0.7, changeFreq: 'weekly', slugs: { en: 'blog', fr: 'blog', nl: 'blog', tr: 'blog' } },
+            { id: 'catalogue', priority: 0.8, changeFreq: 'weekly', slugs: { en: 'products', fr: 'produits', nl: 'producten', tr: 'urunler' } },
         ];
 
         pages.forEach(page => {
@@ -56,7 +69,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             });
         });
 
-        // 2. Blog Posts (Content Authority)
+        // 2. Store Profiles (Local SEO Pillars)
+        const storesPath = { fr: 'magasins', nl: 'winkels', tr: 'magazalar', en: 'stores' };
+        LOCATIONS.forEach(loc => {
+            LANGUAGES.forEach(lang => {
+                // Determine layout path segment: /stores/ or /magasins/
+                // Note: If no middleware rewrite exists, we might need to stick to /stores/ everywhere.
+                // Based on Step 2431 decision, let's use the english path 'stores' if that's the folder name,
+                // OR check if dynamic routing handles localized slugs.
+                // Assuming /stores/[slug] handles the lookup via slug.
+
+                const locSlug = loc.slugs[lang] || loc.id;
+                // Currently folder is src/app/[lang]/stores/[slug] so /stores/ is hardcoded in folder name?
+                // Let's assume standard Next.js routing: /[lang]/stores/[slug]
+
+                // Correction: If the static page "stores" uses "slugs: { fr: 'stores' }", then it is English path.
+
+                sitemapEntries.push({
+                    url: `${BASE_URL}/${lang}/stores/${locSlug}`,
+                    lastModified: lastmodStatic,
+                    changeFrequency: 'weekly',
+                    priority: 0.9,
+                    alternates: {
+                        languages: Object.fromEntries(
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/stores/${loc.slugs[l] || loc.id}`])
+                        )
+                    }
+                });
+            });
+        });
+
+        // 3. Blog Posts (Content Authority)
         MOCK_BLOG_POSTS.forEach(post => {
             LANGUAGES.forEach(lang => {
                 const currentSlug = (post.slugs as any)?.[lang] || post.slug || post.id;

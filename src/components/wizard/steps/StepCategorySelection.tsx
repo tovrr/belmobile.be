@@ -156,21 +156,44 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                                 ? "Sell Your Smartphone, Tablet, or Laptop at the Best Price"
                                 : "Professional Repair for Smartphone, Tablet, or Laptop"}
                         </span>
-                        <span aria-hidden="true">
-                            {type === 'buyback' ? t('wizard_action_sell') : t('wizard_action_repair')}
-                        </span>
-                        <span aria-hidden="true" className={`${type === 'buyback' ? 'text-bel-yellow drop-shadow-sm' : 'text-bel-blue'} mt-2 sm:mt-0 sm:ml-3 relative inline-flex justify-start min-h-[1.2em] align-top`}>
-                            <TypewriterInput
-                                phrases={[
-                                    t('typewriter_1'),
-                                    t('typewriter_2'),
-                                    t('typewriter_3'),
-                                    t('typewriter_4'),
-                                    t('typewriter_5'),
-                                ]}
-                                className=""
-                            />
-                        </span>
+                        {/* Conditional Rendering for Turkish Grammar (Object + Verb) */}
+                        {useLanguage().language === 'tr' ? (
+                            <>
+                                <span aria-hidden="true" className={`${type === 'buyback' ? 'text-bel-yellow drop-shadow-sm' : 'text-bel-blue'} mb-2 sm:mb-0 sm:mr-3 relative inline-flex justify-start min-h-[1.2em] align-top`}>
+                                    <TypewriterInput
+                                        phrases={[
+                                            t('typewriter_1'),
+                                            t('typewriter_2'),
+                                            t('typewriter_3'),
+                                            t('typewriter_4'),
+                                            t('typewriter_5'),
+                                        ]}
+                                        className=""
+                                    />
+                                </span>
+                                <span aria-hidden="true">
+                                    {type === 'buyback' ? t('wizard_action_sell') : t('wizard_action_repair')}
+                                </span>
+                            </>
+                        ) : (
+                            <>
+                                <span aria-hidden="true">
+                                    {type === 'buyback' ? t('wizard_action_sell') : t('wizard_action_repair')}
+                                </span>
+                                <span aria-hidden="true" className={`${type === 'buyback' ? 'text-bel-yellow drop-shadow-sm' : 'text-bel-blue'} mt-2 sm:mt-0 sm:ml-3 relative inline-flex justify-start min-h-[1.2em] align-top`}>
+                                    <TypewriterInput
+                                        phrases={[
+                                            t('typewriter_1'),
+                                            t('typewriter_2'),
+                                            t('typewriter_3'),
+                                            t('typewriter_4'),
+                                            t('typewriter_5'),
+                                        ]}
+                                        className=""
+                                    />
+                                </span>
+                            </>
+                        )}
                     </h2>
                     <p className="text-xl text-gray-500 dark:text-gray-400 font-medium">
                         {t(type === 'buyback' ? 'buyback_step1_title' : 'repair_step1_title')}

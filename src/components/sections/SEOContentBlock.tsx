@@ -85,10 +85,22 @@ const SEOContentBlock: React.FC<SEOContentBlockProps> = ({ variant = 'aegis' }) 
 
                 <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                     {[
-                        { label: isTr ? "Orijinal Parça" : "Original Parts", val: "100%" },
-                        { label: isTr ? "Mutlu Müşteri" : "Happy Clients", val: "10k+" },
-                        { label: isTr ? "Yıllık Tecrübe" : "Years Exp.", val: "12+" },
-                        { label: isTr ? "Garanti" : "Warranty", val: "1 Year" },
+                        {
+                            label: isFr ? "Pièces d'origine" : isNl ? "Originele Onderdelen" : isTr ? "Orijinal Parça" : "Original Parts",
+                            val: "100%"
+                        },
+                        {
+                            label: isFr ? "Clients Satisfaits" : isNl ? "Tevreden Klanten" : isTr ? "Mutlu Müşteri" : "Happy Clients",
+                            val: "10k+"
+                        },
+                        {
+                            label: isFr ? "Ans d'Expérience" : isNl ? "Jaren Ervaring" : isTr ? "Yıllık Tecrübe" : "Years Exp.",
+                            val: "12+"
+                        },
+                        {
+                            label: isFr ? "Garantie" : isNl ? "Garantie" : isTr ? "Garanti" : "Warranty",
+                            val: isFr ? "1 An" : isNl ? "1 Jaar" : isTr ? "1 Yıl" : "1 Year"
+                        },
                     ].map((stat, i) => (
                         <div key={i} className="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl">
                             <div className={`text-2xl font-black ${variant === 'apollo' ? 'text-cyber-citron' : 'text-electric-indigo'}`}>{stat.val}</div>

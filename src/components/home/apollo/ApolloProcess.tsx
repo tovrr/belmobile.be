@@ -64,6 +64,7 @@ const ApolloProcess: React.FC<ApolloProcessProps> = ({ mode }) => {
     return (
         <section className="py-10 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
             <div className="container mx-auto px-4">
+                <h2 className="sr-only">{language === 'fr' ? 'Comment ça marche ?' : 'How it works'}</h2>
                 <div className="grid grid-cols-3 gap-2">
                     {steps.map((step: any, idx: number) => (
                         <div key={idx} className="flex flex-col items-center text-center p-2 group">
@@ -74,7 +75,7 @@ const ApolloProcess: React.FC<ApolloProcessProps> = ({ mode }) => {
                                 <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity ${mode === 'buyback' ? 'bg-bel-yellow/10' : 'bg-bel-blue/10'}`} />
                                 {React.cloneElement(step.icon as React.ReactElement<any>, { className: "w-6 h-6 relative z-10" })}
                             </div>
-                            <h4 className="text-[12px] font-black text-slate-900 dark:text-white uppercase leading-tight mb-1 tracking-tighter">{step.title}</h4>
+                            <h3 className="text-[12px] font-black text-slate-900 dark:text-white uppercase leading-tight mb-1 tracking-tighter">{step.title}</h3>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-none opacity-80">{step.desc}</p>
                         </div>
                     ))}

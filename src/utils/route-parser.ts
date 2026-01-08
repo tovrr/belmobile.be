@@ -2,10 +2,11 @@ import { SERVICES } from '@/data/services';
 import { LOCATIONS, Location } from '@/data/locations';
 import { DEVICE_TYPES } from '@/constants';
 import { findDefaultBrandCategory } from '@/utils/deviceLogic';
+import { createSlug } from '@/utils/slugs';
 
 export const parseRouteParams = (slug: string[]) => {
-    const firstSegment = slug[0];
-    const service = SERVICES.find(s => Object.values(s.slugs).includes(firstSegment));
+    const firstSegment = slug && slug.length > 0 ? slug[0].toLowerCase() : '';
+    const service = SERVICES.find(s => Object.values(s.slugs).some(slugVal => slugVal.toLowerCase() === firstSegment));
 
     if (!service) return null;
 
@@ -47,7 +48,8 @@ export const parseRouteParams = (slug: string[]) => {
     // 2. Parse device/model/category from remaining segments
     if (segments.length > 0) {
         const seg1 = segments[0];
-        const foundCat = DEVICE_TYPES.find(d => d.id === seg1);
+        // Robust check: match exact ID OR slugified ID (e.g. 'console_home' matched by 'console-home')
+        const foundCat = DEVICE_TYPES.find(d => d.id === seg1 || createSlug(d.id) === seg1);
         if (foundCat) {
             deviceCategory = foundCat.id;
             // Check if next segment is a Brand

@@ -81,6 +81,9 @@ export interface WizardState {
     // Server-Calculated Estimate (SSOT)
     currentEstimate: number;
     priceBreakdown: any;
+
+    // Feedback State
+    isSubmitting: boolean;
 }
 
 const initialState: WizardState = {
@@ -136,6 +139,7 @@ const initialState: WizardState = {
     isKiosk: false,
     currentEstimate: 0,
     priceBreakdown: {},
+    isSubmitting: false,
 };
 
 /**

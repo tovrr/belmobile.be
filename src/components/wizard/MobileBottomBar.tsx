@@ -80,7 +80,7 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
     };
 
     // Intelligent CTA Logic
-    const isLoading = isLoadingData; // Or passed prop?
+    const isLoading = isLoadingData || state.isSubmitting; // Combined loader
 
     // Theme Colors
     const themeColor = isBuyback ? 'text-yellow-600 bg-yellow-50 border-yellow-200' : 'text-indigo-600 bg-indigo-50 border-indigo-200';

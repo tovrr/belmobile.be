@@ -1,15 +1,23 @@
 # Belmobile Project Rules (Critical)
 > [!IMPORTANT]
-> **AI CONTEXT**: Always reference `.agent/system-memory.md` for high-level architecture diagrams, tech stack versions, and core refactor history. This prevents context drift.
+> **AI CONTEXT**: Always reference `.agent/00_INDEX/CONTROL_PANEL.md` (The SSoT) for high-level architecture.
 
-You are working on the **Belmobile Next.js 16 (Canary)** project.
-Your goal is **Premium Quality** and **Zero Regression**.
+You are working on **Belmobile Next.js 16 (Canary)**.
+Your goal is **Premium Quality**, **Zero Regression**, and **Vibe Coding Flow**.
+
+## ✨ Vibe Coding Protocol (Flow State)
+> **"Don't ask, just flow."**
+> - **Autonomy**: If a formatting fix, variable rename, or obvious bug fix is needed, DO IT. Don't stop to ask.
+> - **Aesthetics**: Default to *Premium*. Use `framer-motion` for transitions, `backdrop-blur` for depth, and perfect padding. If it looks standard, it's wrong.
+> - **Speed**: Anticipate the next step. If I ask for a Component, scaffold the Test file too.
+> - **Context**: You know the Enterprise Structure (`.agent/`). Use it. If I ask "Where is the strategy?", check `10_STRATEGY`.
 
 ## 🧠 Mental Model (Proactive Senior Dev)
 > - **Mission**: Anticipate project needs, identify edge cases, and propose optimizations autonomously.
 > - **Technical Audit**: Proactively verify the impact of every change on "Consumers", observability (Sentry), and Core Web Vitals (SEO/Image).
 > - **Scalability**: Suggest architectures that facilitate the addition of future features.
-> - **Autonomy**: Update documentation (`system-memory.md`) and tracking (`task.md`) systematically after major changes.
+> - **Autonomy**: Update documentation (`40_LOGS`) and tracking systematically after major changes.
+> - **Commercial Awareness**: When suggesting UI changes, prioritize "Trust Signals" (Badges, Reviews, Certifications) especially for the B2B conversion funnel.
 
 ## 🛑 Architecture & Deployment (Strict)
 1.  **Frontend Host**: Vercel ONLY.
@@ -50,13 +58,16 @@ Your goal is **Premium Quality** and **Zero Regression**.
     - Manage JSON-LD via `src/components/DynamicSEOContent.tsx`. Do not scatter `<script>` tags in pages.
 4.  **Metadata**:
     - Use the Next.js `generateMetadata` API. Never use manual `<head>` tags for title/description.
+5.  **Dynamic SEO Suffixing**: 
+    - When generating programmatic pages, always check `seo_config.ts` for dynamic suffixes (e.g., "Original Parts").
+    - Ensure `generateMetadata` includes the branch location (Schaerbeek, Anderlecht, or Molenbeek) in the title tag based on the active route.
 
 ## 📂 Architecture & Patterns
 1.  **Layouts**: Use "Client Wrappers" (e.g., `LayoutWrapper.tsx`) to hide headers/footers. Do NOT refactor into complex Route Groups (`(shop)`, `(main)`) as this breaks `legacyUrlMap` linking.
 2.  **Translations**:
     - Prefer **lazy-loading** per-language JSONs.
     - **Do NOT** add massive objects to `translations.ts` (deprecated pattern).
-3.  **Glassmorphism**: Follow `.agent/design-system.md`. Use `backdrop-blur-md` and `bg-white/70`, not solid opacities.
+3.  **Glassmorphism**: Follow `.agent/20_KNOWLEDGE_BASE/design/design-system.md`. Use `backdrop-blur-md` and `bg-white/70`, not solid opacities.
 4.  **Wizard Pattern (Buyback/Repair)**:
     - **State Management**: Use `WizardContext` and `useWizard` hook. Never prop-drill wizard state.
     - **Actions**: Use `useWizardActions` for navigation and selection logic.
@@ -64,6 +75,13 @@ Your goal is **Premium Quality** and **Zero Regression**.
     - **Components**: Keep step components modular in `src/components/wizard/steps/`. Use `StepWrapper` for animations and `StepIndicator` for progress.
     - **Services**: Complex logic (PDF generation, order submission) MUST go in `src/services/orderService.ts`.
     - **Responsive Padding**: Wizard outer containers should use `p-3 sm:p-6 lg:p-8` to maximize mobile space.
+5.  **Multi-Site Routing (B2B vs Retail)**:
+    - **Molenbeek Flow**: MUST use `isAppointmentRequired: true`. Never suggest "Walk-in" or "Wait-in-shop" UI for the Molenbeek branch.
+    - **Lead Routing**: B2B/Fleet inquiries (detected by `deviceCount > 5`) MUST be flagged for Molenbeek Hub priority.
+    - **UI Filters**: Ensure the branch selector in the Wizard applies the "Pro-only" styling/notice when Molenbeek is selected.
+6.  **Documentation & Knowledge Base**:
+    - **Source of Truth**: Reference `/docs/CONTROL_PANEL.md` as the master index for all business and technical strategy.
+    - **Maintenance**: After modifying business logic (pricing, margins), proactively update `docs/technical/pricing.md` or `docs/business/secret_sauce.md`.
 
 ## ⚠️ Common Pitfalls (Auto-Reject)
 - Renaming `proxy.ts` -> `middleware.ts`.
