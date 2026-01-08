@@ -66,7 +66,7 @@ const BusinessSolutions: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#020202] transition-colors duration-300">
-            <SchemaMarkup type="organization" />
+
 
             {/* THE COMMAND CENTER HERO (Business Edition) */}
             <BusinessHeroTerminal />

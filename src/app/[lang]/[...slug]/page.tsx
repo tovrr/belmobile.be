@@ -38,9 +38,36 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { lang, slug } = await params;
+    console.log('[MetadataDebug] Params:', { lang, slug });
     const routeData = parseRouteParams(slug);
+    console.log('[MetadataDebug] RouteData:', routeData ? 'Found' : 'Null', routeData?.service?.id);
 
-    if (!routeData) return {};
+    if (!routeData) {
+        // EMERGENCY FALLBACK for SEO: If route parser fails but we identify the service keyword
+        const s0 = slug?.[0]?.toLowerCase();
+        let fallbackService: 'buyback' | 'repair' | undefined;
+
+        if (['rachat', 'inkoop', 'buyback', 'geri-alim'].includes(s0)) fallbackService = 'buyback';
+        else if (['reparation', 'reparatie', 'repair', 'onarim'].includes(s0)) fallbackService = 'repair';
+
+        if (fallbackService) {
+            console.log('[Metadata] Triggering Fallback for:', s0);
+            const { title, description, ogTitle, ogSubtitle } = generateSeoMetadata({
+                lang: lang as 'fr' | 'nl' | 'en' | 'tr',
+                serviceId: fallbackService,
+                locationName: '' // Will default based on lang
+            });
+            // We need to construct the fallback return object manually or factor out the return logic
+            // To keep it simple, we duplicate the minimal return here
+            return {
+                title,
+                description,
+                openGraph: { title: ogTitle, description: ogSubtitle, url: `https://belmobile.be/${lang}/${slug.join('/')}` },
+                robots: { index: true, follow: true }
+            };
+        }
+        return {};
+    }
 
     const { service, location, device, deviceModel, deviceCategory } = routeData;
 

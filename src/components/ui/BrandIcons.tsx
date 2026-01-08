@@ -233,8 +233,8 @@ export const CurrencyEuroIcon = (props: IconProps) => (
     <BaseIcon {...props}>
         <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" />
         <path d="M12 18a6 6 0 01-6-6 6 6 0 016-6" />
-        <line x1="4" y1="10h6" />
-        <line x1="4" y1="14h6" />
+        <line x1="4" y1="10" x2="10" y2="10" />
+        <line x1="4" y1="14" x2="10" y2="14" />
     </BaseIcon>
 );
 

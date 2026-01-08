@@ -8,11 +8,12 @@
 
 ## 🏛️ Core Architecture (The Immutable Truth)
 
-### 1. The Pricing Engine (Hybrid V3)
-*   **Logic**: `[src/utils/pricingLogic.ts]`
+### 1. The Pricing Engine (Bulletproof V2)
+*   **Logic**: `[src/utils/pricingLogic.ts]` (Refactored Jan 2026)
+    *   **Architecture**: Declarative Strategy Pattern (Strict Tier Lookup).
     *   **Repair**: Uses `repair_prices` collection (Manual Matrix). Constant prices.
     *   **Buyback**: Uses `buyback_pricing` (Anchor System).
-    *   **Sources**: GSMArena (Market Anchor) via `[scripts/sync-device-data.mjs]`.
+    *   **Resilience**: Wrapper `try/catch` with safe fallbacks (0) for missing data.
     *   **SSoT**: Every price flows through `pricing_anchors` before being verified for production.
 *   **Admin**: `[BuybackAnchorManager]` (Dashboard) – Single point of control for the 3 Brussels shops.
 
@@ -24,7 +25,9 @@
 ### 3. Critical Workflows
 *   **Lead Gen**: Wizard -> StepUserInfo -> `orderService.saveLead`.
 *   **B2B Conversion**: Special B2B Landing Page -> Professional PDF Quote (`pdfMake`).
-*   **SEO**: Programmatic Device Pages + Dynamic Suffixing (e.g., "Original Parts", "Express Repair").
+*   **SEO**: 
+    *   **Programmatic**: Device Pages generated via `sitemap.ts`.
+    *   **Deep Linking**: Wizard (`useWizardSEO`) syncs URL `/service/model` in real-time.
 
 ---
 
@@ -58,10 +61,11 @@
 
 ## 📝 Rules of Engagement
 
-1.  **NO REFACTORING**: The pricing engine is stable. Focus on Feature Addition and Conversion.
+1.  **NO REFACTORING**: Pricing Engine V2 is now "Bulletproof". Do not touch unless adding new Extension Strategies (e.g., new device types).
 2.  **MOLENBEEK FILTER**: Do not allow walk-in retail scheduling for Molenbeek on the website. Keep it Professional/B2B only.
 3.  **MOBILE FIRST**: 85% traffic. Test the "Price Wizard" on mobile after every commit.
 4.  **SSoT ADHERENCE**: All business strategy/checklists must be stored in `/docs` and indexed via `CONTROL_PANEL.md`.
+5.  **GRAMMAR SENSITIVITY**: Respect language-specific sentence structures (e.g., TR/NL Object-First "iPhone 15 Verkopen") in all Wizard and Meta Title generation.
 
 ---
 
@@ -70,4 +74,4 @@
 *   **Docs Index**: `/docs/CONTROL_PANEL.md` (Source of Truth for Strategy).
 *   **Admin Access**: `/login` -> Admin Dashboard.
 
-*Last Updated: 2026-01-07 (Molenbeek Strategy Integration)*
+*Last Updated: 2026-01-08 (Deep Linking & Pricing V2)*

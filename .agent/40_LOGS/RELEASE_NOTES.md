@@ -49,5 +49,20 @@ This release marks the transition from MVP (`next-platform`) to a scalable enter
 *   **Visuals:** Implement CSS/SVG Devices to replace static images.
 *   **Verification:** Monitor Vercel Dashboard for deployment health.
 
+## 🚀 Patch: Surgical Refinement & Deep Linking (Jan 8, 2026)
+*   **SEO & Routing ("The Phantom Page Fix"):**
+    *   **Deep Linking Active:** Wizard now updates URL in real-time (e.g., `/fr/rachat/apple/iphone-15-pro`).
+    *   **Localized Slugs:** Full support for `/reparation` (FR), `/inkoop` (NL), etc.
+    *   **Metadata Sync:** Dynamic page titles map perfectly to the user's selected model.
+*   **Pricing Engine V2:**
+    *   **Bulletproof Logic:** Replaced fragile "deduction math" with a strict Declarative Strategy Pattern in `pricingLogic.ts`.
+    *   **Type Safety:** Removed invalid `capacity` field from Buyback records.
+    *   **Resilience:** added `try/catch` guard rails to prevent calculation crashes.
+*   **Localization (Turkish & Dutch Polish):**
+    *   **Grammar Engine:** Implemented linguistic-aware title generation (Object-Verb order for TR/NL: "iPhone 15 Verkopen").
+    *   **Typewriter Fix:** Adjusted Step 1 visual animation for Turkish grammar rules (Suffixes + Order).
+    *   **Cleanup:** Removed legacy duplicate content from `en.json`.
+
+
 ---
 *Built with ❤️ by Antigravity for Tovrr.*

@@ -18,6 +18,7 @@ import { signInAnonymously } from 'firebase/auth';
 import { useExitIntent } from '../../hooks/useExitIntent';
 import { ExitIntentModal } from '../ui/ExitIntentModal';
 import { ToastProvider } from '../ui/Toast';
+import { useWizardSEO } from '../../hooks/useWizardSEO';
 
 const ApolloLoader = () => (
     <div className="w-full h-96 rounded-4xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden relative">
@@ -80,6 +81,17 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
 
     const { handleNext, handleBack, handleModelSelect, loadBrandData, handleSubmit } = useWizardActions(type);
     const { sidebarEstimate, buybackEstimate, repairEstimates, loading: pricingLoading, dynamicRepairPrices, getSingleIssuePrice } = useWizardPricing(type);
+
+    // --- SEO & META MANAGEMENT ---
+    const { breadcrumbList, softwareApp } = useWizardSEO({
+        type,
+        step,
+        selectedBrand: selectedBrand || undefined,
+        selectedModel: selectedModel || undefined,
+        deviceCategory: deviceType || undefined,
+        estimateDisplay: type === 'buyback' ? buybackEstimate : sidebarEstimate,
+        loading: pricingLoading
+    });
 
     const formRef = useRef<HTMLFormElement>(null);
     const modelSelectRef = useRef<HTMLDivElement>(null);
@@ -255,6 +267,16 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     return (
         <div className={`w-full ${state.isWidget ? 'py-0' : 'pb-32'}`}>
             <ExitIntentModal isOpen={showExitModal} onClose={() => setShowExitModal(false)} />
+
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@graph": [breadcrumbList, softwareApp]
+                    })
+                }}
+            />
 
             <StepIndicator step={step} type={type} t={t} isWidget={state.isWidget} />
 

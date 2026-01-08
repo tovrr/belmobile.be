@@ -1,4 +1,7 @@
-import { BUYBACK_CONDITION_DEDUCTIONS, BUYBACK_PENALTIES, BUYBACK_STORAGE_MULTIPLIERS } from '../data/buyback-config';
+import { BuybackPriceRecord } from '../types';
+
+// Enforce Type Safety for Conditions
+type ConditionTier = 'new' | 'like-new' | 'good' | 'fair' | 'damaged';
 
 export interface PricingParams {
     type: 'buyback' | 'repair';
@@ -6,7 +9,8 @@ export interface PricingParams {
     model: string;
     deviceType?: string;
     storage?: string;
-    // Condition
+
+    // Condition (Buyback)
     turnsOn?: boolean | null;
     worksCorrectly?: boolean | null;
     isUnlocked?: boolean | null;
@@ -14,9 +18,11 @@ export interface PricingParams {
     faceIdWorking?: boolean | null;
     screenState?: 'flawless' | 'scratches' | 'cracked';
     bodyState?: 'flawless' | 'scratches' | 'dents' | 'bent';
+
     // Repair
     repairIssues?: string[];
     selectedScreenQuality?: 'generic' | 'oled' | 'original' | '';
+
     // Extras
     hasHydrogel?: boolean;
     deliveryMethod?: 'dropoff' | 'send' | 'courier' | null;
@@ -25,121 +31,97 @@ export interface PricingParams {
 }
 
 export interface PricingData {
-    buybackPrices: { storage: string; price: number; condition?: string; capacity?: string }[];
+    buybackPrices: BuybackPriceRecord[];
     repairPrices: Record<string, number>;
 }
 
-export const calculateBuybackPriceShared = (params: PricingParams, data: PricingData): number => {
-    const { buybackPrices, repairPrices } = data;
-    if (!buybackPrices || buybackPrices.length === 0) return 0;
+/**
+ * 🛡️ STRATEGY 1: Determine the Condition Tier
+ * Pure function. Given the physical state, what is the tier?
+ */
+const determineConditionTier = (params: PricingParams): ConditionTier => {
+    // Critical Failures = Damaged immediately (or 0 value)
+    if (params.turnsOn === false || params.isUnlocked === false) return 'damaged';
+    if (params.worksCorrectly === false || params.faceIdWorking === false) return 'damaged';
 
-    // --- TIER BASED CALCULATION (ANCHOR V1) ---
-    // 1. Determine Condition Tier from Inputs
-    let tier = 'good'; // Default
+    // Cosmetic Logic
+    // 1. Heavy Damage
+    if (params.screenState === 'cracked' || params.bodyState === 'bent') return 'damaged';
 
-    // Critical Failures
-    if (params.turnsOn === false || params.isUnlocked === false) return 0;
+    // 2. Medium Wear
+    if (params.bodyState === 'dents') return 'fair';
+    if (params.screenState === 'scratches') return 'fair'; // Safe conservative estimate
 
-    // Functional Failures -> Damaged
-    if (params.worksCorrectly === false || params.faceIdWorking === false) {
-        tier = 'damaged';
-    }
-    // Cosmetic Grading
-    else if (params.screenState === 'cracked' || params.bodyState === 'bent') {
-        tier = 'damaged'; // Or 'repair-needed' if we had that tier
-    }
-    else if (params.bodyState === 'dents') {
-        tier = 'fair';
-    }
-    else if (params.screenState === 'scratches') {
-        tier = 'fair'; // or good? Conservative: Fair.
-    }
-    else if (params.bodyState === 'scratches') {
-        tier = 'good';
-    }
-    else if (params.screenState === 'flawless' && params.bodyState === 'flawless') {
-        // "Impeccable" -> Like New. "New" is usually sealed.
-        tier = 'like-new';
-    }
+    // 3. Light Wear
+    // If body has scratches but screen is flawless -> Good
+    if (params.bodyState === 'scratches') return 'good';
 
-    // 2. Try to find EXACT match (Storage + Tier)
-    const exactMatch = buybackPrices.find(p =>
-        (p.storage === params.storage || p.capacity === params.storage) &&
-        p.condition === tier
-    );
+    // 4. Perfect
+    if (params.screenState === 'flawless' && params.bodyState === 'flawless') return 'like-new';
 
-    if (exactMatch && exactMatch.price > 0) {
-        // FOUND TIER PRICE - RETURN DIRECTLY
-        // We can still apply minor deductions like "Cable missing" if we tracked that,
-        // but for now, the Tier Price is the Authority.
+    return 'good'; // Safe Fallback
+};
 
-        // One exception: Consoles controller count logic is "extra" on top of condition?
-        let final = exactMatch.price;
-        if (params.deviceType === 'console_home' && typeof params.controllerCount === 'number') {
-            const CONTROLLER_VALUE = 30;
-            if (params.controllerCount === 0) final -= CONTROLLER_VALUE;
-            if (params.controllerCount === 2) final += CONTROLLER_VALUE;
-        }
-        return Math.max(0, final);
-    }
+/**
+ * 🛡️ STRATEGY 2: Calculate Extensions (e.g. Controllers)
+ */
+const calculateExtensions = (params: PricingParams, currentPrice: number): number => {
+    let final = currentPrice;
 
-
-    // --- FALLBACK: LEGACY DEDUCTION LOGIC ---
-    // Used if database doesn't have tiers (old devices) or exact match missing.
-
-    // 1. Base Price Resolution (Highest 'New' Price?)
-    // We try to find the "Best" price for this storage to start deducting from
-    // Filter by storage first
-    let candidates = buybackPrices.filter(p => p.storage === params.storage || p.capacity === params.storage);
-    if (candidates.length === 0) candidates = buybackPrices; // Fallback to all (and use multiplier)
-
-    // Sort by price descending (Best Case / New)
-    candidates.sort((a, b) => b.price - a.price);
-
-    let baseParamsPrice = 0;
-    const bestCandidate = candidates[0];
-
-    if (bestCandidate.storage === params.storage || bestCandidate.capacity === params.storage) {
-        baseParamsPrice = bestCandidate.price;
-    } else {
-        // Multiplier Logic (Storage translation)
-        const highestStorage = bestCandidate.storage || '128GB';
-        const multTarget = BUYBACK_STORAGE_MULTIPLIERS[params.storage || '128GB'] || 1.0;
-        const multSource = BUYBACK_STORAGE_MULTIPLIERS[highestStorage] || 1.0;
-        baseParamsPrice = (bestCandidate.price / multSource) * multTarget;
-    }
-
-    // Helper for single issue price
-    const getPrice = (id: string, def = 0) => repairPrices?.[id] || def;
-    const screenRepairPrice = getPrice('screen', 100);
-    const backRepairPrice = getPrice('back_glass', 80);
-    const batteryRepairPrice = getPrice('battery', 60);
-
-    // Deductions
-    if (params.worksCorrectly === false) baseParamsPrice *= (1 - (BUYBACK_CONDITION_DEDUCTIONS['works-issue'] || 0.5));
-
-    if (params.brand === 'Apple' && (params.deviceType === 'smartphone' || params.deviceType === 'tablet')) {
-        if (params.batteryHealth === 'service') baseParamsPrice -= batteryRepairPrice;
-        if (params.faceIdWorking === false) baseParamsPrice -= (BUYBACK_PENALTIES.FACE_ID_ISSUE || 150);
-    }
-
-    if (params.screenState === 'scratches') baseParamsPrice -= (screenRepairPrice * (BUYBACK_CONDITION_DEDUCTIONS['screen-scratches'] || 0.3));
-    if (params.screenState === 'cracked') baseParamsPrice -= (screenRepairPrice * (BUYBACK_CONDITION_DEDUCTIONS['screen-cracked'] || 1.0));
-
-    if (params.bodyState === 'scratches') baseParamsPrice -= (BUYBACK_CONDITION_DEDUCTIONS['body-scratches'] || 20);
-    if (params.bodyState === 'dents') baseParamsPrice -= (backRepairPrice * (BUYBACK_CONDITION_DEDUCTIONS['body-dents'] || 1.0));
-    if (params.bodyState === 'bent') {
-        const bentPenalty = BUYBACK_CONDITION_DEDUCTIONS['body-bent'] || 40;
-        baseParamsPrice -= (backRepairPrice + bentPenalty);
-    }
-
+    // Console Controller Logic
     if (params.deviceType === 'console_home' && typeof params.controllerCount === 'number') {
         const CONTROLLER_VALUE = 30;
-        if (params.controllerCount === 0) baseParamsPrice -= CONTROLLER_VALUE;
-        if (params.controllerCount === 2) baseParamsPrice += CONTROLLER_VALUE;
+        if (params.controllerCount === 0) final -= CONTROLLER_VALUE;
+        if (params.controllerCount === 2) final += CONTROLLER_VALUE;
     }
 
-    return Math.max(0, Math.round(baseParamsPrice));
+    return final;
+};
+
+/**
+ * 🏆 THE BULLETPROOF CALCULATOR
+ * "Surgical" replacement for calculateBuybackPriceShared
+ */
+export const calculateBuybackPriceShared = (params: PricingParams, data: PricingData): number => {
+    try {
+        const { buybackPrices } = data;
+
+        // Guard: No data
+        if (!buybackPrices || buybackPrices.length === 0) {
+            // console.warn('[Pricing] No buyback prices available for calculation.');
+            return 0;
+        }
+
+        // 1. Get Tier
+        const tier = determineConditionTier(params);
+
+        // 2. Find Exact Price Match
+        const match = buybackPrices.find(p =>
+            p.storage === params.storage &&
+            p.condition === tier
+        );
+
+        if (match && typeof match.price === 'number') {
+            // 3. Apply Extensions
+            const finalPrice = calculateExtensions(params, match.price);
+            return Math.max(0, finalPrice);
+        }
+
+        // 4. If exact match failed, try finding 'good' tier as a base and applying ratio?
+        // Ideally we strictly enforce exact matches for 'Bulletproof' logic.
+        // If the 'damaged' tier is missing, we might return 0.
+
+        // Fallback: If 'damaged' requested but not found, return 0.
+        // If 'like-new' requested but not found, maybe look for 'good'?
+        // For now, let's keep it strict to force the Admin to fill the data.
+
+        // console.warn(`[Pricing] Price point missing for ${params.model} (${params.storage}) @ ${tier}`);
+        return 0;
+
+    } catch (error) {
+        console.error('[Pricing] Critical Calculation Error', error);
+        return 0; // Fail safe
+    }
 };
 
 export const calculateRepairPriceShared = (params: PricingParams, data: PricingData): number => {

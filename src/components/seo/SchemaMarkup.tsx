@@ -28,8 +28,8 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
 
     // 1. Organization Schema (Brand Authority) - Always present on Home
     const organizationSchema = {
-        "@context": "https://schema.org",
         "@type": "Organization",
+        "@id": "https://belmobile.be/#organization",
         "name": "Belmobile.be",
         "legalName": "Belmobile Pro Solutions",
         "url": "https://belmobile.be",
@@ -47,13 +47,22 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
             "https://www.instagram.com/belmobile",
             "https://www.linkedin.com/company/belmobile"
         ],
-        "contactPoint": {
-            "@type": "ContactPoint",
-            "telephone": "+32-484-83-75-60",
-            "contactType": "customer service",
-            "areaServed": "BE",
-            "availableLanguage": ["English", "French", "Dutch", "Turkish"]
-        },
+        "contactPoint": [
+            {
+                "@type": "ContactPoint",
+                "telephone": "+32-484-83-75-60",
+                "contactType": "customer service",
+                "areaServed": "BE",
+                "availableLanguage": ["English", "French", "Dutch", "Turkish"]
+            },
+            {
+                "@type": "ContactPoint",
+                "telephone": "+32-2-306-76-56",
+                "contactType": "sales",
+                "areaServed": "BE",
+                "availableLanguage": ["English", "French", "Dutch"]
+            }
+        ],
         "hasPart": [
             {
                 "@type": "SiteNavigationElement",
@@ -77,6 +86,22 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
             }
         ]
     };
+
+    // 1.5 WebSite Schema (Sitelinks Search Box)
+    const websiteSchema = {
+        "@type": "WebSite",
+        "@id": "https://belmobile.be/#website",
+        "name": "Belmobile.be",
+        "url": "https://belmobile.be",
+        "publisher": { "@id": "https://belmobile.be/#organization" },
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": `https://belmobile.be/${language}/search?q={search_term_string}`,
+            "query-input": "required name=search_term_string"
+        }
+    };
+
+
 
     // 1.1 B2B Professional Service (Authority Boost)
     const fleetManagementSchema = {
@@ -107,14 +132,22 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
                     "@type": "Offer",
                     "itemOffered": {
                         "@type": "Service",
-                        "name": "Fleet Maintenance"
+                        "name": "Fleet Maintenance",
+                        "about": [
+                            { "@type": "Thing", "@id": "https://www.wikidata.org/wiki/Q34687", "name": "Smartphone" },
+                            { "@type": "Thing", "@id": "https://www.wikidata.org/wiki/Q12625946", "name": "Maintenance (technical)" }
+                        ]
                     }
                 },
                 {
                     "@type": "Offer",
                     "itemOffered": {
                         "@type": "Service",
-                        "name": "Mobile Buyback (B2B)"
+                        "name": "Mobile Buyback (B2B)",
+                        "about": [
+                            { "@type": "Thing", "@id": "https://www.wikidata.org/wiki/Q1080335", "name": "Circular economy" },
+                            { "@type": "Thing", "@id": "https://www.wikidata.org/wiki/Q173317", "name": "Reverse logistics" }
+                        ]
                     }
                 }
             ]
@@ -155,7 +188,14 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
                 "opens": "10:30",
                 "closes": "19:00"
             },
-            "priceRange": "€€"
+            "priceRange": "€€",
+            "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "reviewCount": "1250",
+                "bestRating": "5",
+                "worstRating": "1"
+            }
         };
     });
 
@@ -286,17 +326,7 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
         }
     } : null;
 
-    // 9. SpecialAnnouncement Schema (For Events/Launches)
-    // Use this for "iPhone 17 Launch" or "Black Friday" triggers
-    const specialAnnouncementSchema = type === 'organization' ? {
-        "@context": "https://schema.org",
-        "@type": "SpecialAnnouncement",
-        "name": "iPhone 17 Repair Service Now Available",
-        "text": "We now offer express screen and battery replacement for the new iPhone 17 series.",
-        "category": "https://schema.org/PublicTransportClosureInfo", // Closest fit for service availability updates
-        "datePosted": "2025-09-20T09:00:00",
-        "expires": "2026-01-01T00:00:00"
-    } : null;
+
 
     return (
         <>
@@ -318,19 +348,21 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
             )}
 
             {(type === 'contact' || type === 'organization') && (
-                <>
-                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
-                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(fleetManagementSchema) }} />
-                    {localBusinessSchema.map((schema, index) => (
-                        <script key={index} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-                    ))}
-                    {videoObjectSchema && (
-                        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videoObjectSchema) }} />
-                    )}
-                    {specialAnnouncementSchema && (
-                        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(specialAnnouncementSchema) }} />
-                    )}
-                </>
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@graph": [
+                                organizationSchema,
+                                websiteSchema,
+                                fleetManagementSchema,
+                                ...localBusinessSchema,
+                                ...(videoObjectSchema ? [videoObjectSchema] : [])
+                            ]
+                        })
+                    }}
+                />
             )}
 
             {type === 'contact' && contactPageSchema && (

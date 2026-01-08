@@ -128,15 +128,18 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-black uppercase tracking-tighter text-[10px] mb-4 shadow-xl ${mode === 'repair' ? 'bg-electric-indigo text-white shadow-electric-indigo/20' : 'bg-cyber-citron text-slate-900 shadow-cyber-citron/20'}`}
                     >
                         <BoltIcon className="w-3 h-3" />
-                        <span>{t('apollo_engine_badge')}</span>
+                        <span>{mode === 'repair' ? t('apollo_badge_repair') : t('apollo_badge_buyback')}</span>
                     </motion.div>
 
                     <h1 className="text-5xl font-black text-slate-900 dark:text-white mb-2 leading-tight tracking-tighter">
-                        {titleTxt.t1}
+                        <span className="sr-only">{mode === 'repair' ? 'Service de ' : ''}</span>
+                        {titleTxt.t1}<span aria-hidden="true">.</span>
+                        <span className="sr-only"> Smartphone</span>
                         <br />
                         <span className={`text-transparent bg-clip-text bg-linear-to-r ${mode === 'repair' ? 'from-electric-indigo to-purple-500' : 'from-cyber-citron to-lime-500'}`}>
-                            {titleTxt.t2}
+                            {titleTxt.t2}<span aria-hidden="true">.</span>
                         </span>
+                        <span className="sr-only"> à Bruxelles</span>
                     </h1>
                 </div>
 

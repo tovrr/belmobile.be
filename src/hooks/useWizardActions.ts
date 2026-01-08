@@ -127,6 +127,8 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
         startTransition(() => {
             // Push to /reparation/smartphone etc.
             router.push(`/${lang}/${typeSlug}/${category}`);
+            // Explicitly advance to Step 2 (Device Selection) as Provider might not re-init on soft nav
+            dispatch({ type: 'SET_STEP', payload: 2 });
             dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: false } });
         });
     }, [dispatch, lang, typeSlug, router]);
