@@ -63,97 +63,153 @@ const ReservationManagement: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
+            {/* Desktop View */}
+            <div className="hidden md:block bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-slate-900/50">
-                            <tr>
-                                <th scope="col" className="px-6 py-4">Customer</th>
-                                <th scope="col" className="px-6 py-4">Product</th>
-                                <th scope="col" className="px-6 py-4">Type</th>
-                                <th scope="col" className="px-6 py-4">Shop/Addr</th>
-                                <th scope="col" className="px-6 py-4">Status</th>
-                                <th scope="col" className="px-6 py-4">Payment</th>
-                                <th scope="col" className="px-6 py-4">Date</th>
-                                <th scope="col" className="px-6 py-4">Actions</th>
+                    <table className="w-full text-sm text-left border-collapse">
+                        <thead>
+                            <tr className="bg-gray-50/50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700">
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Customer</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Product / Loc</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Status</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Date</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+                        <tbody className="divide-y divide-gray-50 dark:divide-slate-700/50">
                             {reservations.map(res => (
-                                <tr key={res.id} className="bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="font-bold text-gray-900 dark:text-white">{res.customerName}</div>
-                                        <div className="text-xs text-gray-500 dark:text-gray-400">{res.customerEmail}</div>
+                                <tr key={res.id} className="hover:bg-gray-50/30 dark:hover:bg-slate-700/20 transition-colors group">
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="font-bold text-gray-900 dark:text-white leading-tight">{res.customerName}</div>
+                                        <div className="text-[11px] text-gray-400 mt-1">{res.customerEmail}</div>
                                     </td>
-                                    <td className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">{res.productName}</td>
-                                    <td className="px-6 py-4 text-xs font-bold uppercase text-gray-600 dark:text-gray-400">{res.deliveryMethod || 'pickup'}</td>
-                                    <td className="px-6 py-4 text-gray-600 dark:text-gray-400 text-xs text-wrap max-w-[150px]">
-                                        <div className="flex flex-col">
-                                            <span>
-                                                {res.deliveryMethod === 'shipping'
-                                                    ? `${res.shippingZip} ${res.shippingCity}`
-                                                    : getShopName(res.shopId)
-                                                }
+                                    <td className="px-6 py-4">
+                                        <div className="text-sm font-bold text-gray-700 dark:text-gray-200 line-clamp-1">{res.productName}</div>
+                                        <div className="flex items-center gap-1.5 mt-1.5">
+                                            <span className="text-[10px] font-black bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded uppercase leading-none">
+                                                {res.deliveryMethod || 'pickup'}
                                             </span>
-                                            {profile?.role === 'super_admin' && res.shopId && (
-                                                <span className="mt-1 inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-black bg-bel-blue/10 text-bel-blue uppercase tracking-tighter w-fit">
-                                                    📍 {res.shopId}
+                                            <span className="text-[10px] font-bold text-gray-400 truncate max-w-[150px]">
+                                                {res.deliveryMethod === 'shipping' ? `${res.shippingZip} ${res.shippingCity}` : getShopName(res.shopId)}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                        <div className="flex flex-col items-center gap-1.5">
+                                            <span className={`px-2.5 py-1 text-[10px] font-black rounded-full uppercase tracking-widest ${res.status === 'approved' ? 'bg-emerald-50 text-emerald-600' :
+                                                res.status === 'pending' ? 'bg-amber-50 text-amber-600' :
+                                                    'bg-rose-50 text-rose-600'
+                                                }`}>
+                                                {res.status}
+                                            </span>
+                                            {res.isPaid && (
+                                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black bg-emerald-500 text-white uppercase">
+                                                    PAID
                                                 </span>
                                             )}
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-3 py-1 text-xs font-bold rounded-full capitalize ${res.status === 'approved' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
-                                            res.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
-                                                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                                            }`}>
-                                            {res.status}
-                                        </span>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="text-xs font-semibold text-gray-600 dark:text-gray-300">{res.date}</div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2">
-                                            {res.isPaid ? (
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-900/50" title="Paid">
-                                                    <BanknotesIcon className="w-3 h-3" /> Paid
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700" title="Unpaid">
-                                                    Unpaid
-                                                </span>
+                                        <div className="flex justify-end gap-1">
+                                            <button onClick={() => setSelectedReservation(res)} className="p-2.5 bg-gray-50 dark:bg-slate-900 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl transition-all" title="View">
+                                                <EyeIcon className="h-5 w-5" />
+                                            </button>
+                                            {res.status === 'pending' && (
+                                                <>
+                                                    <button onClick={() => handleUpdateStatus(res, 'approved')} className="p-2.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-xl transition-all" title="Approve">
+                                                        <CheckCircleIcon className="h-5 w-5" />
+                                                    </button>
+                                                    <button onClick={() => handleUpdateStatus(res, 'cancelled')} className="p-2.5 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-xl transition-all" title="Cancel">
+                                                        <XCircleIcon className="h-5 w-5" />
+                                                    </button>
+                                                </>
                                             )}
-                                            {res.paymentLink && (
-                                                <LinkIcon className="w-4 h-4 text-blue-500" title="Has Payment Link" />
-                                            )}
-                                            {res.paymentReceiptUrl && (
-                                                <DocumentTextIcon className="w-4 h-4 text-purple-500" title="Receipt Uploaded" />
-                                            )}
+                                            <button onClick={() => handleDelete(res.id)} className="p-2.5 bg-gray-50 dark:bg-slate-900 text-gray-400 hover:text-rose-600 rounded-xl transition-all" title="Delete">
+                                                <TrashIcon className="h-5 w-5" />
+                                            </button>
                                         </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{res.date}</td>
-                                    <td className="px-6 py-4 flex space-x-2">
-                                        <button onClick={() => setSelectedReservation(res)} className="p-2 text-bel-blue hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors" title="View Details">
-                                            <EyeIcon className="h-5 w-5" />
-                                        </button>
-                                        {res.status === 'pending' && (
-                                            <>
-                                                <button onClick={() => handleUpdateStatus(res, 'approved')} className="p-2 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/20 rounded-xl transition-colors" title="Approve">
-                                                    <CheckCircleIcon className="h-5 w-5" />
-                                                </button>
-                                                <button onClick={() => handleUpdateStatus(res, 'cancelled')} className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-colors" title="Cancel">
-                                                    <XCircleIcon className="h-5 w-5" />
-                                                </button>
-                                            </>
-
-                                        )}
-                                        <button onClick={() => handleDelete(res.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors" title="Delete">
-                                            <TrashIcon className="h-5 w-5" />
-                                        </button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {/* Mobile View */}
+            <div className="md:hidden space-y-4">
+                {reservations.map(res => (
+                    <div key={res.id} className="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-gray-100 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="space-y-1">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${res.status === 'approved' ? 'bg-emerald-50 text-emerald-600' :
+                                    res.status === 'pending' ? 'bg-amber-50 text-amber-600' :
+                                        'bg-rose-50 text-rose-600'
+                                    }`}>
+                                    {res.status}
+                                </span>
+                                <h4 className="font-bold text-gray-900 dark:text-white leading-tight">{res.customerName}</h4>
+                                <p className="text-xs text-gray-400">{res.date}</p>
+                            </div>
+                            {res.isPaid && (
+                                <span className="bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm shadow-emerald-500/20">
+                                    PAID
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="mb-5 p-4 bg-gray-50/50 dark:bg-slate-900/30 rounded-2xl border border-gray-50 dark:border-slate-700/50">
+                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Product & Method</p>
+                            <p className="text-xs font-bold text-gray-800 dark:text-gray-200 mb-2">{res.productName}</p>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-black bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-lg uppercase tracking-widest">
+                                    {res.deliveryMethod || 'pickup'}
+                                </span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400 truncate font-medium">
+                                    {res.deliveryMethod === 'shipping' ? `${res.shippingZip} ${res.shippingCity}` : getShopName(res.shopId)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-2">
+                            <button
+                                onClick={() => setSelectedReservation(res)}
+                                className="flex-1 py-3 bg-gray-50 dark:bg-slate-900 text-gray-600 dark:text-gray-400 rounded-2xl flex items-center justify-center transition-colors"
+                            >
+                                <EyeIcon className="w-5 h-5" />
+                            </button>
+                            {res.status === 'pending' ? (
+                                <>
+                                    <button
+                                        onClick={() => handleUpdateStatus(res, 'approved')}
+                                        className="flex-1 py-3 bg-emerald-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20"
+                                    >
+                                        <CheckCircleIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleUpdateStatus(res, 'cancelled')}
+                                        className="flex-1 py-3 bg-rose-50 dark:bg-rose-900/10 text-rose-600 rounded-2xl flex items-center justify-center"
+                                    >
+                                        <TrashIcon className="w-5 h-5" />
+                                    </button>
+                                </>
+                            ) : (
+                                <div className="col-span-2">
+                                    <button
+                                        onClick={() => handleDelete(res.id)}
+                                        className="w-full py-3 bg-rose-50 dark:bg-rose-900/10 text-rose-600 rounded-2xl flex items-center justify-center font-bold text-xs uppercase tracking-widest gap-2"
+                                    >
+                                        <TrashIcon className="w-4 h-4" />
+                                        Delete
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ))}
             </div>
 
             {hasMoreReservations && (

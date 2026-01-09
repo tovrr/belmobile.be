@@ -7,7 +7,7 @@ try {
     const envPath = path.resolve(__dirname, '../.env.local');
     if (fs.existsSync(envPath)) {
         const envConfig = fs.readFileSync(envPath, 'utf8');
-        envConfig.split('\n').forEach(line => {
+        envConfig.split('\n').forEach((line: string) => {
             const [key, value] = line.split('=');
             if (key && value) {
                 let val = value.trim();

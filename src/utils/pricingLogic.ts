@@ -1,5 +1,10 @@
 import { BuybackPriceRecord } from '../types';
 
+const EXTRAS_PRICING = {
+    HYDROGEL: 15,
+    COURIER_BRUSSELS: 15
+};
+
 // Enforce Type Safety for Conditions
 type ConditionTier = 'new' | 'like-new' | 'good' | 'fair' | 'damaged';
 
@@ -144,8 +149,8 @@ export const calculateRepairPriceShared = (params: PricingParams, data: PricingD
         }
     });
 
-    if (params.hasHydrogel) total += 15;
-    if (params.deliveryMethod === 'courier' && params.courierTier === 'brussels') total += 15;
+    if (params.hasHydrogel) total += EXTRAS_PRICING.HYDROGEL;
+    if (params.deliveryMethod === 'courier' && params.courierTier === 'brussels') total += EXTRAS_PRICING.COURIER_BRUSSELS;
 
     return isValid ? Math.round(total) : 0;
 };

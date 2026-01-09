@@ -28,4 +28,5 @@ To add a photo for a specific device model (e.g., iPhone 13, Samsung Galaxy S21)
     *   Always use this specific SVG for branding to ensure consistency across the platform.
 
 **Automation Tool**:
-Use `scripts/fetch-device-images.mjs` to automate this process. It handles fetching from GSMArena (via slug or custom URL), background removal (if needed), resizing, and metadata injection.
+Use `scripts/fetch-device-images.mjs` to automate this process. 
+> ⚠️ **Warning**: This tool fetches from GSMArena and may be subject to IP bans. If the script fails with "Too Many Requests", you must download the image manually, remove the background (to pure white), and save it to the directory above.

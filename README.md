@@ -45,10 +45,10 @@ node scripts/sync-device-data.mjs
 > **Note**: Always review changes in the Admin Dashboard before pushing live.
 
 ### 📄 Documenting Workflows
-All markdown files have been organized into the `/docs` (or `.agent`) directory:
-*   `docs/business/`: B2B Strategy & Molenbeek Expansion.
-*   `docs/staff/`: Social Media scripts & Shop Checklists.
-*   `docs/technical/`: Firestore schemas & Code Constitution.
+All markdown files have been organized into the `.agent/` directory:
+*   `.agent/10_STRATEGY/`: B2B Strategy & Molenbeek Expansion.
+*   `.agent/20_KNOWLEDGE_BASE/`: Design system & Staff Checklists.
+*   `.agent/40_LOGS/`: Engineering logs and technical constitution.
 
 ## 🗺️ Project Architecture
 

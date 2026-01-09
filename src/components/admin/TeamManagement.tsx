@@ -122,64 +122,59 @@ const TeamManagement: React.FC = () => {
                 </button>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm">
+            {/* Desktop View */}
+            <div className="hidden md:block bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-500 dark:text-gray-400 uppercase bg-gray-50/50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700">
-                            <tr>
-                                <th scope="col" className="px-6 py-4 font-bold">User</th>
-                                <th scope="col" className="px-6 py-4 font-bold">Role</th>
-                                <th scope="col" className="px-6 py-4 font-bold">Assigned Shop</th>
-                                <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
+                    <table className="w-full text-sm text-left border-collapse">
+                        <thead>
+                            <tr className="bg-gray-50/50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700">
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">User</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Role / Access</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+                        <tbody className="divide-y divide-gray-50 dark:divide-slate-700/50">
                             {loading ? (
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-12 text-center">
+                                    <td colSpan={3} className="px-6 py-12 text-center">
                                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bel-blue mx-auto"></div>
                                     </td>
                                 </tr>
                             ) : users.map(u => (
-                                <tr key={u.uid} className="hover:bg-gray-50/50 dark:hover:bg-slate-700/50 transition-colors">
+                                <tr key={u.uid} className="hover:bg-gray-50/30 dark:hover:bg-slate-700/20 transition-colors group">
                                     <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-gray-500 font-bold">
-                                                {u.displayName?.charAt(0) || 'U'}
+                                        <div className="flex items-center gap-4">
+                                            <div className="h-12 w-12 rounded-2xl bg-indigo-50 dark:bg-slate-900 flex items-center justify-center text-indigo-600 font-black shadow-sm text-lg">
+                                                {u.displayName?.charAt(0) || u.email?.charAt(0).toUpperCase() || 'U'}
                                             </div>
                                             <div>
-                                                <div className="font-bold text-gray-900 dark:text-white">{u.displayName || 'Unnamed'}</div>
-                                                <div className="text-xs text-gray-400">{u.email}</div>
+                                                <div className="font-bold text-gray-900 dark:text-white leading-tight">{u.displayName || 'Unnamed'}</div>
+                                                <div className="text-[11px] text-gray-400 mt-1">{u.email}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        {getRoleBadge(u.role)}
+                                        <div className="flex flex-col items-center gap-1.5">
+                                            {getRoleBadge(u.role)}
+                                            <span className="text-[10px] font-bold text-gray-400 tracking-tight">
+                                                {u.role === 'super_admin' ? 'Global Access' : (shops.find(s => s.id === u.shopId)?.name || u.shopId)}
+                                            </span>
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        {u.role === 'super_admin' ? (
-                                            <span className="text-xs text-gray-400 italic">All Access</span>
-                                        ) : (
-                                            <div className="flex flex-col">
-                                                <span className="font-bold text-gray-700 dark:text-gray-300">{shops.find(s => s.id === u.shopId)?.name || u.shopId}</span>
-                                                <span className="text-[10px] text-gray-400 uppercase">{u.shopId}</span>
-                                            </div>
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-2">
+                                        <div className="flex items-center justify-end gap-1.5">
                                             <button
                                                 onClick={() => handleOpenModal(u)}
-                                                className="p-2 text-gray-500 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-slate-700 dark:hover:text-blue-400 rounded-xl transition-all"
+                                                className="p-2.5 bg-gray-50 dark:bg-slate-900 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl transition-all"
                                             >
-                                                <PencilIcon className="h-4 w-4" />
+                                                <PencilIcon className="h-5 w-5" />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(u.uid, u.email)}
-                                                className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                                className="p-2.5 bg-rose-50 dark:bg-rose-900/10 text-rose-400 hover:text-rose-600 rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                                                 disabled={u.email === 'omerozkan@live.be'}
                                             >
-                                                <TrashIcon className="h-4 w-4" />
+                                                <TrashIcon className="h-5 w-5" />
                                             </button>
                                         </div>
                                     </td>
@@ -188,6 +183,58 @@ const TeamManagement: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {/* Mobile View */}
+            <div className="md:hidden space-y-4">
+                {loading ? (
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl p-12 flex justify-center border border-gray-100 dark:border-slate-700">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bel-blue"></div>
+                    </div>
+                ) : users.map(u => (
+                    <div key={u.uid} className="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-gray-100 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="h-14 w-14 rounded-2xl bg-indigo-50 dark:bg-slate-900 flex items-center justify-center text-indigo-600 font-black shadow-sm text-xl shrink-0">
+                                {u.displayName?.charAt(0) || u.email?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+                            <div className="min-w-0">
+                                <h4 className="font-bold text-gray-900 dark:text-white leading-tight truncate">{u.displayName || 'Unnamed Member'}</h4>
+                                <p className="text-[11px] text-gray-400 truncate mt-0.5">{u.email}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-3 p-4 bg-gray-50/50 dark:bg-slate-900/30 rounded-2xl border border-gray-50 dark:border-slate-700/50 mb-5">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Role</span>
+                                {getRoleBadge(u.role)}
+                            </div>
+                            <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-slate-800">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Location</span>
+                                <span className="text-xs font-black text-gray-600 dark:text-gray-300">
+                                    {u.role === 'super_admin' ? '🌍 All Shops' : (shops.find(s => s.id === u.shopId)?.name || u.shopId)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                            <button
+                                onClick={() => handleOpenModal(u)}
+                                className="py-3 bg-gray-50 dark:bg-slate-900 text-gray-600 dark:text-gray-400 rounded-2xl flex items-center justify-center font-bold text-xs uppercase tracking-widest gap-2 transition-colors"
+                            >
+                                <PencilIcon className="w-4 h-4" />
+                                Edit
+                            </button>
+                            <button
+                                onClick={() => handleDelete(u.uid, u.email)}
+                                className="py-3 bg-rose-50 dark:bg-rose-900/10 text-rose-600 rounded-2xl flex items-center justify-center font-bold text-xs uppercase tracking-widest gap-2 transition-colors disabled:opacity-30"
+                                disabled={u.email === 'omerozkan@live.be'}
+                            >
+                                <TrashIcon className="w-4 h-4" />
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                ))}
             </div>
 
             {isModalOpen && (

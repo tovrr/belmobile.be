@@ -179,26 +179,15 @@ function RepairPricingContent() {
 
     return (
         <div className="space-y-8 animate-fade-in pb-20">
-            {/* --- HEADER --- */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-black text-gray-900 dark:text-white flex items-center gap-3">
-                        Master Pricing Dashboard
-                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-bold uppercase tracking-wider">v2.0 Beta</span>
-                    </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-1">
-                        Unified Repair & Buyback Engine with Market Radar 📡
-                    </p>
-                </div>
-
-                <div className="flex bg-gray-100 dark:bg-slate-700 p-1 rounded-xl">
-                    <button onClick={() => setViewMode('single')} className={`px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 ${viewMode === 'single' ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500'}`}>
+            <div className="flex justify-end mb-4">
+                <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-xl border border-gray-200 dark:border-slate-700 shadow-inner">
+                    <button onClick={() => setViewMode('single')} className={`px-4 py-2 rounded-lg text-xs font-bold uppercase transition flex items-center gap-2 ${viewMode === 'single' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>
                         <CpuChipIcon className="h-4 w-4" /> Single
                     </button>
-                    <button onClick={() => setViewMode('grid')} className={`px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 ${viewMode === 'grid' ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500'}`}>
+                    <button onClick={() => setViewMode('grid')} className={`px-4 py-2 rounded-lg text-xs font-bold uppercase transition flex items-center gap-2 ${viewMode === 'grid' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>
                         <TableCellsIcon className="h-4 w-4" /> Grid
                     </button>
-                    <button onClick={() => setViewMode('batch')} className={`px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 ${viewMode === 'batch' ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500'}`}>
+                    <button onClick={() => setViewMode('batch')} className={`px-4 py-2 rounded-lg text-xs font-bold uppercase transition flex items-center gap-2 ${viewMode === 'batch' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>
                         Batch
                     </button>
                 </div>

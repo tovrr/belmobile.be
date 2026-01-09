@@ -53,6 +53,14 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+    match /pricing_anchors/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /competitor_prices/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
     match /blog_posts/{document=**} {
       allow read: if true;
       allow write: if isAdmin();

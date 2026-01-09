@@ -9,6 +9,7 @@ This workflow describes how to add features or modify the Admin Dashboard locate
 ## 📂 Structure
 - **Page**: `src/app/admin/orders/page.tsx` (Wrapper)
 - **Main Component**: `src/components/admin/QuoteManagement.tsx` (Table View)
+- **Pricing Hub**: `src/components/admin/BuybackAnchorManager.tsx` (Manual Pricing Center)
 - **Modal**: `src/components/admin/QuoteDetailsModal.tsx` (Deep Edit View)
 
 ## 🛠️ Common Tasks
@@ -26,6 +27,12 @@ This workflow describes how to add features or modify the Admin Dashboard locate
 2.  **Template**: `src/utils/PdfTemplates.ts` defines the visual layout.
     - `createPdfDefinition` maps data to `pdfmake` blocks.
 3.  **Testing**: Open an order in Admin, click "Download PDF" to verify changes immediately.
+
+### 4. Managing Buyback Pricing
+1.  **Dashboard**: Open the **Buyback Command Center**.
+2.  **Add Device**: Use the "Add Model" search to activate any of the 443 catalog devices.
+3.  **Sync**: Adjust the "Base Anchor" (for smallest storage) and click **Sync Prices**.
+4.  **SSoT**: This updates the `pricing_anchors` and generates `buyback_pricing` variations.
 
 ### 3. Adding a new Admin Route
 1.  Create new folder: `src/app/admin/new-route/page.tsx`.

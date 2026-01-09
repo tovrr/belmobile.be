@@ -1,6 +1,14 @@
 import { Quote, RepairIssue } from '../types';
+import { SHOPS } from '../constants';
 import { PdfData } from './PdfTemplates';
 import { slugToDisplayName } from './slugs';
+
+// --- SERVICE PRICE CONSTANTS (SSOT) ---
+const EXTRAS_PRICING = {
+    HYDROGEL: 15,
+    COURIER_BRUSSELS: 15,
+    VAT_RATE: 0.21
+};
 
 // Helper type for the TFunction (i18n)
 export type TFunction = (key: string, ...args: (string | number)[]) => string;
@@ -24,9 +32,9 @@ export const calculateOrderTotals = (quote: Quote): { subtotal: number; vat: num
     // const courierFee = quote.deliveryMethod === 'courier' && quote.price < 100 ? 15 : 0; // Example logic, but avoiding assumptions.
 
     // VAT Calculation (Assuming 21% Belgian VAT included)
-    // Formula: Price / 1.21 = Ex VAT
+    // Formula: Price / (1 + VAT_RATE) = Ex VAT
     const total = price;
-    const subtotal = Math.round((total / 1.21) * 100) / 100;
+    const subtotal = Math.round((total / (1 + EXTRAS_PRICING.VAT_RATE)) * 100) / 100;
     const vat = Math.round((total - subtotal) * 100) / 100;
 
     return {
@@ -110,10 +118,10 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
     // Based on pricingLogic.ts: hydrogel is +25, courier is +15
     if (isRepair) {
         if (quote.hasHydrogel) {
-            basePrice -= 15;
+            basePrice -= EXTRAS_PRICING.HYDROGEL;
         }
         if (quote.deliveryMethod === 'courier' && quote.courierTier === 'brussels') {
-            basePrice -= 15;
+            basePrice -= EXTRAS_PRICING.COURIER_BRUSSELS;
         }
     }
 
@@ -121,10 +129,16 @@ export const mapQuoteToPdfData = (quote: Quote, t: TFunction): PdfData => {
 
     if (isRepair) {
         if (quote.hasHydrogel) {
-            priceBreakdown.push({ label: t('Protection Hydrogel'), price: 15 });
+            priceBreakdown.push({
+                label: t('Protection Hydrogel'),
+                price: EXTRAS_PRICING.HYDROGEL
+            });
         }
         if (quote.deliveryMethod === 'courier' && quote.courierTier === 'brussels') {
-            priceBreakdown.push({ label: t('Frais de Coursier'), price: 15 });
+            priceBreakdown.push({
+                label: t('Frais de Coursier'),
+                price: EXTRAS_PRICING.COURIER_BRUSSELS
+            });
         }
     }
 
@@ -297,8 +311,8 @@ export const mapReservationToPdfData = (res: any, t: TFunction): PdfData => {
         isCompany: res.isCompany,
         companyName: res.companyName,
         vatNumber: res.vatNumber,
-        subtotal: res.isCompany ? (res.productPrice || 0) / 1.21 : undefined,
-        vatAmount: res.isCompany ? (res.productPrice || 0) * (0.21 / 1.21) : undefined,
+        subtotal: res.isCompany ? (res.productPrice || 0) / (1 + EXTRAS_PRICING.VAT_RATE) : undefined,
+        vatAmount: res.isCompany ? (res.productPrice || 0) * (EXTRAS_PRICING.VAT_RATE / (1 + EXTRAS_PRICING.VAT_RATE)) : undefined,
         shopOrDevice: {
             title: t('pdf_label_reservation_details'),
             name: res.productName,

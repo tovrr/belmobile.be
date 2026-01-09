@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        const normalizedId = orderId.trim();
+        const normalizedId = orderId.trim().toUpperCase();
         const normalizedEmail = email.trim().toLowerCase();
         const t = getFixedT(lang);
 

@@ -362,7 +362,11 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                                 <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                             </div>
                         ) : (
-                            <>€{sidebarEstimate}</>
+                            sidebarEstimate > 0 ? (
+                                <>€{sidebarEstimate}</>
+                            ) : (
+                                selectedModel ? (type === 'buyback' ? t('contact_for_price_buyback') : t('contact_for_price')) : '-'
+                            )
                         )}
                     />
                 )}

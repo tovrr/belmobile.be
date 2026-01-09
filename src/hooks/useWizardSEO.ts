@@ -4,6 +4,8 @@ import { useLanguage } from './useLanguage';
 import { createSlug, slugToDisplayName } from '../utils/slugs';
 import { generateSeoMetadata } from '../utils/seo-templates';
 
+import { useWizard } from '../context/WizardContext';
+
 // Define slugs matching sitemap.ts
 const SERVICE_SLUGS: Record<string, { buyback: string; repair: string }> = {
     en: { buyback: 'buyback', repair: 'repair' },
@@ -32,41 +34,50 @@ export const useWizardSEO = ({
     loading
 }: UseWizardSEOProps) => {
     const { t, language } = useLanguage();
+    const { state } = useWizard();
 
     useEffect(() => {
         let title = "Belmobile.be";
         const brandName = selectedBrand ? slugToDisplayName(selectedBrand) : '';
         const modelName = selectedModel ? slugToDisplayName(selectedModel) : '';
 
-        // 1. DYNAMIC META TITLE LOGIC
+        // --- 1. SSoT PRICING CALCULATIONS ---
+        const currentBuybackPrices = (state as any).pricingData?.buybackPrices || [];
+        let maxAvailablePrice = 0;
+        if (Array.isArray(currentBuybackPrices) && currentBuybackPrices.length > 0) {
+            // Filter out 'new' to show realistic used buyback quotes (match pricing.dal.ts)
+            const validPrices = currentBuybackPrices
+                .filter((p: any) => p.condition !== 'new' && typeof p.price === 'number')
+                .map((p: any) => p.price);
+            if (validPrices.length > 0) maxAvailablePrice = Math.max(...validPrices);
+        }
+
+        const effectivePrice = maxAvailablePrice > 0
+            ? maxAvailablePrice
+            : (typeof estimateDisplay === 'number' && estimateDisplay > 0 ? estimateDisplay : undefined);
+
+        // --- 2. GENERATE SSoT METADATA ---
+        const { title: seoTitle, description: metaDescText, ogTitle, ogSubtitle } = generateSeoMetadata({
+            lang: language as 'fr' | 'nl' | 'en' | 'tr',
+            serviceId: type,
+            deviceValue: selectedBrand,
+            deviceModel: selectedModel,
+            deviceCategory: deviceCategory,
+            price: effectivePrice,
+            locationName: undefined
+        });
+
+        // --- 3. APPLY TITLE LOGIC (Wizard Context) ---
         if (type === 'buyback') {
             if (step === 1) {
                 title = t('page_title_sell_device') !== 'page_title_sell_device' ? t('page_title_sell_device') : 'Vendre votre appareil | Belmobile';
             } else if (step === 2 && brandName) {
-                // Fallback safe keys
                 const sellText = t('Sell') !== 'Sell' ? t('Sell') : 'Vendre';
                 const selectText = t('page_title_select_model') !== 'page_title_select_model' ? t('page_title_select_model') : 'Sélectionnez le Modèle';
                 title = `${sellText} ${brandName} - ${selectText} | Belmobile`;
             } else if (step === 3 && modelName) {
-                const sellText = t('Sell') !== 'Sell' ? t('Sell') : 'Vendre';
-                const instantQuote = t('page_title_instant_quote') !== 'page_title_instant_quote' ? t('page_title_instant_quote') : 'Devis Instantané';
-
-                const showPrice = !loading && typeof estimateDisplay === 'number' && estimateDisplay > 0;
-
-                if (showPrice) {
-                    if (language === 'nl') {
-                        // NL: "iPhone 13 Verkopen voor €140"
-                        title = `${brandName} ${modelName} ${sellText} ${t('for')} €${estimateDisplay} | Belmobile`;
-                    } else if (language === 'tr') {
-                        // TR: "iPhone 13 Sat - €140" (Simplified to avoid complex vowel harmony suffixes like 'unuzu/'ya)
-                        title = `${brandName} ${modelName} Sat - €${estimateDisplay} | Belmobile`;
-                    } else {
-                        // EN/FR: "Sell iPhone 13 for €140"
-                        title = `${sellText} ${brandName} ${modelName} ${t('for')} €${estimateDisplay} | Belmobile`;
-                    }
-                } else {
-                    title = `${sellText} ${brandName} ${modelName} - ${instantQuote} | Belmobile`;
-                }
+                // SSoT: Use exactly what Google sees for the model landing page
+                title = seoTitle;
             } else if (step >= 4) {
                 const confirmText = t('page_title_confirm_sale') !== 'page_title_confirm_sale' ? t('page_title_confirm_sale') : 'Confirmation';
                 title = `${confirmText} - ${brandName} ${modelName} | Belmobile`;
@@ -78,54 +89,28 @@ export const useWizardSEO = ({
             } else if (step === 2 && brandName) {
                 const repairText = t('Repair') !== 'Repair' ? t('Repair') : 'Réparer';
                 const selectText = t('page_title_select_model') !== 'page_title_select_model' ? t('page_title_select_model') : 'Modèle';
-                if (language === 'nl' || language === 'tr') {
-                    title = `${brandName} ${repairText} - ${selectText} | Belmobile`;
-                } else {
-                    title = `${repairText} ${brandName} - ${selectText} | Belmobile`;
-                }
+                title = (language === 'nl' || language === 'tr') ? `${brandName} ${repairText} - ${selectText} | Belmobile` : `${repairText} ${brandName} - ${selectText} | Belmobile`;
             } else if (step === 3 && modelName) {
-                const repairText = t('Repair') !== 'Repair' ? t('Repair') : 'Réparer';
-                const diagText = t('page_title_diagnostics') !== 'page_title_diagnostics' ? t('page_title_diagnostics') : 'Diagnostic';
-                if (language === 'nl' || language === 'tr') {
-                    title = `${brandName} ${modelName} ${repairText} - ${diagText} | Belmobile`;
-                } else {
-                    title = `${repairText} ${brandName} ${modelName} - ${diagText} | Belmobile`;
-                }
+                title = seoTitle;
             } else if (step >= 4) {
                 const confirmText = t('page_title_confirm_repair') !== 'page_title_confirm_repair' ? t('page_title_confirm_repair') : 'Confirmation';
                 title = `${confirmText} - ${brandName} ${modelName} | Belmobile`;
             }
         }
 
-        // Apply visual title
+        // Apply visual and meta updates
         document.title = title;
 
-        // 1.5 DYNAMIC METADATA UPDATE (SSoT via seo-templates)
-        // This ensures the <meta name="description"> updates as the user selects devices
-        const { description: metaDescText, ogTitle, ogSubtitle } = generateSeoMetadata({
-            lang: language as 'fr' | 'nl' | 'en' | 'tr',
-            serviceId: type,
-            deviceValue: selectedBrand,
-            deviceModel: selectedModel,
-            deviceCategory: deviceCategory, // Pass category for better templates
-            price: (typeof estimateDisplay === 'number' && estimateDisplay > 0) ? estimateDisplay : undefined,
-            locationName: undefined // Defaults to Brussels
-        });
-
-        // Update Description
         const uiMetaDesc = document.querySelector('meta[name="description"]');
         if (uiMetaDesc && metaDescText) uiMetaDesc.setAttribute('content', metaDescText);
 
-        // Update OG Tags (for sharing mid-flow)
         const uiOgTitle = document.querySelector('meta[property="og:title"]');
         if (uiOgTitle && ogTitle) uiOgTitle.setAttribute('content', ogTitle);
 
         const uiOgDesc = document.querySelector('meta[property="og:description"]');
         if (uiOgDesc && metaDescText) uiOgDesc.setAttribute('content', metaDescText);
 
-        // 1.5 DYNAMIC METADATA UPDATE (SSoT via seo-templates)
-        // ...
-    }, [type, step, selectedBrand, selectedModel, deviceCategory, estimateDisplay, loading, t, language]);
+    }, [type, step, selectedBrand, selectedModel, deviceCategory, estimateDisplay, loading, t, language, state.pricingData.buybackPrices]);
 
     // 1.5 URL SYNCHRONIZATION (Deep Linking)
     useEffect(() => {

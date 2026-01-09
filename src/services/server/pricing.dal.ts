@@ -2,6 +2,7 @@ import 'server-only';
 import { cache } from 'react';
 import { adminDb } from '../../lib/firebase-admin';
 import { calculateBuybackPriceShared, calculateRepairPriceShared, PricingParams } from '../../utils/pricingLogic';
+import { MASTER_DEVICE_LIST } from '../../data/master-device-list';
 
 // --- Types ---
 
@@ -48,7 +49,7 @@ export interface PricingQuote {
 }
 
 // --- CONSTANTS ---
-const DB_NAME = 'belmobile-database'; // Explicitly targeting the correct named DB
+const db = adminDb;
 
 // --- THE DAL (Data Access Layer) ---
 
@@ -63,13 +64,7 @@ export const getPriceQuote = cache(async (deviceSlug: string): Promise<PricingQu
     const deviceId = normalizeDeviceId(deviceSlug);
 
     try {
-        // Parallel Fetching: Market Value + Repair Costs
-        // Note: Using the Firestore Admin SDK to access the specified database
-        // In Admin SDK, usually we just use the default instance, but if "belmobile-database" is split,
-        // we need to be careful. For now, we assume the default project DB is the target or we'd configure it.
-        // The client uses "belmobile-database".
-
-        const db = adminDb;
+        // Fetching: Market Value + Repair Costs
 
         // --- SAFE FALLBACK FOR DEV WITHOUT CREDENTIALS ---
         if (!db) {
@@ -116,112 +111,74 @@ export const getPriceQuote = cache(async (deviceSlug: string): Promise<PricingQu
         // 2. Logic: Process Data
         const marketData = marketSnap.exists ? marketSnap.data() : null;
 
-        // Aggregate Repair Data from multiple documents
-        const repairData: any = {};
+        // Consolidate Repair Data
+        const repairData: any = { imageUrl: null };
         if (!repairQuerySnap.empty) {
             repairQuerySnap.docs.forEach((doc: any) => {
                 const d = doc.data();
                 const { issueId, variants, price } = d;
 
-                // console.log(`[PricingDAL] Aggregating repair: ${issueId} - ${JSON.stringify(variants)} - €${price}`);
-
                 if (issueId === 'screen' && variants?.quality) {
                     let q = variants.quality.toLowerCase();
-                    // Sync with useFirestore.ts logic
                     if (q.includes('generic') || q.includes('lcd')) q = 'generic';
                     if (q.includes('soft') || q.includes('oled')) q = 'oled';
-                    if (q.includes('refurb') || q.includes('original') || q.includes('service') || q.includes('pack')) q = 'original';
+                    if (q.includes('refurb') || q.includes('original')) q = 'original';
                     repairData[`screen_${q}`] = price;
-                } else if (issueId === 'screen' && variants?.position) {
-                    repairData[`screen_${variants.position.toLowerCase()}`] = price;
                 } else {
                     repairData[issueId] = price;
-                    // Synonym mappings for UI compatibility (REPAIR_ISSUES constants)
+                    // Synonyms for UI compatibility
                     if (issueId === 'charging_port' || issueId === 'connector') repairData['charging'] = price;
-                    if (issueId === 'rear_camera' || issueId === 'camera') repairData['camera_rear'] = price;
+                    if (issueId === 'rear_camera' || issueId === 'camera') repairData['camera'] = price;
                     if (issueId === 'glass_back') repairData['back_glass'] = price;
                 }
                 if (d.imageUrl) repairData.imageUrl = d.imageUrl;
             });
         }
 
-        // console.log(`[PricingDAL] getPriceQuote for ${deviceId}: Found ${Object.keys(repairData).length} mapped repair issues.`);
+        // --- NEW SSOT PRICING LOGIC ---
+        // We strictly prioritize Manual Data. If no manual data, it's "On Request".
+        const anchorSnap = await safeGet(db.collection('pricing_anchors').doc(deviceId));
+        const isManuallyActivated = anchorSnap.exists && anchorSnap.data()?.managedManually === true;
 
-
-        // --- FALLBACK TO MOCKS IF DATABASE IS EMPTY ---
-        if (Object.keys(repairData).length === 0 && buybackSnap.empty) {
-            const mockName = deviceId.split('-').pop() || 'Phone';
-            return {
-                currency: 'EUR',
-                buyback: { minPrice: 100, maxPrice: 450, tradeInCredit: 500 },
-                repair: {
-                    screen_generic: 99,
-                    screen_oled: 159,
-                    screen_original: 199,
-                    battery: 79,
-                    charging: 69,
-                    camera: 89
-                },
-                metadata: { entityRadius: 'Brussels', lastUpdated: new Date().toISOString() },
-                deviceImage: null,
-                seo: generateQuadLingualSeo(deviceId, { screen_generic: 99 }, 450)
-            };
-        }
-
-        // Buyback Base: If market data missing, fallback to buyback_pricing manual entries
         let maxBuyback = 0;
-        if (!buybackSnap.empty) {
-            // FILTER: Exclude "new" condition from SEO price to be more realistic (User Request)
-            const validDocs = buybackSnap.docs.filter((d: any) => d.data().condition !== 'new');
-            const targetDocs = validDocs.length > 0 ? validDocs : buybackSnap.docs; // Fallback if only 'new' exists
+        let isVerified = false;
 
+        if (isManuallyActivated && !buybackSnap.empty) {
+            const validDocs = buybackSnap.docs.filter((d: any) => d.data().condition !== 'new');
+            const targetDocs = validDocs.length > 0 ? validDocs : buybackSnap.docs;
             const prices = targetDocs.map((d: any) => d.data().price as number);
             maxBuyback = Math.max(...prices);
+            isVerified = true;
         }
 
-        // SOTA Logic: If maxBuyback is missing, calculate from market value
-        if (marketData?.sellPrice) {
-            // Target Buyback = (Market Sell Price * 0.8) - RepairBuffer(€50) - Margin(€50)
-            // Simplified: ~70% of market value for a "Perfect" device
-            const calculatedBuyback = Math.round(marketData.sellPrice * 0.7);
-
-            // If we have no manual buyback price, we use the calculated one.
-            if (maxBuyback === 0) {
-                maxBuyback = calculatedBuyback;
-            }
+        // If not verified, we return a "Quote Required" structure (Price 0 triggers UI "On Request")
+        if (!isVerified) {
+            maxBuyback = 0;
         }
 
-        // Final Floor: Ensure we never return 0 if we have some data
-        if (maxBuyback === 0 && marketData?.sellPrice) {
-            maxBuyback = Math.round(marketData.sellPrice * 0.6);
-        }
-
-        // 3. Assemble Prices
-        // Safely safely extracting repair prices
-        const getRp = (key: string) => repairData?.[key] || repairData?.[`${key}_generic`] || 0;
-
-        // 4. Generate SEO Data (Quad-Lingual)
+        const getRp = (key: string) => repairData?.[key] || 0;
         const seoData = generateQuadLingualSeo(deviceId, repairData, maxBuyback);
 
         return {
             currency: 'EUR',
             buyback: {
-                minPrice: Math.round(maxBuyback * 0.4), // Damaged floor
-                maxPrice: Math.round(maxBuyback),
-                tradeInCredit: Math.round(maxBuyback * 1.1) // 10% bonus for store credit
+                minPrice: Math.round(maxBuyback * 0.4),
+                maxPrice: maxBuyback,
+                tradeInCredit: Math.round(maxBuyback * 1.1)
             },
             repair: {
-                screen_generic: getRp('screen_generic') || getRp('screen_copy') || repairData?.screen || 0,
-                screen_oled: getRp('screen_oled') || getRp('screen_soft') || 0,
-                screen_original: getRp('screen_original') || getRp('screen_refurb') || 0,
+                screen_generic: getRp('screen_generic') || 0,
+                screen_oled: getRp('screen_oled') || 0,
+                screen_original: getRp('screen_original') || 0,
                 battery: getRp('battery') || 0,
-                charging: getRp('charging') || getRp('charging_port') || 0,
-                camera: getRp('camera') || getRp('rear_camera') || 0
+                charging: getRp('charging') || 0,
+                camera: getRp('camera') || 0
             },
             metadata: {
                 entityRadius: 'Brussels',
-                lastUpdated: new Date().toISOString()
-            },
+                lastUpdated: new Date().toISOString(),
+                isVerified // Pass to UI if needed
+            } as any,
             deviceImage: repairData?.imageUrl || null,
             seo: seoData
         };
@@ -241,7 +198,6 @@ export const getPriceQuote = cache(async (deviceSlug: string): Promise<PricingQu
 export const getPricingData = cache(async (deviceSlug: string) => {
     const deviceId = normalizeDeviceId(deviceSlug);
     try {
-        const db = adminDb;
 
         if (!db) {
             return {
@@ -317,13 +273,20 @@ export const getPricingData = cache(async (deviceSlug: string) => {
         if (deviceId.includes('ipad')) category = 'tablet';
         if (deviceId.includes('watch')) category = 'smartwatch';
 
+
+        // Sync Anchor State
+        const anchorSnap = await safeGet(db.collection('pricing_anchors').doc(deviceId));
+        const isManuallyActivated = anchorSnap.exists && anchorSnap.data()?.managedManually === true;
+
         return {
-            buyback: buybackPrices.length > 0 ? buybackPrices : [
-                { storage: '128GB', price: Math.round(maxBuyback) },
-                { storage: 'perfect', price: Math.round(maxBuyback) } // Compatibility fallback
-            ],
+            buyback: isManuallyActivated ? buybackPrices : [],
             repair: repairPrices,
-            metadata: { brand, category, imageUrl: repairImageUrl }
+            metadata: {
+                brand,
+                category,
+                imageUrl: repairImageUrl,
+                isVerified: isManuallyActivated && buybackPrices.length > 0
+            }
         };
     } catch (error) {
         console.error(`[PricingDAL] Error in getPricingData for ${deviceSlug}:`, error);
@@ -345,35 +308,8 @@ const PRIORITY_DEVICES = [
  * Returns a list of standardized slugs (e.g. 'apple-iphone-13')
  */
 export const getAllDevices = cache(async (): Promise<string[]> => {
-    try {
-        const db = adminDb;
-        if (!db) return PRIORITY_DEVICES;
-
-        // CRITICAL BUG FIX (SEO): We now use pricing_anchors or market_values as a de-duplicated master catalog.
-        // repair_prices contains multiple docs per device (screen, battery, etc).
-        // Using it directly via listDocuments() caused a 10x-20x multiplier in sitemap URLs.
-
-        // 1. Try pricing_anchors (1:1 with device models) - Fastest/Most accurate for model list
-        const anchorRefs = await db.collection('pricing_anchors').listDocuments();
-        if (anchorRefs.length > 0) {
-            return anchorRefs.map(ref => ref.id);
-        }
-
-        // 2. Fallback: Deduplicate from market_values
-        const marketRefs = await db.collection('market_values').listDocuments();
-        if (marketRefs.length > 0) {
-            return marketRefs.map(ref => ref.id);
-        }
-
-        // 3. Last Resort: Deduplicate from repair_prices 'deviceId' field
-        const snap = await db.collection('repair_prices').select('deviceId').get();
-        const ids = Array.from(new Set(snap.docs.map(doc => doc.data().deviceId).filter(Boolean))) as string[];
-
-        return ids.length > 0 ? ids : PRIORITY_DEVICES;
-    } catch (error) {
-        console.error('[PricingDAL] Error fetching all devices:', error);
-        return PRIORITY_DEVICES;
-    }
+    // SSoT v2: Use Static Master List for Instant Sitemap Generation (0ms latency, No DB Costs)
+    return MASTER_DEVICE_LIST.map(d => d.id);
 });
 
 // --- HELPER FUNCTIONS ---
@@ -413,64 +349,68 @@ function generateQuadLingualSeo(deviceId: string, repairData: any, buybackPrice:
         return s.charAt(0).toUpperCase() + s.slice(1);
     }).join(' ');
 
-    // Repair Price Anchor (Lowest Screen Price)
-    // Repair Price Anchor (Lowest Screen Price)
-    // Filter for strictly positive values to avoid -1 or 0 showing in title
     const getPos = (v: any) => (typeof v === 'number' && v > 0) ? v : null;
+    const foundPrice = Object.values(repairData).find(v => typeof v === 'number' && v > 0);
 
-    const startPrice =
+    const startPrice = Number(
         getPos(repairData?.screen_generic) ||
         getPos(repairData?.screen_original) ||
         getPos(repairData?.screen_oled) ||
         getPos(repairData?.screen) ||
         getPos(repairData?.battery) ||
-        Object.values(repairData).find(v => typeof v === 'number' && v > 0) ||
-        0;
-
-    const floorBuyback = Math.round(buybackPrice * 0.4);
+        (typeof foundPrice === 'number' ? foundPrice : 0)
+    ) as number;
 
     return {
         fr: {
             repair: {
-                title: `Réparation ${name} Bruxelles - Écran dès ${startPrice}€ | Belmobile`,
-                description: `Réparez votre ${name} en 30 min à Bruxelles. Changement écran, batterie (${startPrice}€). Garantie 1 an. Ou revendez-le jusqu'à ${buybackPrice}€ cash.`
+                title: `Réparation ${name} Bruxelles - ${startPrice > 0 ? 'Écran dès ' + startPrice + '€' : 'Prix sur demande'} | Belmobile`,
+                description: `Réparez votre ${name} en 30 min à Bruxelles. Écran, batterie (${startPrice > 0 ? startPrice + '€' : 'sur demande'}). Garantie 1 an. ${buybackPrice > 0 ? 'Ou revendez-le jusqu\'à ' + buybackPrice + '€ cash.' : ''}`
             },
             buyback: {
-                title: `Rachat ${name} Bruxelles - Vendez au meilleur prix (${buybackPrice}€ Cash)`,
-                description: `Estimation immédiate pour votre ${name} à Bruxelles. Nous rachetons votre appareil cash jusqu'à ${buybackPrice}€, même cassé.`
+                title: buybackPrice > 0 ? `Rachat ${name} Bruxelles - Vendez au meilleur prix (${buybackPrice}€ Cash)` : `Rachat ${name} Bruxelles - Prix sur demande`,
+                description: buybackPrice > 0
+                    ? `Estimation immédiate pour votre ${name} à Bruxelles. Nous rachetons votre appareil cash jusqu'à ${buybackPrice}€, même cassé.`
+                    : `Propriétaire d'un ${name} ? Revendez-le au meilleur prix chez Belmobile Bruxelles. Estimation professionnelle sur demande.`
             },
-            slug: `reparation-${deviceId}` // Base slug used for routing
+            slug: `reparation-${deviceId}`
         },
         nl: {
             repair: {
-                title: `${name} Reparatie Brussel - Scherm vanaf ${startPrice}€ | Belmobile`,
-                description: `${name} herstelling in 30 min. Scherm vervangen, batterij vervangen (${startPrice}€). 1 jaar garantie. Of verkoop het voor max ${buybackPrice}€ cash.`
+                title: `${name} Reparatie Brussel - ${startPrice > 0 ? 'Scherm vanaf ' + startPrice + '€' : 'Prijs op aanvraag'} | Belmobile`,
+                description: `${name} herstelling in 30 min. Scherm vervangen, batterij vervangen (${startPrice > 0 ? startPrice + '€' : 'prijs op aanvraag'}). 1 jaar garantie. ${buybackPrice > 0 ? 'Of verkoop het voor max ' + buybackPrice + '€ cash.' : ''}`
             },
             buyback: {
-                title: `${name} Verkopen Brussel - Hoogste prijs (${buybackPrice}€ Cash)`,
-                description: `Directe schatting voor uw ${name} in Brussel. Wij kopen uw toestel contant tot ${buybackPrice}€, zelfs defect.`
+                title: buybackPrice > 0 ? `${name} Verkopen Brussel - Hoogste prijs (${buybackPrice}€ Cash)` : `${name} Verkopen Brussel - Prijs op aanvraag`,
+                description: buybackPrice > 0
+                    ? `Directe schatting voor uw ${name} in Brussel. Wij kopen uw toestel contant tot ${buybackPrice}€, zelfs defect.`
+                    : `Bent u eigenaar van een ${name}? Verkoop het tegen de beste prijs aan Belmobile Brussel. Directe schatting op aanvraag.`
             },
             slug: `reparatie-${deviceId}`
         },
         en: {
             repair: {
-                title: `${name} Repair Brussels - Screen from ${startPrice}€ | Belmobile`,
-                description: `Fix your ${name} in 30 mins in Brussels. Screen toggle, battery replacement (${startPrice}€). 1 Year Warranty. Or sell it for up to ${buybackPrice}€ cash.`
+                title: `${name} Repair Brussels - ${startPrice > 0 ? 'Screen from ' + startPrice + '€' : 'Quote on request'} | Belmobile`,
+                description: `Fix your ${name} in 30 mins in Brussels. Screen, battery (${startPrice > 0 ? startPrice + '€' : 'quote on request'}). 1 Year Warranty. ${buybackPrice > 0 ? 'Or sell it for up to ' + buybackPrice + '€ cash.' : ''}`
             },
             buyback: {
-                title: `Sell ${name} Brussels - Best Price (${buybackPrice}€ Cash)`,
-                description: `Instant quote for your ${name} in Brussels. We buy back your device for up to ${buybackPrice}€ cash, even broken.`
+                title: buybackPrice > 0 ? `Sell ${name} Brussels - Best Price (${buybackPrice}€ Cash)` : `Sell ${name} Brussels - Quote on Request`,
+                description: buybackPrice > 0
+                    ? `Instant quote for your ${name} in Brussels. We buy back your device for up to ${buybackPrice}€ cash, even broken.`
+                    : `Own a ${name}? Sell it to Belmobile Brussels for the best market price. Professional quote on request.`
             },
             slug: `repair-${deviceId}`
         },
         tr: {
             repair: {
-                title: `${name} Tamiri Brüksel - Ekran ${startPrice}€'dan başlayan fiyatlarla`,
-                description: `Brüksel'de 30 dakikada ${name} tamiri. Ekran değişimi, batarya (${startPrice}€). 1 Yıl Garanti. Veya ${buybackPrice}€'ya kadar nakit satabilirsiniz.`
+                title: `${name} Tamiri Brüksel - ${startPrice > 0 ? 'Ekran ' + startPrice + "€'dan başlayan fiyatlarla" : 'Fiyat sorunuz'}`,
+                description: `Brüksel'de 30 dakikada ${name} tamiri. Ekran değişimi, batarya (${startPrice > 0 ? startPrice + '€' : 'fiyat sorunuz'}). 1 Yıl Garanti. ${buybackPrice > 0 ? 'Veya ' + buybackPrice + "€'ya kadar nakit satabilirsiniz." : ''}`
             },
             buyback: {
-                title: `${name} Nakit Alım Brüksel - En İyi Fiyat (${buybackPrice}€ Nakit)`,
-                description: `Brüksel'de ${name} cihazınız için dürüst fiyat. Cihazınızı ${buybackPrice}€'ya kadar nakit alıyoruz.`
+                title: buybackPrice > 0 ? `${name} Nakit Alım Brüksel - En İyi Fiyat (${buybackPrice}€ Nakit)` : `${name} Nakit Alım Brüksel - Teklif İsteyin`,
+                description: buybackPrice > 0
+                    ? `Brüksel'de ${name} cihazınız için dürüst fiyat. Cihazınızı ${buybackPrice}€'ya kadar nakit alıyoruz.`
+                    : `${name} cihazınızı nakit satmak mı istiyorsunuz? Belmobile Brüksel'den hemen teklif isteyin.`
             },
             slug: `tamir-${deviceId}`
         }

@@ -55,75 +55,67 @@ const MessageManagement: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm">
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-gray-50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700">
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Date & Time</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Phone</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Subject</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Preview</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                            <tr className="bg-gray-50/50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700">
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Status</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Date</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Subject</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Preview</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+                        <tbody className="divide-y divide-gray-50 dark:divide-slate-700/50">
                             {filteredMessages.length > 0 ? (
                                 filteredMessages.map((msg) => (
-                                    <tr key={msg.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-700/30 transition-colors group">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${msg.status === 'new'
-                                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                                    <tr key={msg.id} className="hover:bg-gray-50/30 dark:hover:bg-slate-700/20 transition-colors group">
+                                        <td className="px-6 py-4">
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${msg.status === 'new'
+                                                ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400'
                                                 : msg.status === 'read'
-                                                    ? 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-gray-400'
-                                                    : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                                    ? 'bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-gray-400'
+                                                    : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'
                                                 }`}>
-                                                {msg.status.charAt(0).toUpperCase() + msg.status.slice(1)}
+                                                {msg.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                            {msg.date}
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm font-medium text-gray-900 dark:text-white">{msg.name}</div>
+                                            <div className="text-[11px] text-gray-400 mt-0.5">{msg.date}</div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-white">
-                                            {msg.name}
+                                        <td className="px-6 py-4">
+                                            <div className="text-sm font-bold text-gray-700 dark:text-gray-300">{msg.subject || 'No Subject'}</div>
+                                            <div className="text-[11px] text-gray-400">{msg.email}</div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                            {msg.email}
+                                        <td className="px-6 py-4">
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-[200px] truncate italic">
+                                                "{msg.message}"
+                                            </p>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                            {msg.phone || 'N/A'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                            {msg.subject || 'N/A'}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">
-                                            {msg.message}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex justify-end gap-1">
                                                 <button
                                                     onClick={() => setSelectedMessage(msg)}
-                                                    className="p-2 text-gray-400 hover:text-bel-blue dark:hover:text-blue-400 transition-colors"
-                                                    title="View Full Message"
+                                                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all"
+                                                    title="View"
                                                 >
                                                     <EyeIcon className="w-5 h-5" />
                                                 </button>
                                                 {msg.status === 'new' && (
                                                     <button
                                                         onClick={() => handleMarkAsRead(msg.id)}
-                                                        className="p-2 text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors"
-                                                        title="Mark as Read"
+                                                        className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-all"
+                                                        title="Read"
                                                     >
                                                         <CheckCircleIcon className="w-5 h-5" />
                                                     </button>
                                                 )}
-
                                                 <button
                                                     onClick={() => handleDelete(msg.id)}
-                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                                    className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-all"
                                                     title="Delete"
                                                 >
                                                     <TrashIcon className="w-5 h-5" />
@@ -134,15 +126,71 @@ const MessageManagement: React.FC = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                                        <EnvelopeIcon className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
-                                        <p>{loading ? 'Loading messages...' : 'No messages found.'}</p>
+                                    <td colSpan={5} className="px-6 py-12 text-center text-gray-400">
+                                        <EnvelopeIcon className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                                        <p className="text-sm font-medium">{loading ? 'Loading...' : 'Inbox empty'}</p>
                                     </td>
                                 </tr>
                             )}
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+                {filteredMessages.length > 0 ? (
+                    filteredMessages.map((msg) => (
+                        <div key={msg.id} className="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-gray-100 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 ${msg.status === 'new'
+                                        ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400'
+                                        : msg.status === 'read'
+                                            ? 'bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-gray-400'
+                                            : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'
+                                        }`}>
+                                        {msg.status}
+                                    </span>
+                                    <h4 className="font-bold text-gray-900 dark:text-white leading-tight">{msg.name}</h4>
+                                    <p className="text-xs text-gray-400 mt-1">{msg.date}</p>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setSelectedMessage(msg)}
+                                        className="p-2.5 bg-gray-50 dark:bg-slate-900 text-gray-500 rounded-xl"
+                                    >
+                                        <EyeIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(msg.id)}
+                                        className="p-2.5 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-xl"
+                                    >
+                                        <TrashIcon className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="space-y-2 mb-4">
+                                <p className="text-sm font-bold text-gray-700 dark:text-gray-300 line-clamp-1">{msg.subject || 'No Subject'}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 italic">"{msg.message}"</p>
+                            </div>
+                            {msg.status === 'new' && (
+                                <button
+                                    onClick={() => handleMarkAsRead(msg.id)}
+                                    className="w-full py-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                                >
+                                    <CheckCircleIcon className="w-4 h-4" />
+                                    Mark as Read
+                                </button>
+                            )}
+                        </div>
+                    ))
+                ) : (
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl p-12 text-center border border-gray-100 dark:border-slate-700 shadow-sm">
+                        <EnvelopeIcon className="w-12 h-12 mx-auto mb-4 text-gray-200 dark:text-slate-700" />
+                        <p className="text-gray-400 font-medium">{loading ? 'Loading...' : 'No messages here'}</p>
+                    </div>
+                )}
             </div>
 
             {selectedMessage && (

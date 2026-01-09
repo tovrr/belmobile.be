@@ -208,87 +208,149 @@ const ProductManagement: React.FC = () => {
 
             {!showLogs ? (
                 viewMode === 'list' ? (
-                    <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                <thead className="text-xs text-gray-500 dark:text-gray-400 uppercase bg-gray-50/50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700">
-                                    <tr>
-                                        <th scope="col" className="px-6 py-4">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedProducts.size === filteredProducts.length && filteredProducts.length > 0}
-                                                onChange={toggleAllSelection}
-                                                className="w-4 h-4 rounded border-gray-300 text-bel-blue focus:ring-bel-blue"
-                                            />
-                                        </th>
-                                        <th scope="col" className="px-6 py-4 font-bold">Product</th>
-                                        <th scope="col" className="px-6 py-4 font-bold text-right">Price</th>
-                                        <th scope="col" className="px-6 py-4 font-bold text-center">Global Stock</th>
-                                        <th scope="col" className="px-6 py-4 font-bold">Status</th>
-                                        <th scope="col" className="px-6 py-4 font-bold text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
-                                    {filteredProducts.map(product => {
-                                        const stock = getTotalStock(product);
-                                        const isSelected = selectedProducts.has(product.id);
-                                        return (
-                                            <tr key={product.id} className={`transition-colors ${isSelected ? 'bg-blue-50/30 dark:bg-blue-900/10' : 'hover:bg-gray-50/50 dark:hover:bg-slate-700/50'}`}>
-                                                <td className="px-6 py-4">
+                    <div className="space-y-4">
+                        {/* Desktop View */}
+                        <div className="hidden md:block bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-gray-50/50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700">
+                                            <th className="px-6 py-4 w-10">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedProducts.size === filteredProducts.length && filteredProducts.length > 0}
+                                                    onChange={toggleAllSelection}
+                                                    className="w-5 h-5 rounded-lg border-gray-300 text-bel-blue focus:ring-bel-blue/20"
+                                                />
+                                            </th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Product</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Price</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Stock Stat</th>
+                                            <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50 dark:divide-slate-700/50">
+                                        {filteredProducts.map(product => {
+                                            const stock = getTotalStock(product);
+                                            const isSelected = selectedProducts.has(product.id);
+                                            return (
+                                                <tr key={product.id} className={`transition-colors group ${isSelected ? 'bg-blue-50/30 dark:bg-blue-900/10' : 'hover:bg-gray-50/30 dark:hover:bg-slate-700/20'}`}>
+                                                    <td className="px-6 py-4">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isSelected}
+                                                            onChange={() => toggleProductSelection(product.id)}
+                                                            className="w-5 h-5 rounded-lg border-gray-300 text-bel-blue focus:ring-bel-blue/20"
+                                                        />
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="h-14 w-14 rounded-2xl bg-gray-50 dark:bg-slate-900 overflow-hidden shrink-0 border border-gray-100 dark:border-slate-700 relative shadow-sm">
+                                                                <Image src={product.imageUrl} alt="" fill className="object-cover" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-bold text-gray-900 dark:text-white leading-tight">{product.name}</div>
+                                                                <div className="flex items-center gap-2 mt-1">
+                                                                    <span className="text-[10px] font-mono text-gray-400">#{product.id}</span>
+                                                                    <span className="text-[10px] bg-gray-100 dark:bg-slate-700 px-1.5 py-0.5 rounded font-black text-gray-500 uppercase">{product.capacity || 'N/A'}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right">
+                                                        <span className="font-black text-gray-900 dark:text-white">€{product.price.toFixed(2)}</span>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex flex-col items-center gap-1.5">
+                                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${stock > 5 ? 'bg-emerald-50 text-emerald-600' : stock > 0 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>
+                                                                {stock > 5 ? 'In Stock' : stock > 0 ? 'Low Stock' : 'Out of Stock'}
+                                                            </span>
+                                                            <span className="text-[10px] font-bold text-gray-400">Total: {stock} units</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center justify-end gap-1.5">
+                                                            <button onClick={() => handleEdit(product)} className="p-2.5 bg-gray-50 dark:bg-slate-900 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl transition-all" title="Edit">
+                                                                <PencilIcon className="h-5 w-5" />
+                                                            </button>
+                                                            <button onClick={() => handleDuplicate(product)} className="p-2.5 bg-gray-50 dark:bg-slate-900 text-gray-400 hover:text-emerald-600 rounded-xl transition-all" title="Duplicate">
+                                                                <DocumentDuplicateIcon className="h-5 w-5" />
+                                                            </button>
+                                                            <button onClick={() => handleDelete(product.id)} className="p-2.5 bg-rose-50 dark:bg-rose-900/10 text-rose-400 hover:text-rose-600 rounded-xl transition-all" title="Delete">
+                                                                <TrashIcon className="h-5 w-5" />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Mobile View */}
+                        <div className="md:hidden space-y-4">
+                            {filteredProducts.map(product => {
+                                const stock = getTotalStock(product);
+                                const isSelected = selectedProducts.has(product.id);
+                                return (
+                                    <div key={product.id} className={`bg-white dark:bg-slate-800 rounded-3xl p-5 border border-gray-100 dark:border-slate-700 shadow-sm relative overflow-hidden ${isSelected ? 'ring-2 ring-bel-blue' : ''}`}>
+                                        <div className="flex gap-4 mb-4">
+                                            <div className="h-20 w-20 rounded-2xl bg-gray-50 dark:bg-slate-900 overflow-hidden shrink-0 border border-gray-100 dark:border-slate-700 relative shadow-sm">
+                                                <Image src={product.imageUrl} alt="" fill className="object-cover" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-start">
+                                                    <h4 className="font-bold text-gray-900 dark:text-white leading-tight truncate pr-2">{product.name}</h4>
                                                     <input
                                                         type="checkbox"
                                                         checked={isSelected}
                                                         onChange={() => toggleProductSelection(product.id)}
-                                                        className="w-4 h-4 rounded border-gray-300 text-bel-blue focus:ring-bel-blue"
+                                                        className="w-5 h-5 rounded-lg border-gray-300 text-bel-blue"
                                                     />
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="h-12 w-12 rounded-xl bg-gray-100 dark:bg-slate-700 overflow-hidden shrink-0 border border-gray-200 dark:border-slate-600 relative">
-                                                            <Image src={product.imageUrl} alt="" fill className="object-cover" />
-                                                        </div>
-                                                        <div>
-                                                            <div className="font-bold text-gray-900 dark:text-white">{product.name}</div>
-                                                            <div className="text-xs text-gray-400">ID: #{product.id}</div>
-                                                            <div className="text-xs text-gray-400 bg-gray-100 dark:bg-slate-700 px-2 py-0.5 rounded text-[10px] mt-1 inline-block">{product.capacity || 'N/A'}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 font-bold text-gray-900 dark:text-white text-right">€{product.price.toFixed(2)}</td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        <ArchiveBoxIcon className="h-4 w-4 text-gray-400" />
-                                                        <span className="font-medium text-gray-700 dark:text-gray-300">{stock}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${stock > 5
-                                                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                                                        : stock > 0
-                                                            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
-                                                            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                                                        }`}>
-                                                        {stock > 5 ? 'In Stock' : stock > 0 ? 'Low Stock' : 'Out of Stock'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <button onClick={() => handleEdit(product)} className="p-2 text-gray-500 hover:bg-gray-100 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-slate-700 dark:hover:text-blue-400 rounded-xl transition-all" title="Edit">
-                                                            <PencilIcon className="h-4 w-4" />
-                                                        </button>
-                                                        <button onClick={() => handleDuplicate(product)} className="p-2 text-gray-500 hover:bg-gray-100 hover:text-green-600 dark:text-gray-400 dark:hover:bg-slate-700 dark:hover:text-green-400 rounded-xl transition-all" title="Duplicate">
-                                                            <DocumentDuplicateIcon className="h-4 w-4" />
-                                                        </button>
-                                                        <button onClick={() => handleDelete(product.id)} className="p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/20 dark:hover:text-red-400 rounded-xl transition-all" title="Delete">
-                                                            <TrashIcon className="h-4 w-4" />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                                                </div>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-[10px] font-mono text-gray-400 font-bold tracking-tighter">#{product.id}</span>
+                                                    <span className="text-[10px] bg-gray-100 dark:bg-slate-700 px-1.5 py-0.5 rounded font-black text-gray-500 uppercase tracking-widest">{product.capacity || 'N/A'}</span>
+                                                </div>
+                                                <div className="mt-2 font-black text-lg text-indigo-600">€{product.price.toFixed(2)}</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between p-3 bg-gray-50/50 dark:bg-slate-900/30 rounded-2xl border border-gray-50 dark:border-slate-700/50 mb-5">
+                                            <div className="flex items-center gap-2">
+                                                <ArchiveBoxIcon className="h-4 w-4 text-gray-400" />
+                                                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Stock: {stock} units</span>
+                                            </div>
+                                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${stock > 5 ? 'bg-emerald-50 text-emerald-600' : stock > 0 ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>
+                                                {stock > 5 ? 'In Stock' : stock > 0 ? 'Low' : 'Out'}
+                                            </span>
+                                        </div>
+
+                                        <div className="grid grid-cols-3 gap-2">
+                                            <button
+                                                onClick={() => handleEdit(product)}
+                                                className="py-3 bg-gray-50 dark:bg-slate-900 text-gray-600 dark:text-gray-400 rounded-2xl flex items-center justify-center transition-colors"
+                                            >
+                                                <PencilIcon className="h-5 w-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDuplicate(product)}
+                                                className="py-3 bg-gray-50 dark:bg-slate-900 text-gray-600 dark:text-gray-400 rounded-2xl flex items-center justify-center transition-colors"
+                                            >
+                                                <DocumentDuplicateIcon className="h-5 w-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(product.id)}
+                                                className="py-3 bg-rose-50 dark:bg-rose-900/10 text-rose-600 rounded-2xl flex items-center justify-center transition-colors"
+                                            >
+                                                <TrashIcon className="h-5 w-5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 ) : (

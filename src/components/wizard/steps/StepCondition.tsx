@@ -92,14 +92,25 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                 let options: string[] = [];
                 if (dynamicOptions.length > 0) options = Array.from(new Set(dynamicOptions));
                 else if (staticOptions.length > 0) options = staticOptions;
-                else options = ['64GB', '128GB', '256GB']; // Fallback
+                else options = ['128GB', '256GB', '512GB']; // Modern Fallback
+
+                // AEGIS: Filter out 64GB for modern iPhones (13, 14, 15, 16, 17)
+                const isModernIphone = selectedBrand?.toLowerCase() === 'apple' &&
+                    deviceType === 'smartphone' &&
+                    (selectedModel.includes('13') || selectedModel.includes('14') ||
+                        selectedModel.includes('15') || selectedModel.includes('16') ||
+                        selectedModel.includes('17') || selectedModel.includes('Air'));
+
+                if (isModernIphone) {
+                    options = options.filter(o => o !== '64GB');
+                }
 
                 const getVal = (s: string) => {
                     if (s.endsWith('TB')) return parseFloat(s) * 1024;
                     return parseFloat(s);
                 };
 
-                // Sort descending (Max first)
+                // PRE-SELECT LOGIC: Sort descending (Max first) to pick options[0]
                 options.sort((a, b) => getVal(b) - getVal(a));
 
                 if (options.length > 0) setStorage(options[0]);
@@ -190,19 +201,30 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                         finalOptions = staticOptions;
                                     } else {
                                         // Robust Fallback
-                                        finalOptions = ['64GB', '128GB', '256GB', '512GB'];
+                                        finalOptions = ['128GB', '256GB', '512GB'];
                                     }
 
-                                    const sortStorage = (a: string, b: string) => {
+                                    // AEGIS: Safety Filter - Modern iPhones do not have 64GB
+                                    const isModernIphone = selectedBrand?.toLowerCase() === 'apple' &&
+                                        deviceType === 'smartphone' &&
+                                        (selectedModel.includes('13') || selectedModel.includes('14') ||
+                                            selectedModel.includes('15') || selectedModel.includes('16') ||
+                                            selectedModel.includes('17') || selectedModel.includes('Air'));
+
+                                    if (isModernIphone) {
+                                        finalOptions = finalOptions.filter(o => o !== '64GB');
+                                    }
+
+                                    const sortStorageAsc = (a: string, b: string) => {
                                         const getVal = (s: string) => {
                                             if (!s) return 0;
                                             if (s.endsWith('TB')) return parseFloat(s) * 1024;
                                             return parseFloat(s) || 0;
                                         };
-                                        return getVal(a) - getVal(b);
+                                        return getVal(a) - getVal(b); // Ascending (Small -> Large)
                                     };
 
-                                    return finalOptions.sort(sortStorage).map((opt) => (
+                                    return finalOptions.sort(sortStorageAsc).map((opt) => (
                                         <button
                                             key={`storage-${opt}`}
                                             type="button"

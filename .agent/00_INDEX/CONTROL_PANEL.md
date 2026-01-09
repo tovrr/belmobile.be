@@ -5,38 +5,36 @@
 ---
 
 ## 🧠 1. Architecture & Vision (Core)
-* **[CORE_BRAIN.md](docs/technical/CORE_BRAIN.md)** : Architecture V3, Multi-site (Schaerbeek/Molenbeek), et moteur de prix. **(Priorité IA)**
-* **[Strategic Plan 2026](docs/business/2026_STRATEGIC_PLAN.md)** : Vision globale "Empire" et expansion nationale.
-* **[Behavior Rules](behavior.md)** : Comment coder pour Belmobile (Interdiction du middleware, builds zéro-régression).
+* **[CORE_BRAIN.md](../20_KNOWLEDGE_BASE/technical/CORE_BRAIN.md)** : Architecture V3, Multi-site, et moteur de prix. **(Priorité IA)**
+* **[Behavior Rules](../20_KNOWLEDGE_BASE/technical/behavior.md)** : Règles de codage Belmobile.
+* **[Sitemap Recovery](../20_KNOWLEDGE_BASE/technical/SITEMAP_RECOVERY.md)** : Stratégie SEO XML.
 
 ---
 
 ## 🏢 2. B2B & Molenbeek Hub
-* **[Fleet Portal Masterplan](docs/business/B2B_FLEET_PORTAL_MASTERPLAN.md)** : Roadmap du portail entreprise.
-* **[Aegis Roadmap](docs/staff/ROADMAP_AEGIS_B2B.md)** : Automatisation backend et SaaS.
-* **Note Critique** : Molenbeek est un hub **B2B exclusif** (sur rendez-vous uniquement).
+* **[Fleet Portal Masterplan](../10_STRATEGY/B2B_FLEET_PORTAL_MASTERPLAN.md)** : Roadmap du portail entreprise.
+* **[Aegis Roadmap](../20_KNOWLEDGE_BASE/operations/ROADMAP_AEGIS_B2B.md)** : Automatisation backend et SaaS.
+* **Note Critique** : Molenbeek est un hub **B2B exclusif**.
 
 ---
 
 ## 🛠️ 3. Workflows de Développement
-* **[Wizard Development](workflows/wizard-development.md)** : Guide pour modifier le tunnel Buyback/Repair.
-* **[Admin Dashboard](workflows/admin-development.md)** : Guide pour étendre le panneau d'administration.
-* **[Design System](design-system.md)** : Codes couleurs (Bel Blue, Cyber Citron) et règles UI.
-* **[Sitemap Recovery](docs/technical/SITEMAP_RECOVERY.md)** : Plan d'action pour le SEO et le fichier XML.
+* **[Wizard Development](../30_WORKFLOWS/dev/wizard-development.md)** : Tunnel Buyback/Repair.
+* **[Admin Dashboard](../30_WORKFLOWS/dev/admin-development.md)** : Guide d'extension (Pricing & Orders).
+* **[Lead Recovery](../30_WORKFLOWS/dev/lead-recovery.md)** : Stratégie Magic Links.
 
 ---
 
 ## 🚀 4. Protocoles de Déploiement (SOP)
-* **[Standard Operating Procedure](workflows/workflow_sop.md)** : La règle d'or (Local -> Staging -> Prod).
-* **[Staging Flow](workflows/workflow_staging.md)** : Accès au serveur de test (PIN: 2580).
-* **[Production Flow](workflows/workflow_production.md)** : Protocole de mise en ligne.
+* **[Standard Operating Procedure](../30_WORKFLOWS/dev/workflow_sop.md)** : Gold Standard Deployment.
+* **[Staging Flow](../30_WORKFLOWS/dev/workflow_staging.md)** : Test PIN (2580).
+* **[Production Flow](../30_WORKFLOWS/dev/workflow_production.md)** : Mise en ligne.
 
 ---
 
 ## 📢 5. Marketing & Opérations
-* **[Marketing Plan 2026](docs/business/2026_MARKETING_PLAN.md)** : NAP Strategy et conquête TikTok.
-* **[Guide WhatsApp](docs/staff/ADMIN_GUIDE_WHATSAPP.md)** : Système "Gözün Kulağın" pour les techniciens.
-* **[Lead Recovery](workflows/lead-recovery.md)** : Stratégie Magic Links et conversion.
+* **[Apollo B2C Roadmap](../20_KNOWLEDGE_BASE/operations/ROADMAP_APOLLO_B2C.md)** : Growth & UX.
+* **[Guide WhatsApp](../20_KNOWLEDGE_BASE/operations/ADMIN_GUIDE_WHATSAPP.md)** : Communication techniciens.
 
 ---
 

@@ -61,6 +61,12 @@ Your goal is **Premium Quality**, **Zero Regression**, and **Vibe Coding Flow**.
 5.  **Dynamic SEO Suffixing**: 
     - When generating programmatic pages, always check `seo_config.ts` for dynamic suffixes (e.g., "Original Parts").
     - Ensure `generateMetadata` includes the branch location (Schaerbeek, Anderlecht, or Molenbeek) in the title tag based on the active route.
+6.  **Pricing & Slug Integrity**:
+    - **SSoT**: The Admin **Buyback Command Center** is the sole Source of Truth for buyback prices.
+    - **Workflow**: Activate models via "Add Model" in Admin -> Set Base Anchor -> Click "Sync Prices".
+    - **Algorithm**: Use the logarithmic storage jump (6% per tier) enforced in the Command Center.
+    - **Verification**: Run `verify-ssot.ts --slug=[brand-model]` after every production sync.
+    - **Slugs**: Must be SEO-clean (e.g., `samsung-galaxy-s24-ultra`). No `-5g` suffixes.
 
 ## 📂 Architecture & Patterns
 1.  **Layouts**: Use "Client Wrappers" (e.g., `LayoutWrapper.tsx`) to hide headers/footers. Do NOT refactor into complex Route Groups (`(shop)`, `(main)`) as this breaks `legacyUrlMap` linking.
@@ -79,7 +85,13 @@ Your goal is **Premium Quality**, **Zero Regression**, and **Vibe Coding Flow**.
     - **Molenbeek Flow**: MUST use `isAppointmentRequired: true`. Never suggest "Walk-in" or "Wait-in-shop" UI for the Molenbeek branch.
     - **Lead Routing**: B2B/Fleet inquiries (detected by `deviceCount > 5`) MUST be flagged for Molenbeek Hub priority.
     - **UI Filters**: Ensure the branch selector in the Wizard applies the "Pro-only" styling/notice when Molenbeek is selected.
-6.  **Documentation & Knowledge Base**:
+6.  **Admin UI Dual-View Architecture**:
+    - All admin management portals MUST implement a dual-view structure:
+        - **Desktop**: Persistent tables with clearly visible action buttons (Rose for delete, Indigo for view, Emerald for confirm). No `group-hover` dependencies for critical actions.
+        - **Mobile**: Card-based layouts (`flex flex-col` or `grid grid-cols-2`) for better thumb-reach and readability.
+7.  **Firebase Script Auth**:
+    - When creating/editing scripts in `/scripts`, always use the `.replace(/\\n/g, '\n')` pattern for `process.env.FIREBASE_PRIVATE_KEY` to ensure compatibility with Vercel and local environments.
+8.  **Documentation & Knowledge Base**:
     - **Source of Truth**: Reference `/docs/CONTROL_PANEL.md` as the master index for all business and technical strategy.
     - **Maintenance**: After modifying business logic (pricing, margins), proactively update `docs/technical/pricing.md` or `docs/business/secret_sauce.md`.
 

@@ -378,6 +378,10 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
 
     // Helper to render price table for repair
     const renderPriceTable = () => {
+        // PER USER REQUEST (2026-01-08): Hidden visible price table to avoid clutter under wizard.
+        return null;
+
+        /* 
         if (!isRepair || !priceQuote) return null;
 
         const { repair } = priceQuote;
@@ -416,6 +420,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                 </table>
             </div>
         );
+        */
     };
 
     return (

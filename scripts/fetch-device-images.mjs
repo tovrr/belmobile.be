@@ -33,6 +33,7 @@ const limit = pLimit(2); // Reduced concurrency for price scraping politeness
 const HQ_COORDS = { lat: 50.86285, lng: 4.34240 };
 
 // --- DEVICES (Keep existing list logic or expand) ---
+// --- DEVICES (Mirrored from src/data/master-device-list.ts) ---
 const DEVICES = [
     // --- iPhone 17 Series ---
     { name: 'iPhone 17 Pro Max', slug: 'apple-iphone-17-pro-max' },
@@ -41,10 +42,10 @@ const DEVICES = [
     { name: 'iPhone 17', slug: 'apple-iphone-17' },
 
     // --- iPhone 16 Series ---
-    { name: 'iPhone 16 Pro Max', slug: 'apple-iphone-16-pro-max' },
-    { name: 'iPhone 16 Pro', slug: 'apple-iphone-16-pro' },
-    { name: 'iPhone 16 Plus', slug: 'apple-iphone-16-plus' },
-    { name: 'iPhone 16', slug: 'apple-iphone-16' },
+    { name: 'iPhone 16 Pro Max', slug: 'apple-iphone-16-pro-max', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/apple-iphone-16-pro-max.jpg' },
+    { name: 'iPhone 16 Pro', slug: 'apple-iphone-16-pro', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/apple-iphone-16-pro.jpg' },
+    { name: 'iPhone 16 Plus', slug: 'apple-iphone-16-plus', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/apple-iphone-16-plus.jpg' },
+    { name: 'iPhone 16', slug: 'apple-iphone-16', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/apple-iphone-16.jpg' },
 
     // --- iPhone 15 Series ---
     { name: 'iPhone 15 Pro Max', slug: 'apple-iphone-15-pro-max' },
@@ -75,74 +76,36 @@ const DEVICES = [
     { name: 'iPhone 11 Pro', slug: 'apple-iphone-11-pro' },
     { name: 'iPhone 11', slug: 'apple-iphone-11' },
 
-    // --- X Series ---
-    { name: 'iPhone XR', slug: 'apple-iphone-xr' },
+    // --- Legacy ---
     { name: 'iPhone XS Max', slug: 'apple-iphone-xs-max' },
     { name: 'iPhone XS', slug: 'apple-iphone-xs' },
+    { name: 'iPhone XR', slug: 'apple-iphone-xr' },
     { name: 'iPhone X', slug: 'apple-iphone-x' },
-
-    // --- 8 Series ---
     { name: 'iPhone 8 Plus', slug: 'apple-iphone-8-plus' },
     { name: 'iPhone 8', slug: 'apple-iphone-8' },
-
-    // --- 7 Series ---
-    { name: 'iPhone 7 Plus', slug: 'apple-iphone-7-plus' },
-    { name: 'iPhone 7', slug: 'apple-iphone-7' },
-
-    // --- 6s Series ---
-    { name: 'iPhone 6s Plus', slug: 'apple-iphone-6s-plus' },
-    { name: 'iPhone 6s', slug: 'apple-iphone-6s' },
-
-    // --- SE Series ---
-    { name: 'iPhone SE (2020)', slug: 'apple-iphone-se-2020' },
     { name: 'iPhone SE (2022)', slug: 'apple-iphone-se-2022' },
+    { name: 'iPhone SE (2020)', slug: 'apple-iphone-se-2020' },
 
-    // --- iPad Air Collection ---
-    { name: 'iPad Air 13 (2024)', slug: 'apple-ipad-air-13-(2024)' },
-    { name: 'iPad Air 11 (2024)', slug: 'apple-ipad-air-11-(2024)' },
-    { name: 'iPad Air (2022)', slug: 'apple-ipad-air-(2022)' },
-    { name: 'iPad Air (2020)', slug: 'apple-ipad-air-(2020)' },
-    { name: 'iPad Air (2019)', slug: 'apple-ipad-air-(2019)' },
+    // --- Samsung ---
+    { name: 'Galaxy S24 Ultra', slug: 'samsung-galaxy-s24-ultra', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-ultra-5g-sm-s928-stylus.jpg' },
+    { name: 'Galaxy S24+', slug: 'samsung-galaxy-s24-plus', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-plus-5g-sm-s926.jpg' },
+    { name: 'Galaxy S24', slug: 'samsung-galaxy-s24', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-5g-sm-s921.jpg' },
+    { name: 'Galaxy S24 FE', slug: 'samsung-galaxy-s24-fe', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-fe-r1.jpg' },
+    { name: 'Galaxy S23 Ultra', slug: 'samsung-galaxy-s23-ultra-5g' },
+    { name: 'Galaxy S22 Ultra', slug: 'samsung-galaxy-s22-ultra-5g' },
 
-    // --- iPad Pro Collection ---
-    { name: 'iPad Pro 13 (2024)', slug: 'apple-ipad-pro-13-(2024)' },
-    { name: 'iPad Pro 11 (2024)', slug: 'apple-ipad-pro-11-(2024)' },
-    { name: 'iPad Pro 12.9 (2022)', slug: 'apple-ipad-pro-12_9-(2022)' },
-    { name: 'iPad Pro 11 (2022)', slug: 'apple-ipad-pro-11-(2022)' },
-    { name: 'iPad Pro 12.9 (2021)', slug: 'apple-ipad-pro-12_9-(2021)' },
-    { name: 'iPad Pro 11 (2021)', slug: 'apple-ipad-pro-11-(2021)' },
-
-    // --- iPad Standard & Mini ---
-    { name: 'iPad 10.9 (2022)', slug: 'apple-ipad-(2022)' },
-    { name: 'iPad 10.2 (2021)', slug: 'apple-ipad-10_2-(2021)' },
-    { name: 'iPad mini (2024)', slug: 'apple-ipad-mini-(2024)' },
-    { name: 'iPad mini (2021)', slug: 'apple-ipad-mini-(2021)' },
-
-    // --- Samsung Flagships ---
-    { name: 'S24 Ultra', slug: 'samsung-galaxy-s24-ultra', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-ultra-5g-sm-s928-stylus.jpg' },
-    { name: 'S24+', slug: 'samsung-galaxy-s24-plus', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-plus-5g-sm-s926.jpg' },
-    { name: 'S24', slug: 'samsung-galaxy-s24', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-5g-sm-s921.jpg' },
-    { name: 'S24 FE', slug: 'samsung-galaxy-s24-fe', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-fe-r1.jpg' },
-    { name: 'S23 Ultra', slug: 'samsung-galaxy-s23-ultra-5g' },
-    { name: 'S22 Ultra', slug: 'samsung-galaxy-s22-ultra-5g' },
-
-    // --- Samsung A-Series ---
-    { name: 'Galaxy A55', slug: 'samsung-galaxy-a55' },
-    { name: 'Galaxy A54', slug: 'samsung-galaxy-a54' },
-    { name: 'Galaxy A35', slug: 'samsung-galaxy-a35' },
-
-    // --- Google Pixel ---
-    { name: 'Pixel 10 Pro XL', slug: 'google-pixel-10-pro-xl', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-10-pro-xl-.jpg' },
-    { name: 'Pixel 10 Pro', slug: 'google-pixel-10-pro', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-10-pro-.jpg' },
-    { name: 'Pixel 10', slug: 'google-pixel-10', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-10-.jpg' },
-
+    // --- Google ---
     { name: 'Pixel 9 Pro Fold', slug: 'google-pixel-9-pro-fold', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-9-pro-fold-.jpg' },
     { name: 'Pixel 9 Pro XL', slug: 'google-pixel-9-pro-xl', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-9-pro-xl-.jpg' },
     { name: 'Pixel 9 Pro', slug: 'google-pixel-9-pro', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-9-pro-.jpg' },
     { name: 'Pixel 9', slug: 'google-pixel-9', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-9-.jpg' },
-    { name: 'Pixel 9a', slug: 'google-pixel-9a', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-9a.jpg' },
-
     { name: 'Pixel Fold', slug: 'google-pixel-fold', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-fold.jpg' },
+
+    // --- iPads ---
+    { name: 'iPad Pro 13 (2024)', slug: 'apple-ipad-pro-13-(2024)' },
+    { name: 'iPad Pro 11 (2024)', slug: 'apple-ipad-pro-11-(2024)' },
+    { name: 'iPad Air 13 (2024)', slug: 'apple-ipad-air-13-(2024)' },
+    { name: 'iPad Air 11 (2024)', slug: 'apple-ipad-air-11-(2024)' },
 ];
 
 const DOWNLOADED_ASSETS = [];

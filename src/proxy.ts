@@ -8,7 +8,6 @@ export function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
     // Critical: Explicitly skip Sitemap and Robots to prevent localization loops or rewrites
-    // Handle both root (/sitemap.xml) and localized (/fr/sitemap.xml) requests
     const isMetadataFile = pathname.endsWith('/sitemap.xml') || pathname.endsWith('/robots.txt') || pathname.includes('/sitemap/');
 
     if (isMetadataFile) {
@@ -35,7 +34,7 @@ export function proxy(req: NextRequest) {
         pathname.startsWith('/favicon.ico') ||
         PUBLIC_FILE.test(pathname)
     ) {
-        return;
+        return NextResponse.next();
     }
 
     // 2. STAGING PROTECTION (PIN GATE)
@@ -74,8 +73,6 @@ export function proxy(req: NextRequest) {
         (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
     );
 
-    // 3. REWRITE STRATEGY (Localization Fixes):
-    // Map localized paths (e.g. /tr/magazalar) to internal folder structures (e.g. /tr/stores)
     // 3. REWRITE STRATEGY (Localization Fixes):
     // Map localized paths (e.g. /tr/magazalar) to internal folder structures (e.g. /tr/stores)
 
@@ -175,7 +172,7 @@ export function proxy(req: NextRequest) {
             '/fr/faq': '/fr/faq',
             '/fr/suivre-commande': '/fr/track-order',
             '/fr/franchise': '/fr/franchise',
-            '/fr/business': '/fr/business', // same
+            '/fr/business': '/fr/business',
             '/fr/rachat': '/fr/buyback',
             '/fr/reparation': '/fr/repair',
             '/fr/formation': '/fr/training',
@@ -197,11 +194,9 @@ export function proxy(req: NextRequest) {
         }
     }
 
-    if (pathnameHasLocale) return;
+    if (pathnameHasLocale) return NextResponse.next();
 
     // 4. REDIRECT STRATEGY:
-    // We explicitly redirect to the default locale to ensure SEO consistency
-    // and avoid duplicate content issues at the root path.
     const locale = i18n.defaultLocale;
     const url = req.nextUrl.clone();
     url.pathname = `/${locale}${pathname}`;
@@ -213,7 +208,6 @@ export default proxy;
 
 export const config = {
     matcher: [
-        // Optimized matcher: Skip all dot-files (images, etc) and internal routes
-        '/((?!api|_next/static|_next/image|favicon.ico|sitemap\.xml|sitemap/|robots.txt|google).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|sitemap\\.xml|sitemap/|robots.txt|google).*)',
     ],
 };

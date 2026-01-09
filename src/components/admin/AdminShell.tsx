@@ -82,6 +82,7 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         { name: 'Messages', href: '/admin/messages', icon: NewspaperIcon, badge: contactMessages.filter(m => m.status === 'new').length },
         { name: 'Products', href: '/admin/products', icon: DevicePhoneMobileIcon },
         { name: 'Pricing', href: '/admin/pricing', icon: CurrencyEuroIcon },
+        { name: 'Integrations', href: '/admin/integrations', icon: GlobeAltIcon },
         ...(profile?.role === 'super_admin' ? [{ name: 'Reporting', href: '/admin/reporting', icon: ArrowTrendingUpIcon }] : []),
         { name: 'Services', href: '/admin/services', icon: WrenchScrewdriverIcon },
         { name: 'Shops', href: '/admin/shops', icon: BuildingStorefrontIcon },

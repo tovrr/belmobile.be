@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import { Locale } from '@/i18n-config';
 
 import { LOCATIONS } from '@/data/locations';
 import { SERVICES } from '@/data/services';
@@ -10,7 +11,7 @@ import { createSlug, slugToDisplayName } from '@/utils/slugs';
 import { Shop } from '@/types';
 import { parseRouteParams } from '@/utils/route-parser';
 import { generateSeoMetadata, getKeywordsForPage, generateMetaKeywords } from '@/utils/seo-templates';
-import { getPricingData } from '@/services/server/pricing.dal';
+import { getPriceQuote, getPricingData, PricingQuote } from '@/services/server/pricing.dal';
 
 import BuybackRepair from '@/components/wizard/BuybackRepair';
 import Hreflang from '@/components/seo/Hreflang';
@@ -32,7 +33,7 @@ const LocalPainPoints = dynamic(() => import('@/components/sections/LocalPainPoi
 });
 
 interface PageProps {
-    params: Promise<{ lang: string; slug: string[] }>;
+    params: Promise<{ lang: Locale; slug: string[] }>;
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
@@ -73,22 +74,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     // FETCH REAL PRICING FOR SEO (CTR BOOSTER)
     let price: number | undefined;
+    let pricing: PricingQuote | null = null;
     if (device && deviceModel) {
         try {
             const deviceSlug = createSlug(`${device.value} ${deviceModel}`);
-            const pricing = await getPricingData(deviceSlug);
+            pricing = await getPriceQuote(deviceSlug);
 
-            if (service.id === 'repair' && pricing.repair) {
+            if (service.id === 'repair' && pricing?.repair) {
                 // Find lowest repair price (e.g. Battery often cheapest, or Screen Generic)
                 const prices = Object.values(pricing.repair).filter(v => typeof v === 'number' && v > 0) as number[];
                 if (prices.length > 0) price = Math.min(...prices);
-            } else if (service.id === 'buyback' && pricing.buyback) {
+            } else if (service.id === 'buyback' && pricing?.buyback) {
                 // Find highest buyback price (Up to X)
-                const prices = pricing.buyback.map(b => b.price).filter(v => typeof v === 'number' && v > 0);
-                if (prices.length > 0) price = Math.max(...prices);
+                price = pricing.buyback.maxPrice;
             }
-        } catch (err) {
-            console.error('[Metadata] Error fetching price:', err);
+        } catch (e) {
+            console.error("[SEO Page] Pricing fetch failed:", e);
         }
     }
 
@@ -113,34 +114,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const baseUrl = 'https://belmobile.be';
 
     // BUILD NORMALIZED LOCALIZED ALTERNATES & CANONICAL
-    const languages: Record<string, string> = {};
+    // Canonical URL (without location)
+    const serviceSlug = service.slugs[lang as 'fr' | 'nl' | 'en' | 'tr'] || service.id;
+    const devicePart = device ? `/${createSlug(device.value)}` : '';
+    const modelPart = deviceModel ? `/${createSlug(deviceModel)}` : '';
+    const canonicalUrl = `${baseUrl}/${lang}/${serviceSlug}${devicePart}${modelPart}`;
+
+    // Language Alternates
+    const languages: Record<string, string> = {
+        'x-default': `${baseUrl}/fr`, // Main market
+    };
+
     const LOCALES = ['fr', 'nl', 'en', 'tr'] as const;
 
     LOCALES.forEach(locale => {
-        // Get localized service slug
-        const serviceSlug = service.slugs[locale] || service.id;
-
-        let path = `/${locale}/${serviceSlug}`;
-
-        // Add device/model if they exist
-        if (device && deviceModel) {
-            path += `/${device.value}/${deviceModel}`.toLowerCase();
-        } else if (device) {
-            path += `/${device.value}`.toLowerCase();
-        } else if (deviceCategory && !device) {
-            path += `/${deviceCategory}`.toLowerCase();
-        }
-
-        // Add location if it exists
-        if (location) {
-            const locSlug = location.slugs[locale] || location.id;
-            path += `/${locSlug}`.toLowerCase();
-        }
-
+        const sSlug = service.slugs[locale as 'fr' | 'nl' | 'en' | 'tr'] || service.id;
+        let path = `/${locale}/${sSlug}`;
+        if (device) path += `/${createSlug(device.value)}`;
+        if (deviceModel) path += `/${createSlug(deviceModel)}`;
         languages[locale] = `${baseUrl}${path}`;
     });
-
-    const canonicalUrl = languages[lang] || `${baseUrl}/${lang}/${slug.join('/')}`;
 
     // Dynamic OG Image Strategy
     const ogTitleEncoded = encodeURIComponent(ogTitle);
@@ -156,7 +149,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             canonical: canonicalUrl,
             languages: {
                 ...languages,
-                'x-default': languages['en'], // Default to English for generic viewers
             }
         },
         openGraph: {
@@ -196,7 +188,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
 }
 
-export default async function DynamicLandingPage({ params, searchParams }: PageProps & { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+export default async function DynamicLandingPage({ params, searchParams }: PageProps) {
     const { lang, slug } = await params;
     const resolvedSearchParams = await searchParams;
 
@@ -206,16 +198,25 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
     }
 
     const routeData = parseRouteParams(slug);
-
     if (!routeData) {
         return notFound();
     }
-
     const { service, location, device, deviceModel } = routeData;
+
+    // FETCH REAL PRICING FOR PAGE (CTR BOOSTER)
+    let pricing: PricingQuote | null = null;
+    if (device && deviceModel) {
+        try {
+            const deviceSlug = createSlug(`${device.value} ${deviceModel}`);
+            pricing = await getPriceQuote(deviceSlug);
+        } catch (e) {
+            console.error("[SEO Page] Pricing fetch failed:", e);
+        }
+    }
 
     // Prioritize category from search params if available, otherwise use route data
     const categoryParam = resolvedSearchParams?.category;
-    const deviceCategory = typeof categoryParam === 'string' ? categoryParam : (routeData.deviceCategory || device?.deviceType);
+    const finalDeviceCategory = typeof categoryParam === 'string' ? categoryParam : (routeData.deviceCategory || device?.deviceType);
 
     // 3. Construct Props for BuybackRepair
     const type = service.id === 'repair' ? 'repair' : 'buyback';
@@ -234,12 +235,35 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
         model: urlModel || deviceModel || ''
     } : undefined;
 
+    // FETCH DETAILED PRICING FOR WIZARD HYDRATION (SSOT RESTORATION)
+    let wizardPricingData: any = null;
+    let deviceSlugForWizard = '';
+
+    if (device && deviceModel) {
+        try {
+            deviceSlugForWizard = createSlug(`${device.value} ${deviceModel}`);
+            const rawPricing = await getPricingData(deviceSlugForWizard);
+
+            // Map to WizardState['pricingData']
+            wizardPricingData = {
+                repairPrices: rawPricing.repair,
+                buybackPrices: rawPricing.buyback,
+                deviceImage: rawPricing.metadata?.imageUrl || null,
+                isLoading: false,
+                loadedForModel: deviceSlugForWizard
+            };
+        } catch (e) {
+            console.error("[SEO Page] Wizard Pricing fetch failed:", e);
+        }
+    }
+
     const initialWizardProps = {
-        deviceType: deviceCategory || undefined,
+        deviceType: finalDeviceCategory || undefined,
         selectedBrand: initialDevice?.brand,
         selectedModel: initialDevice?.model,
         customerEmail: urlEmail,
-        step: urlStep
+        step: urlStep,
+        pricingData: wizardPricingData || undefined // Inject Hydration
     };
 
     // Cast location to Shop to satisfy SchemaOrg props
@@ -269,32 +293,24 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
     // Reuse the same logic as Metadata for consistency
     const locationName = location ? (location.city || location.name.replace('Belmobile ', '')) : '';
     const { title: pageTitle } = generateSeoMetadata({
-        lang: lang as 'fr' | 'nl' | 'en',
+        lang: lang as 'fr' | 'nl' | 'en' | 'tr',
         serviceId: service.id as 'repair' | 'buyback',
         deviceValue: device?.value,
         deviceModel: deviceModel,
-        deviceCategory: deviceCategory,
+        deviceCategory: finalDeviceCategory,
         locationName: locationName,
-        isHomeConsole: deviceCategory === 'console_home',
-        isPortableConsole: deviceCategory === 'console_portable'
+        isHomeConsole: finalDeviceCategory === 'console_home',
+        isPortableConsole: finalDeviceCategory === 'console_portable'
     });
 
     // Calculate minPrice for SchemaOrg from REAL DATA
     let minPrice: number | undefined;
-    if (device && deviceModel) {
-        try {
-            const deviceSlug = createSlug(`${device.value} ${deviceModel}`);
-            const pricing = await getPricingData(deviceSlug);
-
-            if (service.id === 'repair' && pricing.repair) {
-                const prices = Object.values(pricing.repair).filter(v => typeof v === 'number' && v > 0) as number[];
-                if (prices.length > 0) minPrice = Math.min(...prices);
-            } else if (service.id === 'buyback' && pricing.buyback) {
-                const prices = pricing.buyback.map(b => b.price).filter(v => typeof v === 'number' && v > 0);
-                if (prices.length > 0) minPrice = Math.max(...prices);
-            }
-        } catch (e) {
-            console.error('Error fetching Schema price:', e);
+    if (pricing) {
+        if (service.id === 'repair' && pricing.repair) {
+            const prices = Object.values(pricing.repair).filter(v => typeof v === 'number' && v > 0) as number[];
+            if (prices.length > 0) minPrice = Math.min(...prices);
+        } else if (service.id === 'buyback' && pricing.buyback) {
+            minPrice = pricing.buyback.maxPrice;
         }
     }
 
@@ -379,18 +395,19 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                 {/* Dynamic SEO Content (Bottom) */}
                 <DynamicSEOContent
                     type={type}
-                    lang={lang as 'fr' | 'nl' | 'en'}
+                    lang={lang as 'fr' | 'nl' | 'en' | 'tr'}
                     location={location || undefined}
                     service={service}
                     brand={device?.value}
                     model={deviceModel || undefined}
                     deviceType={deviceCategory}
+                    priceQuote={pricing}
                 />
 
                 {/* Local Pain Points (Anxiety Reducers) - Moved to bottom as requested */}
                 <div className="mt-12 mb-8">
                     <LocalPainPoints
-                        lang={lang as 'fr' | 'nl' | 'en'}
+                        lang={lang as 'fr' | 'nl' | 'en' | 'tr'}
                         locationName={locationName || (lang === 'fr' ? 'Bruxelles' : lang === 'nl' ? 'Brussel' : 'Brussels')}
                         deviceType={deviceModel || device?.value || deviceCategory}
                         type={type}

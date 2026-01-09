@@ -1,4 +1,4 @@
-import "server-only";
+// import "server-only"; // Removed for script compatibility
 import * as admin from "firebase-admin";
 import { getFirestore } from "firebase-admin/firestore";
 

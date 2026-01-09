@@ -83,8 +83,8 @@ If `main` is broken:
     *   ✅ ALWAYS use `useWizardPricing` hook for UI estimates.
 *   **Firestore Collections**:
     *   `repair_prices`: Dynamic repair catalog (screen, battery, etc.).
-    *   `buyback_pricing`: Base buyback offers (often calculated from Market Value).
-    *   `market_values`: The reference "Sell Price" used to auto-calculate Buyback offers.
+    *   `pricing_anchors`: The **Manual Anchors** set in the Admin Dashboard. (SSoT)
+    *   `buyback_pricing`: Calculated variations (Storage/Condition) generated from the Command Center.
 
 ### B. Localization Strategy
 *   **Static Labels**: Use `useLanguage()` hook and `t()` function.

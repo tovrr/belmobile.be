@@ -5,14 +5,26 @@ import React from 'react';
 
 // Wrapper to conditionally render layout elements (Header, Footer)
 // Hides them on the protected (PIN) page
+// Wrapper to conditionally render layout elements (Header, Footer)
+// Hides them on the protected (PIN) page
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const [isProtected, setIsProtected] = React.useState(false);
 
-    // Check if we are on the protected page (localized or not)
-    // e.g., /en/protected, /fr/protected, /protected
-    const isProtectedPage = pathname?.includes('/protected');
+    React.useEffect(() => {
+        // Run check only on client after mount
+        if (pathname?.includes('/protected')) {
+            setIsProtected(true);
+        } else {
+            setIsProtected(false);
+        }
+    }, [pathname]);
 
-    if (isProtectedPage) return null;
-
-    return <>{children}</>;
+    // Defaults to visible (false) on server, matching initial state.
+    // Client will update after mount if needed. This prevents mismatch.
+    return (
+        <div data-layout-wrapper style={{ display: isProtected ? 'none' : 'block' }}>
+            {children}
+        </div>
+    );
 }

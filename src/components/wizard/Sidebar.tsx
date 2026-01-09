@@ -281,7 +281,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                                         className="text-bel-blue dark:text-blue-400"
                                     >
                                         {typeof estimateDisplay === 'number' ? (
-                                            estimateDisplay > 0 ? `€${estimateDisplay}` : (estimateDisplay === -1 ? t('contact_for_price') : '-')
+                                            estimateDisplay > 0 ? (
+                                                `€${estimateDisplay}`
+                                            ) : (
+                                                (selectedModel) ? (isBuyback ? t('contact_for_price_buyback') : t('contact_for_price')) : '-'
+                                            )
                                         ) : estimateDisplay}
                                     </motion.span>
                                 )}
