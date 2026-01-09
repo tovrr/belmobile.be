@@ -77,3 +77,7 @@ tsc_output.txt
 /private-scripts/
 /scripts/legacy/
 /scripts/temp/
+scripts/*.py
+scripts/*.txt
+scripts/*.log
+

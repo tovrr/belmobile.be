@@ -42,3 +42,8 @@ To ensure scalability, conversion, and business growth on the Belmobile platform
 - **Standardized Foundation**: Avoid using English or French words as keys for new features. Rely on a technical key that describes the intent/location of the string.
 - **Legacy Integrity**: Do not refactor existing natural language keys unless fixing a critical bug, but never use them as inspiration for new keys.
 - **Lazy Loading**: Ensure large translation sets are lazy-loaded based on the active language to maintain LCP performance.
+
+## 9. Source Control Hygiene
+- **Clean Commits**: NEVER add temporary scripts, debugging logs, or local testing files to git. Use `.gitignore` or delete them before committing.
+- **No Junk**: Scripts created for one-off tasks (e.g., `find_duplicates.py`, `debug.txt`) must strictly define their scope and be ignored or deleted.
+- **Secret Safety**: Verify no secrets, private tokens, or sensitive API keys are in files being committed.
