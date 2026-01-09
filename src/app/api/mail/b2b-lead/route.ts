@@ -3,9 +3,30 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
     try {
         const { email, fleetSize, estimatedSavings, language = 'en' } = await request.json();
+
+        // Security: Origin Check
+        const origin = request.headers.get('origin');
+        const referer = request.headers.get('referer');
+        const host = request.headers.get('host') || '';
+        const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
+        const allowedDomain = 'belmobile.be';
+
+        // Skip check for local dev, strict for prod
+        if (!isLocal) {
+            if ((origin && !origin.includes(allowedDomain)) || (referer && !referer.includes(allowedDomain))) {
+                return NextResponse.json({ error: 'Unauthorized origin' }, { status: 403 });
+            }
+        }
+
+        // Strict Email Validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!email || !emailRegex.test(email)) {
+            return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+        }
+
         const apiKey = process.env.BREVO_API_KEY?.trim();
 
-        if (!email || !apiKey) {
+        if (!apiKey) {
             return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
         }
 

@@ -28,6 +28,7 @@ const BusinessSolutions: React.FC = () => {
     const { t, language } = useLanguage();
     const [fleetSize, setFleetSize] = useState(50);
     const [email, setEmail] = useState('');
+    const [honeypot, setHoneypot] = useState('');
     const [isFormSubmitted, setIsFormSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -319,6 +320,11 @@ const BusinessSolutions: React.FC = () => {
                                     <form
                                         onSubmit={async (e) => {
                                             e.preventDefault();
+                                            // Honeypot check: if filled, pretend success but do nothing
+                                            if (honeypot) {
+                                                setIsFormSubmitted(true);
+                                                return;
+                                            }
                                             if (!email) return;
                                             setLoading(true);
                                             try {
@@ -351,6 +357,18 @@ const BusinessSolutions: React.FC = () => {
                                         }}
                                         className="space-y-4"
                                     >
+                                        {/* Honeypot Field - Hidden from humans */}
+                                        <div className="hidden" aria-hidden="true">
+                                            <input
+                                                type="text"
+                                                name="b2b_secondary_email"
+                                                tabIndex={-1}
+                                                autoComplete="off"
+                                                value={honeypot}
+                                                onChange={(e) => setHoneypot(e.target.value)}
+                                            />
+                                        </div>
+
                                         <div>
                                             <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-slate-400">{t('biz_lead_email_label')}</label>
                                             <input
