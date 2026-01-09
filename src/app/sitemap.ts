@@ -37,7 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             { id: 'services', priority: 0.9, changeFreq: 'weekly', slugs: STATIC_SLUG_MAPPINGS.services },
             { id: 'stores', priority: 0.9, changeFreq: 'weekly', slugs: STATIC_SLUG_MAPPINGS.stores },
             { id: 'about', priority: 0.6, changeFreq: 'monthly', slugs: STATIC_SLUG_MAPPINGS.about },
-            { id: 'sustainability', priority: 0.8, changeFreq: 'monthly', slugs: { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid', tr: 'surdurulebilirlik' } },
+            { id: 'sustainability', priority: 0.8, changeFreq: 'monthly', slugs: STATIC_SLUG_MAPPINGS.sustainability },
             { id: 'contact', priority: 0.6, changeFreq: 'monthly', slugs: STATIC_SLUG_MAPPINGS.contact },
             { id: 'business', priority: 0.9, changeFreq: 'weekly', slugs: STATIC_SLUG_MAPPINGS.business },
             { id: 'franchise', priority: 0.8, changeFreq: 'monthly', slugs: STATIC_SLUG_MAPPINGS.franchise },
@@ -46,8 +46,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             { id: 'faq', priority: 0.7, changeFreq: 'monthly', slugs: STATIC_SLUG_MAPPINGS.faq },
             { id: 'track-order', priority: 0.7, changeFreq: 'daily', slugs: STATIC_SLUG_MAPPINGS.track },
             { id: 'warranty', priority: 0.5, changeFreq: 'yearly', slugs: STATIC_SLUG_MAPPINGS.warranty },
-            { id: 'repair-home', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'repair', fr: 'reparation', nl: 'reparatie', tr: 'onarim' } },
-            { id: 'buyback-home', priority: 0.9, changeFreq: 'weekly', slugs: { en: 'buyback', fr: 'rachat', nl: 'inkoop', tr: 'geri-alim' } },
+            { id: 'repair-home', priority: 0.9, changeFreq: 'weekly', slugs: STATIC_SLUG_MAPPINGS.repair },
+            { id: 'buyback-home', priority: 0.9, changeFreq: 'weekly', slugs: STATIC_SLUG_MAPPINGS.buyback },
             { id: 'blog-index', priority: 0.7, changeFreq: 'weekly', slugs: STATIC_SLUG_MAPPINGS.blog },
             { id: 'catalogue', priority: 0.8, changeFreq: 'weekly', slugs: STATIC_SLUG_MAPPINGS.products },
         ];
@@ -128,8 +128,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
         // 4. Dynamic Devices & Brand Silos
         const allDevices = await getAllDevices();
-        const repairConfig = { slugs: { fr: 'reparation', nl: 'reparatie', en: 'repair', tr: 'onarim' } };
-        const buybackConfig = { slugs: { fr: 'rachat', nl: 'inkoop', en: 'buyback', tr: 'geri-alim' } };
+        const repairPath = STATIC_SLUG_MAPPINGS.repair;
+        const buybackPath = STATIC_SLUG_MAPPINGS.buyback;
 
         const uniqueBrands = new Set<string>();
 
@@ -143,7 +143,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             const priority = isPriority ? 1.0 : 0.8;
 
             LANGUAGES.forEach(lang => {
-                const repUrl = `${BASE_URL}/${lang}/${repairConfig.slugs[lang]}/${brand}/${model}`.toLowerCase();
+                const repUrl = `${BASE_URL}/${lang}/${repairPath[lang]}/${brand}/${model}`.toLowerCase();
 
                 // Repair Model
                 sitemapEntries.push({
@@ -153,20 +153,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                     priority: priority,
                     alternates: {
                         languages: Object.fromEntries(
-                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${repairConfig.slugs[l]}/${brand}/${model}`.toLowerCase()])
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${repairPath[l]}/${brand}/${model}`.toLowerCase()])
                         )
                     }
                 });
 
                 // Buyback Model
                 sitemapEntries.push({
-                    url: `${BASE_URL}/${lang}/${buybackConfig.slugs[lang]}/${brand}/${model}`.toLowerCase(),
+                    url: `${BASE_URL}/${lang}/${buybackPath[lang]}/${brand}/${model}`.toLowerCase(),
                     lastModified: new Date(),
                     changeFrequency: 'daily',
                     priority: priority,
                     alternates: {
                         languages: Object.fromEntries(
-                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${buybackConfig.slugs[l]}/${brand}/${model}`.toLowerCase()])
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${buybackPath[l]}/${brand}/${model}`.toLowerCase()])
                         )
                     }
                 });
@@ -184,7 +184,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                                 languages: Object.fromEntries(
                                     LANGUAGES.map(l => [
                                         l,
-                                        `${BASE_URL}/${l}/${repairConfig.slugs[l]}/${brand}/${model}/${location.slugs[l]}`.toLowerCase()
+                                        `${BASE_URL}/${l}/${repairPath[l]}/${brand}/${model}/${location.slugs[l]}`.toLowerCase()
                                     ])
                                 )
                             }
@@ -199,25 +199,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             LANGUAGES.forEach(lang => {
                 // Repair Brand
                 sitemapEntries.push({
-                    url: `${BASE_URL}/${lang}/${repairConfig.slugs[lang]}/${brand}`.toLowerCase(),
+                    url: `${BASE_URL}/${lang}/${repairPath[lang]}/${brand}`.toLowerCase(),
                     lastModified: lastmodStatic,
                     changeFrequency: 'weekly',
                     priority: 0.9,
                     alternates: {
                         languages: Object.fromEntries(
-                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${repairConfig.slugs[l]}/${brand}`.toLowerCase()])
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${repairPath[l]}/${brand}`.toLowerCase()])
                         )
                     }
                 });
                 // Buyback Brand
                 sitemapEntries.push({
-                    url: `${BASE_URL}/${lang}/${buybackConfig.slugs[lang]}/${brand}`.toLowerCase(),
+                    url: `${BASE_URL}/${lang}/${buybackPath[lang]}/${brand}`.toLowerCase(),
                     lastModified: lastmodStatic,
                     changeFrequency: 'weekly',
                     priority: 0.9,
                     alternates: {
                         languages: Object.fromEntries(
-                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${buybackConfig.slugs[l]}/${brand}`.toLowerCase()])
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${buybackPath[l]}/${brand}`.toLowerCase()])
                         )
                     }
                 });

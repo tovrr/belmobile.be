@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "npm run generate-search-index && next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
     "generate-search-index": "node scripts/build-search-index.mjs",

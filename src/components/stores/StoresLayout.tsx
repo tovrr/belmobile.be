@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useData } from '../../hooks/useData';
+import { useLanguage } from '../../hooks/useLanguage';
 import StoresList from './StoresList';
 import LocationServiceBlock from './LocationServiceBlock';
 import dynamic from 'next/dynamic';
@@ -33,6 +34,7 @@ const StoresLayout: React.FC<StoresLayoutProps> = ({
     selectedCityCoords
 }) => {
     const { shops: liveShops, loading } = useData();
+    const { t } = useLanguage();
 
     // Prefer liveShops if available, else initialShops
     const shops = liveShops.length > 0 ? liveShops : initialShops;
@@ -61,18 +63,16 @@ const StoresLayout: React.FC<StoresLayoutProps> = ({
                     {selectedCityName ? (
                         <div className="mb-6 bg-blue-600/10 border border-blue-500/20 p-4 rounded-xl">
                             <h1 className="text-xl font-bold text-white mb-1">
-                                {lang === 'fr' ? `Réparation à ${selectedCityName}` :
-                                    lang === 'nl' ? `Reparatie in ${selectedCityName}` :
-                                        `Repair in ${selectedCityName}`}
+                                {t('repair_in_city').replace('{0}', selectedCityName)}
                             </h1>
                             <p className="text-sm text-blue-200">
-                                {lang === 'fr' ? "Nos experts sont à proximité." :
-                                    lang === 'nl' ? "Onze experts zijn dichtbij." :
-                                        "Our experts are nearby."}
+                                {t('experts_nearby')}
                             </p>
                         </div>
                     ) : (
-                        <h2 className="text-xl font-bold mb-4 px-2 text-gray-900 dark:text-white">Locations</h2>
+                        <h2 className="text-xl font-bold mb-4 px-2 text-gray-900 dark:text-white uppercase tracking-tight">
+                            {t('Our Stores')}
+                        </h2>
                     )}
 
                     <StoresList lang={lang} shops={displayShops} compact={true} />

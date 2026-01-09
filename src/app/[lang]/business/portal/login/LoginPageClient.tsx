@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebase';
-import { ShieldCheckIcon, LockClosedIcon, ComputerDesktopIcon } from '@/components/ui/BrandIcons';
+import { ShieldCheckIcon, LockClosedIcon, ComputerDesktopIcon, ArrowRightIcon } from '@/components/ui/BrandIcons';
 import { motion } from 'framer-motion';
 
 export default function B2BLoginPage() {
@@ -134,7 +134,15 @@ export default function B2BLoginPage() {
                         </button>
                     </form>
 
-                    <div className="mt-12 text-center">
+                    <div className="mt-12 flex flex-col items-center gap-4">
+                        <Link
+                            href={`/${language}/business`}
+                            className="px-6 py-2 bg-indigo-500/5 hover:bg-indigo-500/10 border border-indigo-500/10 hover:border-indigo-500/30 rounded-full text-[11px] font-black text-indigo-400 transition-all uppercase tracking-[0.2em] group/req flex items-center gap-2"
+                        >
+                            <span>Request Access Partner</span>
+                            <ArrowRightIcon className="w-3 h-3 transition-transform group-hover/req:translate-x-1" />
+                        </Link>
+
                         <Link href="/" className="text-[10px] font-mono font-black text-slate-600 hover:text-indigo-400 transition-colors uppercase tracking-[0.2em]">
                             « Disconnect Terminal »
                         </Link>

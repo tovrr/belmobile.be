@@ -55,7 +55,7 @@ export default async function MicrosolderingPage({ params }: PageProps) {
                 <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium mb-6 backdrop-blur-sm">
                         <CpuChipIcon className="w-4 h-4" />
-                        <span>Level 3 Repair Center</span>
+                        <span>{t('microsoldering_badge')}</span>
                     </div>
                     <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 text-white leading-tight">
                         {t('microsoldering_hero_title')}

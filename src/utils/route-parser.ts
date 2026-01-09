@@ -68,12 +68,30 @@ export const parseRouteParams = (slug: string[]) => {
             const foundDev = findDefaultBrandCategory(seg1);
             if (foundDev) {
                 device = foundDev;
-                deviceCategory = foundDev.deviceType;
+                deviceCategory = foundDev.deviceType; // Default category
+
+                // Check if next segment is actually a specific Category Alias (e.g. /apple/tablets)
                 if (segments.length > 1) {
-                    deviceModel = segments[1];
+                    const seg2 = segments[1];
+                    const overriddenCat = DEVICE_TYPES.find(d =>
+                        d.id === seg2 ||
+                        d.aliases?.some(a => a.toLowerCase() === seg2.toLowerCase())
+                    );
+
+                    if (overriddenCat) {
+                        // It's a category filter, not a model!
+                        deviceCategory = overriddenCat.id;
+                        if (segments.length > 2) {
+                            deviceModel = segments[2];
+                        }
+                    } else {
+                        // Standard: It's a model
+                        deviceModel = segments[1];
+                    }
                 }
             }
         }
+
     }
 
     return { service, location, device, deviceModel, deviceCategory };

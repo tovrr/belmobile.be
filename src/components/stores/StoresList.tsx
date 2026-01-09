@@ -39,6 +39,7 @@ const StoresList: React.FC<StoresListProps> = ({ lang, shops: propShops, compact
     const storePathSegment = {
         fr: 'magasins',
         nl: 'winkels',
+        tr: 'magazalar',
         en: 'stores'
     }[lang] || 'stores';
 

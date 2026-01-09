@@ -1,5 +1,6 @@
 import Careers from '../../../components/pages/Careers';
 import { Metadata } from 'next';
+import { getFixedT } from '../../../utils/i18n-server';
 
 type Props = {
     params: Promise<{ lang: string }>
@@ -7,25 +8,16 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang } = await params;
-    const titles: Record<string, string> = {
-        en: 'Careers | Belmobile',
-        fr: 'Carrières | Belmobile',
-        nl: 'Vacatures | Belmobile'
-    };
-    const descriptions: Record<string, string> = {
-        en: 'Join the Belmobile team. Innovative, passionate, and growing.',
-        fr: 'Rejoignez l\'équipe Belmobile. Innovant, passionné et en pleine croissance.',
-        nl: 'Word lid van het Belmobile-team. Innovatief, gepassioneerd en groeiend.'
-    };
+    const t = getFixedT(lang);
 
     return {
-        title: titles[lang] || titles['en'],
-        description: descriptions[lang] || descriptions['en'],
+        title: t('careers_meta_title'),
+        description: t('careers_meta_desc'),
     };
 }
 
 export function generateStaticParams() {
-    return [];
+    return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'nl' }, { lang: 'tr' }];
 }
 
 export default function CareersPage() {

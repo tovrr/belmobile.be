@@ -27,6 +27,7 @@ export const STATIC_SLUG_MAPPINGS: Record<string, Record<string, string>> = {
     faq: { en: 'faq', fr: 'faq', nl: 'faq', tr: 'sss' },
     warranty: { en: 'warranty', fr: 'garantie', nl: 'garantie', tr: 'garanti' },
     privacy: { en: 'privacy', fr: 'vie-privee', nl: 'privacy', tr: 'gizlilik' },
+    cookies: { en: 'cookies', fr: 'politique-cookies', nl: 'cookiebeleid', tr: 'cerez-politikasi' },
     terms: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden', tr: 'kosullar' },
     track: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen', tr: 'siparis-takip' },
     business: { en: 'business', fr: 'business', nl: 'zakelijk', tr: 'kurumsal' },
@@ -34,6 +35,8 @@ export const STATIC_SLUG_MAPPINGS: Record<string, Record<string, string>> = {
     franchise: { en: 'franchise', fr: 'franchise', nl: 'franchise', tr: 'bayilik' },
     training: { en: 'training', fr: 'formation', nl: 'opleiding', tr: 'egitim' },
     blog: { en: 'blog', fr: 'blog', nl: 'blog', tr: 'blog' },
+    repair: { en: 'repair', fr: 'reparation', nl: 'reparatie', tr: 'onarim' },
+    buyback: { en: 'buyback', fr: 'rachat', nl: 'inkoop', tr: 'geri-alim' },
     'data-recovery': { en: 'data-recovery', fr: 'recuperation-donnees', nl: 'data-recovery', tr: 'veri-kurtarma' },
     microsoldering: { en: 'microsoldering', fr: 'microsoudure', nl: 'microsolderen', tr: 'mikro-lehimleme' },
 };

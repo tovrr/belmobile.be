@@ -127,15 +127,15 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     };
 
     const getCard1 = () => {
-        const title = lang === 'fr' ? 'Pourquoi choisir Belmobile ?' : (lang === 'nl' ? 'Waarom Belmobile kiezen?' : 'Why Choose Belmobile?');
+        const title = lang === 'fr' ? 'Pourquoi choisir Belmobile ?' : (lang === 'nl' ? 'Waarom Belmobile kiezen?' : (lang === 'tr' ? 'Neden Belmobile?' : 'Why Choose Belmobile?'));
         const text = isRepair
-            ? (lang === 'fr' ? `Service Premium pour Particuliers & Pros (B2B). Réparation en ${durationText} avec Facture TVA et Garantie 1 an. Plus de 50.000 appareils réparés dans nos laboratoires.` : (lang === 'nl' ? `Premium Service voor Particulieren & Bedrijven. Reparatie in ${durationText} met BTW-factuur en 1 jaar garantie. Meer dan 50.000 tevreden klanten.` : `Premium Service for B2C & B2B. ${durationText} repair with VAT Invoice and 1-year warranty. Trusted by 50k+ customers.`))
-            : (lang === 'fr' ? 'Leader du Rachat à Bruxelles. Nous offrons le meilleur prix garanti, avec paiement immédiat (Cash/Virement). Effacement complet de vos données (GDPR) certifié.' : (lang === 'nl' ? 'Marktleider in Inkoop. Beste prijsgarantie met directe betaling. Gecertificeerde dataverwijdering (GDPR) voor uw privacy.' : 'Brussels Buyback Leader. Best price guaranteed with instant payment. Certified GDPR data wipe for your security.'));
+            ? (lang === 'fr' ? `Service Premium pour Particuliers & Pros (B2B). Réparation en ${durationText} avec Facture TVA et Garantie 1 an. Plus de 50.000 appareils réparés dans nos laboratoires.` : (lang === 'nl' ? `Premium Service voor Particulieren & Bedrijven. Reparatie in ${durationText} met BTW-factuur en 1 jaar garantie. Meer dan 50.000 tevreden klanten.` : (lang === 'tr' ? `Bireysel ve Kurumsal (B2B) için Premium Hizmet. ${durationText} sürede onarım, KDV faturası ve 1 yıl garanti. 50.000'den fazla cihaz onarımı deneyimi.` : `Premium Service for B2C & B2B. ${durationText} repair with VAT Invoice and 1-year warranty. Trusted by 50k+ customers.`)))
+            : (lang === 'fr' ? 'Leader du Rachat à Bruxelles. Nous offrons le meilleur prix garanti, avec paiement immédiat (Cash/Virement). Effacement complet de vos données (GDPR) certifié.' : (lang === 'nl' ? 'Marktleider in Inkoop. Beste prijsgarantie met directe betaling. Gecertificeerde dataverwijdering (GDPR) voor uw privacy.' : (lang === 'tr' ? 'Brüksel\'de Geri Alım Lideri. Anında nakit veya havale ile en iyi fiyat garantisi. Sertifikalı güvenli veri silme (GDPR).' : 'Brussels Buyback Leader. Best price guaranteed with instant payment. Certified GDPR data wipe for your security.')));
         return { title, text };
     };
 
     const getCard2 = () => {
-        const title = lang === 'fr' ? 'Nos Centres d\'Expertise' : (lang === 'nl' ? 'Onze Expertisecentra' : 'Our Expertise Centers');
+        const title = lang === 'fr' ? 'Nos Centres d\'Expertise' : (lang === 'nl' ? 'Onze Expertisecentra' : (lang === 'tr' ? 'Uzmanlık Merkezlerimiz' : 'Our Expertise Centers'));
 
         // Generate dynamic address string from real shops
         const activeShops = SHOPS.filter(s => s.status === 'open');
@@ -147,8 +147,8 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
         }).join(', ');
 
         const text = isRepair
-            ? (lang === 'fr' ? `Nos laboratoires à ${cityNames} sont équipés pour tout type d'intervention (Microsoudure, FaceID, Data Recovery). Sans rendez-vous, 6j/7.` : (lang === 'nl' ? `Onze laboratoria in ${cityNames} zijn uitgerust voor elke interventie. Zonder afspraak, 6d/7.` : `Our labs in ${cityNames} serve the entire Brussels region. Open 6 days a week, no appointment needed.`))
-            : (lang === 'fr' ? `Passez dans nos centres à ${cityNames} pour une estimation gratuite. Nos experts évaluent votre appareil en 2 minutes.` : (lang === 'nl' ? `Bezoek onze centra in ${cityNames} voor een gratis schatting. Klaar in 2 minuten.` : `Visit our centers in ${cityNames} for a free 2-minute appraisal.`));
+            ? (lang === 'fr' ? `Nos laboratoires à ${cityNames} sont équipés pour tout type d'intervention (Microsoudure, FaceID, Data Recovery). Sans rendez-vous, 6j/7.` : (lang === 'nl' ? `Onze laboratoria in ${cityNames} zijn uitgerust voor elke interventie. Zonder afspraak, 6d/7.` : (lang === 'tr' ? `${cityNames}'deki laboratuvarlarımız her türlü müdahale için donatılmıştır. Randevusuz, haftada 6 gün.` : `Our labs in ${cityNames} serve the entire Brussels region. Open 6 days a week, no appointment needed.`)))
+            : (lang === 'fr' ? `Passez dans nos centres à ${cityNames} pour une estimation gratuite. Nos experts évaluent votre appareil en 2 minutes.` : (lang === 'nl' ? `Bezoek onze centra in ${cityNames} voor een gratis schatting. Klaar in 2 minuten.` : (lang === 'tr' ? `Ücretsiz fiyat tahmini için ${cityNames}'deki merkezlerimize uğrayın. Uzmanlarımız cihazınızı 2 dakikada değerlendirir.` : `Visit our centers in ${cityNames} for a free 2-minute appraisal.`)));
         return { title, text };
     };
 
@@ -461,6 +461,10 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                                     { emoji: '💥', q: 'Scherm Kapot?', a: 'Barsten, vlekken of touch werkt niet.' },
                                     { emoji: '🔋', q: 'Zwakke Batterij?', a: 'Loopt snel leeg of valt uit.' },
                                     { emoji: '💧', q: 'Waterschade?', a: 'In water gevallen? Kom direct langs!' }
+                                ] : lang === 'tr' ? [
+                                    { emoji: '💥', q: 'Ekran mı Kırıldı?', a: 'Çatlaklar, siyah lekeler veya dokunmatik sorunları.' },
+                                    { emoji: '🔋', q: 'Piliniz mi Zayıf?', a: 'Hızlı boşalma veya beklenmedik kapanmalar.' },
+                                    { emoji: '💧', q: 'Sıvı Teması mı?', a: 'Suya mı düştü? Hızlı hareket edin!' }
                                 ] : [
                                     { emoji: '💥', q: 'Broken Screen?', a: 'Cracks, black spots or touch issues.' },
                                     { emoji: '🔋', q: 'Weak Battery?', a: 'Drains fast or unexpected shutdowns.' },
@@ -476,6 +480,10 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                                 { emoji: '💶', q: 'Geld Nodig?', a: 'Ontvang direct contant geld.' },
                                 { emoji: isConsole ? '🎮' : '📱', q: isConsole ? 'Nieuwe Console?' : 'Nieuwe GSM?', a: 'Financier uw nieuwe toestel.' },
                                 { emoji: '♻️', q: 'Ecologisch?', a: `Geef uw ${isConsole ? 'systeem' : 'mobiel'} een tweede leven.` }
+                            ] : lang === 'tr' ? [
+                                { emoji: '💶', q: 'Nakde mi İhtiyacınız Var?', a: 'Anında nakit ödeme alın.' },
+                                { emoji: isConsole ? '🎮' : '📱', q: isConsole ? 'Yeni Konsol mu?' : 'Yeni Telefon mu?', a: 'Yeni cihazınızı finanse edin.' },
+                                { emoji: '♻️', q: 'Çevre Dostu mu?', a: `${isConsole ? 'Sisteminize' : 'Cihazınıza'} ikinci bir hayat verin.` }
                             ] : [
                                 { emoji: '💶', q: 'Need Cash?', a: 'Get money immediately.' },
                                 { emoji: isConsole ? '🎮' : '🕹️', q: isConsole ? 'New Console?' : 'Upgrade?', a: 'Fund your new device.' },
@@ -486,7 +494,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                         return (
                             <div className="mb-12">
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                                    {lang === 'fr' ? 'Problèmes fréquents' : (lang === 'nl' ? 'Veelvoorkomende problemen' : 'Common Issues')}
+                                    {lang === 'fr' ? 'Problèmes fréquents' : (lang === 'nl' ? 'Veelvoorkomende problemen' : (lang === 'tr' ? 'Sık Karşılaşılan Sorunlar' : 'Common Issues'))}
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     {painPoints.map((p, i) => (
@@ -551,16 +559,16 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                         const href = `/${lang}/${targetServiceSlug}/${createSlug(brand)}/${createSlug(model)}`;
 
                         const title = isRepair
-                            ? (lang === 'fr' ? `Ou vendez votre ${deviceName}` : (lang === 'nl' ? `Of verkoop uw ${deviceName}` : `Or sell your ${deviceName}`))
-                            : (lang === 'fr' ? `Ou réparez votre ${deviceName}` : (lang === 'nl' ? `Of repareer uw ${deviceName}` : `Or repair your ${deviceName}`));
+                            ? (lang === 'fr' ? `Ou vendez votre ${deviceName}` : (lang === 'nl' ? `Of verkoop uw ${deviceName}` : (lang === 'tr' ? `Veya ${deviceName} cihazınızı satın` : `Or sell your ${deviceName}`)))
+                            : (lang === 'fr' ? `Ou réparez votre ${deviceName}` : (lang === 'nl' ? `Of repareer uw ${deviceName}` : (lang === 'tr' ? `Veya ${deviceName} cihazınızı tamir ettirin` : `Or repair your ${deviceName}`)));
 
                         const desc = isRepair
-                            ? (lang === 'fr' ? "La réparation est trop chère ? Nous rachetons votre appareil cash, même cassé !" : (lang === 'nl' ? "Is de reparatie te duur? Wij kopen uw toestel contant, zelfs defect!" : "Repair too expensive? We buy your device for cash, even broken!"))
-                            : (lang === 'fr' ? `Vous préférez le garder ? Nous le réparons en ${durationText}.` : (lang === 'nl' ? `Houdt u het liever? Wij repareren het in ${durationText}.` : `Prefer to keep it? We repair it in ${durationText}.`));
+                            ? (lang === 'fr' ? "La réparation est trop chère ? Nous rachetons votre appareil cash, même cassé !" : (lang === 'nl' ? "Is de reparatie te duur? Wij kopen uw toestel contant, zelfs defect!" : (lang === 'tr' ? "Tamir çok mu pahalı? Cihazınızı, bozuk olsa bile nakit karşılığında alıyoruz!" : "Repair too expensive? We buy your device for cash, even broken!")))
+                            : (lang === 'fr' ? `Vous préférez le garder ? Nous le réparons en ${durationText}.` : (lang === 'nl' ? `Houdt u het liever? Wij repareren het in ${durationText}.` : (lang === 'tr' ? `Cihazınızı saklamayı mı tercih edersiniz? ${durationText} içinde tamir ediyoruz.` : `Prefer to keep it? We repair it in ${durationText}.`)));
 
                         const cta = isRepair
-                            ? (lang === 'fr' ? 'Obtenir une offre de rachat' : (lang === 'nl' ? 'Krijg een inkoopbod' : 'Get Buyback Offer'))
-                            : (lang === 'fr' ? 'Voir les tarifs de réparation' : (lang === 'nl' ? 'Bekijk reparatietarieven' : 'See Repair Prices'));
+                            ? (lang === 'fr' ? 'Obtenir une offre de rachat' : (lang === 'nl' ? 'Krijg een inkoopbod' : (lang === 'tr' ? 'Geri Alım Teklifi Al' : 'Get Buyback Offer')))
+                            : (lang === 'fr' ? 'Voir les tarifs de réparation' : (lang === 'nl' ? 'Bekijk reparatietarieven' : (lang === 'tr' ? 'Onarım Fiyatlarını Gör' : 'See Repair Prices')));
 
                         return (
                             <div className="mb-12 bg-white dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 hover:border-cyber-citron transition-colors group/crosslink">
@@ -582,20 +590,20 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                                 <div>
                                     <span className="inline-block px-3 py-1 bg-cyber-citron text-midnight text-[10px] font-black uppercase tracking-widest rounded-full mb-4">
-                                        {lang === 'fr' ? 'Pour les Pros' : (lang === 'nl' ? 'Voor Bedrijven' : 'For Business')}
+                                        {lang === 'fr' ? 'Pour les Pros' : (lang === 'nl' ? 'Voor Bedrijven' : (lang === 'tr' ? 'Kurumsal' : 'For Business'))}
                                     </span>
                                     <h3 className="text-2xl lg:text-3xl font-black mb-2">
-                                        {lang === 'fr' ? 'Vous gérez une flotte mobile ?' : (lang === 'nl' ? 'Beheert u een mobiele vloot?' : 'Managing a mobile fleet?')}
+                                        {lang === 'fr' ? 'Vous gérez une flotte mobile ?' : (lang === 'nl' ? 'Beheert u een mobiele vloot?' : (lang === 'tr' ? 'Mobil bir filoyu mu yönetiyorsunuz?' : 'Managing a mobile fleet?'))}
                                     </h3>
                                     <p className="text-slate-200 text-lg max-w-xl">
-                                        {lang === 'fr' ? 'Profitez de tarifs dégressifs, de la facturation mensuelle et d\'un service prioritaire.' : (lang === 'nl' ? 'Geniet van staffelprijzen, maandelijkse facturatie en prioritaire service.' : 'Enjoy volume discounts, monthly billing, and priority service.')}
+                                        {lang === 'fr' ? 'Profitez de tarifs dégressifs, de la facturation mensuelle et d\'un service prioritaire.' : (lang === 'nl' ? 'Geniet van staffelprijzen, maandelijkse facturatie en prioritaire service.' : (lang === 'tr' ? 'Toplu indirimlerin, aylık faturalandırmanın ve öncelikli hizmetin keyfini çıkarın.' : 'Enjoy volume discounts, monthly billing, and priority service.'))}
                                     </p>
                                 </div>
                                 <a
                                     href={`/${lang}/business`}
                                     className="px-8 py-4 bg-white text-midnight font-black rounded-xl hover:bg-cyber-citron transition-colors whitespace-nowrap shadow-lg"
                                 >
-                                    {lang === 'fr' ? 'Découvrir Belmobile Pro' : (lang === 'nl' ? 'Ontdek Belmobile Pro' : 'Discover Belmobile Pro')}
+                                    {lang === 'fr' ? 'Découvrir Belmobile Pro' : (lang === 'nl' ? 'Ontdek Belmobile Pro' : (lang === 'tr' ? 'Belmobile Pro\'yu Keşfedin' : 'Discover Belmobile Pro'))}
                                 </a>
                             </div>
                         </div>

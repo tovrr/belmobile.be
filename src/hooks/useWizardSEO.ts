@@ -121,15 +121,17 @@ export const useWizardSEO = ({
 
         let newPath = baseUrl;
 
+        if (deviceCategory && deviceCategory !== 'smartphone') {
+            // e.g. /fr/rachat/tablet
+            newPath += `/${createSlug(t(deviceCategory) || deviceCategory)}`;
+        }
+
         if (selectedBrand) {
             newPath += `/${createSlug(selectedBrand)}`;
 
             if (selectedModel) {
                 newPath += `/${createSlug(selectedModel)}`;
             }
-        } else if (deviceCategory) {
-            // If no brand selected, show category in URL (e.g. /fr/rachat/smartphone)
-            newPath += `/${createSlug(deviceCategory)}`;
         }
 
         // Only update if path changed

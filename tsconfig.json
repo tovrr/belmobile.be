@@ -43,6 +43,7 @@
     "node_modules",
     "legacy-platform",
     "modern-platform-backup",
-    "scripts"
+    "scripts",
+    "private-scripts"
   ]
 }

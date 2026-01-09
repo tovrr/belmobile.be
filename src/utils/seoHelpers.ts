@@ -45,6 +45,9 @@ export const getSEODescription = ({ isStore, isRepair, lang, locationName, devic
         if (lang === 'nl') {
             return `Belmobile ${locationName}: Dé nr.1 in smartphone reparatie en inkoop in Brussel. 30 min service voor particulieren en bedrijven (B2B). BTW-factuur, 1 jaar garantie en gecertificeerde data-privacy.`;
         }
+        if (lang === 'tr') {
+            return `Belmobile ${locationName}: Brüksel'in 1 numaralı telefon tamiri ve alım satım uzmanı. Bireysel ve kurumsal (B2B) için 30 dakikada ekspres servis. KDV faturası, 1 yıl garanti ve sertifikalı veri gizliliği.`;
+        }
         // Fallback EN
         return `Belmobile ${locationName}: The #1 rated phone repair & buyback specialist in Brussels. 30 min express service for B2C & B2B. VAT Invoice, 1-year warranty, and certified data privacy.`;
     }
@@ -57,12 +60,16 @@ export const getSEODescription = ({ isStore, isRepair, lang, locationName, devic
         if (lang === 'nl') {
             return `Gecertificeerde ${deviceName} reparatie in ${locationName}. ${issuesText || 'Scherm, batterij of moederbord'}? Onze experts herstellen uw ${brand || 'toestel'} in ${durationText || '30 min'}. Premium onderdelen, 1 jaar garantie & Factuur.`;
         }
+        if (lang === 'tr') {
+            return `${locationName}'de sertifikalı ${deviceName} onarımı. ${issuesText || 'Ekran, batarya veya anakart'} sorunu mu var? Uzmanlarımız ${brand || 'cihazınızı'} ${durationText || '30 dakikada'} tamir eder. Premium parçalar, 1 yıl garanti ve kurumsal fatura.`;
+        }
         return `Certified ${deviceName} repair in ${locationName}. ${issuesText || 'Screen, battery, or microsoldering'}: our experts fix your ${brand || 'device'} in ${durationText || '30 min'}. Premium Parts, 1-Year Warranty & User/Business Invoice.`;
     }
 
     // 3. Buyback Context - The "Best Value" Pitch
     if (lang === 'fr') return `Vendez votre ${deviceName} au prix fort à ${locationName}. Estimation IA immédiate et paiement Cash/Instant. Effacement des données certifié (GDPR) pour votre tranquillité. Leader du rachat à Bruxelles.`;
     if (lang === 'nl') return `Verkoop uw ${deviceName} voor de beste prijs in ${locationName}. Directe AI-schatting en contante betaling. Gecertificeerde dataverwijdering (GDPR). Marktleider in Brussel.`;
+    if (lang === 'tr') return `${deviceName} cihazınızı ${locationName}'de en iyi fiyata satın. Anında yapay zeka fiyat tahmini ve nakit ödeme. Huzurunuz için sertifikalı veri silme (GDPR). Brüksel'in geri alım lideri.`;
 
     return `Sell your ${deviceName} for the highest price in ${locationName}. Instant AI quote and Cash payment. Certified Data Wipe (GDPR) for your peace of mind. Brussels' buyback leader.`;
 };

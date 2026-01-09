@@ -14,7 +14,7 @@ export function Providers({ children, lang, translations }: { children: React.Re
     return (
         <ThemeProvider>
             <AuthProvider>
-                <LanguageProvider initialLanguage={lang as 'en' | 'fr' | 'nl' | undefined} initialTranslations={translations}>
+                <LanguageProvider initialLanguage={lang as 'en' | 'fr' | 'nl' | 'tr' | undefined} initialTranslations={translations}>
                     <DataProvider>
                         <InventoryProvider>
                             <OrderProvider>

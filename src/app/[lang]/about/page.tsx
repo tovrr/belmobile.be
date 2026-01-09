@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getFixedT } from '../../../utils/i18n-server';
+import { STATIC_SLUG_MAPPINGS } from '../../../utils/i18n-helpers';
 import SchemaMarkup from '../../../components/seo/SchemaMarkup';
 import {
     HeartIcon,
@@ -111,8 +112,7 @@ export default async function AboutPage({ params }: PageProps) {
                             </h2>
                             <div className="prose prose-lg text-slate-600 dark:text-slate-400">
                                 <p>
-                                    At Belmobile, we believe that technology should serve us without costing the earth.
-                                    By providing top-tier repairs and high-quality refurbished devices, we make it easy for you to make the sustainable choice.
+                                    {t('about_mission_detail')}
                                 </p>
                             </div>
                         </div>
@@ -165,7 +165,7 @@ export default async function AboutPage({ params }: PageProps) {
                         {t('about_cta_desc')}
                     </p>
                     <Link
-                        href={`/${lang}/contact`}
+                        href={`/${lang}/${STATIC_SLUG_MAPPINGS.stores[lang] || 'stores'}`}
                         className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-indigo-600 rounded-full hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/30 hover:scale-105 active:scale-95"
                     >
                         {t('about_cta_button')}

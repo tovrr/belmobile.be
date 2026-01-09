@@ -8,8 +8,8 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang } = await params;
     return {
-        title: lang === 'fr' ? 'Garantie | Belmobile' : lang === 'nl' ? 'Garantie | Belmobile' : 'Warranty Info | Belmobile',
-        description: 'Warranty Information',
+        title: lang === 'fr' ? 'Garantie | Belmobile' : lang === 'nl' ? 'Garantie | Belmobile' : lang === 'tr' ? 'Garanti | Belmobile' : 'Warranty Info | Belmobile',
+        description: lang === 'tr' ? 'Garanti Bilgisi' : 'Warranty Information',
     };
 }
 

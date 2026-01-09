@@ -11,9 +11,8 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { lang } = await params;
 
-    // Fallback to FR since it's the primary market for this service
-    const defaultLang = 'fr';
-    const currentLang = ['en', 'fr', 'nl'].includes(lang) ? lang : defaultLang;
+    // Support all four languages
+    const currentLang = ['en', 'fr', 'nl', 'tr'].includes(lang) ? lang : 'fr';
 
     // Load translations manually for metadata as this is a server component
     const translations = await import(`../../../../src/data/i18n/${currentLang}.json`).then(m => m.default);
@@ -29,6 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                 'en': `${baseUrl}/en/express-courier`,
                 'fr': `${baseUrl}/fr/express-courier`,
                 'nl': `${baseUrl}/nl/express-courier`,
+                'tr': `${baseUrl}/tr/express-courier`,
             }
         },
     };

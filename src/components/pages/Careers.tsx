@@ -10,20 +10,20 @@ const Careers: React.FC = () => {
     const jobs = [
         {
             title: "careers_job_tech_title",
-            type: "Full-Time",
-            location: "Brussels (Schaerbeek)",
+            type: t("Full-Time"),
+            location: t("Brussels (Schaerbeek)"),
             desc: "careers_job_tech_desc"
         },
         {
             title: "careers_job_sales_title",
-            type: "Part-Time",
-            location: "Brussels (Molenbeek)",
+            type: t("Part-Time"),
+            location: t("Brussels (Molenbeek)"),
             desc: "careers_job_sales_desc"
         },
         {
             title: "careers_job_ecom_title",
-            type: "Full-Time",
-            location: "Brussels (Hybrid)",
+            type: t("Full-Time"),
+            location: t("Brussels (Hybrid)"),
             desc: "careers_job_ecom_desc"
         }
     ];

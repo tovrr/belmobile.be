@@ -29,6 +29,7 @@ const BusinessSolutions: React.FC = () => {
     const [fleetSize, setFleetSize] = useState(50);
     const [email, setEmail] = useState('');
     const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const calculateSavings = (size: number) => {
         // Average saving: €120 per repair vs replacement + Time saved (€50)
@@ -310,12 +311,46 @@ const BusinessSolutions: React.FC = () => {
                         </div>
 
                         {/* Quick Lead Form */}
-                        <div className={`bg-white text-midnight p-10 rounded-[3rem] shadow-2xl transition-all duration-500 ${isFormSubmitted ? 'bg-emerald-500 text-white' : ''}`}>
+                        <div className={`p-10 rounded-[3rem] shadow-2xl transition-all duration-500 ${isFormSubmitted ? 'bg-emerald-500 text-white' : 'bg-white text-midnight'}`}>
                             {!isFormSubmitted ? (
                                 <>
                                     <h3 className="text-3xl font-black mb-2 uppercase tracking-tight">{t('biz_lead_title')}</h3>
                                     <p className="text-slate-500 font-medium mb-8">{t('biz_lead_desc')}</p>
-                                    <form onSubmit={(e) => { e.preventDefault(); setIsFormSubmitted(true); }} className="space-y-4">
+                                    <form
+                                        onSubmit={async (e) => {
+                                            e.preventDefault();
+                                            if (!email) return;
+                                            setLoading(true);
+                                            try {
+                                                const { orderService } = await import('../../services/orderService');
+                                                await orderService.saveLead(email, {
+                                                    source: 'b2b_fleet_simulator',
+                                                    fleetSize: fleetSize,
+                                                    estimatedSavings: calculateSavings(fleetSize),
+                                                    language: language
+                                                });
+
+                                                // Trigger specialized B2B email
+                                                await fetch('/api/mail/b2b-lead', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({
+                                                        email,
+                                                        fleetSize,
+                                                        estimatedSavings: calculateSavings(fleetSize),
+                                                        language
+                                                    })
+                                                });
+
+                                                setIsFormSubmitted(true);
+                                            } catch (error) {
+                                                console.error('Lead submission failed', error);
+                                            } finally {
+                                                setLoading(false);
+                                            }
+                                        }}
+                                        className="space-y-4"
+                                    >
                                         <div>
                                             <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-slate-400">{t('biz_lead_email_label')}</label>
                                             <input
@@ -327,9 +362,19 @@ const BusinessSolutions: React.FC = () => {
                                                 placeholder={t('biz_lead_email_placeholder')}
                                             />
                                         </div>
-                                        <button type="submit" className="w-full bg-midnight text-white font-black text-xl py-5 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all flex justify-center items-center gap-3">
-                                            <span>{t('biz_lead_button')}</span>
-                                            <ArrowRightIcon className="w-6 h-6" />
+                                        <button
+                                            type="submit"
+                                            disabled={loading}
+                                            className="w-full bg-midnight text-white font-black text-xl py-5 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all flex justify-center items-center gap-3 disabled:opacity-50"
+                                        >
+                                            {loading ? (
+                                                <div className="w-6 h-6 border-3 border-white/20 border-t-white rounded-full animate-spin"></div>
+                                            ) : (
+                                                <>
+                                                    <span>{t('biz_lead_button')}</span>
+                                                    <ArrowRightIcon className="w-6 h-6" />
+                                                </>
+                                            )}
                                         </button>
                                         <p className="text-xs text-center text-slate-400 font-medium mt-4">
                                             {t('biz_lead_privacy')}

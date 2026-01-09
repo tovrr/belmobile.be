@@ -150,6 +150,9 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
 
                 if (p.length > 0) return Math.min(...p);
             }
+            if (issueId === 'battery') {
+                return dynamicRepairPrices.battery ?? dynamicRepairPrices.battery_original ?? dynamicRepairPrices.battery_generic ?? null;
+            }
             return dynamicRepairPrices[issueId] || null;
         }
         return null;

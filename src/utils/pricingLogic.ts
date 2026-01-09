@@ -142,6 +142,13 @@ export const calculateRepairPriceShared = (params: PricingParams, data: PricingD
             const price = repairPrices[`screen_${quality}`] ?? repairPrices['screen_generic'] ?? 0;
             if (price > 0) total += price;
             else if (price === 0) isValid = false;
+        } else if (issueId === 'battery') {
+            const price = repairPrices['battery'] ?? repairPrices['battery_original'] ?? repairPrices['battery_generic'] ?? 0;
+            if (price > 0) total += price;
+            // Don't invalidate if battery is 0, arguably? Or keep strict? 
+            // Strict: else if (price === 0) isValid = false;
+            // Let's keep strict to surface errors if data is missing.
+            else if (price === 0) isValid = false;
         } else {
             const price = repairPrices[issueId] ?? 0;
             if (price > 0) total += price;

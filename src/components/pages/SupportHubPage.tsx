@@ -11,6 +11,7 @@ import {
     NewspaperIcon
 } from '@heroicons/react/24/outline';
 import { useLanguage } from '../../hooks/useLanguage';
+import { getLocalizedPath } from '@/utils/i18n-helpers';
 
 interface SupportHubPageProps {
     lang: string;
@@ -24,7 +25,7 @@ const SupportHubPage: React.FC<SupportHubPageProps> = () => {
             title: t('support_contact_title'),
             description: t('support_contact_desc'),
             icon: ChatBubbleLeftRightIcon,
-            href: `/${language}/contact`,
+            href: getLocalizedPath('/contact', language),
             color: 'text-blue-500',
             bg: 'bg-blue-500/10'
         },
@@ -32,7 +33,7 @@ const SupportHubPage: React.FC<SupportHubPageProps> = () => {
             title: t('support_faq_title'),
             description: t('support_faq_desc'),
             icon: QuestionMarkCircleIcon,
-            href: `/${language}/faq`,
+            href: getLocalizedPath('/faq', language),
             color: 'text-purple-500',
             bg: 'bg-purple-500/10'
         },
@@ -40,7 +41,7 @@ const SupportHubPage: React.FC<SupportHubPageProps> = () => {
             title: t('support_stores_title'),
             description: t('support_stores_desc'),
             icon: MapPinIcon,
-            href: `/${language}/${language === 'fr' ? 'magasins' : language === 'nl' ? 'winkels' : 'stores'}`,
+            href: getLocalizedPath('/stores', language),
             color: 'text-green-500',
             bg: 'bg-green-500/10'
         },
@@ -48,7 +49,7 @@ const SupportHubPage: React.FC<SupportHubPageProps> = () => {
             title: t('support_track_title'),
             description: t('support_track_desc'),
             icon: TruckIcon,
-            href: `/${language}/${language === 'fr' ? 'suivi-commande' : language === 'nl' ? 'bestelling-volgen' : 'track-order'}`,
+            href: getLocalizedPath('/track-order', language),
             color: 'text-orange-500',
             bg: 'bg-orange-500/10'
         },
@@ -56,7 +57,7 @@ const SupportHubPage: React.FC<SupportHubPageProps> = () => {
             title: t('support_warranty_title'),
             description: t('support_warranty_desc'),
             icon: ShieldCheckIcon,
-            href: `/${language}/${language === 'fr' ? 'garantie' : language === 'nl' ? 'garantie' : 'warranty'}`,
+            href: getLocalizedPath('/warranty', language),
             color: 'text-red-500',
             bg: 'bg-red-500/10'
         },
@@ -64,7 +65,7 @@ const SupportHubPage: React.FC<SupportHubPageProps> = () => {
             title: t('support_blog_title'),
             description: t('support_blog_desc'),
             icon: NewspaperIcon,
-            href: `/${language}/blog`,
+            href: getLocalizedPath('/blog', language),
             color: 'text-indigo-500',
             bg: 'bg-indigo-500/10'
         }

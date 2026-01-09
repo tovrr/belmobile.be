@@ -110,6 +110,8 @@ export async function getWizardQuote(request: WizardQuoteRequest): Promise<Wizar
                 if (id === 'screen' && request.selectedScreenQuality) {
                     const q = request.selectedScreenQuality;
                     amount = repairParams[`screen_${q}`] || repairParams['screen_generic'] || amount;
+                } else if (id === 'battery') {
+                    amount = repairParams['battery'] || repairParams['battery_original'] || repairParams['battery_generic'] || amount;
                 }
 
                 return {

@@ -8,6 +8,16 @@ const nextConfig = {
   async redirects() {
     return [
       // --- CRITICAL FIXES ---
+      {
+        source: '/tr/services/microsoldering',
+        destination: '/tr/hizmetler/mikro-lehimleme',
+        permanent: true,
+      },
+      {
+        source: '/tr/services/data-recovery',
+        destination: '/tr/hizmetler/veri-kurtarma',
+        permanent: true,
+      },
       // Generic product redirects removed to let [lang]/products/[...slug] handle smart matching
       {
         source: '/products/:slug+',
@@ -110,6 +120,21 @@ const nextConfig = {
       },
 
       // 1. General Lead Gen / City Landing Pages
+      {
+        source: '/pages/rachat-iphone-bruxelles',
+        destination: '/fr/rachat/apple',
+        permanent: true,
+      },
+      {
+        source: '/pages/rachat-ipad-bruxelles',
+        destination: '/fr/rachat/tablette/apple',
+        permanent: true,
+      },
+      {
+        source: '/pages/rachat-tablette-samsung-bruxelles',
+        destination: '/fr/rachat/tablette/samsung',
+        permanent: true,
+      },
       {
         source: '/pages/rachat-gsm-bruxelles',
         destination: '/fr/rachat/bruxelles',
@@ -520,7 +545,13 @@ const nextConfig = {
       { source: '/nl/products/:slug*', destination: '/nl/producten/:slug*', permanent: true },
       { source: '/tr/products/:slug*', destination: '/tr/urunler/:slug*', permanent: true },
 
-      // Repair & Buyback (Roots)
+      // Repair & Buyback (Roots & Subpaths)
+      { source: '/fr/repair/:path*', destination: '/fr/reparation/:path*', permanent: true },
+      { source: '/nl/repair/:path*', destination: '/nl/reparatie/:path*', permanent: true },
+      { source: '/tr/repair/:path*', destination: '/tr/onarim/:path*', permanent: true },
+      { source: '/fr/buyback/:path*', destination: '/fr/rachat/:path*', permanent: true },
+      { source: '/nl/buyback/:path*', destination: '/nl/inkoop/:path*', permanent: true },
+      { source: '/tr/buyback/:path*', destination: '/tr/geri-alim/:path*', permanent: true },
       { source: '/fr/repair', destination: '/fr/reparation', permanent: true },
       { source: '/nl/repair', destination: '/nl/reparatie', permanent: true },
       { source: '/tr/repair', destination: '/tr/onarim', permanent: true },
@@ -539,6 +570,9 @@ const nextConfig = {
       { source: '/fr/track-order', destination: '/fr/suivi-commande', permanent: true },
       { source: '/nl/track-order', destination: '/nl/bestelling-volgen', permanent: true },
       { source: '/tr/track-order', destination: '/tr/siparis-takip', permanent: true },
+      { source: '/fr/cookies', destination: '/fr/politique-cookies', permanent: true },
+      { source: '/nl/cookies', destination: '/nl/cookiebeleid', permanent: true },
+      { source: '/tr/cookies', destination: '/tr/cerez-politikasi', permanent: true },
 
       // Other Slugs
       { source: '/tr/franchise', destination: '/tr/bayilik', permanent: true },
@@ -628,6 +662,15 @@ const nextConfig = {
 
   async rewrites() {
     return [
+      // --- TURKISH SERVICES ---
+      {
+        source: '/tr/hizmetler/mikro-lehimleme',
+        destination: '/tr/services/microsoldering',
+      },
+      {
+        source: '/tr/hizmetler/veri-kurtarma',
+        destination: '/tr/services/data-recovery',
+      },
       // --- LOCALIZED SERVICE SLUGS ---
       // Microsoldering
       {
@@ -641,6 +684,10 @@ const nextConfig = {
       {
         source: '/nl/services/microsolderen',
         destination: '/nl/services/microsoldering',
+      },
+      {
+        source: '/tr/services/mikro-lehimleme',
+        destination: '/tr/services/microsoldering',
       },
       // Data Recovery
       {
@@ -658,6 +705,10 @@ const nextConfig = {
       {
         source: '/nl/services/data-recovery',
         destination: '/nl/services/data-recovery',
+      },
+      {
+        source: '/tr/services/veri-kurtarma',
+        destination: '/tr/services/data-recovery',
       },
 
       // --- SUSTAINABILITY SLUGS ---
@@ -796,8 +847,16 @@ const nextConfig = {
       },
       // Cookies
       {
-        source: '/fr/cookies', // Same in FR/EN often, but 'politique-cookies' maybe? Keeping simple for now unless requested
+        source: '/fr/politique-cookies',
         destination: '/fr/cookies',
+      },
+      {
+        source: '/nl/cookiebeleid',
+        destination: '/nl/cookies',
+      },
+      {
+        source: '/tr/cerez-politikasi',
+        destination: '/tr/cookies',
       },
       // Track Order
       {
