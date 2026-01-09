@@ -10,8 +10,7 @@ service cloud.firestore {
     // TODO: Migrate to Custom Claims based RBAC for robust security
     function isAdmin() {
       return request.auth != null && (
-        request.auth.token.email.matches('.*@belmobile.be') || 
-        request.auth.uid in ['TjXyC2TzXyC2TzXyC2TzXyC2', 'Odx9NRDBLyfNVSpd755u50XMSSf2'] // Add hardcoded Admin UIDs here if needed
+        request.auth.token.email.matches('.*@belmobile.be')
       ); 
     }
     
