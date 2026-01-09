@@ -17,6 +17,10 @@ import BuybackRepair from '@/components/wizard/BuybackRepair';
 import Hreflang from '@/components/seo/Hreflang';
 import SchemaOrg from '@/components/seo/SchemaOrg';
 
+// --- CONFIG ---
+// Enable ISR (1 Hour Cache) to prevent Function Invocation Spikes
+export const revalidate = 3600;
+
 // --- DYNAMIC IMPORTS & SKELETONS ---
 
 // StoreLocator: Interactive Map (Heavy) -> Client Only (Wrapped)

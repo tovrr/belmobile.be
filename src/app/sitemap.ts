@@ -148,8 +148,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 // Repair Model
                 sitemapEntries.push({
                     url: repUrl,
-                    lastModified: new Date(),
-                    changeFrequency: 'daily',
+                    lastModified: lastmodStatic, // STABLE DATE
+                    changeFrequency: 'weekly',    // Reduced from daily
                     priority: priority,
                     alternates: {
                         languages: Object.fromEntries(
@@ -161,8 +161,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 // Buyback Model
                 sitemapEntries.push({
                     url: `${BASE_URL}/${lang}/${buybackPath[lang]}/${brand}/${model}`.toLowerCase(),
-                    lastModified: new Date(),
-                    changeFrequency: 'daily',
+                    lastModified: lastmodStatic, // STABLE DATE
+                    changeFrequency: 'weekly',    // Reduced from daily
                     priority: priority,
                     alternates: {
                         languages: Object.fromEntries(

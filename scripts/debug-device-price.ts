@@ -2,6 +2,10 @@
 import * as admin from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 
+try {
+    process.loadEnvFile('.env.local');
+} catch (e) { }
+
 const DEVICE_ID = 'apple-iphone-16-pro-max';
 
 // --- INIT ---
