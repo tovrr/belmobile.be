@@ -169,7 +169,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                         {POPULAR_REPAIRS.map((item, index) => (
                             <li key={index}>
                                 <Link
-                                    href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : language === 'tr' ? 'tamir' : 'repair'}/${createSlug(item.brand)}/${createSlug(item.model)}?category=${item.category}`}
+                                    href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : language === 'tr' ? 'onarim' : 'repair'}/${createSlug(item.brand)}/${createSlug(item.model)}?category=${item.category}`}
                                     className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
                                 >
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>

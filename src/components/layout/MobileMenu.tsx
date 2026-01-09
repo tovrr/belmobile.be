@@ -44,29 +44,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
         <div className="absolute top-full right-4 left-4 sm:left-auto sm:right-8 sm:w-full sm:max-w-sm mt-4 rounded-3xl p-2 shadow-2xl animate-fade-in xl:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-white/20 z-40 ring-1 ring-black/5">
             <div className="flex flex-col space-y-1">
                 {NAV_LINKS.map(link => {
-                    let path = link.path;
-                    if (path === '/products') {
-                        if (language === 'fr') path = '/produits';
-                        if (language === 'nl') path = '/producten';
-                        if (language === 'tr') path = '/urunler';
-                    }
-                    if (path === '/repair') {
-                        if (language === 'fr') path = '/reparation';
-                        if (language === 'nl') path = '/reparatie';
-                        if (language === 'tr') path = '/onarim';
-                    }
-                    if (path === '/buyback') {
-                        if (language === 'fr') path = '/rachat';
-                        if (language === 'nl') path = '/inkoop';
-                        if (language === 'tr') path = '/geri-alim';
-                    }
-                    if (path === '/stores') {
-                        if (language === 'fr') path = '/magasins';
-                        if (language === 'nl') path = '/winkels';
-                        if (language === 'tr') path = '/magazalar';
-                    }
-
-                    const href = `/${language}${path}`;
+                    const href = getLocalizedPath(link.path, language as any);
                     const isActive = pathname === href || pathname.startsWith(href + '/');
 
                     if (link.name === 'Business') {
@@ -91,7 +69,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
                                 <div className={`overflow-hidden transition-all duration-300 ${isProExpanded ? 'max-h-64 mt-1 opacity-100' : 'max-h-0 opacity-0'}`}>
                                     <div className="grid grid-cols-1 gap-1 px-4 mb-2">
                                         <Link
-                                            href={`/${language}/business`}
+                                            href={getLocalizedPath('/business', language as any)}
                                             onClick={() => { haptic.trigger('light'); onClose(); }}
                                             className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2 active-press"
                                         >
@@ -99,7 +77,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
                                             B2B
                                         </Link>
                                         <Link
-                                            href={`/${language}/franchise`}
+                                            href={getLocalizedPath('/franchise', language as any)}
                                             onClick={() => { haptic.trigger('light'); onClose(); }}
                                             className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2 active-press"
                                         >
@@ -107,7 +85,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, language, t })
                                             {t('Franchise')}
                                         </Link>
                                         <Link
-                                            href={`/${language}${language === 'nl' ? '/opleiding' : language === 'tr' ? '/egitim' : language === 'fr' ? '/formation' : '/training'}`}
+                                            href={getLocalizedPath('/training', language as any)}
                                             onClick={() => { haptic.trigger('light'); onClose(); }}
                                             className="px-6 py-3 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/30 flex items-center gap-2 active-press"
                                         >

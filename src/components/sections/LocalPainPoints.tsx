@@ -2,7 +2,7 @@ import { ClockIcon, CurrencyEuroIcon, ShieldCheckIcon, MapPinIcon } from '@heroi
 import { slugToDisplayName } from '../../utils/slugs';
 
 interface LocalPainPointsProps {
-    lang: 'fr' | 'nl' | 'en';
+    lang: 'fr' | 'nl' | 'en' | 'tr';
     locationName: string;
     deviceType?: string;
     type?: 'repair' | 'buyback';

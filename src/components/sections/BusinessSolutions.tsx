@@ -32,7 +32,7 @@ const BusinessSolutions: React.FC = () => {
 
     const calculateSavings = (size: number) => {
         // Average saving: €120 per repair vs replacement + Time saved (€50)
-        const locale = language === 'nl' ? 'nl-BE' : language === 'fr' ? 'fr-BE' : 'en-BE';
+        const locale = language === 'nl' ? 'nl-BE' : language === 'fr' ? 'fr-BE' : language === 'tr' ? 'tr-TR' : 'en-BE';
         return (size * 0.3 * 170).toLocaleString(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
         // Assuming 30% break rate per year
     };

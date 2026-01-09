@@ -448,7 +448,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                                         <div className="flex flex-col items-end shrink-0">
                                                             <span className={`text-[11px] font-black px-2 py-1 rounded-lg transition-colors ${isSelected ? 'bg-[#6366F1] text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400'}`}>
                                                                 {isScreenIssue && displayPrice !== null && displayPrice > 0 && <span className="mr-1 text-[9px] font-normal opacity-70 uppercase tracking-tighter">{t('À partir de')}</span>}
-                                                                {issue.id === 'other' ? <span className="font-black uppercase tracking-widest">{t('free')}</span> : (displayPrice !== null && displayPrice > 0 ? <>&euro;{displayPrice}</> : <span className="text-[9px] font-bold uppercase tracking-tight whitespace-nowrap">{t('on_request')}</span>)}
+                                                                {issue.id === 'other' ? <span className="font-black uppercase tracking-widest">{t('free')}</span> : (displayPrice !== null && displayPrice > 0 ? <>&euro;{displayPrice}</> : <span className="text-[9px] font-bold tracking-tight whitespace-nowrap">{t('on_request')}</span>)}
                                                             </span>
                                                         </div>
                                                     )}

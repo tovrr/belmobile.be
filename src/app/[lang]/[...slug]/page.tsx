@@ -386,7 +386,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                             type={type}
                             initialShop={initialShop}
                             initialDevice={initialDevice}
-                            initialCategory={deviceCategory || undefined}
+                            initialCategory={finalDeviceCategory || undefined}
                             initialWizardProps={initialWizardProps}
                         />
                     </Suspense>
@@ -400,7 +400,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                     service={service}
                     brand={device?.value}
                     model={deviceModel || undefined}
-                    deviceType={deviceCategory}
+                    deviceType={finalDeviceCategory}
                     priceQuote={pricing}
                 />
 
@@ -409,7 +409,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                     <LocalPainPoints
                         lang={lang as 'fr' | 'nl' | 'en' | 'tr'}
                         locationName={locationName || (lang === 'fr' ? 'Bruxelles' : lang === 'nl' ? 'Brussel' : 'Brussels')}
-                        deviceType={deviceModel || device?.value || deviceCategory}
+                        deviceType={deviceModel || device?.value || finalDeviceCategory}
                         type={type}
                     />
                 </div>

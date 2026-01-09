@@ -15,21 +15,27 @@ export function sanitizeUrl(url: string | undefined, defaultUrl: string = 'https
 
 // 1. Static Mappings for non-service pages
 export const STATIC_SLUG_MAPPINGS: Record<string, Record<string, string>> = {
+    services: { en: 'services', fr: 'services', nl: 'diensten', tr: 'hizmetler' },
     products: { en: 'products', fr: 'produits', nl: 'producten', tr: 'urunler' }, // Can overlap with service if not careful
     stores: { en: 'stores', fr: 'magasins', nl: 'winkels', tr: 'magazalar' },
     about: { en: 'about', fr: 'a-propos', nl: 'over-ons', tr: 'hakkimizda' },
     sustainability: { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid', tr: 'surdurulebilirlik' },
-    students: { en: 'students', fr: 'etudiants', nl: 'studenten', tr: 'ogrenci' },
-    courier: { en: 'express-courier', fr: 'coursier-express', nl: 'express-koerier', tr: 'kurye' },
+    students: { en: 'students', fr: 'etudiants', nl: 'studenten', tr: 'ogrenciler' },
+    courier: { en: 'express-courier', fr: 'coursier-express', nl: 'express-koerier', tr: 'ekspres-kurye' },
     careers: { en: 'careers', fr: 'carrieres', nl: 'vacatures', tr: 'kariyer' },
+    contact: { en: 'contact', fr: 'contact', nl: 'contact', tr: 'iletisim' },
+    faq: { en: 'faq', fr: 'faq', nl: 'faq', tr: 'sss' },
     warranty: { en: 'warranty', fr: 'garantie', nl: 'garantie', tr: 'garanti' },
     privacy: { en: 'privacy', fr: 'vie-privee', nl: 'privacy', tr: 'gizlilik' },
     terms: { en: 'terms', fr: 'conditions-generales', nl: 'algemene-voorwaarden', tr: 'kosullar' },
-    track: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen', tr: 'takip' },
+    track: { en: 'track-order', fr: 'suivi-commande', nl: 'bestelling-volgen', tr: 'siparis-takip' },
     business: { en: 'business', fr: 'business', nl: 'zakelijk', tr: 'kurumsal' },
     support: { en: 'support', fr: 'support', nl: 'destek', tr: 'destek' },
-    franchise: { en: 'franchise', fr: 'franchise', nl: 'franchise', tr: 'franchise' }, // Fixed slug
+    franchise: { en: 'franchise', fr: 'franchise', nl: 'franchise', tr: 'bayilik' },
     training: { en: 'training', fr: 'formation', nl: 'opleiding', tr: 'egitim' },
+    blog: { en: 'blog', fr: 'blog', nl: 'blog', tr: 'blog' },
+    'data-recovery': { en: 'data-recovery', fr: 'recuperation-donnees', nl: 'data-recovery', tr: 'veri-kurtarma' },
+    microsoldering: { en: 'microsoldering', fr: 'microsoudure', nl: 'microsolderen', tr: 'mikro-lehimleme' },
 };
 
 export function getLocalizedPath(currentPath: string, newLang: 'en' | 'fr' | 'nl' | 'tr', searchParams: string = ''): string {

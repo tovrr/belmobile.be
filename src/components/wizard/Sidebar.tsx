@@ -284,7 +284,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                             estimateDisplay > 0 ? (
                                                 `€${estimateDisplay}`
                                             ) : (
-                                                (selectedModel) ? (isBuyback ? t('contact_for_price_buyback') : t('contact_for_price')) : '-'
+                                                (selectedModel && (isBuyback || repairIssues.length > 0)) ? (isBuyback ? t('contact_for_price_buyback') : t('contact_for_price')) : '-'
                                             )
                                         ) : estimateDisplay}
                                     </motion.span>

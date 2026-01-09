@@ -130,34 +130,7 @@ const Header: React.FC = () => {
                         {/* Desktop Nav */}
                         <nav className="hidden lg:flex items-center space-x-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-full p-1 border border-white/10 backdrop-blur-sm">
                             {NAV_LINKS.map(link => {
-                                let path = link.path;
-                                if (path === '/products') {
-                                    if (language === 'fr') path = '/produits';
-                                    if (language === 'nl') path = '/producten';
-                                    if (language === 'tr') path = '/urunler';
-                                }
-                                if (path === '/repair') {
-                                    if (language === 'fr') path = '/reparation';
-                                    if (language === 'nl') path = '/reparatie';
-                                    if (language === 'tr') path = '/onarim';
-                                }
-                                if (path === '/buyback') {
-                                    if (language === 'fr') path = '/rachat';
-                                    if (language === 'nl') path = '/inkoop';
-                                    if (language === 'tr') path = '/geri-alim';
-                                }
-                                if (path === '/formation') {
-                                    if (language === 'fr') path = '/formation';
-                                    if (language === 'nl') path = '/opleiding';
-                                    if (language === 'tr') path = '/egitim';
-                                }
-                                if (path === '/stores') {
-                                    if (language === 'fr') path = '/magasins';
-                                    if (language === 'nl') path = '/winkels';
-                                    if (language === 'tr') path = '/magazalar';
-                                }
-
-                                const href = `/${language}${path}`;
+                                const href = getLocalizedPath(link.path, language as any);
                                 const isActive = pathname === href || pathname.startsWith(href + '/');
 
                                 if (link.name === 'Business') {
@@ -179,21 +152,21 @@ const Header: React.FC = () => {
                                             <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover/dropdown:opacity-100 group-hover/dropdown:translate-y-0 group-hover/dropdown:pointer-events-auto transition-all duration-300 z-50">
                                                 <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 p-2 min-w-[180px]">
                                                     <Link
-                                                        href={`/${language}${language === 'fr' ? '/business' : '/business'}`}
+                                                        href={getLocalizedPath('/business', language as any)}
                                                         title={t('seo_nav_b2b') || 'Corporate Mobile Solutions'}
                                                         className="flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-electric-indigo transition-all"
                                                     >
                                                         {t('B2B')}
                                                     </Link>
                                                     <Link
-                                                        href={`/${language}${language === 'fr' ? '/franchise' : '/franchise'}`}
+                                                        href={getLocalizedPath('/franchise', language as any)}
                                                         title={t('seo_nav_franchise') || 'Open Your Own Repair Shop'}
                                                         className="flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-electric-indigo transition-all"
                                                     >
                                                         {t('Franchise')}
                                                     </Link>
                                                     <Link
-                                                        href={`/${language}${language === 'nl' ? '/opleiding' : language === 'tr' ? '/egitim' : language === 'fr' ? '/formation' : '/training'}`}
+                                                        href={getLocalizedPath('/training', language as any)}
                                                         title={t('seo_nav_training') || 'Become a Certified Technician'}
                                                         className="flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-electric-indigo transition-all"
                                                     >

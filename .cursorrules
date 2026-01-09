@@ -70,8 +70,11 @@ Your goal is **Premium Quality**, **Zero Regression**, and **Vibe Coding Flow**.
 
 ## 📂 Architecture & Patterns
 1.  **Layouts**: Use "Client Wrappers" (e.g., `LayoutWrapper.tsx`) to hide headers/footers. Do NOT refactor into complex Route Groups (`(shop)`, `(main)`) as this breaks `legacyUrlMap` linking.
-2.  **Translations**:
-    - Prefer **lazy-loading** per-language JSONs.
+2.  **Translations (i18n)**:
+    - **Strict Rule**: ALL new translation keys MUST use **technical keys** (snake_case, e.g., `checkout_total_amount`).
+    - **Prohibited**: Do NOT use natural language strings (English or French) as keys for new features (e.g., avoid `"Our Products": "..."`).
+    - **Legacy**: Existing natural language keys are tolerated but should not be propagated to new components.
+    - **Loading**: Prefer **lazy-loading** per-language JSONs.
     - **Do NOT** add massive objects to `translations.ts` (deprecated pattern).
 3.  **Glassmorphism**: Follow `.agent/20_KNOWLEDGE_BASE/design/design-system.md`. Use `backdrop-blur-md` and `bg-white/70`, not solid opacities.
 4.  **Wizard Pattern (Buyback/Repair)**:

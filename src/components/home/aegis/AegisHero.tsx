@@ -81,13 +81,13 @@ const AegisHero: React.FC = () => {
                         {/* Mini Trust Bar */}
                         <div className="mt-12 pt-8 border-t border-slate-200 dark:border-white/10 flex flex-wrap gap-8 justify-center lg:justify-start">
                             <div className="flex flex-col">
-                                <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">4.9/5</span>
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Google Reviews</span>
+                                <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">{t('google_rating_value')}</span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{t('google_reviews')}</span>
                             </div>
                             <div className="w-px h-8 bg-slate-200 dark:bg-white/10 hidden sm:block"></div>
                             <div className="flex flex-col">
-                                <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">30 Min</span>
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Avg. Repair Time</span>
+                                <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">{t('avg_repair_time_value')}</span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{t('avg_repair_time')}</span>
                             </div>
                         </div>
                     </div>

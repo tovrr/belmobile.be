@@ -36,3 +36,9 @@ To ensure scalability, conversion, and business growth on the Belmobile platform
 - **Lead Expiry**: Every lead record MUST have an `expiresAt` field.
 - **State Protection**: Magic links should be salted or use signed tokens to prevent state enumeration.
 - **Private Internal Notes**: Admin notes are strictly internal and must never be exposed to clients via the Tracking API.
+
+## 8. Internationalization (i18n) Excellence
+- **Technical Keys Only**: To prevent context drift and key duplication, ALL future translation keys MUST be **technical identifiers** (snake_case, e.g., `wizard_booking_confirmation`).
+- **Standardized Foundation**: Avoid using English or French words as keys for new features. Rely on a technical key that describes the intent/location of the string.
+- **Legacy Integrity**: Do not refactor existing natural language keys unless fixing a critical bug, but never use them as inspiration for new keys.
+- **Lazy Loading**: Ensure large translation sets are lazy-loaded based on the active language to maintain LCP performance.

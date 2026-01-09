@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { BikeIcon, AcademicCapIcon as GraduationCap } from '../ui/BrandIcons';
 import { TranslationDict } from '@/utils/translations';
+import { getLocalizedPath } from '@/utils/i18n-helpers';
 
 interface FooterColumnsProps {
     lang: string;
@@ -17,17 +18,17 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
             {/* Column 1: Services */}
             <div className="col-span-1 lg:col-span-3">
                 <h4 className="font-bold uppercase tracking-wider text-xs mb-4 text-cyber-citron">
-                    <Link href={`/${language}/services`} className="block w-fit hover:text-white transition-colors">
+                    <Link href={getLocalizedPath('/services', language as any)} className="block w-fit hover:text-white transition-colors">
                         {t('Services')}
                     </Link>
                 </h4>
                 <ul className="space-y-3.5 text-sm text-slate-400">
-                    <li><Link href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : language === 'tr' ? 'tamir' : 'repair'}`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Repair')}</Link></li>
-                    <li><Link href={`/${language}/${language === 'fr' ? 'rachat' : language === 'nl' ? 'inkoop' : language === 'tr' ? 'sat' : 'buyback'}`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Buyback')}</Link></li>
-                    <li><Link href={`/${language}/${language === 'fr' ? 'produits' : language === 'nl' ? 'producten' : language === 'tr' ? 'urunler' : 'products'}`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Products')}</Link></li>
-                    <li><Link href={`/${language}/business`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Business Solutions')}</Link></li>
-                    <li><Link href={`/${language}/services/data-recovery`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Data Recovery')}</Link></li>
-                    <li><Link href={`/${language}/services/microsoudure`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Microsoudure')}</Link></li>
+                    <li><Link href={getLocalizedPath('/repair', language as any)} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Repair')}</Link></li>
+                    <li><Link href={getLocalizedPath('/buyback', language as any)} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Buyback')}</Link></li>
+                    <li><Link href={getLocalizedPath('/products', language as any)} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Products')}</Link></li>
+                    <li><Link href={getLocalizedPath('/business', language as any)} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Business Solutions')}</Link></li>
+                    <li><Link href={getLocalizedPath('/services/data-recovery', language as any)} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Data Recovery')}</Link></li>
+                    <li><Link href={getLocalizedPath('/services/microsoldering', language as any)} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Microsoudure')}</Link></li>
                     <li>
                         <Link href={`/${language}/students`} className="hover:text-white transition-all hover:translate-x-1 inline-flex items-center duration-200 group">
                             {t('Student Offers')}
@@ -42,9 +43,9 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                             {t('Express Courier')}
                         </Link>
                     </li>
-                    <li><Link href={`/${language}/franchise`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Become a Partner')}</Link></li>
+                    <li><Link href={getLocalizedPath('/franchise', language as any)} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Become a Partner')}</Link></li>
                     <li>
-                        <Link href={`/${language}/${language === 'nl' ? 'opleiding' : language === 'tr' ? 'egitim' : language === 'fr' ? 'formation' : 'training'}`} className="hover:text-white transition-all hover:translate-x-1 inline-flex items-center gap-1.5 duration-200">
+                        <Link href={getLocalizedPath('/training', language as any)} className="hover:text-white transition-all hover:translate-x-1 inline-flex items-center gap-1.5 duration-200">
                             <GraduationCap className="w-3.5 h-3.5 text-cyber-citron" />
                             {t('formation')}
                         </Link>
@@ -64,10 +65,10 @@ const FooterColumns: React.FC<FooterColumnsProps> = ({ lang, dict }) => {
                     <li><Link href={`/${language}/contact`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Contact Us')}</Link></li>
                     <li><Link href={`/${language}/track-order`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Track Order')}</Link></li>
                     <li><Link href={`/${language}/faq`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Help Center')}</Link></li>
-                    <li><Link href={`/${language}/stores`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Store Locator')}</Link></li>
-                    <li><Link href={`/${language}/about`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('About Us')}</Link></li>
-                    <li><Link href={`/${language}/blog`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Blog')}</Link></li>
-                    <li><Link href={`/${language}/${language === 'nl' ? 'duurzaamheid' : language === 'tr' ? 'surdurulebilirlik' : language === 'fr' ? 'durabilite' : 'sustainability'}`} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">Sustainability</Link></li>
+                    <li><Link href={getLocalizedPath('/stores', language as any)} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Store Locator')}</Link></li>
+                    <li><Link href={getLocalizedPath('/about', language as any)} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('About Us')}</Link></li>
+                    <li><Link href={getLocalizedPath('/blog', language as any)} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Blog')}</Link></li>
+                    <li><Link href={getLocalizedPath('/sustainability', language as any)} className="hover:text-white transition-all hover:translate-x-1 inline-block duration-200">{t('Sustainability')}</Link></li>
                 </ul>
             </div>
 

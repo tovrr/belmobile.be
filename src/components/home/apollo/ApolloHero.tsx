@@ -325,7 +325,7 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                 <div className="mt-8 flex flex-col items-center gap-3 text-center">
                     <div className="flex items-center gap-1.5 px-3 py-1 bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm border border-slate-200 dark:border-slate-700/50">
                         <StarIcon className="w-3.5 h-3.5 text-amber-400" />
-                        <span className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-tighter">4.9/5 Google</span>
+                        <span className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-tighter">{t('google_rating_value')} Google</span>
                     </div>
                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] opacity-60">
                         Powered by Belmobile.be

@@ -46,7 +46,7 @@ const nextConfig = {
       },
       {
         source: '/nl/pages/groothandel-:slug', // catch 'groothandel-gsm-...'
-        destination: '/nl/business',
+        destination: '/nl/zakelijk',
         permanent: true,
       },
       {
@@ -487,6 +487,72 @@ const nextConfig = {
         destination: '/fr/rachat/:path*',
         permanent: true,
       },
+
+      // --- CANONICAL LOCALIZED REDIRECTS (English -> Localized) ---
+      // Stores
+      { source: '/fr/stores', destination: '/fr/magasins', permanent: true },
+      { source: '/nl/stores', destination: '/nl/winkels', permanent: true },
+      { source: '/tr/stores', destination: '/tr/magazalar', permanent: true },
+      { source: '/fr/stores/:slug*', destination: '/fr/magasins/:slug*', permanent: true },
+      { source: '/nl/stores/:slug*', destination: '/nl/winkels/:slug*', permanent: true },
+      { source: '/tr/stores/:slug*', destination: '/tr/magazalar/:slug*', permanent: true },
+
+      // Sustainability (Moved from /about/)
+      { source: '/en/about/sustainability', destination: '/en/sustainability', permanent: true },
+      { source: '/fr/about/sustainability', destination: '/fr/sustainability', permanent: true },
+      { source: '/nl/about/sustainability', destination: '/nl/sustainability', permanent: true },
+      { source: '/tr/about/sustainability', destination: '/tr/sustainability', permanent: true },
+
+      // About
+      { source: '/fr/about', destination: '/fr/a-propos', permanent: true },
+      { source: '/nl/about', destination: '/nl/over-ons', permanent: true },
+      { source: '/tr/about', destination: '/tr/hakkimizda', permanent: true },
+
+      // Business
+      { source: '/nl/business', destination: '/nl/zakelijk', permanent: true },
+      { source: '/tr/business', destination: '/tr/kurumsal', permanent: true },
+
+      // Products
+      { source: '/fr/products', destination: '/fr/produits', permanent: true },
+      { source: '/nl/products', destination: '/nl/producten', permanent: true },
+      { source: '/tr/products', destination: '/tr/urunler', permanent: true },
+      { source: '/fr/products/:slug*', destination: '/fr/produits/:slug*', permanent: true },
+      { source: '/nl/products/:slug*', destination: '/nl/producten/:slug*', permanent: true },
+      { source: '/tr/products/:slug*', destination: '/tr/urunler/:slug*', permanent: true },
+
+      // Repair & Buyback (Roots)
+      { source: '/fr/repair', destination: '/fr/reparation', permanent: true },
+      { source: '/nl/repair', destination: '/nl/reparatie', permanent: true },
+      { source: '/tr/repair', destination: '/tr/onarim', permanent: true },
+      { source: '/fr/buyback', destination: '/fr/rachat', permanent: true },
+      { source: '/nl/buyback', destination: '/nl/inkoop', permanent: true },
+      { source: '/tr/buyback', destination: '/tr/geri-alim', permanent: true },
+
+      // Legal & Footer Links
+      { source: '/fr/warranty', destination: '/fr/garantie', permanent: true },
+      { source: '/tr/warranty', destination: '/tr/garanti', permanent: true },
+      { source: '/fr/privacy', destination: '/fr/vie-privee', permanent: true },
+      { source: '/tr/privacy', destination: '/tr/gizlilik', permanent: true },
+      { source: '/fr/terms', destination: '/fr/conditions-generales', permanent: true },
+      { source: '/nl/terms', destination: '/nl/algemene-voorwaarden', permanent: true },
+      { source: '/tr/terms', destination: '/tr/kosullar', permanent: true },
+      { source: '/fr/track-order', destination: '/fr/suivi-commande', permanent: true },
+      { source: '/nl/track-order', destination: '/nl/bestelling-volgen', permanent: true },
+      { source: '/tr/track-order', destination: '/tr/siparis-takip', permanent: true },
+
+      // Other Slugs
+      { source: '/tr/franchise', destination: '/tr/bayilik', permanent: true },
+      { source: '/fr/students', destination: '/fr/etudiants', permanent: true },
+      { source: '/nl/students', destination: '/nl/studenten', permanent: true },
+      { source: '/tr/students', destination: '/tr/ogrenciler', permanent: true },
+      { source: '/fr/express-courier', destination: '/fr/coursier-express', permanent: true },
+      { source: '/nl/express-courier', destination: '/nl/express-koerier', permanent: true },
+      { source: '/tr/express-courier', destination: '/tr/ekspres-kurye', permanent: true },
+      { source: '/fr/training', destination: '/fr/formation', permanent: true },
+      { source: '/nl/training', destination: '/nl/opleiding', permanent: true },
+      { source: '/tr/training', destination: '/tr/egitim', permanent: true },
+      { source: '/tr/contact', destination: '/tr/iletisim', permanent: true },
+      { source: '/tr/faq', destination: '/tr/sss', permanent: true },
     ];
   },
 
@@ -596,20 +662,32 @@ const nextConfig = {
 
       // --- SUSTAINABILITY SLUGS ---
       {
-        source: '/fr/a-propos/durabilite',
-        destination: '/fr/about/sustainability',
+        source: '/fr/durabilite',
+        destination: '/fr/sustainability',
       },
       {
-        source: '/fr/about/durabilite',
-        destination: '/fr/about/sustainability',
+        source: '/fr/a-propos/durabilite',
+        destination: '/fr/sustainability',
+      },
+      {
+        source: '/nl/duurzaamheid',
+        destination: '/nl/sustainability',
+      },
+      {
+        source: '/nl/om-ons/duurzaamheid',
+        destination: '/nl/sustainability',
       },
       {
         source: '/nl/over-ons/duurzaamheid',
-        destination: '/nl/about/sustainability',
+        destination: '/nl/sustainability',
       },
       {
-        source: '/nl/about/duurzaamheid',
-        destination: '/nl/about/sustainability',
+        source: '/tr/surdurulebilirlik',
+        destination: '/tr/sustainability',
+      },
+      {
+        source: '/tr/hakkimizda/surdurulebilirlik',
+        destination: '/tr/sustainability',
       },
       // About Page
       {
@@ -619,6 +697,10 @@ const nextConfig = {
       {
         source: '/nl/over-ons',
         destination: '/nl/about',
+      },
+      {
+        source: '/tr/hakkimizda',
+        destination: '/tr/about',
       },
 
       // Students
@@ -630,6 +712,10 @@ const nextConfig = {
         source: '/nl/studenten',
         destination: '/nl/students',
       },
+      {
+        source: '/tr/ogrenciler',
+        destination: '/tr/students',
+      },
 
       // Express Courier
       {
@@ -639,6 +725,10 @@ const nextConfig = {
       {
         source: '/nl/express-koerier',
         destination: '/nl/express-courier',
+      },
+      {
+        source: '/tr/ekspres-kurye',
+        destination: '/tr/express-courier',
       },
 
       // Careers
@@ -650,10 +740,18 @@ const nextConfig = {
         source: '/nl/vacatures',
         destination: '/nl/careers',
       },
+      {
+        source: '/tr/kariyer',
+        destination: '/tr/careers',
+      },
 
       {
         source: '/nl/diensten',
         destination: '/nl/services',
+      },
+      {
+        source: '/tr/hizmetler',
+        destination: '/tr/services',
       },
 
       // --- LEGAL & SUPPORT ---
@@ -666,6 +764,10 @@ const nextConfig = {
         source: '/nl/garantie',
         destination: '/nl/warranty',
       },
+      {
+        source: '/tr/garanti',
+        destination: '/tr/warranty',
+      },
       // Privacy
       {
         source: '/fr/vie-privee',
@@ -675,6 +777,10 @@ const nextConfig = {
         source: '/nl/privacy', // Already Dutch, but good to be explicit or if we want 'privacybeleid'
         destination: '/nl/privacy',
       },
+      {
+        source: '/tr/gizlilik',
+        destination: '/tr/privacy',
+      },
       // Terms
       {
         source: '/fr/conditions-generales',
@@ -683,6 +789,10 @@ const nextConfig = {
       {
         source: '/nl/algemene-voorwaarden',
         destination: '/nl/terms',
+      },
+      {
+        source: '/tr/kosullar',
+        destination: '/tr/terms',
       },
       // Cookies
       {
@@ -698,11 +808,19 @@ const nextConfig = {
         source: '/nl/bestelling-volgen',
         destination: '/nl/track-order',
       },
+      {
+        source: '/tr/siparis-takip',
+        destination: '/tr/track-order',
+      },
 
       // Business
       {
         source: '/nl/zakelijk',
         destination: '/nl/business',
+      },
+      {
+        source: '/tr/kurumsal',
+        destination: '/tr/business',
       },
 
       // Support Hub
@@ -718,6 +836,10 @@ const nextConfig = {
         source: '/nl/support',
         destination: '/nl/support',
       },
+      {
+        source: '/tr/destek',
+        destination: '/tr/support',
+      },
 
       // Franchise
       {
@@ -727,6 +849,18 @@ const nextConfig = {
       {
         source: '/nl/word-partner',
         destination: '/nl/franchise',
+      },
+      {
+        source: '/tr/bayilik',
+        destination: '/tr/franchise',
+      },
+      {
+        source: '/tr/partnerlik',
+        destination: '/tr/franchise',
+      },
+      {
+        source: '/tr/egitim',
+        destination: '/tr/formation',
       },
 
       // Stores
@@ -746,6 +880,14 @@ const nextConfig = {
       {
         source: '/nl/winkels/:slug*',
         destination: '/nl/stores/:slug*',
+      },
+      {
+        source: '/tr/magazalar',
+        destination: '/tr/stores',
+      },
+      {
+        source: '/tr/magazalar/:slug*',
+        destination: '/tr/stores/:slug*',
       },
 
       {
@@ -770,6 +912,14 @@ const nextConfig = {
       {
         source: '/nl/producten/:slug*',
         destination: '/nl/products/:slug*',
+      },
+      {
+        source: '/tr/urunler',
+        destination: '/tr/products',
+      },
+      {
+        source: '/tr/urunler/:slug*',
+        destination: '/tr/products/:slug*',
       },
 
       // Franchise - common word, but ensuring consistency

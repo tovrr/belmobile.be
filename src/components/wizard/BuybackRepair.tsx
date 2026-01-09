@@ -354,7 +354,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                         nextDisabled={nextDisabled}
                         nextLabel={nextLabel}
                         t={t}
-                        showEstimate={step >= 3}
+                        showEstimate={step >= 3 && (type === 'buyback' || repairIssues.length > 0)}
                         estimateDisplay={pricingLoading ? (
                             <div className="flex space-x-1 py-1">
                                 <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>

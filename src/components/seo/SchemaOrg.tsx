@@ -135,17 +135,17 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, shops, service, device, dev
                     "@type": "City",
                     "name": "Brussels"
                 },
-                "offers": price ? {
+                "offers": (price && price > 0) ? {
                     "@type": "Offer",
-                    "price": price,
+                    "price": price.toFixed(2),
                     "priceCurrency": "EUR",
                     "availability": "https://schema.org/InStock"
                 } : undefined,
-                "aggregateRating": {
+                "aggregateRating": !deviceModel ? {
                     "@type": "AggregateRating",
                     "ratingValue": "4.8",
                     "reviewCount": "1250"
-                }
+                } : undefined
             };
             schemas.push(repairSchema);
 
@@ -161,9 +161,9 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, shops, service, device, dev
                     },
                     "description": serviceDesc,
                     "image": `${baseUrl}/images/devices/${createSlug(`${device}-${deviceModel}`)}.jpg`, // Fallback logic handled by Google if 404
-                    "offers": price ? {
+                    "offers": (price && price > 0) ? {
                         "@type": "Offer",
-                        "price": price,
+                        "price": price.toFixed(2),
                         "priceCurrency": "EUR",
                         "availability": "https://schema.org/InStock",
                         "url": `${baseUrl}/${language}/reparation/${createSlug(device || '')}/${createSlug(deviceModel)}`
@@ -187,9 +187,9 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, shops, service, device, dev
                 },
                 "name": `${serviceName} ${deviceName}`,
                 "description": serviceDesc,
-                "offers": price ? {
+                "offers": (price && price > 0) ? {
                     "@type": "Offer",
-                    "price": price,
+                    "price": price.toFixed(2),
                     "priceCurrency": "EUR",
                     "availability": "https://schema.org/InStock",
                     "description": "Maximum Buyback Price"
@@ -209,9 +209,9 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, shops, service, device, dev
                     },
                     "description": `Sell your ${device} ${deviceModel} for cash.`,
                     "image": `${baseUrl}/images/devices/${createSlug(`${device}-${deviceModel}`)}.jpg`,
-                    "offers": price ? {
+                    "offers": (price && price > 0) ? {
                         "@type": "Offer",
-                        "price": price,
+                        "price": price.toFixed(2),
                         "priceCurrency": "EUR",
                         "availability": "https://schema.org/InStock",
                         "url": `${baseUrl}/${language}/rachat/${createSlug(device || '')}/${createSlug(deviceModel)}`
