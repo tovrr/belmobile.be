@@ -405,91 +405,144 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                         >
                             <ChevronLeftIcon className="h-6 w-6" />
                         </button>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('Cosmetic Condition')}</h2>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Screen Condition')}</label>
-                            <div className="grid grid-cols-1 gap-3">
-                                {[
-                                    { id: 'flawless', label: 'Flawless', desc: 'screen_flawless_desc' },
-                                    { id: 'scratches', label: 'Light Scratches', desc: 'screen_scratches_desc' },
-                                    { id: 'cracked', label: 'Cracked / Broken', desc: 'screen_cracked_desc' }
-                                ].map((s) => (
-                                    <button
-                                        type="button"
-                                        key={s.id}
-                                        onClick={() => setScreenState(s.id as any)}
-                                        className={`p-4 rounded-xl border-2 text-left transition-all ${screenState === s.id ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-yellow-400' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
-                                    >
-                                        <div className="font-bold text-gray-900 dark:text-white">{t(s.label)}</div>
-                                        <div className="text-sm text-gray-500">{t(s.desc)}</div>
-                                    </button>
-                                ))}
-                            </div>
-                            {/* Dynamic Screen Condition Help Card */}
-                            {screenState && (
-                                <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-bel-yellow/20 flex gap-3 animate-fade-in">
-                                    <InformationCircleIcon className="h-5 w-5 text-bel-yellow shrink-0 mt-0.5" />
-                                    <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-relaxed">
-                                        {t(`explain_screen_${screenState}`)}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                        <div>
-                            <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Body Condition')}</label>
-                            <div className="grid grid-cols-1 gap-3">
-                                {[
-                                    { id: 'flawless', label: 'Flawless', desc: 'body_flawless_desc' },
-                                    { id: 'scratches', label: 'Scratches', desc: 'body_scratches_desc' },
-                                    { id: 'dents', label: 'Dents', desc: 'body_dents_desc' },
-                                    { id: 'bent', label: 'Bent / Broken', desc: 'body_bent_desc' }
-                                ].map((s) => (
-                                    <button
-                                        type="button"
-                                        key={s.id}
-                                        onClick={() => setBodyState(s.id as any)}
-                                        className={`p-4 rounded-xl border-2 text-left transition-all ${bodyState === s.id ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-yellow-400' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
-                                    >
-                                        <div className="font-bold text-gray-900 dark:text-white">{t(s.label)}</div>
-                                        <div className="text-sm text-gray-500">{t(s.desc)}</div>
-                                    </button>
-                                ))}
-                            </div>
-                            {/* Dynamic Body Condition Help Card */}
-                            {bodyState && (
-                                <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-bel-yellow/20 flex gap-3 animate-fade-in">
-                                    <InformationCircleIcon className="h-5 w-5 text-bel-yellow shrink-0 mt-0.5" />
-                                    <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-relaxed">
-                                        {t(`explain_body_${bodyState}`)}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    {/* Mobile Summary & Action Block (Buyback Cosmetic) */}
-                    {/* Mobile Summary & Action Block (Buyback Cosmetic) - HIDDEN as handled by MobileBottomBar */}
-                    <div className="hidden">
-                        <div className="flex flex-col gap-4">
-                            <div className="flex justify-between items-end">
+                        {/* SPLIT VIEW (Smartphones/Tablets) vs UNIFIED VIEW (Consoles/Laptops) */}
+                        {!['console_home', 'laptop'].includes(deviceType) ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div>
-                                    <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">{t('Estimated Value')}</p>
-                                    <div className="text-3xl font-extrabold text-bel-dark dark:text-white mt-1">
-                                        {loading ? <span className="animate-pulse">...</span> : `€${sidebarEstimate}`}
+                                    <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Screen Condition')}</label>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        {[
+                                            { id: 'flawless', label: 'Flawless', desc: 'screen_flawless_desc' },
+                                            { id: 'scratches', label: 'Light Scratches', desc: 'screen_scratches_desc' },
+                                            { id: 'cracked', label: 'Cracked / Broken', desc: 'screen_cracked_desc' }
+                                        ].map((s) => (
+                                            <button
+                                                type="button"
+                                                key={s.id}
+                                                onClick={() => setScreenState(s.id as any)}
+                                                className={`p-4 rounded-xl border-2 text-left transition-all ${screenState === s.id ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-yellow-400' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
+                                            >
+                                                <div className="font-bold text-gray-900 dark:text-white">{t(s.label)}</div>
+                                                <div className="text-sm text-gray-500">{t(s.desc)}</div>
+                                            </button>
+                                        ))}
                                     </div>
-                                    <p className="text-xs text-gray-400 mt-1">{t('Based on current selection')}</p>
+                                    {/* Dynamic Screen Condition Help Card */}
+                                    {screenState && (
+                                        <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-bel-yellow/20 flex gap-3 animate-fade-in">
+                                            <InformationCircleIcon className="h-5 w-5 text-bel-yellow shrink-0 mt-0.5" />
+                                            <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-relaxed">
+                                                {t(`explain_screen_${screenState}`)}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Body Condition')}</label>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        {[
+                                            { id: 'flawless', label: 'Flawless', desc: 'body_flawless_desc' },
+                                            { id: 'scratches', label: 'Scratches', desc: 'body_scratches_desc' },
+                                            { id: 'dents', label: 'Dents', desc: 'body_dents_desc' },
+                                            { id: 'bent', label: 'Bent / Broken', desc: 'body_bent_desc' }
+                                        ].map((s) => (
+                                            <button
+                                                type="button"
+                                                key={s.id}
+                                                onClick={() => setBodyState(s.id as any)}
+                                                className={`p-4 rounded-xl border-2 text-left transition-all ${bodyState === s.id ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-yellow-400' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
+                                            >
+                                                <div className="font-bold text-gray-900 dark:text-white">{t(s.label)}</div>
+                                                <div className="text-sm text-gray-500">{t(s.desc)}</div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {/* Dynamic Body Condition Help Card */}
+                                    {bodyState && (
+                                        <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-bel-yellow/20 flex gap-3 animate-fade-in">
+                                            <InformationCircleIcon className="h-5 w-5 text-bel-yellow shrink-0 mt-0.5" />
+                                            <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-relaxed">
+                                                {t(`explain_body_${bodyState}`)}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
+                        ) : (
+                            // CONSOLE SPECIFIC VIEW (Single Column)
+                            <div className="max-w-2xl mx-auto">
+                                <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
+                                    {deviceType === 'laptop' ? t('Laptop Condition') : t('Console Condition')}
+                                </label>
+                                <div className="grid grid-cols-1 gap-4">
+                                    {[
+                                        { id: 'flawless', label: 'Like New (Boxed / Mint)', desc: 'No scratches, original box, perfect.' },
+                                        { id: 'scratches', label: 'Good (Used)', desc: 'Normal signs of use, small micro-scratches.' },
+                                        { id: 'dents', label: 'Fair (Heavily Used)', desc: 'Visible scratches, dents, or heavy wear.' },
+                                        { id: 'bent', label: 'Damaged / Broken', desc: 'Cracks, broken ports, or major damage.' }
+                                    ].map((s) => {
+                                        // We map single selection to BOTH screen/body to satisfy pricing logic
+                                        const isSelected = bodyState === s.id;
+                                        return (
+                                            <button
+                                                type="button"
+                                                key={s.id}
+                                                onClick={() => {
+                                                    haptic.trigger('light');
+                                                    // Sync both states for Consoles
+                                                    // 'flawless' -> screen:flawless, body:flawless
+                                                    // 'scratches' -> screen:scratches, body:scratches
+                                                    // 'dents' -> screen:scratches (closest), body:dents
+                                                    // 'bent' -> screen:cracked, body:bent
 
-                            <button
-                                onClick={onNext}
-                                disabled={state.isTransitioning}
-                                className="w-full bg-bel-yellow text-gray-900 font-bold py-4 px-6 rounded-xl shadow-lg shadow-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-lg flex items-center justify-center gap-2 transition-all hover:bg-bel-yellow/90"
-                            >
-                                <span>{t('Accept & Recycle')}</span>
-                                <ChevronLeftIcon className="h-5 w-5 rotate-180" />
-                            </button>
+                                                    setBodyState(s.id as any);
+
+                                                    // Map to approximate screen state for legacy logic compatibility
+                                                    if (s.id === 'flawless') setScreenState('flawless');
+                                                    else if (s.id === 'scratches') setScreenState('flawless'); // Console scratches usually body only
+                                                    else if (s.id === 'dents') setScreenState('scratches');
+                                                    else setScreenState('cracked');
+                                                }}
+                                                className={`p-6 rounded-2xl border-2 text-left transition-all flex items-center justify-between group active-press ${isSelected ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-yellow-400' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-bel-yellow'}`}
+                                            >
+                                                <div>
+                                                    <div className="font-bold text-lg text-gray-900 dark:text-white mb-1 group-hover:text-bel-yellow transition-colors">{t(s.label)}</div>
+                                                    <div className="text-sm text-gray-500 font-medium">{t(s.desc)}</div>
+                                                </div>
+                                                {isSelected && (
+                                                    <div className="bg-bel-yellow text-gray-900 p-1 rounded-full">
+                                                        <CheckIcon className="h-5 w-5 stroke-3" />
+                                                    </div>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                        {/* Mobile Summary & Action Block (Buyback Cosmetic) */}
+                        {/* Mobile Summary & Action Block (Buyback Cosmetic) - HIDDEN as handled by MobileBottomBar */}
+                        <div className="hidden">
+                            <div className="flex flex-col gap-4">
+                                <div className="flex justify-between items-end">
+                                    <div>
+                                        <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">{t('Estimated Value')}</p>
+                                        <div className="text-3xl font-extrabold text-bel-dark dark:text-white mt-1">
+                                            {loading ? <span className="animate-pulse">...</span> : `€${sidebarEstimate}`}
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-1">{t('Based on current selection')}</p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={onNext}
+                                    disabled={state.isTransitioning}
+                                    className="w-full bg-bel-yellow text-gray-900 font-bold py-4 px-6 rounded-xl shadow-lg shadow-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-lg flex items-center justify-center gap-2 transition-all hover:bg-bel-yellow/90"
+                                >
+                                    <span>{t('Accept & Recycle')}</span>
+                                    <ChevronLeftIcon className="h-5 w-5 rotate-180" />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

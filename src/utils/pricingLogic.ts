@@ -74,7 +74,8 @@ const calculateExtensions = (params: PricingParams, currentPrice: number): numbe
     let final = currentPrice;
 
     // Console Controller Logic
-    if (params.deviceType === 'console_home' && typeof params.controllerCount === 'number') {
+    // Fix: Rely on presence of controllerCount to activate logic (Client implies console)
+    if (typeof params.controllerCount === 'number') {
         const CONTROLLER_VALUE = 30;
         if (params.controllerCount === 0) final -= CONTROLLER_VALUE;
         if (params.controllerCount === 2) final += CONTROLLER_VALUE;
