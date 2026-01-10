@@ -35,7 +35,7 @@ interface BuybackRule {
 }
 
 const DEFAULT_RULES: BuybackRule[] = [
-    { condition: 'new', multiplier: 0.82 },
+    // { condition: 'new', multiplier: 0.82 }, // REMOVED per user request (unused)
     { condition: 'like-new', multiplier: 0.72 },
     { condition: 'good', multiplier: 0.62 },
     { condition: 'fair', multiplier: 0.45 },
@@ -378,8 +378,9 @@ export const BuybackAnchorManager = () => {
                                         </div>
                                         <div className="w-px h-6 bg-gray-100 dark:bg-slate-800" />
                                         <div className="text-center">
-                                            <div className="text-[9px] text-green-400 font-bold uppercase tracking-widest">New</div>
-                                            <div className="font-bold text-gray-400">€{Math.round(anchor.anchorPriceEur * (rules.find(r => r.condition === 'new')?.multiplier || 0))}</div>
+                                            {/* 'New' removed, showing Like-New as top tier implies max value */}
+                                            <div className="text-[9px] text-green-400 font-bold uppercase tracking-widest">Like New</div>
+                                            <div className="font-bold text-gray-400">€{Math.round(anchor.anchorPriceEur * (rules.find(r => r.condition === 'like-new')?.multiplier || 0))}</div>
                                         </div>
                                     </div>
                                 </td>

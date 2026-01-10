@@ -6,7 +6,6 @@ import * as path from 'path';
 const STORAGE_STEP_UP = 0.06;
 
 const RULES = [
-    { condition: 'new', multiplier: 0.82 },
     { condition: 'like-new', multiplier: 0.72 },
     { condition: 'good', multiplier: 0.62 },
     { condition: 'fair', multiplier: 0.45 },
