@@ -72,7 +72,10 @@ async function loadFullCatalog() {
 
 // --- MAIN ---
 async function main() {
-    console.log("🚀 STARTING FULL CATALOG ACTIVATION & PRICING");
+    // CLI Args: "apple" or "iPhone 16"
+    const FILTER_ARG = process.argv[2]?.toLowerCase();
+
+    console.log(`🚀 STARTING PRICE RECALCULATION ${FILTER_ARG ? `(FILTER: "${FILTER_ARG}")` : '(ALL DEVICES)'}`);
 
     // 1. Load Static Catalog
     const fullCatalog = await loadFullCatalog();
@@ -94,31 +97,32 @@ async function main() {
         process.stdout.write('.');
     };
 
-    // 3. ACTIVATION LOOP
-    // Iterate through every brand -> category -> model in the STATIC file
-    // If it's not in DB, create it.
+    // 3. ACTIVATION LOOP (Only if no filter or matches filter)
     let newActivations = 0;
 
     for (const brand of BRAND_FILES) {
+        // If filter is active, skip brands that don't match (unless filter is a model name inside this brand)
+        // Simple logic: If filter is "samsung", skip "apple". 
+        if (FILTER_ARG && !brand.includes(FILTER_ARG) && !FILTER_ARG.includes(brand)) {
+            // If the filter is "iPhone 16", "apple" does not include it, but we need to check inside.
+            // We'll filter strictly at the model level below.
+        }
+
         const brandData = fullCatalog[brand];
         if (!brandData) continue;
 
-        // Flatten price structure: { smartphone: { 'iPhone 16': 800 }, tablet: ... }
         Object.entries(brandData.prices).forEach(([category, models]: [string, any]) => {
             Object.entries(models).forEach(([modelName, basePrice]: [string, any]) => {
-
-                // Generate Slug
-                // Special handling for Apple to ensure "apple-" prefix if needed, though standard createSlug often suffices
-                // We'll mimic the standard logic: brand + model
-                // But typically the slug should be the ID.
                 let slug = createSlug(`${brand} ${modelName}`);
-                // Ensure unique ID logic matches project (usually brand-model)
                 if (brand === 'apple' && !slug.startsWith('apple-')) slug = `apple-${slug}`;
                 if (brand === 'samsung' && !slug.startsWith('samsung-')) slug = `samsung-${slug}`;
 
-                // CHECK EXISTENCE
+                // FILTER CHECK
+                if (FILTER_ARG && !slug.includes(FILTER_ARG) && !modelName.toLowerCase().includes(FILTER_ARG)) {
+                    return;
+                }
+
                 if (!existingAnchorsMap.has(slug)) {
-                    // CREATE NEW ANCHOR
                     const anchorRef = db.collection('pricing_anchors').doc(slug);
                     batch.set(anchorRef, {
                         deviceId: slug,
@@ -126,14 +130,13 @@ async function main() {
                         slug: slug,
                         brand: brand,
                         category: category,
-                        anchorPriceEur: basePrice, // The SSoT Price
+                        anchorPriceEur: basePrice,
                         basePriceEur: basePrice,
                         managedManually: true,
                         source: 'catalog_backfill_script',
                         lastUpdated: new Date().toISOString()
                     });
 
-                    // Add to map so we process pricing next
                     existingAnchorsMap.set(slug, {
                         deviceId: slug,
                         deviceName: modelName,
@@ -144,26 +147,47 @@ async function main() {
                     ops++;
                     newActivations++;
                 }
+                // UPDATE BASE PRICE IF CHANGED (Crucial for your "Lower Price" workflow)
+                else {
+                    const existing = existingAnchorsMap.get(slug);
+                    const currentPrice = existing.anchorPriceEur || existing.basePriceEur;
+                    if (currentPrice !== basePrice) {
+                        // Update the anchor itself first
+                        const anchorRef = db.collection('pricing_anchors').doc(slug);
+                        batch.update(anchorRef, {
+                            anchorPriceEur: basePrice,
+                            basePriceEur: basePrice,
+                            lastUpdated: new Date().toISOString()
+                        });
+                        // Update local map so recalc uses new price
+                        existing.anchorPriceEur = basePrice;
+                        existingAnchorsMap.set(slug, existing);
+                        ops++;
+                    }
+                }
             });
         });
     }
 
     if (ops > 0) await commitBatch();
-    console.log(`\n✨ Activated ${newActivations} new devices from catalog.`);
+    console.log(`\n✨ Activated/Updated Anchors: ${ops}`);
 
-    // 4. PRICING RECALC LOOP (For ALL anchors, old and new)
-    console.log("🔄 Recalculating Buyback Tiers for ALL active anchors...");
+    // 4. PRICING RECALC LOOP
+    console.log("🔄 Recalculating Buyback Tiers...");
 
     let pricingCount = 0;
     // We iterate the map which now contains both old + new
     for (const [slug, anchor] of existingAnchorsMap.entries()) {
+        const deviceName = anchor.deviceName || slug;
+
+        // FILTER CHECK
+        if (FILTER_ARG && !slug.includes(FILTER_ARG) && !deviceName.toLowerCase().includes(FILTER_ARG)) {
+            continue;
+        }
+
         const price = Number(anchor.anchorPriceEur || anchor.basePriceEur);
         if (!price || price <= 0) continue;
 
-        let deviceName = anchor.deviceName;
-        if (!deviceName) {
-            deviceName = slug.split('-').slice(1).map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
-        }
         const brand = (anchor.brand || slug.split('-')[0]).toLowerCase();
 
         // Lookup Specs
@@ -171,15 +195,11 @@ async function main() {
         const brandSpecs = fullCatalog[brand]?.specs;
 
         if (brandSpecs) {
-            // Strict Match
-            if (brandSpecs[deviceName]) {
-                modelSpecs = brandSpecs[deviceName];
-            }
-            // Fuzzy Match
-            else {
+            if (brandSpecs[anchor.deviceName]) {
+                modelSpecs = brandSpecs[anchor.deviceName];
+            } else {
                 const key = Object.keys(brandSpecs).find(k => k.toLowerCase() === deviceName.toLowerCase());
                 if (key) modelSpecs = brandSpecs[key];
-                // Super Fuzzy (contains)
                 else {
                     const key2 = Object.keys(brandSpecs).find(k => deviceName.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(deviceName.toLowerCase()));
                     if (key2) modelSpecs = brandSpecs[key2];
@@ -187,7 +207,6 @@ async function main() {
             }
         }
 
-        // Default if no specs found
         if (!modelSpecs || modelSpecs.length === 0) {
             modelSpecs = ['128GB'];
         }
@@ -203,6 +222,7 @@ async function main() {
                 const docId = `${slug}_${spec}_${rule.condition}`;
                 const docRef = db.collection('buyback_pricing').doc(docId);
 
+                // TODO: Smart Diff Check could go here to save writes
                 batch.set(docRef, {
                     deviceId: slug,
                     storage: spec,
@@ -221,7 +241,7 @@ async function main() {
     }
 
     if (ops > 0) await batch.commit();
-    console.log(`\n\n🎉 SUCCESS! Full Catalog Synced.\n- Activated: ${newActivations} devices\n- Updated Prices: ${pricingCount} entries`);
+    console.log(`\n\n🎉 SUCCESS! Filtered Sync Done.\n- Target: ${FILTER_ARG || 'ALL'}\n- Updated Prices: ${pricingCount} entries`);
 }
 
 main().catch(console.error);

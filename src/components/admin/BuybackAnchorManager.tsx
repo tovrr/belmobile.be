@@ -152,46 +152,81 @@ export const BuybackAnchorManager = () => {
     };
 
     const executeSync = async () => {
-        if (!confirm("🚀 PUBLISH ALL PRICING?")) return;
+        // Respect the current filter for sync scope
+        const targetDesc = searchTerm ? `SEARCH "${searchTerm}"` : `${selectedBrand}`;
+        if (!confirm(`🚀 PUBLISH PRICES FOR: ${targetDesc}?\n\nThis will update ${filteredAnchors.length} devices.`)) return;
+
         setProcessing(true);
         try {
             let batch = writeBatch(db);
             let ops = 0;
             let count = 0;
+
             const commitBatch = async () => {
                 await batch.commit();
                 batch = writeBatch(db);
                 ops = 0;
             };
+
+            // Use filteredAnchors directly
             for (const anchor of filteredAnchors) {
-                if (anchor.anchorPriceEur <= 0) continue;
-                const brandSlug = createSlug(anchor.brand || '');
-                const modelSpecs = fullCatalog[brandSlug]?.specs?.[anchor.deviceName] || ['128GB'];
+                if (!anchor.anchorPriceEur || anchor.anchorPriceEur <= 0) continue;
+
+                const brandSlug = createSlug(anchor.brand || anchor.slug.split('-')[0]);
+
+                // Fallback to basic spec logic if catalog lookup fails
+                // NOTE: This relies on fullCatalog being loaded. 
+                // If the user hasn't loaded the relevant brand file yet, specs might be default 128GB.
+                // In a production app, we might want to ensure catalog is loaded for these items.
+                let modelSpecs = ['128GB'];
+
+                // Try to find specs in the loaded catalog
+                if (fullCatalog[brandSlug]?.specs) {
+                    const exact = fullCatalog[brandSlug].specs[anchor.deviceName];
+                    if (exact) modelSpecs = exact;
+                    else {
+                        // Fuzzy search keys
+                        const key = Object.keys(fullCatalog[brandSlug].specs).find(k =>
+                            anchor.deviceName.toLowerCase().includes(k.toLowerCase()) ||
+                            k.toLowerCase().includes(anchor.deviceName.toLowerCase())
+                        );
+                        if (key) modelSpecs = fullCatalog[brandSlug].specs[key];
+                    }
+                }
+
                 for (let i = 0; i < modelSpecs.length; i++) {
                     const spec = modelSpecs[i];
                     const specMultiplier = 1 + (i * STORAGE_STEP_UP);
+
+                    // Base calculation
                     const specBaseGood = anchor.anchorPriceEur * specMultiplier;
+
                     for (const rule of rules) {
                         const finalPrice = Math.round(specBaseGood * rule.multiplier);
                         const docId = `${anchor.slug}_${spec}_${rule.condition}`;
                         const docRef = doc(db, 'buyback_pricing', docId);
+
                         batch.set(docRef, {
                             deviceId: anchor.slug,
                             storage: spec,
                             condition: rule.condition,
                             price: finalPrice,
                             updatedAt: new Date().toISOString(),
-                            managedBy: 'manual_command_center'
+                            managedBy: 'manual_command_center_v2'
                         }, { merge: true });
+
                         ops++;
                         count++;
-                        if (ops >= 450) await commitBatch();
+                        if (ops >= 400) await commitBatch();
                     }
                 }
             }
             if (ops > 0) await batch.commit();
-            alert(`✅ Sync Complete! Generated ${count} price points.`);
-            loadAnchors();
+
+            // Haptic Feedback
+            if (count > 0) alert(`✅ Synced ${filteredAnchors.length} devices (${count} price points).`);
+            else alert("⚠️ No valid prices found to sync.");
+
         } catch (e) {
             console.error(e);
             alert("Sync failed.");
