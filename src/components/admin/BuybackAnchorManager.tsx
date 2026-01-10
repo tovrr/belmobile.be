@@ -196,7 +196,10 @@ export const BuybackAnchorManager = () => {
 
                 for (let i = 0; i < modelSpecs.length; i++) {
                     const spec = modelSpecs[i];
-                    const specMultiplier = 1 + (i * STORAGE_STEP_UP);
+                    // New "Top-Down" Logic: Anchor = Max Storage
+                    const maxIndex = modelSpecs.length - 1;
+                    const diff = maxIndex - i;
+                    const specMultiplier = 1.0 - (diff * STORAGE_STEP_UP);
 
                     // Base calculation
                     const specBaseGood = anchor.anchorPriceEur * specMultiplier;

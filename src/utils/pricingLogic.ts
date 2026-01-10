@@ -75,10 +75,15 @@ const calculateExtensions = (params: PricingParams, currentPrice: number): numbe
 
     // Console Controller Logic
     // Fix: Rely on presence of controllerCount to activate logic (Client implies console)
+    // Strategy: Anchor Price represents MAX config (2 Controllers). Deduct for missing ones.
     if (typeof params.controllerCount === 'number') {
         const CONTROLLER_VALUE = 30;
-        if (params.controllerCount === 0) final -= CONTROLLER_VALUE;
-        if (params.controllerCount === 2) final += CONTROLLER_VALUE;
+        // User wants 2 controllers to be the baseline (no change).
+        // 1 controller = -30, 0 controllers = -60.
+        const missingControllers = 2 - params.controllerCount;
+        if (missingControllers > 0) {
+            final -= (missingControllers * CONTROLLER_VALUE);
+        }
     }
 
     return final;

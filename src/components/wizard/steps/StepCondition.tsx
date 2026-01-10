@@ -127,6 +127,12 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                 if (faceIdWorking === null) setFaceIdWorking(true);
                 if (batteryHealth === null) setBatteryHealth('normal'); // > 80%
             }
+
+            // 4. Console Specifics: Pre-select 2 Controllers (Max Config)
+            const isHomeConsole = deviceType === 'console_home';
+            if (isHomeConsole && (controllerCount === null || controllerCount === undefined)) {
+                setControllerCount(2);
+            }
         }
     }, [
         type, step, loading, dynamicBuybackPrices, specsData, selectedModel, selectedBrand, deviceType,
