@@ -36,10 +36,10 @@ interface BuybackRule {
 
 const DEFAULT_RULES: BuybackRule[] = [
     // { condition: 'new', multiplier: 0.82 }, // REMOVED per user request (unused)
-    { condition: 'like-new', multiplier: 0.72 },
-    { condition: 'good', multiplier: 0.62 },
-    { condition: 'fair', multiplier: 0.45 },
-    { condition: 'damaged', multiplier: 0.15 },
+    { condition: 'like-new', multiplier: 1.0 },
+    { condition: 'good', multiplier: 0.75 },
+    { condition: 'fair', multiplier: 0.50 },
+    { condition: 'damaged', multiplier: 0.25 },
 ];
 
 const STORAGE_STEP_UP = 0.06;
@@ -335,8 +335,8 @@ export const BuybackAnchorManager = () => {
                         <tr>
                             <th className="px-6 py-5">Device Model</th>
                             <th className="px-6 py-5">Category</th>
-                            <th className="px-6 py-5">Base Anchor (Good)</th>
-                            <th className="px-6 py-5">Samples (Damaged / New)</th>
+                            <th className="px-6 py-5">Anchor (Like New)</th>
+                            <th className="px-6 py-5">Samples (Damaged / Good)</th>
                             <th className="px-6 py-5 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -378,9 +378,9 @@ export const BuybackAnchorManager = () => {
                                         </div>
                                         <div className="w-px h-6 bg-gray-100 dark:bg-slate-800" />
                                         <div className="text-center">
-                                            {/* 'New' removed, showing Like-New as top tier implies max value */}
-                                            <div className="text-[9px] text-green-400 font-bold uppercase tracking-widest">Like New</div>
-                                            <div className="font-bold text-gray-400">€{Math.round(anchor.anchorPriceEur * (rules.find(r => r.condition === 'like-new')?.multiplier || 0))}</div>
+                                            {/* Showing Good as comparison since Anchor is Like New */}
+                                            <div className="text-[9px] text-blue-400 font-bold uppercase tracking-widest">Good</div>
+                                            <div className="font-bold text-gray-400">€{Math.round(anchor.anchorPriceEur * (rules.find(r => r.condition === 'good')?.multiplier || 0))}</div>
                                         </div>
                                     </div>
                                 </td>
