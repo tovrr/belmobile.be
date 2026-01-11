@@ -21,6 +21,7 @@ The codebase is **GREEN** for deployment.
 - [x] **Build**: Verified (Turbopack warnings non-blocking).
 - [x] **Sitemap**: Validated (~5k URLs).
 - [x] **Translations**: Consistency check complete (NL/FR/TR/EN).
+- [x] **UI Polish**: Fixed invisible scroll arrows and refined button shadows.
 
 ### Next Steps
 1.  **Deploy to Staging**: `git merge main` -> `git push`
