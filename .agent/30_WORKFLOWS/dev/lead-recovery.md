@@ -1,30 +1,31 @@
 ---
-description: How to recover abandoned leads via Magic Links
+description: How to recover abandoned leads via Magic Links (Price Lock)
 ---
 
 ## Overview
-Abandoned leads are captured when a user enters their email in the wizard but doesn't complete the order. We recover them by sending an email with a unique tracking ID (Lead ID).
+Leads who save their quote but don't checkout are sent a "Price Lock" email. This email contains a Magic Link to resume their session exactly where they left off. Detailed in `src/app/_actions/save-quote.ts`.
 
-## Steps
+## Architecture
 
-1. **Locate Lead**
-   - Access the Firestore `leads` collection or the Admin "Lead Management" view.
-   - Copy the Lead ID (usually the underscored email).
+1.  **Capture**:
+    *   User clicks "Save Quote" in Wizard.
+    *   `saveQuote` action stores `WizardState` in Firestore `quotes/{quoteId}` (Status: `saved`).
 
-2. **Generate Magic Link**
-   - The link structure is: `https://belmobile.be/[lang]/[service]?leadId=[LEAD_ID]`
-   - Example: `https://belmobile.be/fr/repair?leadId=user_example_com`
+2.  **Magic Link**:
+    *   Format: `https://belmobile.be/[lang]/resume/[quoteId]`
+    *   The `resume` page fetches the quote, hydrates the `WizardProvider`, and redirects to the Wizard with restored state.
 
-3. **Trigger Recovery Email**
-   - Go to the Admin Dashboard > Lead Management.
-   - Click "Recover" next to the lead.
-   - This calls the `api/mail/recover-lead` endpoint.
+3.  **Email Trigger (Brevo)**:
+    *   Server Side dispatch sends the "Price Lock Certificate".
+    *   Template: `getMagicLinkEmail` (in `src/utils/emailTemplates.ts`).
+    *   **Config**: Requires `BREVO_API_KEY` in environment variables.
 
-4. **Verify Restoration**
-   - When the user clicks the link, the `BuybackRepair` component detects `leadId`.
-   - It fetches the lead data and hydrates the `WizardContext`.
-   - The user is placed back at Step 4 (User Info) with all previous selections (Brand, Model, Issues) intact.
+4.  **Security**:
+    *   Quotes expire after 7 days (Pricing Logic).
+    *   Magic Links are read-only until converted.
 
-## ⚠️ Notes
-- Leads expire after 30 days (GDPR).
-- Magic links are one-time use or expire if the lead is converted.
+## Workflow Status
+*   [x] **Capture Logic**: Implemented.
+*   [x] **Resume Page**: Implemented (`src/app/[lang]/resume`).
+*   [x] **Email API**: Implemented (`serverEmailService`).
+*   [ ] **Automation**: Abandoned Cart auto-trigger (Future).
