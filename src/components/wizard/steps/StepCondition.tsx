@@ -83,38 +83,50 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
 
     // Auto-select best condition (Green Boxes) defaults for Buyback to match max price
     useEffect(() => {
-        if (type === 'buyback' && step === 3 && !loading) {
-            // 1. Storage: Select Max Capacity
-            if (!storage) {
-                const staticOptions = (specsData && selectedModel ? specsData[selectedModel] : []) || [];
-                const dynamicOptions = dynamicBuybackPrices ? dynamicBuybackPrices.map(p => p.storage) : [];
+        if (type === 'buyback' && step === 3) {
+            // 1. Storage Logic (Robust Auto-Select)
+            // Calculate valid options first
+            const staticOptions = (specsData && selectedModel ? specsData[selectedModel] : []) || [];
+            const dynamicOptions = dynamicBuybackPrices ? dynamicBuybackPrices.map(p => p.storage).filter(Boolean) : [];
 
-                let options: string[] = [];
-                if (dynamicOptions.length > 0) options = Array.from(new Set(dynamicOptions));
-                else if (staticOptions.length > 0) options = staticOptions;
-                else options = ['128GB', '256GB', '512GB']; // Modern Fallback
+            let options: string[] = [];
+            if (dynamicOptions.length > 0) options = Array.from(new Set(dynamicOptions));
+            else if (staticOptions.length > 0) options = staticOptions;
 
-                // AEGIS: Filter out 64GB for modern iPhones (13, 14, 15, 16, 17)
-                const isModernIphone = selectedBrand?.toLowerCase() === 'apple' &&
-                    deviceType === 'smartphone' &&
-                    (selectedModel.includes('13') || selectedModel.includes('14') ||
-                        selectedModel.includes('15') || selectedModel.includes('16') ||
-                        selectedModel.includes('17') || selectedModel.includes('Air'));
-
-                if (isModernIphone) {
-                    options = options.filter(o => o !== '64GB');
-                }
-
-                const getVal = (s: string) => {
-                    if (s.endsWith('TB')) return parseFloat(s) * 1024;
-                    return parseFloat(s);
-                };
-
-                // PRE-SELECT LOGIC: Sort descending (Max first) to pick options[0]
-                options.sort((a, b) => getVal(b) - getVal(a));
-
-                if (options.length > 0) setStorage(options[0]);
+            // Fallback only if NOT loading (to avoid premature fallback)
+            if (options.length === 0 && !loading) {
+                options = ['128GB', '256GB', '512GB']; // Modern Fallback
             }
+
+            // AEGIS: Filter out 64GB for modern iPhones
+            const isModernIphone = selectedBrand?.toLowerCase() === 'apple' &&
+                deviceType === 'smartphone' &&
+                (selectedModel.includes('13') || selectedModel.includes('14') ||
+                    selectedModel.includes('15') || selectedModel.includes('16') ||
+                    selectedModel.includes('17') || selectedModel.includes('Air'));
+
+            if (isModernIphone) {
+                options = options.filter(o => o !== '64GB');
+            }
+
+            // Sort Descending (Max First)
+            const getVal = (s: string) => {
+                if (s.endsWith('TB')) return parseFloat(s) * 1024;
+                return parseFloat(s);
+            };
+            options.sort((a, b) => getVal(b) - getVal(a));
+
+            // SELECTION LOGIC:
+            // Only update if:
+            // A) No storage set
+            // B) Current storage is INVALID (not in legitimate options)
+            // This fixes the "Stuck on 512GB" bug while respecting manual "128GB" selection.
+            if (options.length > 0) {
+                if (!storage || !options.includes(storage)) {
+                    setStorage(options[0]);
+                }
+            }
+
 
             // 2. Functional Checks: Select "Yes" (Best Condition)
             if (turnsOn === null) setTurnsOn(true);
@@ -136,9 +148,8 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
         }
     }, [
         type, step, loading, dynamicBuybackPrices, specsData, selectedModel, selectedBrand, deviceType,
-        storage, turnsOn, worksCorrectly, isUnlocked, faceIdWorking, batteryHealth,
-        // Dependencies are stable or guarded, preventing loops
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        storage, turnsOn, worksCorrectly, isUnlocked, faceIdWorking, batteryHealth, controllerCount,
+        setStorage, setTurnsOn, setWorksCorrectly, setIsUnlocked, setFaceIdWorking, setBatteryHealth, setControllerCount
     ]);
 
     // -------------------------------------------------------------------------
@@ -194,6 +205,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                         const key = Object.keys(specsData).find(k => k.toLowerCase() === m.toLowerCase());
                                         return key ? specsData[key] : [];
                                     };
+
 
                                     const staticOptions = findSpecs(selectedModel);
                                     const dynamicOptions = (dynamicBuybackPrices || [])

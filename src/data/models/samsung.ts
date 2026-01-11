@@ -75,8 +75,8 @@ export const SPECS = {
     // A Series
     'Galaxy A56': ['128GB', '256GB'], 'Galaxy A55': ['128GB', '256GB'], 'Galaxy A54': ['128GB', '256GB'], 'Galaxy A53': ['128GB', '256GB'],
     'Galaxy A42': ['128GB'], 'Galaxy A41': ['64GB'], 'Galaxy A40': ['64GB'],
-    'Galaxy A36': ['128GB', '256GB'], 'Galaxy A35': ['128GB', '256GB'], 'Galaxy A34': ['128GB', '256GB'],
-    'Galaxy A26': ['128GB', '256GB'], 'Galaxy A25': ['128GB', '256GB'], 'Galaxy A24': ['128GB'],
+    'Galaxy A36': ['128GB', '256GB'], 'Galaxy A35': ['128GB', '256GB'], 'Galaxy A34': ['128GB', '256GB'], 'Galaxy A33': ['128GB', '256GB'], 'Galaxy A32': ['64GB', '128GB'], 'Galaxy A31': ['64GB', '128GB'], 'Galaxy A30': ['32GB', '64GB'],
+    'Galaxy A26': ['128GB', '256GB'], 'Galaxy A25': ['128GB', '256GB'], 'Galaxy A24': ['128GB'], 'Galaxy A23': ['64GB', '128GB'], 'Galaxy A22': ['64GB', '128GB'], 'Galaxy A21s': ['32GB', '64GB'],
     'Galaxy A17': ['64GB', '128GB'], 'Galaxy A16': ['128GB', '256GB'], 'Galaxy A15': ['128GB', '256GB'], 'Galaxy A14': ['64GB', '128GB'],
     'Galaxy A07': ['64GB', '128GB'], 'Galaxy A06': ['64GB', '128GB'], 'Galaxy A05': ['64GB', '128GB'], 'Galaxy A05s': ['64GB', '128GB'],
     'Galaxy A11': ['32GB', '64GB'],

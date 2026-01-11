@@ -37,8 +37,8 @@ interface BuybackRule {
 const DEFAULT_RULES: BuybackRule[] = [
     // { condition: 'new', multiplier: 0.82 }, // REMOVED per user request (unused)
     { condition: 'like-new', multiplier: 1.0 },
-    { condition: 'good', multiplier: 0.75 },
-    { condition: 'fair', multiplier: 0.50 },
+    { condition: 'good', multiplier: 0.85 }, // User requested 15% drop (0.85) instead of 25% drop (0.75)
+    { condition: 'fair', multiplier: 0.60 }, // User requested 40% drop (0.60) instead of 50% drop (0.50)
     { condition: 'damaged', multiplier: 0.25 },
 ];
 
@@ -135,7 +135,11 @@ export const BuybackAnchorManager = () => {
     const handleUpdatePrice = async (slug: string, price: number) => {
         setAnchors(prev => prev.map(a => a.slug === slug ? { ...a, anchorPriceEur: price } : a));
         try {
-            await setDoc(doc(db, 'pricing_anchors', slug), { basePriceEur: price, lastUpdated: new Date().toISOString() }, { merge: true });
+            await setDoc(doc(db, 'pricing_anchors', slug), {
+                basePriceEur: price,
+                anchorPriceEur: price, // FIX: Update the actual Anchor Price field!
+                lastUpdated: new Date().toISOString()
+            }, { merge: true });
         } catch (e) {
             console.error(e);
         }
@@ -317,7 +321,12 @@ export const BuybackAnchorManager = () => {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {rules.map(r => (
                     <div key={r.condition} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 text-center shadow-xs">
-                        <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest">{r.condition}</label>
+                        <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest">
+                            {r.condition === 'like-new' ? 'Anchor (100%)' :
+                                r.condition === 'good' ? 'Cosmetic (Good)' :
+                                    r.condition === 'fair' ? 'Functional (Fair)' :
+                                        r.condition === 'damaged' ? 'Critical / Locked (Damaged)' : r.condition}
+                        </label>
                         <div className="flex items-center justify-center gap-1">
                             <input
                                 type="number"

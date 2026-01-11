@@ -32,4 +32,38 @@ export const MODELS = {
     }
 };
 
-export const SPECS = {};
+export const SPECS = {
+    // P Series
+    'P40 Pro': ['256GB', '512GB'], 'P40 Pro+': ['512GB'], 'P40': ['128GB', '256GB'], 'P40 Lite': ['128GB'],
+    'P30 Pro': ['128GB', '256GB', '512GB'], 'P30': ['64GB', '128GB', '256GB'], 'P30 Lite': ['128GB'], // P30 Lite often 128GB (New Edition) or 64GB? Usually 128 is standardized now.
+    'P20 Pro': ['128GB'], 'P20 Lite': ['64GB'], 'P20': ['128GB'],
+
+    // Mate Series
+    'Mate 20 Pro': ['128GB', '256GB'], 'Mate 20': ['128GB'], 'Mate 20 Lite': ['64GB'],
+
+    // Nova Series
+    'Nova 11 Pro': ['256GB', '512GB'], 'Nova 11': ['256GB'], 'Nova 11i': ['128GB'],
+    'Nova 10 Pro': ['128GB', '256GB'], 'Nova 10': ['128GB', '256GB'], 'Nova 10 SE': ['128GB', '256GB'],
+    'Nova 9': ['128GB', '256GB'], 'Nova 9 SE': ['128GB', '256GB'], 'Nova 8i': ['128GB'], 'Nova 5T': ['128GB'],
+
+    // P Smart
+    'P Smart 2021': ['128GB'], 'P Smart 2020': ['128GB'], 'P Smart 2019': ['64GB'], 'P Smart Z': ['64GB'], 'P Smart S': ['128GB'], 'P Smart Pro': ['128GB'],
+
+    // Y Series (Budget)
+    'Huawei Y9a': ['128GB'], 'Huawei Y9s': ['128GB'], 'Huawei Y9 Prime 2019': ['128GB'],
+    'Huawei Y7a': ['128GB'], 'Huawei Y7p': ['64GB'], 'Huawei Y7 (2019)': ['32GB', '64GB'],
+    'Huawei Y6p': ['64GB'], 'Huawei Y6s': ['32GB', '64GB'], 'Huawei Y6 (2019)': ['32GB'],
+    'Huawei Y5p': ['32GB'], 'Huawei Y5 (2019)': ['16GB', '32GB'],
+
+    // Honor (Recent EU)
+    'Honor Magic6 Pro': ['512GB', '1TB'], 'Honor Magic6 Lite': ['256GB'],
+    'Honor Magic5 Pro': ['512GB'], 'Honor Magic5 Lite': ['128GB', '256GB'],
+    'Honor Magic4 Pro': ['256GB', '512GB'], 'Honor Magic4 Lite': ['128GB'],
+    'Honor 200': ['256GB', '512GB'], 'Honor 200 Lite': ['256GB'], 'Honor 200 Pro': ['512GB', '1TB'],
+    'Honor 90': ['256GB', '512GB'], 'Honor 90 Lite': ['256GB'],
+    'Honor 70': ['128GB', '256GB'], 'Honor 70 Lite': ['128GB'],
+    'Honor 50': ['128GB', '256GB'], 'Honor 50 Lite': ['128GB'],
+    'Honor X8b': ['512GB'], 'Honor X8a': ['128GB'], 'Honor X8': ['128GB'],
+    'Honor X7b': ['128GB', '256GB'], 'Honor X7a': ['128GB'], 'Honor X7': ['128GB'],
+    'Honor X6a': ['128GB'], 'Honor X6': ['64GB']
+};

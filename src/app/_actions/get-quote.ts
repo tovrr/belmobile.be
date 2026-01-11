@@ -70,17 +70,17 @@ export async function getWizardQuote(request: WizardQuoteRequest): Promise<Wizar
             };
 
             // Custom Breakdown Logic for Buyback
+            // Custom Breakdown Logic for Buyback
             const result = calculateBuybackPriceShared(params, {
                 buybackPrices: data.buyback as any,
                 repairPrices: data.repair as any
             });
-            // Assuming calculateBuybackPriceShared only returns number. We need to refactor it or re-calculate breakdown here.
-            // For now, let's just use the number and provide a simple breakdown based on params.
-            finalPrice = result;
 
-            // Re-simulation for breakdown (SOTA: In real app, logic function should return breakdown)
+            finalPrice = result.price;
+
+            // Revert to "No Breakdown" approach per user request (Hide Justification)
             breakdown = {
-                basePrice: finalPrice, // Simplified for now
+                basePrice: finalPrice,
                 deductions: []
             };
 

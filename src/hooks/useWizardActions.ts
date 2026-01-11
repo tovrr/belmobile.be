@@ -83,7 +83,7 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
 
                 if (newStep === 1) {
                     dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: '', selectedBrand: '', selectedModel: '' } });
-                    router.push(`/${lang}/${typeSlug}`);
+                    if (!state.isKiosk) router.push(`/${lang}/${typeSlug}`);
                 } else if (newStep === 2) {
                     dispatch({ type: 'SET_DEVICE_INFO', payload: { selectedModel: '' } });
 
@@ -93,9 +93,9 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                     const isImplicit = state.deviceType === defaultCategory;
 
                     if (!isImplicit && state.deviceType) {
-                        router.push(`/${lang}/${typeSlug}/${state.deviceType}/${brandSlug}`);
+                        if (!state.isKiosk) router.push(`/${lang}/${typeSlug}/${state.deviceType}/${brandSlug}`);
                     } else {
-                        router.push(`/${lang}/${typeSlug}/${brandSlug}`);
+                        if (!state.isKiosk) router.push(`/${lang}/${typeSlug}/${brandSlug}`);
                     }
                 }
 
@@ -126,7 +126,7 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
 
         startTransition(() => {
             // Push to /reparation/smartphone etc.
-            router.push(`/${lang}/${typeSlug}/${category}`);
+            if (!state.isKiosk) router.push(`/${lang}/${typeSlug}/${category}`);
             // Explicitly advance to Step 2 (Device Selection) as Provider might not re-init on soft nav
             dispatch({ type: 'SET_STEP', payload: 2 });
             dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: false } });
@@ -159,10 +159,10 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
 
             if (isMultiCategory && !isDefaultCategory && category) {
                 // e.g. /reparation/tablet/apple
-                router.push(`/${lang}/${typeSlug}/${category}/${brandSlug}`, { scroll: false });
+                if (!state.isKiosk) router.push(`/${lang}/${typeSlug}/${category}/${brandSlug}`, { scroll: false });
             } else {
                 // Standard: /reparation/apple
-                router.push(`/${lang}/${typeSlug}/${brandSlug}`, { scroll: false });
+                if (!state.isKiosk) router.push(`/${lang}/${typeSlug}/${brandSlug}`, { scroll: false });
             }
             dispatch({ type: 'SET_UI_STATE', payload: { isTransitioning: false } });
         });
@@ -224,10 +224,10 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
 
             if (!isImplicit && state.deviceType) {
                 // Explicit: /reparation/laptop/samsung/galaxy-book3-pro
-                router.push(`/${lang}/${typeSlug}/${state.deviceType}/${brandSlug}/${modelSlug}`, { scroll: false });
+                if (!state.isKiosk) router.push(`/${lang}/${typeSlug}/${state.deviceType}/${brandSlug}/${modelSlug}`, { scroll: false });
             } else {
                 // Implicit: /reparation/samsung/galaxy-s23
-                router.push(`/${lang}/${typeSlug}/${brandSlug}/${modelSlug}`, { scroll: false });
+                if (!state.isKiosk) router.push(`/${lang}/${typeSlug}/${brandSlug}/${modelSlug}`, { scroll: false });
             }
 
             if (state.step < 3) dispatch({ type: 'SET_STEP', payload: 3 });
@@ -280,6 +280,12 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
                 deviceType: state.deviceType || 'smartphone',
                 shopId: selectedShop?.id || 'online'
             }, t);
+
+            if (state.isKiosk) {
+                dispatch({ type: 'SET_WIZARD_DATA', payload: { kioskSuccessData: { readableId } } });
+                dispatch({ type: 'SET_UI_STATE', payload: { isSubmitting: false } });
+                return;
+            }
 
             // 4. Redirect Immediately to Success Page
             // The emails are now handled server-side in the /api/orders/submit route

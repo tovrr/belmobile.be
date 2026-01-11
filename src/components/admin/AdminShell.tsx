@@ -69,7 +69,7 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         return null;
     }
 
-    if (pathname === '/admin/login') {
+    if (pathname === '/admin/login' || pathname.includes('/admin/kiosk')) {
         return <>{children}</>;
     }
 

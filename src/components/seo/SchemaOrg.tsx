@@ -149,33 +149,9 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, shops, service, device, dev
             };
             schemas.push(repairSchema);
 
-            // 5. Product Schema (For Rich Snippets on specific models)
-            if (deviceModel) {
-                const productSchema = {
-                    "@context": "https://schema.org",
-                    "@type": "Product",
-                    "name": `${device} ${deviceModel}`,
-                    "brand": {
-                        "@type": "Brand",
-                        "name": device || "Generic"
-                    },
-                    "description": serviceDesc,
-                    "image": `${baseUrl}/images/devices/${createSlug(`${device}-${deviceModel}`)}.jpg`, // Fallback logic handled by Google if 404
-                    "offers": (price && price > 0) ? {
-                        "@type": "Offer",
-                        "price": price.toFixed(2),
-                        "priceCurrency": "EUR",
-                        "availability": "https://schema.org/InStock",
-                        "url": `${baseUrl}/${language}/reparation/${createSlug(device || '')}/${createSlug(deviceModel)}`
-                    } : undefined,
-                    "aggregateRating": {
-                        "@type": "AggregateRating",
-                        "ratingValue": "4.8",
-                        "reviewCount": "85"
-                    }
-                };
-                schemas.push(productSchema);
-            }
+            // Product Schema logic removed to avoid duplication.
+            // "Product" schema is now exclusively handled by <DynamicSEOContent /> 
+            // which provides superior data (Real Images, Price Validity).
         } else if (service.id === 'buyback') {
             const buybackSchema = {
                 "@context": "https://schema.org",
@@ -196,34 +172,6 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, shops, service, device, dev
                 } : undefined
             };
             schemas.push(buybackSchema);
-
-            // 5b. Product Schema for Buyback
-            if (deviceModel) {
-                const productSchema = {
-                    "@context": "https://schema.org",
-                    "@type": "Product",
-                    "name": `${device} ${deviceModel}`,
-                    "brand": {
-                        "@type": "Brand",
-                        "name": device || "Generic"
-                    },
-                    "description": `Sell your ${device} ${deviceModel} for cash.`,
-                    "image": `${baseUrl}/images/devices/${createSlug(`${device}-${deviceModel}`)}.jpg`,
-                    "offers": (price && price > 0) ? {
-                        "@type": "Offer",
-                        "price": price.toFixed(2),
-                        "priceCurrency": "EUR",
-                        "availability": "https://schema.org/InStock",
-                        "url": `${baseUrl}/${language}/rachat/${createSlug(device || '')}/${createSlug(deviceModel)}`
-                    } : undefined,
-                    "aggregateRating": {
-                        "@type": "AggregateRating",
-                        "ratingValue": "4.9",
-                        "reviewCount": "1250"
-                    }
-                };
-                schemas.push(productSchema);
-            }
         }
     }
 

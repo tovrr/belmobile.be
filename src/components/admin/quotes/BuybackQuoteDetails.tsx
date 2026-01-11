@@ -165,7 +165,7 @@ const BuybackQuoteDetails: React.FC<Props> = ({ quote, onClose }) => {
         const newPrice = calculateBuybackPriceShared(pricingParams, {
             buybackPrices: relevantBuybackPrices,
             repairPrices: mappedRepairPrices
-        });
+        }).price;
 
         setEditedPrice(newPrice);
     };

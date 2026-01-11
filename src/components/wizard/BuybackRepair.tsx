@@ -18,6 +18,7 @@ import { signInAnonymously } from 'firebase/auth';
 import { WizardExitIntent } from '../features/WizardExitIntent';
 import { ToastProvider } from '../ui/Toast';
 import { useWizardSEO } from '../../hooks/useWizardSEO';
+import { KioskSuccess } from '../kiosk/KioskSuccess';
 
 const ApolloLoader = () => (
     <div className="w-full h-96 rounded-4xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden relative">
@@ -251,6 +252,20 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     }
 
 
+
+    // --- KIOSK SUCCESS STATE ---
+    if (state.isKiosk && state.kioskSuccessData) {
+        return (
+            <KioskSuccess
+                data={state.kioskSuccessData}
+                type={type}
+                onReset={() => {
+                    dispatch({ type: 'RESET_WIZARD' });
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+            />
+        );
+    }
 
     return (
         <div className={`w-full ${state.isWidget ? 'py-0' : 'pb-32'}`}>

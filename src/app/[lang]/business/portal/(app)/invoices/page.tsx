@@ -12,11 +12,14 @@ import {
     CurrencyEuroIcon
 } from '@/components/ui/BrandIcons';
 import { motion } from 'framer-motion';
+import { generatePDFFromPdfData, savePDFBlob } from '@/utils/pdfGenerator';
 
 export default function InvoicesPage() {
     const [loading, setLoading] = useState(true);
     const [invoices, setInvoices] = useState<any[]>([]);
     const [companyId, setCompanyId] = useState<string | null>(null);
+    const [company, setCompany] = useState<any>(null);
+    const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
     const fetchInvoices = async (cid: string) => {
         try {
@@ -49,6 +52,13 @@ export default function InvoicesPage() {
 
                 const cid = userDoc.data().companyId;
                 setCompanyId(cid);
+
+                // Fetch Company Details for PDF
+                const companyDoc = await getDoc(doc(db, 'b2b_companies', cid));
+                if (companyDoc.exists()) {
+                    setCompany(companyDoc.data());
+                }
+
                 await fetchInvoices(cid);
 
             } catch (err) {
@@ -60,6 +70,86 @@ export default function InvoicesPage() {
 
         return () => unsubscribe();
     }, []);
+
+    const handleDownloadInvoice = async (invoice: any) => {
+        if (downloadingId) return;
+        setDownloadingId(invoice.id);
+
+        try {
+            const dateStr = invoice.date?.toDate ? new Date(invoice.date.toDate()).toLocaleDateString() : (invoice.date || new Date().toLocaleDateString());
+
+            // Map to PDF Schema
+            const pdfData = {
+                documentTitle: 'INVOICE',
+                orderId: invoice.invoiceNumber || `INV-${invoice.id.slice(0, 6).toUpperCase()}`,
+                date: dateStr,
+                status: invoice.paid ? 'PAID' : 'DUE',
+                method: 'Electronic Transfer',
+                type: 'invoice',
+
+                customer: {
+                    name: company?.contactName || 'Valued Partner',
+                    email: company?.email || '',
+                    phone: company?.phone || '',
+                    address: company?.address || ''
+                },
+
+                isCompany: true,
+                companyName: company?.name || 'Company Name',
+                vatNumber: company?.vat || 'BE0000.000.000',
+
+                shopOrDevice: {
+                    title: 'Service Detail',
+                    name: 'Monthly Fleet Services',
+                    details: [
+                        { label: 'Billing Period', value: dateStr }, // Simplified
+                        { label: 'Contract Ref', value: companyId || 'N/A' }
+                    ]
+                },
+
+                priceBreakdown: invoice.items && invoice.items.length > 0
+                    ? invoice.items.map((item: any) => ({
+                        label: item.description || item.label || 'Service Item',
+                        price: Number(item.price || item.amount || 0)
+                    }))
+                    : [{ label: 'Consolidated Fleet Services', price: Number(invoice.amount) }],
+
+                totalPrice: Number(invoice.amount) * 1.21, // Assumption: Amount is Net
+                subtotal: Number(invoice.amount),
+                vatAmount: Number(invoice.amount) * 0.21,
+
+                nextSteps: ['Please retain this document for your records.'],
+
+                labels: {
+                    orderId: 'Invoice No',
+                    date: 'Date',
+                    status: 'Payment Status',
+                    method: 'Payment Method',
+                    clientDetails: 'Bill To',
+                    name: 'Contact',
+                    email: 'Email',
+                    phone: 'Phone',
+                    companyName: 'Company',
+                    vatNumber: 'VAT Number',
+                    financials: 'Charge Summary',
+                    description: 'Description',
+                    price: 'Amount (EUR)',
+                    subtotal: 'Subtotal (Excl. VAT)',
+                    vat: 'VAT (21%)',
+                    total: 'Total Due'
+                }
+            };
+
+            const { blob, safeFileName } = await generatePDFFromPdfData(pdfData, 'INVOICE');
+            savePDFBlob(blob, safeFileName);
+
+        } catch (err) {
+            console.error("PDF Generation Error:", err);
+            alert("Failed to generate invoice. Please contact support.");
+        } finally {
+            setDownloadingId(null);
+        }
+    };
 
     if (loading) {
         return (
@@ -117,7 +207,7 @@ export default function InvoicesPage() {
                                     <td className="px-8 py-6">
                                         <div className="flex flex-col">
                                             <span className="font-mono text-white font-black tracking-tighter uppercase">{inv.invoiceNumber || `INV-${inv.id.slice(0, 8).toUpperCase()}`}</span>
-                                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{inv.date?.toDate ? new Date(inv.date.toDate()).toLocaleDateString() : inv.date || 'Pending'}</span>
+                                            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{inv.date?.toDate ? new Date(inv.date.toDate()).toLocaleDateString() : (inv.date || 'Pending')}</span>
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
@@ -129,14 +219,25 @@ export default function InvoicesPage() {
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <span className="font-mono text-white font-black text-sm">€{inv.amount.toLocaleString()}</span>
+                                        <span className="font-mono text-white font-black text-sm">€{Number(inv.amount).toLocaleString()}</span>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <span className="font-mono text-slate-400 font-bold text-xs">€{(inv.amount * 0.21).toFixed(2)}</span>
+                                        <span className="font-mono text-slate-400 font-bold text-xs">€{(Number(inv.amount) * 0.21).toFixed(2)}</span>
                                     </td>
                                     <td className="px-8 py-6 text-right">
-                                        <button className="p-3 bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white rounded-xl transition-all border border-indigo-600/20 group/btn">
-                                            <ArrowDownTrayIcon className="w-4 h-4 group-hover/btn:translate-y-0.5 transition-transform" />
+                                        <button
+                                            onClick={() => handleDownloadInvoice(inv)}
+                                            disabled={downloadingId === inv.id}
+                                            className={`p-3 rounded-xl transition-all border group/btn flex items-center justify-center w-10 h-10 ml-auto
+                                            ${downloadingId === inv.id
+                                                    ? 'bg-indigo-600/20 border-indigo-600/30 text-indigo-400 cursor-wait'
+                                                    : 'bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border-indigo-600/20'}`}
+                                        >
+                                            {downloadingId === inv.id ? (
+                                                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                            ) : (
+                                                <ArrowDownTrayIcon className="w-4 h-4 group-hover/btn:translate-y-0.5 transition-transform" />
+                                            )}
                                         </button>
                                     </td>
                                 </motion.tr>

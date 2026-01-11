@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
         };
 
         const calculatedPrice = type === 'buyback'
-            ? calculateBuybackPriceShared(pricingParams, pricingData)
+            ? calculateBuybackPriceShared(pricingParams, pricingData).price
             : calculateRepairPriceShared(pricingParams, pricingData);
 
 

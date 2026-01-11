@@ -162,7 +162,10 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                                     { value: "", label: isLoadingData ? t('Loading models...') : `👇 ${t('Select your model...')}` },
                                     ...availableModels.map(model => ({ value: model, label: model }))
                                 ]}
-                                className="text-lg font-medium w-full"
+                                className={`text-lg font-medium w-full ${type === 'buyback'
+                                    ? 'focus:ring-bel-yellow! focus:border-transparent!'
+                                    : 'focus:ring-[#6366F1]! focus:border-transparent!'
+                                    }`}
                                 disabled={isLoadingData}
                             />
 

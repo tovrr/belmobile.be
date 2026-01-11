@@ -45,17 +45,22 @@ export interface PricingData {
  * Pure function. Given the physical state, what is the tier?
  */
 const determineConditionTier = (params: PricingParams): ConditionTier => {
-    // Critical Failures = Damaged immediately (or 0 value)
+    // Critical Failures = Damaged immediately (or 25% value)
     if (params.turnsOn === false || params.isUnlocked === false) return 'damaged';
-    if (params.worksCorrectly === false || params.faceIdWorking === false) return 'damaged';
+
+    // User Update: FaceID is specific (-50%), map to 'fair' for UI consistency
+    if (params.faceIdWorking === false) return 'fair';
+
+    // Functional Issues (e.g. Broken Speaker/Mic) -> Fair (approx 50% value)
+    if (params.worksCorrectly === false) return 'fair';
 
     // Cosmetic Logic
     // 1. Heavy Damage
     if (params.screenState === 'cracked' || params.bodyState === 'bent') return 'damaged';
 
     // 2. Medium Wear
-    if (params.bodyState === 'dents') return 'fair';
-    if (params.screenState === 'scratches') return 'fair'; // Safe conservative estimate
+    if (params.bodyState === 'dents') return 'good';
+    if (params.screenState === 'scratches') return 'good';
 
     // 3. Light Wear
     // If body has scratches but screen is flawless -> Good
@@ -74,64 +79,138 @@ const calculateExtensions = (params: PricingParams, currentPrice: number): numbe
     let final = currentPrice;
 
     // Console Controller Logic
-    // Fix: Rely on presence of controllerCount to activate logic (Client implies console)
-    // Strategy: Anchor Price represents MAX config (2 Controllers). Deduct for missing ones.
     if (typeof params.controllerCount === 'number') {
         const CONTROLLER_VALUE = 30;
-        // User wants 2 controllers to be the baseline (no change).
-        // 1 controller = -30, 0 controllers = -60.
         const missingControllers = 2 - params.controllerCount;
         if (missingControllers > 0) {
             final -= (missingControllers * CONTROLLER_VALUE);
         }
     }
 
-    return final;
+    return Math.round(final); // Rounded for clean numbers
+};
+
+/**
+ * 📊 MATRIX PRICING ENGINE (User Requested - Granular Logic)
+ * Instead of simple Tiers, we calculate precise multipliers based on Screen + Body combos.
+ */
+const getCosmeticMultiplier = (screen: string, body: string): number => {
+    // 1. Screen Flawless
+    if (screen === 'flawless') {
+        if (body === 'flawless') return 1.0;     // 100%
+        if (body === 'scratches') return 0.8;    // 80%
+        if (body === 'dents') return 0.65;       // 65%
+        if (body === 'bent') return 0.40;        // 40% (Body Broken)
+    }
+
+    // 2. Screen Scratches
+    if (screen === 'scratches') {
+        if (body === 'flawless') return 0.75;    // 75%
+        if (body === 'scratches') return 0.65;   // 65%
+        if (body === 'dents') return 0.50;       // 50%
+        if (body === 'bent') return 0.30;        // 30% (Body Broken)
+    }
+
+    // 3. Screen Broken (Cracked)
+    if (screen === 'cracked') {
+        if (body === 'flawless') return 0.40;    // 40%
+        if (body === 'scratches') return 0.35;   // 35%
+        if (body === 'dents') return 0.25;       // 25% (Lowest before damaged)
+        if (body === 'bent') return 0.20;        // 20%
+    }
+
+    return 0.25; // Fallback
 };
 
 /**
  * 🏆 THE BULLETPROOF CALCULATOR
  * "Surgical" replacement for calculateBuybackPriceShared
  */
-export const calculateBuybackPriceShared = (params: PricingParams, data: PricingData): number => {
+export const calculateBuybackPriceShared = (params: PricingParams, data: PricingData): { price: number, deductions: { label: string, amount: number }[] } => {
     try {
         const { buybackPrices } = data;
+        const deductions: { label: string, amount: number }[] = [];
 
-        // Guard: No data
-        if (!buybackPrices || buybackPrices.length === 0) {
-            // console.warn('[Pricing] No buyback prices available for calculation.');
-            return 0;
+        if (!buybackPrices || buybackPrices.length === 0) return { price: 0, deductions: [] };
+
+        // 1. CRITICAL CHECKS (Overrides Cosmetic Matrix)
+        // Simlock, Dead Phone -> Damaged Price (25%)
+        // NOTE: FaceID is distinct now (-50%).
+        const isCriticalFailure =
+            params.turnsOn === false ||
+            params.isUnlocked === false;
+
+        const isFunctionalFailure = params.worksCorrectly === false;
+
+        // 2. FIND BASE PRICE (Like-New)
+        const baseRecord = buybackPrices.find(p => p.storage === params.storage && p.condition === 'like-new');
+
+        // If we can't find a base price, we can't calculate. 
+        if (!baseRecord || !baseRecord.price) return { price: 0, deductions: [] };
+
+        const basePrice = baseRecord.price;
+        let currentPrice = basePrice;
+
+        // 3. APPLY LOGIC
+        if (isCriticalFailure) {
+            // Damaged Tier (25%)
+            const drop = currentPrice * 0.75;
+            currentPrice = currentPrice * 0.25;
+            deductions.push({ label: 'Critical Damage / Locked', amount: Math.round(drop) });
+        } else {
+            // Cumulative Logic
+
+            // A. General Functionality (Speaker, Mic, etc)
+            if (isFunctionalFailure) {
+                const before = currentPrice;
+                currentPrice *= 0.60;
+                deductions.push({ label: 'Functional Issues', amount: Math.round(before - currentPrice) });
+            }
+
+            // B. Face ID (Specific User Request: -50%)
+            if (params.faceIdWorking === false) {
+                const before = currentPrice;
+                currentPrice *= 0.50;
+                deductions.push({ label: 'Face ID Fault', amount: Math.round(before - currentPrice) });
+            }
+
+            // C. Battery Health (Service = -15%)
+            if (params.batteryHealth === 'service') {
+                const before = currentPrice;
+                currentPrice *= 0.85;
+                deductions.push({ label: 'Battery Service', amount: Math.round(before - currentPrice) });
+            }
+
+            // D. Cosmetic Matrix
+            const cosmeticMult = getCosmeticMultiplier(
+                params.screenState || 'flawless',
+                params.bodyState || 'flawless'
+            );
+
+            if (cosmeticMult < 1.0) {
+                const before = currentPrice;
+                currentPrice *= cosmeticMult;
+                deductions.push({ label: 'Cosmetic Condition', amount: Math.round(before - currentPrice) });
+            }
+
+            // Floor Check: Don't go below transport cost? 
+            if (currentPrice < 5) currentPrice = 5;
         }
 
-        // 1. Get Tier
-        const tier = determineConditionTier(params);
-
-        // 2. Find Exact Price Match
-        const match = buybackPrices.find(p =>
-            p.storage === params.storage &&
-            p.condition === tier
-        );
-
-        if (match && typeof match.price === 'number') {
-            // 3. Apply Extensions
-            const finalPrice = calculateExtensions(params, match.price);
-            return Math.max(0, finalPrice);
+        // 5. EXTENSIONS (Controllers, etc)
+        const finalPrice = calculateExtensions(params, currentPrice);
+        if (finalPrice !== Math.round(currentPrice)) {
+            // Logic inside calculateExtensions deducts.
+            // We can infer deduction.
+            const diff = Math.round(currentPrice) - finalPrice;
+            if (diff > 0) deductions.push({ label: 'Missing Accessories', amount: diff });
         }
 
-        // 4. If exact match failed, try finding 'good' tier as a base and applying ratio?
-        // Ideally we strictly enforce exact matches for 'Bulletproof' logic.
-        // If the 'damaged' tier is missing, we might return 0.
-
-        // Fallback: If 'damaged' requested but not found, return 0.
-        // If 'like-new' requested but not found, maybe look for 'good'?
-        // For now, let's keep it strict to force the Admin to fill the data.
-
-        // console.warn(`[Pricing] Price point missing for ${params.model} (${params.storage}) @ ${tier}`);
-        return 0;
+        return { price: Math.round(finalPrice), deductions };
 
     } catch (error) {
         console.error('[Pricing] Critical Calculation Error', error);
-        return 0; // Fail safe
+        return { price: 0, deductions: [] };
     }
 };
 

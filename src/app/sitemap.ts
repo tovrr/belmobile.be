@@ -18,7 +18,7 @@ const LANGUAGES = ['fr', 'nl', 'en', 'tr'] as const;
 
 // Priority Keywords for SEO Weighting
 const HIGH_PRIORITY_KEYWORDS = [
-    'iphone-12', 'iphone-14', 'iphone-15', 'iphone-16',
+    'iphone-12', 'iphone-13', 'iphone-14', 'iphone-15', 'iphone-16',
     'galaxy-s', 'ps5', 'pixel-8'
 ];
 

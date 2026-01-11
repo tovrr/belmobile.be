@@ -77,6 +77,7 @@ export interface WizardState {
     isShopListOpen: boolean;
     isWidget: boolean;
     isKiosk: boolean;
+    kioskSuccessData: any | null;
 
     // Server-Calculated Estimate (SSOT)
     currentEstimate: number;
@@ -137,6 +138,7 @@ const initialState: WizardState = {
     isShopListOpen: false,
     isWidget: false,
     isKiosk: false,
+    kioskSuccessData: null,
     currentEstimate: 0,
     priceBreakdown: {},
     isSubmitting: false,
@@ -179,7 +181,13 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
                 pricingData: { ...state.pricingData, ...action.payload }
             };
         case 'RESET_WIZARD':
-            return { ...initialState, isInitialized: true };
+            return {
+                ...initialState,
+                isInitialized: true,
+                isKiosk: state.isKiosk,
+                isWidget: state.isWidget,
+                partnerId: state.partnerId
+            };
         default:
             return state;
     }

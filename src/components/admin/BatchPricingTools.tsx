@@ -17,7 +17,7 @@ import { DEVICE_BRANDS } from '../../data/brands';
 import { CheckCircleIcon, ExclamationTriangleIcon, XCircleIcon, ArrowDownTrayIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { RepairPriceRecord, BuybackPriceRecord, BuybackCondition } from '../../types';
 
-import { BuybackAnchorManager } from './BuybackAnchorManager';
+
 
 // Helper for CSV Export
 const capitalizeSlug = (slug: string) => {
@@ -42,7 +42,7 @@ export const BatchPricingTools = () => {
     const [statusMessage, setStatusMessage] = useState<{ text: string, type: 'success' | 'error' | 'info' } | null>(null);
     const [overwriteMode, setOverwriteMode] = useState(false); // Default false for safety
     const [targetedModel, setTargetedModel] = useState(''); // NEW: Target specific model slug
-    const [selectedTab, setSelectedTab] = useState<'repair' | 'buyback'>('repair');
+
 
     const {
         generateAppleDefaults,
@@ -609,82 +609,53 @@ export const BatchPricingTools = () => {
                 </div>
             )}
 
-            <div className="mb-6 border-b border-gray-200 dark:border-slate-700">
-                <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+
+            <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-4">
+                    <input
+                        type="checkbox"
+                        id="overwriteMode"
+                        checked={overwriteMode}
+                        onChange={(e) => setOverwriteMode(e.target.checked)}
+                        className="w-5 h-5 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    />
+                    <label htmlFor="overwriteMode" className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                        ⚠️ Overwrite Existing Prices? (Uncheck for &quot;Safe Mode&quot; to preserve custom edits)
+                    </label>
+                </div>
+
+                <div className="flex flex-col gap-2 mb-4">
+                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Target Specific Model (Optional)</label>
+                    <input
+                        type="text"
+                        placeholder="e.g. iphone-air"
+                        value={targetedModel}
+                        onChange={(e) => setTargetedModel(e.target.value)}
+                        className="p-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                    />
+                    <div className="text-xs text-gray-500">Leave empty to seed ALL models. Enter a slug (e.g. &apos;iphone-14&apos;) to limit scope.</div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                     <button
-                        onClick={() => setSelectedTab('repair')}
-                        className={`
-                            whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
-                            ${selectedTab === 'repair'
-                                ? 'border-bel-blue text-bel-blue'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
-                        `}
+                        type="button"
+                        onClick={handleGlobalSeed}
+                        disabled={generating}
+                        className={`px-6 py-4 text-white rounded-xl font-bold shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50 ${overwriteMode ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 dark:bg-slate-700 hover:bg-gray-800'}`}
                     >
-                        🛠️ Repair Matrix (Manual)
+                        🌍 Seed ALL Repair Prices {overwriteMode ? '(OVERWRITE)' : '(SAFE)'}
                     </button>
                     <button
-                        onClick={() => setSelectedTab('buyback')}
-                        className={`
-                            whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
-                            ${selectedTab === 'buyback'
-                                ? 'border-bel-blue text-bel-blue'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
-                        `}
+                        type="button"
+                        onClick={handleCleanInvalidFaceID}
+                        disabled={generating}
+                        className="px-6 py-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl font-bold shadow-sm hover:bg-red-200 transition flex items-center justify-center gap-2 disabled:opacity-50"
                     >
-                        ♻️ Buyback Engine (Automated)
+                        🧹 Clean FACE ID Data
                     </button>
-                </nav>
+                </div>
             </div>
 
-            {selectedTab === 'buyback' ? (
-                <BuybackAnchorManager />
-            ) : (
-                <div className="space-y-6">
-                    <div className="flex items-center gap-3 mb-4">
-                        <input
-                            type="checkbox"
-                            id="overwriteMode"
-                            checked={overwriteMode}
-                            onChange={(e) => setOverwriteMode(e.target.checked)}
-                            className="w-5 h-5 rounded border-gray-300 text-red-600 focus:ring-red-500"
-                        />
-                        <label htmlFor="overwriteMode" className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                            ⚠️ Overwrite Existing Prices? (Uncheck for &quot;Safe Mode&quot; to preserve custom edits)
-                        </label>
-                    </div>
-
-                    <div className="flex flex-col gap-2 mb-4">
-                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Target Specific Model (Optional)</label>
-                        <input
-                            type="text"
-                            placeholder="e.g. iphone-air"
-                            value={targetedModel}
-                            onChange={(e) => setTargetedModel(e.target.value)}
-                            className="p-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                        />
-                        <div className="text-xs text-gray-500">Leave empty to seed ALL models. Enter a slug (e.g. &apos;iphone-14&apos;) to limit scope.</div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <button
-                            type="button"
-                            onClick={handleGlobalSeed}
-                            disabled={generating}
-                            className={`px-6 py-4 text-white rounded-xl font-bold shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50 ${overwriteMode ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-900 dark:bg-slate-700 hover:bg-gray-800'}`}
-                        >
-                            🌍 Seed ALL Repair Prices {overwriteMode ? '(OVERWRITE)' : '(SAFE)'}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleCleanInvalidFaceID}
-                            disabled={generating}
-                            className="px-6 py-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl font-bold shadow-sm hover:bg-red-200 transition flex items-center justify-center gap-2 disabled:opacity-50"
-                        >
-                            🧹 Clean FACE ID Data
-                        </button>
-                    </div>
-                </div>
-            )}
 
             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-700">
                 <button
