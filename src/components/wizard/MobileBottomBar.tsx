@@ -85,8 +85,8 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
     // Theme Colors
     const themeColor = isBuyback ? 'text-yellow-600 bg-yellow-50 border-yellow-200' : 'text-indigo-600 bg-indigo-50 border-indigo-200';
     const btnGradient = isBuyback
-        ? 'bg-linear-to-r from-yellow-400 to-yellow-600 text-gray-900 shadow-yellow-500/30'
-        : 'bg-linear-to-r from-indigo-500 to-indigo-700 text-white shadow-indigo-500/30';
+        ? 'bg-linear-to-r from-yellow-400 to-yellow-600 text-gray-900 shadow-yellow-500/20'
+        : 'bg-linear-to-r from-indigo-500 to-indigo-700 text-white shadow-indigo-500/20';
 
     // Summary Helpers
     const hasDevice = selectedBrand && selectedModel;
@@ -276,7 +276,7 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
                                     disabled={nextDisabled || isLoading}
                                     className={`relative overflow-hidden group flex-1 h-14 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 active-press ${nextDisabled
                                         ? 'bg-gray-100 dark:bg-slate-800 text-gray-400 cursor-not-allowed'
-                                        : `${btnGradient} shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-95`
+                                        : `${btnGradient} shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-95`
                                         }`}
                                 >
                                     {isLoading ? (

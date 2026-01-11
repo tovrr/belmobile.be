@@ -90,19 +90,19 @@ interface FleetDevice {
 - [ ] Create `PortalLayout` with Sidebar and Auth Protection.
 - [ ] Build "Company Settings" page to view/edit profile.
 
-### Phase 2: Fleet Management (Week 3, Days 3-4)
-- [ ] Create "My Fleet" Dashboard (`/fleet`).
-- [ ] Implement "Add Device" modal (Single Entry).
-- [ ] Implement "Bulk Upload" (CSV/Excel) for fleet import.
-- [ ] Device Detail View (Warranty status, repair history).
+### Phase 2: Fleet Management (COMPLETE)
+- [x] Create "My Fleet" Dashboard (`/fleet`).
+- [x] Implement "Add Device" modal (Single Entry).
+- [x] Implement "Bulk Upload" (CSV/Excel) for fleet import.
+- [x] Device Detail View (Warranty status, repair history).
 
-### Phase 3: Service Workflows (Week 3, Day 5 - Week 4)
-- [ ] **Repair Request**: Select device from fleet -> Wizard -> Create Order.
-- [ ] **Buyback Request**: Select devices -> Get Estimate -> Generate Trade-in Offer.
-- [ ] **Order Tracking**: Specialized view for B2B orders with SLA timers.
+### Phase 3: Service Workflows (COMPLETE)
+- [x] **Repair Request**: Select device from fleet -> Wizard -> Create Order.
+- [x] **Buyback Request**: Select devices -> Get Estimate -> Generate Trade-in Offer.
+- [x] **Order Tracking**: Specialized view for B2B orders with SLA timers.
 
-### Phase 4: Financials (Post-Launch)
-- [ ] Invoices list with download.
+### Phase 4: Financials (PARTIAL)
+- [x] Invoices list with download.
 - [ ] Monthly reporting (Total Spend, Savings from Repair vs Replace).
 
 ## 5. Implementation Details

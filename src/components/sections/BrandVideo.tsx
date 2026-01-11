@@ -74,6 +74,7 @@ const BrandVideo: React.FC = () => {
                             ref={videoRef}
                             className="w-full h-full object-cover"
                             poster={posterSrc}
+                            preload="none"
                             playsInline
                             loop
                             muted={isMuted}

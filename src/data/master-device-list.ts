@@ -2,8 +2,8 @@ export interface DeviceDefinition {
     id: string; // The internal slug (e.g. 'apple-iphone-13')
     name: string; // Display Name (e.g. 'iPhone 13')
     gsmArenaId?: string; // The numeric ID for reliable scraping (e.g. '11103')
-    brand: 'apple' | 'samsung' | 'google' | 'huawei' | 'oneplus' | 'xiaomi' | 'oppo';
-    type: 'smartphone' | 'tablet' | 'smartwatch';
+    brand: 'apple' | 'samsung' | 'google' | 'huawei' | 'oneplus' | 'xiaomi' | 'oppo' | 'microsoft' | 'sony' | 'nintendo';
+    type: 'smartphone' | 'tablet' | 'smartwatch' | 'console_home' | 'console_portable';
     releaseYear?: number;
     defaultStorages?: number[]; // GB capacities (e.g. [128, 256, 512])
 }
@@ -125,4 +125,17 @@ export const MASTER_DEVICE_LIST: DeviceDefinition[] = [
     { id: 'apple-ipad-mini-(2024)', name: 'iPad mini (2024)', gsmArenaId: '13551', brand: 'apple', type: 'tablet', releaseYear: 2024, defaultStorages: [128, 256, 512] },
     { id: 'apple-ipad-mini-(2021)', name: 'iPad mini (2021)', gsmArenaId: '11106', brand: 'apple', type: 'tablet', releaseYear: 2021, defaultStorages: [64, 256] },
     { id: 'apple-ipad-mini-(2019)', name: 'iPad mini (2019)', gsmArenaId: '9637', brand: 'apple', type: 'tablet', releaseYear: 2019, defaultStorages: [64, 256] },
+
+    // --- GAME CONSOLES (Elite SEO) ---
+    { id: 'sony-playstation-5-pro', name: 'PlayStation 5 Pro', brand: 'sony', type: 'console_home', releaseYear: 2024, defaultStorages: [2048] },
+    { id: 'sony-playstation-5-slim', name: 'PlayStation 5 Slim', brand: 'sony', type: 'console_home', releaseYear: 2023, defaultStorages: [1024] },
+    { id: 'sony-playstation-5', name: 'PlayStation 5', brand: 'sony', type: 'console_home', releaseYear: 2020, defaultStorages: [825] },
+    { id: 'sony-playstation-portal', name: 'PlayStation Portal', brand: 'sony', type: 'console_portable', releaseYear: 2023, defaultStorages: [0] },
+
+    { id: 'microsoft-xbox-series-x', name: 'Xbox Series X', brand: 'microsoft', type: 'console_home', releaseYear: 2020, defaultStorages: [1024] },
+    { id: 'microsoft-xbox-series-s', name: 'Xbox Series S', brand: 'microsoft', type: 'console_home', releaseYear: 2020, defaultStorages: [512, 1024] },
+
+    { id: 'nintendo-switch-oled', name: 'Nintendo Switch OLED', brand: 'nintendo', type: 'console_portable', releaseYear: 2021, defaultStorages: [64] },
+    { id: 'nintendo-switch-v2', name: 'Nintendo Switch v2', brand: 'nintendo', type: 'console_portable', releaseYear: 2019, defaultStorages: [32] },
+    { id: 'nintendo-switch-lite', name: 'Nintendo Switch Lite', brand: 'nintendo', type: 'console_portable', releaseYear: 2019, defaultStorages: [32] },
 ];

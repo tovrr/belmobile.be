@@ -223,7 +223,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                 "image": priceQuote.deviceImage || undefined,
                 "offers": {
                     "@type": "Offer",
-                    "url": typeof window !== 'undefined' ? window.location.href : undefined,
+                    "url": `https://belmobile.be/${lang}/${lang === 'fr' ? 'reparation' : (lang === 'nl' ? 'reparatie' : (lang === 'tr' ? 'onarim' : 'repair'))}/${createSlug(brand || '')}/${createSlug(model || '')}`,
                     "priceCurrency": "EUR",
                     "price": Number(startPrice),
                     "availability": "https://schema.org/InStock",
@@ -244,7 +244,7 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                 "image": priceQuote.deviceImage || undefined,
                 "offers": {
                     "@type": "Offer",
-                    "url": typeof window !== 'undefined' ? window.location.href : undefined,
+                    "url": `https://belmobile.be/${lang}/${lang === 'fr' ? 'rachat' : (lang === 'nl' ? 'inkoop' : (lang === 'tr' ? 'geri-alim' : 'buyback'))}/${createSlug(brand || '')}/${createSlug(model || '')}`,
                     "priceCurrency": "EUR",
                     "price": Number(buyback.maxPrice),
                     "availability": "https://schema.org/InStock",
@@ -437,59 +437,118 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
 
                     {/* Pain Points Generator SEO Block */}
                     {(() => {
-                        const painPoints = isRepair ? (
-                            isHomeConsole ? (
-                                lang === 'fr' ? [
+                        const deviceCode = effectiveDeviceType; // 'smartphone', 'tablet', 'smartwatch', 'laptop', 'console_home'
+
+                        const getPainPoints = () => {
+                            if (!isRepair) {
+                                // BUYBACK PAIN POINTS (Universal + Type Specific)
+                                const typeEmoji = isConsole ? '🎮' : (deviceCode === 'smartwatch' ? '⌚' : (deviceCode === 'laptop' ? '💻' : '📱'));
+                                const typeLabel = isConsole ? (lang === 'fr' ? 'Nouvelle Console ?' : 'New Console?') : (lang === 'fr' ? 'Nouveau Modèle ?' : 'New Model?');
+
+                                if (lang === 'fr') return [
+                                    { emoji: '💶', q: 'Besoin de Cash ?', a: 'Recevez de l\'argent immédiatement.' },
+                                    { emoji: typeEmoji, q: typeLabel, a: 'Financez votre nouvel appareil.' },
+                                    { emoji: '♻️', q: 'Ecolo ?', a: 'Donnez une seconde vie à votre appareil.' }
+                                ];
+                                if (lang === 'nl') return [
+                                    { emoji: '💶', q: 'Geld Nodig?', a: 'Ontvang direct contant geld.' },
+                                    { emoji: typeEmoji, q: typeLabel, a: 'Financier uw nieuwe toestel.' },
+                                    { emoji: '♻️', q: 'Ecologisch?', a: 'Geef uw apparaat een tweede leven.' }
+                                ];
+                                if (lang === 'tr') return [
+                                    { emoji: '💶', q: 'Nakde mi İhtiyacınız Var?', a: 'Anında nakit ödeme alın.' },
+                                    { emoji: typeEmoji, q: typeLabel, a: 'Yeni cihazınızı finanse edin.' },
+                                    { emoji: '♻️', q: 'Çevre Dostu mu?', a: 'Cihazınıza ikinci bir hayat verin.' }
+                                ];
+                                return [ // EN
+                                    { emoji: '💶', q: 'Need Cash?', a: 'Get money immediately.' },
+                                    { emoji: typeEmoji, q: typeLabel, a: 'Fund your new device.' },
+                                    { emoji: '♻️', q: 'Eco-friendly?', a: 'Give your device a second life.' }
+                                ];
+                            }
+
+                            // REPAIR PAIN POINTS
+                            // 1. CONSOLES
+                            if (deviceCode === 'console_home' || deviceCode === 'console_portable') {
+                                if (lang === 'fr') return [
                                     { emoji: '🔌', q: 'Port HDMI ?', a: 'Pas de signal ou image qui saute.' },
                                     { emoji: '🔥', q: 'Surchauffe ?', a: 'Bruit de ventilation excessif.' },
                                     { emoji: '💿', q: 'Lecteur ?', a: 'Disque non reconnu ou bloqué.' }
-                                ] : lang === 'nl' ? [
+                                ];
+                                if (lang === 'nl') return [
                                     { emoji: '🔌', q: 'HDMI Poort?', a: 'Geen signaal of flikkerend beeld.' },
                                     { emoji: '🔥', q: 'Oververhitting?', a: 'Lawaaiige ventilator of valt uit.' },
                                     { emoji: '💿', q: 'Lezer?', a: 'Schijf wordt niet herkend.' }
-                                ] : [
+                                ];
+                                return [
                                     { emoji: '🔌', q: 'HDMI Port?', a: 'No signal or flickering image.' },
                                     { emoji: '🔥', q: 'Overheating?', a: 'Loud fan noise or shutdowns.' },
                                     { emoji: '💿', q: 'Disc Drive?', a: 'Not reading discs or stuck.' }
-                                ]
-                            ) : (
-                                lang === 'fr' ? [
-                                    { emoji: '💥', q: 'Écran Cassé ?', a: 'Fissures, taches noires ou tactile en panne.' },
-                                    { emoji: '🔋', q: 'Batterie Faible ?', a: 'Se décharge vite ou s\'éteint tout seul.' },
-                                    { emoji: '💧', q: 'Oxydation ?', a: 'Tombé dans l\'eau ? Agissez vite !' }
-                                ] : lang === 'nl' ? [
-                                    { emoji: '💥', q: 'Scherm Kapot?', a: 'Barsten, vlekken of touch werkt niet.' },
-                                    { emoji: '🔋', q: 'Zwakke Batterij?', a: 'Loopt snel leeg of valt uit.' },
-                                    { emoji: '💧', q: 'Waterschade?', a: 'In water gevallen? Kom direct langs!' }
-                                ] : lang === 'tr' ? [
-                                    { emoji: '💥', q: 'Ekran mı Kırıldı?', a: 'Çatlaklar, siyah lekeler veya dokunmatik sorunları.' },
-                                    { emoji: '🔋', q: 'Piliniz mi Zayıf?', a: 'Hızlı boşalma veya beklenmedik kapanmalar.' },
-                                    { emoji: '💧', q: 'Sıvı Teması mı?', a: 'Suya mı düştü? Hızlı hareket edin!' }
-                                ] : [
-                                    { emoji: '💥', q: 'Broken Screen?', a: 'Cracks, black spots or touch issues.' },
-                                    { emoji: '🔋', q: 'Weak Battery?', a: 'Drains fast or unexpected shutdowns.' },
-                                    { emoji: '💧', q: 'Water Damage?', a: 'Dropped in water? Act fast!' }
-                                ]
-                            )
-                        ) : (
-                            lang === 'fr' ? [
-                                { emoji: '💶', q: 'Besoin de Cash ?', a: 'Recevez de l\'argent immédiatement.' },
-                                { emoji: isConsole ? '🎮' : '📱', q: isConsole ? 'Nouvelle Console ?' : 'Nouveau GSM ?', a: 'Financez votre nouvel appareil.' },
-                                { emoji: '♻️', q: 'Ecolo ?', a: `Donnez une seconde vie à votre ${isConsole ? 'système' : 'mobile'}.` }
-                            ] : lang === 'nl' ? [
-                                { emoji: '💶', q: 'Geld Nodig?', a: 'Ontvang direct contant geld.' },
-                                { emoji: isConsole ? '🎮' : '📱', q: isConsole ? 'Nieuwe Console?' : 'Nieuwe GSM?', a: 'Financier uw nieuwe toestel.' },
-                                { emoji: '♻️', q: 'Ecologisch?', a: `Geef uw ${isConsole ? 'systeem' : 'mobiel'} een tweede leven.` }
-                            ] : lang === 'tr' ? [
-                                { emoji: '💶', q: 'Nakde mi İhtiyacınız Var?', a: 'Anında nakit ödeme alın.' },
-                                { emoji: isConsole ? '🎮' : '📱', q: isConsole ? 'Yeni Konsol mu?' : 'Yeni Telefon mu?', a: 'Yeni cihazınızı finanse edin.' },
-                                { emoji: '♻️', q: 'Çevre Dostu mu?', a: `${isConsole ? 'Sisteminize' : 'Cihazınıza'} ikinci bir hayat verin.` }
-                            ] : [
-                                { emoji: '💶', q: 'Need Cash?', a: 'Get money immediately.' },
-                                { emoji: isConsole ? '🎮' : '🕹️', q: isConsole ? 'New Console?' : 'Upgrade?', a: 'Fund your new device.' },
-                                { emoji: '♻️', q: 'Eco-friendly?', a: `Give your ${isConsole ? 'system' : 'mobile'} a second life.` }
-                            ]
-                        );
+                                ];
+                            }
+
+                            // 2. LAPTOPS / MACBOOKS
+                            if (deviceCode === 'laptop' || (model && model.includes('macbook'))) {
+                                if (lang === 'fr') return [
+                                    { emoji: '🔋', q: 'Batterie HS ?', a: 'Ne tient plus la charge ?' },
+                                    { emoji: '⌨️', q: 'Clavier/Trackpad ?', a: 'Touches bloquées ou curseur fou.' },
+                                    { emoji: '🖥️', q: 'Écran Cassé ?', a: 'Lignes, taches ou écran noir.' }
+                                ];
+                                if (lang === 'nl') return [
+                                    { emoji: '🔋', q: 'Batterij Defect?', a: 'Laadt niet meer op?' },
+                                    { emoji: '⌨️', q: 'Toetsenbord?', a: 'Toetsen werken niet goed.' },
+                                    { emoji: '🖥️', q: 'Scherm Kapot?', a: 'Barsten of zwart scherm.' }
+                                ];
+                                return [
+                                    { emoji: '🔋', q: 'Dead Battery?', a: 'Not holding charge anymore?' },
+                                    { emoji: '⌨️', q: 'Keyboard/Trackpad?', a: 'Sticky keys or erratic cursor.' },
+                                    { emoji: '🖥️', q: 'Broken Screen?', a: 'Cracks, lines or black screen.' }
+                                ];
+                            }
+
+                            // 3. SMARTWATCHES
+                            if (deviceCode === 'smartwatch') {
+                                if (lang === 'fr') return [
+                                    { emoji: '🔨', q: 'Verre Cassé ?', a: 'Vitre tactile fissurée.' },
+                                    { emoji: '🔋', q: 'Batterie ?', a: 'Ne tient pas la journée.' },
+                                    { emoji: '💧', q: 'Étanchéité ?', a: 'Condensation sous l\'écran.' }
+                                ];
+                                if (lang === 'nl') return [
+                                    { emoji: '🔨', q: 'Glas Gebroken?', a: 'Barsten in het glas.' },
+                                    { emoji: '🔋', q: 'Batterij?', a: 'Gaat snel leeg.' },
+                                    { emoji: '💧', q: 'Waterdicht?', a: 'Condensatie onder scherm.' }
+                                ];
+                                return [
+                                    { emoji: '🔨', q: 'Broken Glass?', a: 'Cracked touch screen.' },
+                                    { emoji: '🔋', q: 'Battery?', a: 'Drains in less than a day.' },
+                                    { emoji: '💧', q: 'Waterproof?', a: 'Condensation under screen.' }
+                                ];
+                            }
+
+                            // 4. SMARTPHONES & TABLETS (Default)
+                            if (lang === 'fr') return [
+                                { emoji: '💥', q: 'Écran Cassé ?', a: 'Fissures, taches noires ou tactile en panne.' },
+                                { emoji: '🔋', q: 'Batterie Faible ?', a: 'Se décharge vite ou s\'éteint tout seul.' },
+                                { emoji: '💧', q: 'Oxydation ?', a: 'Tombé dans l\'eau ? Agissez vite !' }
+                            ];
+                            if (lang === 'nl') return [
+                                { emoji: '💥', q: 'Scherm Kapot?', a: 'Barsten, vlekken of touch werkt niet.' },
+                                { emoji: '🔋', q: 'Zwakke Batterij?', a: 'Loopt snel leeg of valt uit.' },
+                                { emoji: '💧', q: 'Waterschade?', a: 'In water gevallen? Kom direct langs!' }
+                            ];
+                            if (lang === 'tr') return [
+                                { emoji: '💥', q: 'Ekran mı Kırıldı?', a: 'Çatlaklar, siyah lekeler veya dokunmatik sorunları.' },
+                                { emoji: '🔋', q: 'Piliniz mi Zayıf?', a: 'Hızlı boşalma veya beklenmedik kapanmalar.' },
+                                { emoji: '💧', q: 'Sıvı Teması mı?', a: 'Suya mı düştü? Hızlı hareket edin!' }
+                            ];
+                            return [
+                                { emoji: '💥', q: 'Broken Screen?', a: 'Cracks, black spots or touch issues.' },
+                                { emoji: '🔋', q: 'Weak Battery?', a: 'Drains fast or unexpected shutdowns.' },
+                                { emoji: '💧', q: 'Water Damage?', a: 'Dropped in water? Act fast!' }
+                            ];
+                        };
+
+                        const painPoints = getPainPoints();
 
                         return (
                             <div className="mb-12">

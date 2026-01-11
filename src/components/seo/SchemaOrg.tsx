@@ -110,14 +110,26 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, shops, service, device, dev
         const deviceName = device ? `${device} ${deviceModel || ''}`.trim() : 'Smartphone';
 
         if (service.id === 'repair') {
-            const isConsole = [
-                'PlayStation', 'Xbox', 'Nintendo', 'Switch', 'Steam Deck', 'Console'
-            ].some(k => (device && device.includes(k)) || (deviceModel && deviceModel.includes(k)));
+            // Determine precise service type based on keywords
+            const m = (deviceModel || '').toLowerCase() + ' ' + (device || '').toLowerCase();
+            let specificServiceType = "MobilePhoneRepair";
+
+            if (m.includes('playstation') || m.includes('xbox') || m.includes('nintendo') || m.includes('switch') || m.includes('deck') || m.includes('console')) {
+                specificServiceType = "GameConsoleRepair";
+            } else if (m.includes('watch') || m.includes('band')) {
+                specificServiceType = "SmartwatchRepair";
+            } else if (m.includes('ipad') || m.includes('tab') || m.includes('tablet')) {
+                specificServiceType = "TabletRepair";
+            } else if (m.includes('macbook') || m.includes('laptop') || m.includes('surface') || m.includes('gram')) {
+                specificServiceType = "ComputerRepair";
+            } else if (m.includes('ipod') || m.includes('mp3')) {
+                specificServiceType = "ElectronicsRepair";
+            }
 
             const repairSchema = {
                 "@context": "https://schema.org",
                 "@type": "Service",
-                "serviceType": isConsole ? "GameConsoleRepair" : "MobilePhoneRepair",
+                "serviceType": specificServiceType,
                 "provider": shop ? {
                     "@type": "MobilePhoneStore",
                     "name": shop.name,

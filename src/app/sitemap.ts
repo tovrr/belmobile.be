@@ -1,9 +1,10 @@
 
 import { MetadataRoute } from 'next';
 import { LOCATIONS } from '../data/locations';
-import { getAllDevices } from '../services/server/pricing.dal';
 import { MOCK_BLOG_POSTS, MOCK_PRODUCTS } from '../constants';
 import { STATIC_SLUG_MAPPINGS } from '../utils/i18n-helpers';
+import { MASTER_DEVICE_LIST } from '../data/master-device-list';
+import { getAllDevices } from '../services/server/pricing.dal';
 
 // --- CONFIGURATION ---
 const getBaseUrl = () => {
@@ -16,19 +17,13 @@ const getBaseUrl = () => {
 const BASE_URL = getBaseUrl();
 const LANGUAGES = ['fr', 'nl', 'en', 'tr'] as const;
 
-// Priority Keywords for SEO Weighting
-const HIGH_PRIORITY_KEYWORDS = [
-    'iphone-12', 'iphone-13', 'iphone-14', 'iphone-15', 'iphone-16',
-    'galaxy-s', 'ps5', 'pixel-8'
-];
-
 /**
  * ELITE SEO SITEMAP GENERATOR
  * Includes multilingual alternates, brand silos, and prioritized weighting.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const sitemapEntries: MetadataRoute.Sitemap = [];
-    const lastmodStatic = new Date('2026-01-05').toISOString(); // Stable date for authority pages
+    const lastmodStatic = new Date('2026-01-11').toISOString(); // Stable date for authority pages
 
     try {
         // 1. Static Pages (High Priority Infrastructure)
@@ -126,21 +121,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             }
         });
 
-        // 4. Dynamic Devices & Brand Silos
-        const allDevices = await getAllDevices();
+        // 4. Dynamic Devices & Brand Silos (Hybrid Engine)
+        // Fetches ALL IDs from DB + Master List
+        const allDeviceIds = await getAllDevices();
+
+        // Fast Lookups for Metadata
+        const masterMap = new Map(MASTER_DEVICE_LIST.map(d => [d.id, d]));
+
+        const uniqueBrands = new Set<string>();
         const repairPath = STATIC_SLUG_MAPPINGS.repair;
         const buybackPath = STATIC_SLUG_MAPPINGS.buyback;
 
-        const uniqueBrands = new Set<string>();
-
-        for (const deviceId of allDevices) {
+        for (const deviceId of allDeviceIds) {
             const [brand, ...modelParts] = deviceId.split('-');
-            if (!brand || modelParts.length === 0) continue;
-            uniqueBrands.add(brand);
 
+            // Validation: Skip malformed IDs (e.g. just "apple", empty strings)
+            if (!brand || modelParts.length === 0) continue;
+
+            uniqueBrands.add(brand);
             const model = modelParts.join('-');
-            const isPriority = HIGH_PRIORITY_KEYWORDS.some(k => deviceId.includes(k));
-            const priority = isPriority ? 1.0 : 0.8;
+
+            // Priority Logic: Check Master List for 'releaseYear'
+            const masterData = masterMap.get(deviceId);
+            // High Priority if 2023+ (Master) OR if it matches keywords (Legacy DB items)
+            const isLatest = (masterData?.releaseYear || 0) >= 2023;
+            // Fallback for DB-only items: 0.8 default, 1.0 if new
+            const priority = isLatest ? 1.0 : 0.8;
 
             LANGUAGES.forEach(lang => {
                 const repUrl = `${BASE_URL}/${lang}/${repairPath[lang]}/${brand}/${model}`.toLowerCase();
@@ -148,8 +154,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 // Repair Model
                 sitemapEntries.push({
                     url: repUrl,
-                    lastModified: lastmodStatic, // STABLE DATE
-                    changeFrequency: 'weekly',    // Reduced from daily
+                    lastModified: lastmodStatic,
+                    changeFrequency: 'weekly',
                     priority: priority,
                     alternates: {
                         languages: Object.fromEntries(
@@ -161,8 +167,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 // Buyback Model
                 sitemapEntries.push({
                     url: `${BASE_URL}/${lang}/${buybackPath[lang]}/${brand}/${model}`.toLowerCase(),
-                    lastModified: lastmodStatic, // STABLE DATE
-                    changeFrequency: 'weekly',    // Reduced from daily
+                    lastModified: lastmodStatic,
+                    changeFrequency: 'weekly',
                     priority: priority,
                     alternates: {
                         languages: Object.fromEntries(
@@ -171,8 +177,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                     }
                 });
 
-                // Local Optimized Landing Pages (Priority Only)
-                if (isPriority) {
+                // Local Optimized Landing Pages (Only for Top Tier Devices)
+                // We limit this expansion to Priority devices to avoid sitemap bloat (500 devices * 4 locs * 4 langs = 8000 URLs)
+                if (isLatest) {
                     for (const location of LOCATIONS) {
                         const locSlug = location.slugs[lang];
                         sitemapEntries.push({
@@ -193,6 +200,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 }
             });
         }
+
 
         // 5. Brand Silos (The "Authority" Headers)
         uniqueBrands.forEach(brand => {

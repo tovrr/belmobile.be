@@ -218,12 +218,6 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
         }
     }
 
-    // Prioritize category from search params if available, otherwise use route data
-    const categoryParam = resolvedSearchParams?.category;
-    const finalDeviceCategory = typeof categoryParam === 'string' ? categoryParam : (routeData.deviceCategory || device?.deviceType);
-
-    // 3. Construct Props for BuybackRepair
-    const type = service.id === 'repair' ? 'repair' : 'buyback';
     // Fix for Hub Pages: Do not pass the Hub ID (e.g., 'bruxelles') as initialShop.
     // This allows the wizard to remain "neutral" so the user can choose a specific storeS (Schaerbeek, etc.) later.
     const initialShop = location && !location.isHub ? location.id : undefined;
@@ -242,11 +236,16 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
     // FETCH DETAILED PRICING FOR WIZARD HYDRATION (SSOT RESTORATION)
     let wizardPricingData: any = null;
     let deviceSlugForWizard = '';
+    let realCategory: string | undefined;
 
     if (device && deviceModel) {
         try {
             deviceSlugForWizard = createSlug(`${device.value} ${deviceModel}`);
             const rawPricing = await getPricingData(deviceSlugForWizard);
+
+            if (rawPricing?.metadata?.category) {
+                realCategory = rawPricing.metadata.category;
+            }
 
             // Map to WizardState['pricingData']
             wizardPricingData = {
@@ -260,6 +259,18 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
             console.error("[SEO Page] Wizard Pricing fetch failed:", e);
         }
     }
+
+    // Prioritize category from search params if available, otherwise use route data, fallback to Real Category from DB
+    const categoryParam = resolvedSearchParams?.category;
+    let finalDeviceCategory = typeof categoryParam === 'string' ? categoryParam : (routeData.deviceCategory || device?.deviceType);
+
+    // AEGIS FIX: If the route parser guessed 'smartphone' (default) but the pricing DB says it's something else (e.g. smartwatch), TRUST THE DB.
+    if (realCategory && realCategory !== 'smartphone' && finalDeviceCategory === 'smartphone') {
+        finalDeviceCategory = realCategory;
+    }
+
+    // 3. Construct Props for BuybackRepair
+    const type = service.id === 'repair' ? 'repair' : 'buyback';
 
     const initialWizardProps = {
         deviceType: finalDeviceCategory || undefined,

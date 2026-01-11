@@ -1,13 +1,14 @@
 'use client';
 import React from 'react';
+import dynamic from 'next/dynamic';
 import AegisHero from './AegisHero';
 import SchemaMarkup from '../../seo/SchemaMarkup';
-import TrustSignals from '../../sections/TrustSignals';
-import FAQ from '../../common/FAQ';
-import SEOContentBlock from '../../sections/SEOContentBlock';
-import ReviewsSection from '../../sections/ReviewsSection';
-import BentoServices from '../../sections/BentoServices';
-import BrandVideo from '../../sections/BrandVideo';
+const TrustSignals = dynamic(() => import('../../sections/TrustSignals'));
+const FAQ = dynamic(() => import('../../common/FAQ'));
+const SEOContentBlock = dynamic(() => import('../../sections/SEOContentBlock'));
+const ReviewsSection = dynamic(() => import('../../sections/ReviewsSection'));
+const BentoServices = dynamic(() => import('../../sections/BentoServices'));
+const BrandVideo = dynamic(() => import('../../sections/BrandVideo'));
 
 interface Props { initialReviews?: any[]; }
 

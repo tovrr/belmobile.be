@@ -14,6 +14,7 @@ import {
     ShieldCheckIcon
 } from '@/components/ui/BrandIcons';
 import { motion } from 'framer-motion';
+import BulkFleetUploadModal from '@/components/b2b/BulkFleetUploadModal';
 
 export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
@@ -23,6 +24,8 @@ export default function DashboardPage() {
         savings: 12450
     });
     const [recentActivity, setRecentActivity] = useState<any[]>([]);
+    const [companyId, setCompanyId] = useState<string | null>(null);
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -31,21 +34,22 @@ export default function DashboardPage() {
             try {
                 const userDoc = await getDoc(doc(db, 'b2b_users', user.uid));
                 if (!userDoc.exists()) return;
-                const companyId = userDoc.data().companyId;
+                const cId = userDoc.data().companyId;
+                setCompanyId(cId);
 
-                const fleetQuery = query(collection(db, 'b2b_inventory'), where('companyId', '==', companyId));
+                const fleetQuery = query(collection(db, 'b2b_inventory'), where('companyId', '==', cId));
                 const fleetSnap = await getDocs(fleetQuery);
 
                 const repairsQuery = query(
                     collection(db, 'b2b_repair_requests'),
-                    where('companyId', '==', companyId),
+                    where('companyId', '==', cId),
                     where('status', 'in', ['requested', 'in_repair', 'diagnosing'])
                 );
                 const repairsSnap = await getDocs(repairsQuery);
 
                 const activityQuery = query(
                     collection(db, 'b2b_repair_requests'),
-                    where('companyId', '==', companyId),
+                    where('companyId', '==', cId),
                     orderBy('createdAt', 'desc'),
                     limit(5)
                 );
@@ -71,6 +75,8 @@ export default function DashboardPage() {
 
         return () => unsubscribe();
     }, []);
+
+    // ... (Loading state remains same)
 
     if (loading) {
         return (
@@ -129,7 +135,10 @@ export default function DashboardPage() {
                         System Operational • Last sync: <ClockIcon className="w-3 h-3 inline ml-1" /> Just Now
                     </p>
                 </div>
-                <button className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-black uppercase tracking-widest text-white transition-all flex items-center gap-3 active:scale-95 group">
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-black uppercase tracking-widest text-white transition-all flex items-center gap-3 active:scale-95 group"
+                >
                     <ArrowPathIcon className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500 text-indigo-400" />
                     Refresh Node
                 </button>
@@ -282,7 +291,10 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Quick Access Card */}
-                    <div className="bg-linear-to-br from-indigo-700 to-indigo-900 rounded-3xl p-8 relative overflow-hidden shadow-2xl shadow-indigo-600/20 group cursor-pointer">
+                    <div
+                        onClick={() => setIsUploadModalOpen(true)}
+                        className="bg-linear-to-br from-indigo-700 to-indigo-900 rounded-3xl p-8 relative overflow-hidden shadow-2xl shadow-indigo-600/20 group cursor-pointer active:scale-95 transition-all"
+                    >
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay"></div>
                         <h4 className="text-white font-black text-xl tracking-tighter leading-tight relative z-10 mb-2 uppercase">Bulk Fleet Upload</h4>
                         <p className="text-indigo-100 text-xs font-medium opacity-80 relative z-10 mb-6">Process up to 500 devices via CSV initialization.</p>
@@ -293,6 +305,18 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
+
+            {/* MODALS */}
+            {companyId && (
+                <BulkFleetUploadModal
+                    isOpen={isUploadModalOpen}
+                    onClose={() => setIsUploadModalOpen(false)}
+                    onSuccess={() => {
+                        window.location.reload(); // Simple refresh to show new data
+                    }}
+                    companyId={companyId}
+                />
+            )}
         </div>
     );
 }

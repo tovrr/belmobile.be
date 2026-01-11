@@ -47,7 +47,6 @@ export async function POST(req: NextRequest) {
 
         // 3. Strict Verification for Buyback
         if (type === 'buyback') {
-            // Allow a small grace margin just in case of rounding differences, but generally strict.
             if (Math.abs(calculatedPrice - clientPrice) > 5) {
                 console.error(`Security Alert: Price Mismatch. Client: ${clientPrice}, Server: ${calculatedPrice}`);
                 return NextResponse.json({
@@ -57,29 +56,21 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // 4. Save to Firestore (Server-Side)
-        // Note: This relies on the Server having permissions.
-        // If "PERMISSION_DENIED" happens here, it's because this environment (Vercel/Local) isn't using the Admin SDK
-        // or the Client SDK user isn't authenticated as Admin.
-        // Since we reverted to Client SDK, we likely do NOT have Admin privileges here without Service Account.
-
-        // CRITICAL DECISION: We will attempt to write. If it fails, we fall back to returning success to client
-        // so client can write (Hybrid Approach), OR we setup Admin SDK.
-        // The user asked for "Server-Side Price Security". That IMPLIES preventing the client from manipulating the DB.
-        // If we let the client write, we lose security.
-        // Thus, we MUST write here.
-        // IF we cannot write here (no Admin SDK), we fail.
+        // 4. Save to Firestore (Server-Side using Admin SDK)
+        // We import adminDb dynamically or statically. Statically is fine if it handles init checks.
+        const { adminDb } = await import('../../../../lib/firebase-admin');
+        const { FieldValue } = await import('firebase-admin/firestore');
 
         try {
             // Generate Readable ID securely
             const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
             const preGeneratedId = `ORD-${new Date().getFullYear()}-${randomSuffix}`;
 
-            // Generate secure tracking token for login-free tracking
+            // Generate secure tracking token
             const { randomBytes } = await import('crypto');
             const trackingToken = randomBytes(32).toString('hex');
 
-            // 4. Logistics & Status Logic
+            // Logistics Status
             const { logisticsService } = await import('../../../../services/server/logisticsService');
             const deliveryMethod = body.deliveryMethod || 'dropoff';
             const initialStatus = logisticsService.getInitialStatus(deliveryMethod);
@@ -103,20 +94,20 @@ export async function POST(req: NextRequest) {
                     shippingLabelUrl = labelResult.labelUrl;
                 } catch (logisticsError) {
                     console.error('Logistics Error:', logisticsError);
-                    // Don't fail the order, but admins should know
                 }
             }
 
-            const docReference = await addDoc(collection(db, 'quotes'), {
+            // ADMIN SDK WRITE
+            const docReference = await adminDb.collection('quotes').add({
                 ...body,
-                price: calculatedPrice, // Enforce server price
-                status: initialStatus,  // Override client status
+                price: calculatedPrice,
+                status: initialStatus,
                 isVerified: true,
-                createdAt: serverTimestamp(),
+                createdAt: FieldValue.serverTimestamp(),
                 source: 'web_wizard_secure',
                 orderId: preGeneratedId,
                 trackingToken,
-                trackingTokenCreatedAt: serverTimestamp(),
+                trackingTokenCreatedAt: FieldValue.serverTimestamp(),
                 originPartnerId: body.partnerId || null,
                 deviceType: deviceType || 'smartphone',
                 shopId: shopId || body.selectedShop || 'online',
@@ -132,8 +123,7 @@ export async function POST(req: NextRequest) {
             let invoiceUrl = null;
             if (body.isCompany) {
                 try {
-                    const { storage } = await import('../../../../firebase');
-                    const { ref: storageRef, uploadBytes, getDownloadURL } = await import('firebase/storage');
+                    const { adminStorage, adminDb } = await import('../../../../lib/firebase-admin');
                     const { mapQuoteToPdfData } = await import('../../../../utils/orderMappers');
                     const { generatePDFFromPdfData } = await import('../../../../utils/pdfGenerator');
                     const { getFixedT } = await import('../../../../utils/i18n-server');
@@ -150,30 +140,44 @@ export async function POST(req: NextRequest) {
                     };
 
                     const pdfData = mapQuoteToPdfData(quoteData as any, t);
-                    const { blob } = await generatePDFFromPdfData(pdfData, 'Invoice');
+                    // Force filename prefix 'Invoice' to ensure clarity
+                    const { blob, base64 } = await generatePDFFromPdfData(pdfData, 'Invoice');
 
-                    // Upload to Firebase Storage
+                    // Convert base64 to Buffer for Admin SDK upload
+                    const pdfBuffer = Buffer.from(base64, 'base64');
                     const invoiceFileName = `invoices/${preGeneratedId}_${Date.now()}.pdf`;
-                    const invoiceStorageRef = storageRef(storage, invoiceFileName);
-                    await uploadBytes(invoiceStorageRef, blob);
-                    invoiceUrl = await getDownloadURL(invoiceStorageRef);
+                    const bucket = adminStorage.bucket();
+                    const file = bucket.file(invoiceFileName);
 
-                    // Update quote with invoice URL
-                    const { updateDoc, doc } = await import('firebase/firestore');
-                    await updateDoc(doc(db, 'quotes', docReference.id), {
-                        invoiceUrl
+                    await file.save(pdfBuffer, {
+                        contentType: 'application/pdf',
+                        metadata: {
+                            metadata: {
+                                firebaseStorageDownloadTokens: trackingToken // Use tracking token as pseudo-token
+                            }
+                        }
                     });
 
-                    console.log(`[B2B Invoice] Generated and uploaded: ${invoiceUrl}`);
+                    // Get Signed URL (Valid for 10 years)
+                    const [signedUrl] = await file.getSignedUrl({
+                        action: 'read',
+                        expires: '03-01-2035'
+                    });
+
+                    invoiceUrl = signedUrl;
+
+                    // Update quote with invoice URL
+                    await docReference.update({ invoiceUrl });
+
+                    console.log(`[B2B Invoice] Generated and uploaded: ${invoiceFileName}`);
                 } catch (invoiceError) {
                     console.error('[B2B Invoice] Generation failed:', invoiceError);
                     Sentry.captureException(invoiceError);
-                    // Don't fail the order if invoice generation fails
+                    // Don't fail the order if invoice generation fails, but log it
                 }
             }
 
             // 6. SERVER-SIDE EMAIL DISPATCH
-            // This ensures emails are sent reliably from the server, avoiding browser navigation race conditions.
             try {
                 const { mapQuoteToPdfData } = await import('../../../../utils/orderMappers');
                 const { generatePDFFromPdfData } = await import('../../../../utils/pdfGenerator');
@@ -183,7 +187,7 @@ export async function POST(req: NextRequest) {
                 const lang = body.language || 'fr';
                 const t = getFixedT(lang);
 
-                // Prepare quote for mapper (mock Firestore shape)
+                // Prepare quote data
                 const quoteData = {
                     ...body,
                     id: docReference.id,
@@ -196,31 +200,27 @@ export async function POST(req: NextRequest) {
                 const { base64, safeFileName } = await generatePDFFromPdfData(pdfData, type === 'buyback' ? 'Buyback' : 'Repair');
 
                 const { getOrderConfirmationEmail } = await import('../../../../utils/emailTemplates');
-
                 const { subject, html } = getOrderConfirmationEmail(quoteData, preGeneratedId, lang as any, t);
 
                 // Send to Customer
-                console.log(`[Email] Starting dispatch to customer: ${body.customerEmail}`);
-                const customerResult = await serverEmailService.sendEmail(
+                await serverEmailService.sendEmail(
                     body.customerEmail,
                     subject,
                     html,
                     [{ name: safeFileName, content: base64 }]
                 );
-                console.log(`[Email] Customer dispatch success:`, customerResult);
 
                 // Send to Admin
-                console.log(`[Email] Starting dispatch to admin: info@belmobile.be`);
-                const adminResult = await serverEmailService.sendEmail(
+                await serverEmailService.sendEmail(
                     'info@belmobile.be',
                     `[ADMIN COPY] Order ${preGeneratedId} (${body.customerName})`,
                     html,
                     [{ name: safeFileName, content: base64 }]
                 );
-                console.log(`[Email] Admin dispatch success:`, adminResult);
+
+                console.log(`[Email] Dispatch clean success for ${preGeneratedId}`);
 
             } catch (emailError) {
-                // Log but don't fail the request (Order is already saved)
                 console.error('[API Order Submit] Email Dispatch Failed:', emailError);
                 Sentry.captureException(emailError);
             }
@@ -228,17 +228,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: true, id: docReference.id, orderId: preGeneratedId, price: calculatedPrice, trackingToken });
 
         } catch (dbError) {
-            console.error('Firestore Write Failed:', dbError);
-            if (dbError instanceof Error && 'code' in dbError && dbError.code === 'permission-denied') {
-                // Fallback: Validate ONLY, tell Client to write (Signed Token ideally, but simple OK for now)
-                return NextResponse.json({
-                    success: true,
-                    verified: true,
-                    price: calculatedPrice,
-                    message: "Validation successful, proceed with client-side write"
-                });
-            }
-            throw dbError;
+            console.error('Admin Firestore Write Failed:', dbError);
+            throw dbError; // Admin write failure is fatal/real error, don't fallback to client
         }
 
     } catch (error) {

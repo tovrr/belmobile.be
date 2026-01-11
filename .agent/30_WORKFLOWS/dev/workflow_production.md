@@ -9,6 +9,7 @@ Production deployment is fully automated via Vercel integration with the GitHub 
 ### 1. Prerequisite
 - Ensure changes have been verified on **Staging** (Vercel Preview) first.
 - Ensure strict `npm run build` passes locally.
+- **Sitemap Check**: Verify `npm run dev` and visit `/sitemap.xml` to ensure < 2s response time and correct URL count (~5k).
 
 ### 2. Triggering Deployment
 > **STOP**: Have you verified the changes on Staging (`dev.belmobile.be`) on a real device in accordance with the SOP?

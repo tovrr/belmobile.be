@@ -305,6 +305,24 @@ export const useWizardActions = (type: 'buyback' | 'repair') => {
 
     const loadBrandData = useCallback(async (brandSlug: string) => {
         if (loadedBrandRef.current === brandSlug) return;
+
+        // GUARD: Prevent loading categories as brands (Fix for console-portable route issue)
+        // We use technical slugs (English) internally, so this covers all languages.
+        const categorySlugs = [
+            'smartphone', 'smartphones',
+            'tablet', 'tablets',
+            'laptop', 'laptops',
+            'smartwatch', 'smartwatches',
+            'console', 'consoles',
+            'console-home',
+            'console-portable'
+        ];
+
+        if (categorySlugs.includes(brandSlug)) {
+            console.warn(`[useWizardActions] Attempted to load category '${brandSlug}' as a brand. Aborting.`);
+            return;
+        }
+
         loadedBrandRef.current = brandSlug;
 
         const shouldShowLoading = !BRAND_DATA_CACHE.has(brandSlug);

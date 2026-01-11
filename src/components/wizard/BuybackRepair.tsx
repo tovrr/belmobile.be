@@ -104,8 +104,28 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         if (recoveryData) {
             try {
                 const hydratedState = JSON.parse(recoveryData);
+
+                // SAFETY: If URL defines a category, and session differs, DISCARD session to avoid mixing flows
+                if (initialCategory && hydratedState.deviceType !== initialCategory) {
+                    console.warn('[Recovery] URL Category Mismatch. Clearing stale session.');
+                    sessionStorage.removeItem('belmobile_recovery_state');
+                    return;
+                }
+
                 // Clean up to prevent re-hydrating on refresh
                 sessionStorage.removeItem('belmobile_recovery_state');
+
+                // SANITIZE: Prevent restoring invalid brands (poisoned state fix)
+                if (hydratedState.selectedBrand) {
+                    const { createSlug } = require('../../utils/slugs');
+                    const slug = createSlug(hydratedState.selectedBrand);
+                    const blocked = ['smartphone', 'smartphones', 'tablet', 'tablets', 'laptop', 'laptops', 'smartwatch', 'smartwatches', 'console', 'consoles', 'console-home', 'console-portable'];
+                    if (blocked.includes(slug)) {
+                        console.warn('[Recovery] Sanitizing invalid brand:', hydratedState.selectedBrand);
+                        hydratedState.selectedBrand = '';
+                        if (hydratedState.step > 2) hydratedState.step = 2;
+                    }
+                }
 
                 // Nuclear Hydration
                 dispatch({
@@ -119,7 +139,31 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                 console.error('Failed to parse recovery state', e);
             }
         }
-    }, [dispatch]);
+    }, [dispatch, initialCategory]);
+
+    // SANITY CHECK: Detect and Fix Bad "Category-as-Brand" State
+    useEffect(() => {
+        if (selectedBrand) {
+            const slug = createSlug(selectedBrand);
+            const blocked = ['smartphone', 'smartphones', 'tablet', 'tablets', 'laptop', 'laptops', 'smartwatch', 'smartwatches', 'console', 'consoles', 'console-home', 'console-portable'];
+
+            if (blocked.includes(slug)) {
+                console.warn(`[BuybackRepair] Auto-fixing invalid selectedBrand: '${selectedBrand}'`);
+                setTimeout(() => {
+                    dispatch({ type: 'SET_DEVICE_INFO', payload: { selectedBrand: '' } });
+                    if (step > 2) dispatch({ type: 'SET_STEP', payload: 2 });
+                }, 0);
+            }
+        }
+    }, [selectedBrand, step, dispatch]);
+
+    // SANITY CHECK: Ensure we have a Category if we are at Step 2
+    useEffect(() => {
+        if (step === 2 && !deviceType) {
+            console.warn("Fixing bad state: Step 2 without deviceType. Redirecting to Step 1.");
+            dispatch({ type: 'SET_STEP', payload: 1 });
+        }
+    }, [step, deviceType, dispatch]);
 
     // Sync Shop
     useEffect(() => {

@@ -468,6 +468,9 @@
     "service_buyback_title": "Cihazını Sat",
     "service_buyback_desc": "Eski iPhone veya Samsung cihazınız için en iyi fiyatı alın.",
     "service_shop_title": "Yenilenmiş Cihazlar",
+    "Repair Catalog": "Katalog",
+    "Value": "Değer",
+    "Total": "Toplam",
     "service_shop_desc": "Premium yenilenmiş telefon ve laptoplar. Sertifikalı.",
     "service_microsoldering_title": "Mikro Lehimleme",
     "service_microsoldering_desc": "Başkalarının tamir edemediği anakart sorunlarında uzmanız.",
@@ -762,7 +765,6 @@
     "We buy back your old company devices at top market rates, helping you upgrade cost-effectively.": "Eski şirket cihazlarınızı piyasa değerinden geri alarak maliyetlerinizi düşürüyoruz.",
     "Device Details": "Cihaz Detayları",
     "Repair Cost": "Tamir Ücreti",
-    "Total": "Toplam",
     "On-Site Service": "Yerinde Servis",
     "For large fleets, we can arrange pick-up and drop-off or even on-site repairs (Brussels area).": "Büyük filolar için yerinde tamir veya alım-teslim hizmeti sunuyoruz (Brüksel bölgesi).",
     "Why Partner with Belmobile?": "Neden Belmobile?",
@@ -1356,5 +1358,6 @@
     "seo_nav_stores": "Hizmet Noktalarımız",
     "seo_nav_products": "Yenilenmiş Cihaz Alın",
     "repair": "Onarım",
-    "buyback": "Geri Alım"
+    "buyback": "Geri Alım",
+    "Scratches": "Çizikler"
 }

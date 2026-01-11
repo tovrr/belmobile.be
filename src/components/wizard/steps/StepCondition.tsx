@@ -145,6 +145,11 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
             if (isHomeConsole && (controllerCount === null || controllerCount === undefined)) {
                 setControllerCount(2);
             }
+
+            // 5. Smartwatch Specifics: Auto-set storage to 'Standard' to bypass validation
+            if (deviceType === 'smartwatch' && !storage) {
+                setStorage('Standard');
+            }
         }
     }, [
         type, step, loading, dynamicBuybackPrices, specsData, selectedModel, selectedBrand, deviceType,
@@ -186,78 +191,80 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                     </div>
 
                     {/* Storage Selection */}
-                    <div>
-                        <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Storage')}</label>
-                        <div className="grid grid-cols-3 gap-3 min-h-[60px] items-center">
-                            {(loading || state.isLoadingData) ? (
-                                <div className="col-span-3 flex items-center justify-center space-x-2 py-4">
-                                    <div className="w-2 h-2 bg-bel-yellow rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                                    <div className="w-2 h-2 bg-bel-yellow rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                                    <div className="w-2 h-2 bg-bel-yellow rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-2">{t('loading_specs')}</span>
-                                </div>
-                            ) : (
-                                (() => {
-                                    const findSpecs = (modelStr: string) => {
-                                        if (!specsData || !modelStr) return [];
-                                        const m = String(modelStr).trim();
-                                        if (specsData[m]) return specsData[m];
-                                        const key = Object.keys(specsData).find(k => k.toLowerCase() === m.toLowerCase());
-                                        return key ? specsData[key] : [];
-                                    };
-
-
-                                    const staticOptions = findSpecs(selectedModel);
-                                    const dynamicOptions = (dynamicBuybackPrices || [])
-                                        .map(p => p.storage)
-                                        .filter(Boolean);
-
-                                    let finalOptions: string[] = [];
-                                    if (dynamicOptions.length > 0) {
-                                        finalOptions = Array.from(new Set(dynamicOptions));
-                                    } else if (staticOptions && staticOptions.length > 0) {
-                                        finalOptions = staticOptions;
-                                    } else {
-                                        // Robust Fallback
-                                        finalOptions = ['128GB', '256GB', '512GB'];
-                                    }
-
-                                    // AEGIS: Safety Filter - Modern iPhones do not have 64GB
-                                    const isModernIphone = selectedBrand?.toLowerCase() === 'apple' &&
-                                        deviceType === 'smartphone' &&
-                                        (selectedModel.includes('13') || selectedModel.includes('14') ||
-                                            selectedModel.includes('15') || selectedModel.includes('16') ||
-                                            selectedModel.includes('17') || selectedModel.includes('Air'));
-
-                                    if (isModernIphone) {
-                                        finalOptions = finalOptions.filter(o => o !== '64GB');
-                                    }
-
-                                    const sortStorageAsc = (a: string, b: string) => {
-                                        const getVal = (s: string) => {
-                                            if (!s) return 0;
-                                            if (s.endsWith('TB')) return parseFloat(s) * 1024;
-                                            return parseFloat(s) || 0;
+                    {deviceType !== 'smartwatch' && (
+                        <div>
+                            <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Storage')}</label>
+                            <div className="grid grid-cols-3 gap-3 min-h-[60px] items-center">
+                                {(loading || state.isLoadingData) ? (
+                                    <div className="col-span-3 flex items-center justify-center space-x-2 py-4">
+                                        <div className="w-2 h-2 bg-bel-yellow rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                        <div className="w-2 h-2 bg-bel-yellow rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                        <div className="w-2 h-2 bg-bel-yellow rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-2">{t('loading_specs')}</span>
+                                    </div>
+                                ) : (
+                                    (() => {
+                                        const findSpecs = (modelStr: string) => {
+                                            if (!specsData || !modelStr) return [];
+                                            const m = String(modelStr).trim();
+                                            if (specsData[m]) return specsData[m];
+                                            const key = Object.keys(specsData).find(k => k.toLowerCase() === m.toLowerCase());
+                                            return key ? specsData[key] : [];
                                         };
-                                        return getVal(a) - getVal(b); // Ascending (Small -> Large)
-                                    };
 
-                                    return finalOptions.sort(sortStorageAsc).map((opt) => (
-                                        <button
-                                            key={`storage-${opt}`}
-                                            type="button"
-                                            onClick={() => setStorage(opt)}
-                                            className={`py-3 rounded-xl font-bold transition-all active-press ${storage === opt
-                                                ? 'bg-bel-yellow text-gray-900 shadow-lg shadow-yellow-500/20 ring-1 ring-yellow-400'
-                                                : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
-                                        >
-                                            {opt}
-                                        </button>
-                                    ));
-                                })()
-                            )}
+
+                                        const staticOptions = findSpecs(selectedModel);
+                                        const dynamicOptions = (dynamicBuybackPrices || [])
+                                            .map(p => p.storage)
+                                            .filter(Boolean);
+
+                                        let finalOptions: string[] = [];
+                                        if (dynamicOptions.length > 0) {
+                                            finalOptions = Array.from(new Set(dynamicOptions));
+                                        } else if (staticOptions && staticOptions.length > 0) {
+                                            finalOptions = staticOptions;
+                                        } else {
+                                            // Robust Fallback
+                                            finalOptions = ['128GB', '256GB', '512GB'];
+                                        }
+
+                                        // AEGIS: Safety Filter - Modern iPhones do not have 64GB
+                                        const isModernIphone = selectedBrand?.toLowerCase() === 'apple' &&
+                                            deviceType === 'smartphone' &&
+                                            (selectedModel.includes('13') || selectedModel.includes('14') ||
+                                                selectedModel.includes('15') || selectedModel.includes('16') ||
+                                                selectedModel.includes('17') || selectedModel.includes('Air'));
+
+                                        if (isModernIphone) {
+                                            finalOptions = finalOptions.filter(o => o !== '64GB');
+                                        }
+
+                                        const sortStorageAsc = (a: string, b: string) => {
+                                            const getVal = (s: string) => {
+                                                if (!s) return 0;
+                                                if (s.endsWith('TB')) return parseFloat(s) * 1024;
+                                                return parseFloat(s) || 0;
+                                            };
+                                            return getVal(a) - getVal(b); // Ascending (Small -> Large)
+                                        };
+
+                                        return finalOptions.sort(sortStorageAsc).map((opt) => (
+                                            <button
+                                                key={`storage-${opt}`}
+                                                type="button"
+                                                onClick={() => setStorage(opt)}
+                                                className={`py-3 rounded-xl font-bold transition-all active-press ${storage === opt
+                                                    ? 'bg-bel-yellow text-gray-900 shadow-lg shadow-yellow-500/20 ring-1 ring-yellow-400'
+                                                    : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
+                                            >
+                                                {opt}
+                                            </button>
+                                        ));
+                                    })()
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Functional Questions */}
                     <div className="space-y-4">
@@ -372,34 +379,31 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             </button>
                             <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-none">{t('What needs fixing?')}</h2>
                         </div>
-                        <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl py-3 -mx-4 px-4 mb-8 border-b border-slate-100 dark:border-slate-800/50 transition-all">
-                            <p className="text-gray-500 font-medium flex items-center gap-2">
-                                <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-bold uppercase tracking-widest">{selectedBrand}</span>
-                                <span className="text-slate-400 dark:text-slate-600">/</span>
-                                <span className="font-bold text-gray-900 dark:text-white">{slugToDisplayName(selectedModel || '')}</span>
-                                <span className="hidden md:inline-flex items-center">
-                                    <span className="text-slate-400 dark:text-slate-600 ml-2">•</span>
-                                    <span className="text-slate-400 dark:text-slate-500 italic ml-1">{t('repair_header_subtitle')}</span>
-                                </span>
-                            </p>
-                        </div>
-
                     </div>
 
-                    {/* Category Selector */}
-                    <div className="flex overflow-x-auto pb-4 mb-6 gap-2 no-scrollbar scroll-smooth snap-x">
-                        {['all', 'display', 'power', 'camera', 'body', 'technical'].map((cat) => (
-                            <button
-                                key={cat}
-                                onClick={() => { haptic.trigger('light'); setActiveCategory(cat); }}
-                                className={`px-6 py-3 rounded-2xl whitespace-nowrap font-black text-xs uppercase tracking-widest transition-all snap-start active-press ${activeCategory === cat
-                                    ? 'bg-[#6366F1] text-white shadow-xl shadow-indigo-500/40 ring-4 ring-indigo-500/10'
-                                    : 'bg-white/50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:scale-105'
-                                    }`}
-                            >
-                                {t('cat_' + cat)}
-                            </button>
-                        ))}
+                    {/* Category Selector with Scroll Arrows */}
+                    <div className="relative group mb-6">
+                        {/* Right Scroll Arrow */}
+                        <div className="absolute right-0 top-1/2 -translate-y-[calc(50%+8px)] z-20 pointer-events-none text-white animate-pulse lg:hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="size-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </div>
+
+                        <div className="flex overflow-x-auto pb-4 gap-2 no-scrollbar scroll-smooth snap-x pr-8">
+                            {['all', 'display', 'power', 'camera', 'body', 'technical'].map((cat) => (
+                                <button
+                                    key={cat}
+                                    onClick={() => { haptic.trigger('light'); setActiveCategory(cat); }}
+                                    className={`px-6 py-3 rounded-2xl whitespace-nowrap font-black text-xs uppercase tracking-widest transition-all snap-start active-press min-w-max ${activeCategory === cat
+                                        ? 'bg-[#6366F1] text-white shadow-md shadow-indigo-500/20 ring-4 ring-indigo-500/10'
+                                        : 'bg-white/50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:scale-105'
+                                        }`}
+                                >
+                                    {t('cat_' + cat)}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">

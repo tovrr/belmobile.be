@@ -272,6 +272,9 @@ export const getPricingData = cache(async (deviceSlug: string) => {
         let category = 'smartphone';
         if (deviceId.includes('ipad')) category = 'tablet';
         if (deviceId.includes('watch')) category = 'smartwatch';
+        if (deviceId.includes('macbook')) category = 'laptop';
+        if (deviceId.includes('ps5') || deviceId.includes('xbox')) category = 'console_home';
+        if (deviceId.includes('switch') || deviceId.includes('steam-deck')) category = 'console_portable';
 
 
         // Sync Anchor State
@@ -305,11 +308,25 @@ const PRIORITY_DEVICES = [
 
 /**
  * FETCHES ALL DEVICES FOR SITEMAP GENERATION
- * Returns a list of standardized slugs (e.g. 'apple-iphone-13')
+ * Returns a list of all known device IDs from various sources.
  */
 export const getAllDevices = cache(async (): Promise<string[]> => {
-    // SSoT v2: Use Static Master List for Instant Sitemap Generation (0ms latency, No DB Costs)
-    return MASTER_DEVICE_LIST.map(d => d.id);
+    // 1. Static Master List (Priority & Instant)
+    const staticIds = new Set(MASTER_DEVICE_LIST.map(d => d.id));
+
+    // 2. Dynamic DB Fetch (Coverage)
+    // We fetch ALL documents from pricing_anchors to ensure every trainable device is indexed
+    if (adminDb) {
+        try {
+            // Select only document ID to minimize bandwidth/latency
+            const snapshot = await adminDb.collection('pricing_anchors').select().get();
+            snapshot.docs.forEach(doc => staticIds.add(doc.id));
+        } catch (error) {
+            console.warn("[PricingDAL] Failed to fetch dynamic device list via pricing_anchors:", error);
+        }
+    }
+
+    return Array.from(staticIds);
 });
 
 // --- HELPER FUNCTIONS ---

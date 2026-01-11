@@ -46,7 +46,10 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
 
     const { deviceType, selectedBrand, selectedModel, modelsData, isLoadingData, storage, repairIssues, selectedScreenQuality } = state;
 
-    const brands = (DEVICE_BRANDS as Record<string, string[]>)[deviceType] || [];
+    // Normalize deviceType (handle console-portable vs console_portable mismatch)
+    const normalizedType = deviceType.replace(/-/g, '_');
+    const brands = (DEVICE_BRANDS as Record<string, string[]>)[normalizedType] ||
+        (DEVICE_BRANDS as Record<string, string[]>)[deviceType] || [];
     const nextDisabled = !selectedBrand || !selectedModel;
     const availableModels = modelsData && modelsData[deviceType] ? Object.keys(modelsData[deviceType]) : [];
 

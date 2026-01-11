@@ -75,18 +75,33 @@ export const getSEODescription = ({ isStore, isRepair, lang, locationName, devic
 };
 
 export const getDeviceContext = (modelName: string, lang: 'fr' | 'nl' | 'en' | 'tr') => {
-    const isHomeConsole = modelName.toLowerCase().includes('playstation') ||
-        modelName.toLowerCase().includes('xbox') ||
-        modelName.toLowerCase().includes('ps5') ||
-        modelName.toLowerCase().includes('ps4');
+    const m = modelName.toLowerCase();
+    const isHomeConsole = m.includes('playstation') || m.includes('xbox') || m.includes('ps5') || m.includes('ps4');
+    const isLaptop = m.includes('macbook') || m.includes('surface') || m.includes('laptop');
+    const isTablet = m.includes('ipad') || m.includes('tab') || m.includes('tablet');
+    const isSmartwatch = m.includes('watch') || m.includes('band');
 
-    const durationText = isHomeConsole
-        ? (lang === 'fr' ? '3h à 4h' : (lang === 'nl' ? '3u tot 4u' : (lang === 'tr' ? '3-4 saat' : '3-4h')))
-        : (lang === 'fr' ? '30 min' : (lang === 'nl' ? '30 min' : (lang === 'tr' ? '30 dk' : '30 min')));
+    let durationText = lang === 'fr' ? '30 min' : (lang === 'nl' ? '30 min' : (lang === 'tr' ? '30 dk' : '30 min'));
+    let issuesText = lang === 'fr' ? 'écran ou batterie' : (lang === 'nl' ? 'scherm of batterij' : (lang === 'tr' ? 'ekran veya batarya' : 'screen or battery'));
+    let deviceType = 'smartphone';
 
-    const issuesText = isHomeConsole
-        ? (lang === 'fr' ? 'HDMI ou surchauffe' : (lang === 'nl' ? 'HDMI of oververhitting' : (lang === 'tr' ? 'HDMI veya aşırı ısınma' : 'HDMI or overheating')))
-        : (lang === 'fr' ? 'écran ou batterie' : (lang === 'nl' ? 'scherm of batterij' : (lang === 'tr' ? 'ekran veya batarya' : 'screen or battery')));
+    if (isHomeConsole) {
+        durationText = lang === 'fr' ? '3h à 4h' : (lang === 'nl' ? '3u tot 4u' : (lang === 'tr' ? '3-4 saat' : '3-4h'));
+        issuesText = lang === 'fr' ? 'HDMI ou surchauffe' : (lang === 'nl' ? 'HDMI of oververhitting' : (lang === 'tr' ? 'HDMI veya aşırı ısınma' : 'HDMI or overheating'));
+        deviceType = 'console_home';
+    } else if (isLaptop) {
+        durationText = lang === 'fr' ? '24h à 48h' : (lang === 'nl' ? '24u tot 48u' : (lang === 'tr' ? '24-48 saat' : '24h to 48h'));
+        issuesText = lang === 'fr' ? 'écran, clavier ou batterie' : (lang === 'nl' ? 'scherm, toetsenbord of batterij' : (lang === 'tr' ? 'ekran, klavye veya batarya' : 'screen, keyboard or battery'));
+        deviceType = 'laptop';
+    } else if (isTablet) {
+        durationText = lang === 'fr' ? '2h à 24h' : (lang === 'nl' ? '2u tot 24u' : (lang === 'tr' ? '2-24 saat' : '2h to 24h'));
+        issuesText = lang === 'fr' ? 'vitre ou batterie' : (lang === 'nl' ? 'glas of batterij' : (lang === 'tr' ? 'cam veya batarya' : 'glass or battery'));
+        deviceType = 'tablet';
+    } else if (isSmartwatch) {
+        durationText = lang === 'fr' ? '1h à 2h' : (lang === 'nl' ? '1u tot 2u' : (lang === 'tr' ? '1-2 saat' : '1h to 2h'));
+        issuesText = lang === 'fr' ? 'écran ou batterie' : (lang === 'nl' ? 'scherm of batterij' : (lang === 'tr' ? 'ekran veya batarya' : 'screen or battery'));
+        deviceType = 'smartwatch';
+    }
 
-    return { isHomeConsole, durationText, issuesText, deviceType: isHomeConsole ? 'console_home' : 'smartphone' };
+    return { isHomeConsole, durationText, issuesText, deviceType };
 };

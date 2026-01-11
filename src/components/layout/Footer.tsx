@@ -1,4 +1,5 @@
 import React from 'react';
+import { createSlug } from '@/utils/slugs';
 import Link from 'next/link';
 
 import { LOCATIONS } from '../../data/locations';
@@ -37,7 +38,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
     const t = (key: string) => dict[key] || key;
     const language = lang;
 
-    const createSlug = (text: string) => text.toLowerCase().replace(/\s+/g, '-');
+
 
     const schemaData = {
         "@context": "https://schema.org",
@@ -169,7 +170,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                         {POPULAR_REPAIRS.map((item, index) => (
                             <li key={index}>
                                 <Link
-                                    href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : language === 'tr' ? 'onarim' : 'repair'}/${createSlug(item.brand)}/${createSlug(item.model)}?category=${item.category}`}
+                                    href={`/${language}/${language === 'fr' ? 'reparation' : language === 'nl' ? 'reparatie' : language === 'tr' ? 'onarim' : 'repair'}/${createSlug(item.category)}/${createSlug(item.brand)}/${createSlug(item.model)}`}
                                     className="text-xs text-slate-500 hover:text-white transition-colors flex items-center group"
                                 >
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-cyber-citron mr-2 transition-colors"></span>

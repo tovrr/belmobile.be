@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export function generateStaticParams() {
-    return [];
+    return ['fr', 'nl', 'en', 'tr'].map((lang) => ({ lang }));
 }
 
 export default function ContactPage() {

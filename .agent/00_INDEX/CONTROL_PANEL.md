@@ -39,5 +39,5 @@
 ---
 
 ## 📝 6. Journal de Bord
-* **[Release Notes](docs/staff/RELEASE_NOTES.md)** : Historique des versions et changements majeurs.
+* **[Release Notes](../40_LOGS/RELEASE_LOG_2026_01_11.md)** : Historique des versions et changements majeurs.
 * **[Omer Boss Actions](docs/staff/OMER_BOSS_ACTION_2026.md)** : Priorités du leader.

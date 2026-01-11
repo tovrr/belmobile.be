@@ -94,9 +94,9 @@ const AegisHero: React.FC = () => {
 
                     {/* Right Column: Visuals (The 3D Phone) */}
                     <div className="hidden md:flex w-full justify-center lg:justify-end relative items-center">
-                        <FadeIn delay={0.2} direction="left" className="w-full h-full flex justify-end">
+                        <div className="w-full h-full flex justify-end">
                             <HeroPhone />
-                        </FadeIn>
+                        </div>
                     </div>
                 </div>
             </div>

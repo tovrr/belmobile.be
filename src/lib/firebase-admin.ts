@@ -49,6 +49,8 @@ if (!admin.apps.length) {
 // Safely export database connection
 // We now target the default database as per the new project structure
 export const adminDb = (app && getFirestore(app)) as FirebaseFirestore.Firestore;
+export const adminStorage = (app && admin.storage(app)) as admin.storage.Storage;
+export const adminAuth = (app && admin.auth(app)) as admin.auth.Auth;
 
 if (!adminDb && process.env.NODE_ENV !== 'production') {
     console.warn("⚠️ adminDb export is undefined (Credentials Missing?)");
