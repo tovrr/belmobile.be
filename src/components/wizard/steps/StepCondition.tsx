@@ -414,6 +414,13 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
 
                     {/* Category Selector */}
                     <div className="relative group mb-6">
+                        {/* Mobile Scroll Hint Arrow */}
+                        <div className="md:hidden absolute right-0 top-1/2 -translate-y-[calc(50%+8px)] z-20 pointer-events-none pr-1">
+                            <div className="bg-white/90 dark:bg-slate-800/90 rounded-full p-1.5 shadow-lg border border-gray-200 dark:border-slate-700 animate-pulse ring-4 ring-indigo-500/5">
+                                <ChevronRightIcon className="h-4 w-4 text-[#6366F1]" />
+                            </div>
+                        </div>
+
                         <div
                             ref={scrollContainerRef}
                             className="flex overflow-x-auto pb-4 gap-2 no-scrollbar scroll-smooth snap-x"
