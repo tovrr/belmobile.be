@@ -380,8 +380,8 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
         return (
             <div className={`w-full mx-auto ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : ''}`}>
                 <div className="flex-1 min-w-0">
-                    <div className="mb-10">
-                        <div className="flex items-center gap-4 mb-4">
+                    <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
                             <button
                                 onClick={() => { haptic.trigger('light'); onBack(); }}
                                 type="button"
@@ -392,28 +392,28 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             </button>
                             <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-none">{t('What needs fixing?')}</h2>
                         </div>
+
+                        {/* Desktop Scroll Arrows - Top Right */}
+                        <div className="hidden md:flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => scroll('left')}
+                                className="p-2 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-gray-200 dark:border-slate-700 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors active-press hover:bg-gray-50 dark:hover:bg-slate-700"
+                            >
+                                <ChevronLeftIcon className="h-5 w-5" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => scroll('right')}
+                                className="p-2 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-gray-200 dark:border-slate-700 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors active-press hover:bg-gray-50 dark:hover:bg-slate-700"
+                            >
+                                <ChevronRightIcon className="h-5 w-5" />
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Category Selector with Scroll Arrows */}
-                    <div className="relative group mb-6 px-1 sm:px-10">
-                        {/* Left Scroll Arrow */}
-                        <button
-                            type="button"
-                            onClick={() => scroll('left')}
-                            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-white dark:bg-slate-800 rounded-full shadow-md border border-gray-100 dark:border-slate-700 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors active-press hidden md:flex"
-                        >
-                            <ChevronLeftIcon className="h-4 w-4" />
-                        </button>
-
-                        {/* Right Scroll Arrow */}
-                        <button
-                            type="button"
-                            onClick={() => scroll('right')}
-                            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-white dark:bg-slate-800 rounded-full shadow-md border border-gray-100 dark:border-slate-700 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors active-press hidden md:flex"
-                        >
-                            <ChevronRightIcon className="h-4 w-4" />
-                        </button>
-
+                    {/* Category Selector */}
+                    <div className="relative group mb-6">
                         <div
                             ref={scrollContainerRef}
                             className="flex overflow-x-auto pb-4 gap-2 no-scrollbar scroll-smooth snap-x"
