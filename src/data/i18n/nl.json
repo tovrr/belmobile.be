@@ -1464,6 +1464,7 @@
     "about_est_date": "Sinds 2011",
     "about_mission_title": "Onze Missie",
     "about_mission_desc": "De levensduur van elk mobiel toestel verlengen om e-waste te verminderen, met een premium en transparante service.",
+    "about_mission_detail": "Bij Belmobile geloven we dat een toestel niet bij het eerste defect moet worden weggegooid. Ons geavanceerde technologielab in Brussel is toegewijd aan deskundige micro-reparatie en renovatie. Door ervoor te kiezen uw toestel bij ons te repareren of te verkopen, neemt u actief deel aan de circulaire economie, vermindert u de ecologische voetafdruk van technologie en geniet u van onberispelijke, gegarandeerde servicekwaliteit.",
     "about_stat_1": "Toestellen Gered",
     "about_stat_2": "Tevreden Klanten",
     "about_stat_3": "Jaar Garantie",
@@ -1760,5 +1761,7 @@
     "Face ID Fault": "Face ID defect",
     "Battery Service": "Batterij onderhoud",
     "Cosmetic Condition": "Cosmetische staat",
-    "Missing Accessories": "Ontbrekende accessoires"
+    "Missing Accessories": "Ontbrekende accessoires",
+    "Send Secure Link": "Verstuur veilige link",
+    "For security, we will send an access link to your email.": "Om veiligheidsredenen sturen we een toegangslink naar uw e-mail."
 }

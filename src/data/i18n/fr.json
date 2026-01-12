@@ -1490,6 +1490,7 @@
     "about_est_date": "Depuis 2011",
     "about_mission_title": "Notre Mission",
     "about_mission_desc": "Prolonger la vie de chaque appareil mobile pour réduire les déchets électroniques, tout en offrant un service premium et transparent.",
+    "about_mission_detail": "Chez Belmobile, nous croyons qu'un appareil ne devrait pas être jeté à la moindre panne. Notre laboratoire technologique de pointe à Bruxelles est dédié à la micro-réparation et au reconditionnement expert. En choisissant de réparer ou de revendre votre appareil chez nous, vous participez activement à l'économie circulaire, réduisant l'impact carbone de la technologie tout en bénéficiant d'une qualité de service irréprochable et garantie.",
     "about_stat_1": "Appareils Sauvés",
     "about_stat_2": "Clients Satisfaits",
     "about_stat_3": "Ans de Garantie",
@@ -1781,5 +1782,7 @@
     "Battery Service": "Entretien batterie",
     "Cosmetic Condition": "État esthétique",
     "Missing Accessories": "Accessoires manquants",
-    "on_request": "Sur devis"
+    "on_request": "Sur devis",
+    "Send Secure Link": "Envoyer le lien d'accès",
+    "For security, we will send an access link to your email.": "Pour votre sécurité, nous enverrons un lien de connexion à votre adresse e-mail."
 }

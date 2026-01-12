@@ -92,7 +92,11 @@ const Breadcrumbs: React.FC = () => {
         const slug = name.toLowerCase();
 
         // Check if this segment is a Category
-        const isCategory = DEVICE_TYPES.some(dt => dt.id === slug || createSlug(dt.id) === slug);
+        const isCategory = DEVICE_TYPES.some(dt =>
+            dt.id === slug ||
+            createSlug(dt.id) === slug ||
+            dt.aliases?.some(alias => alias.toLowerCase() === slug)
+        );
         if (isCategory) hasShownCategory = true;
 
         // --- SMART INJECTION ---

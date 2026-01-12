@@ -1722,5 +1722,7 @@
     "Face ID Fault": "Face ID Fault",
     "Battery Service": "Battery Service",
     "Cosmetic Condition": "Cosmetic Condition",
-    "Missing Accessories": "Missing Accessories"
+    "Missing Accessories": "Missing Accessories",
+    "Send Secure Link": "Send Secure Link",
+    "For security, we will send an access link to your email.": "For security, we will send an access link to your email."
 }
