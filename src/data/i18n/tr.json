@@ -1401,5 +1401,9 @@
     "blog_content_5": "Face ID bir sensör değildir; bir **TrueDepth** lazer dizisidir. iPhone'unuzdaki en hassas bileşendir ve yakın zamana kadar Belmobile hariç herkes tarafından 'onarılamaz' olarak kabul edilirdi.\n\n### Face ID Neden Bozulur:\n1. **Sıvı Hasarı**: Ahize açıklığı, Nokta Projektörü filmini aşındıran nem için en yaygın giriş noktasıdır.\n2. **Mikro Kırıklar**: Bir düşüş, 30.000 lazer noktasının hassas hizalamasını bozabilir.\n3. **Arızalı Güç Entegreleri**: Dizinin gerekli voltajı almasını engeller.\n\n### Belmobile Devrimi\nApple'ı ziyaret ettiğinizde, bir Face ID arızasının yüzlerce euroya mal olan tam bir cihaz değişimi gerektirdiğini söyleyeceklerdir. **Biz katılmıyoruz.** Brüksel'deki mikro lehimleme laboratuvarımız fiziksel Nokta Projektörü modülünü onarabilir. Orijinal **Secure Enclave ASIC çipinizi** yeni bir düzeneğe taşımak için mikroskop kullanıyoruz, böylece Face ID'yi geri yüklerken yeni bir telefona kıyasla size %60'tan fazla tasarruf sağlıyoruz.\n\n### Uzun Ömür İçin Uzman İpucu\nTelefonunuzu banyolar gibi 'buharlı' ortamlarda kullanmaktan kaçının. Buhar, ahize contasını geçer ve Face ID arızasının 1 numaralı nedenidir. \n\n**Düzelttiğimiz Yaygın Hatalar:**\n- *'TrueDepth kamerada bir sorun algılandı'*\n- *'iPhone'u biraz aşağı/yukarı hareket ettirin'*\n\n**En İyi Çözüm**: Sonsuza kadar 'Parola Girin' ile yetinmeyin. Uzmanlaşmış bir Face ID restorasyonu için Belmobile'i ziyaret edin ve biyometrik güvenliğin rahatlığını yeniden kazanın.",
     "Recent News & Tips": "Son Haberler & İpuçları",
     "No articles found.": "Makale bulunamadı.",
+    "Issues": "Sorunlar",
+    "Confirm Request": "Talebi Onayla",
+    "Confirm Offer": "Teklifi Onayla",
+    "Processing...": "İşleniyor...",
     "Read More": "Devamını Oku"
 }

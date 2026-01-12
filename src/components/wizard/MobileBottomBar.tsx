@@ -280,7 +280,12 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
                                         }`}
                                 >
                                     {isLoading ? (
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            <span className="font-extrabold uppercase tracking-widest text-sm text-white/90">
+                                                {t('Processing...')}
+                                            </span>
+                                        </div>
                                     ) : (
                                         <>
                                             <span className="font-extrabold uppercase tracking-widest text-sm">

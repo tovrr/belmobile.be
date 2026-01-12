@@ -1,6 +1,6 @@
 import { Shop } from '../../types';
 import { Location } from '../../data/locations';
-import { Service } from '../../data/services';
+import { SERVICES, Service } from '../../data/services';
 import { slugToDisplayName, createSlug } from '../../utils/slugs';
 import { findDefaultBrandCategory } from '../../utils/deviceLogic';
 import { ShieldCheckIcon, ClockIcon, DevicePhoneMobileIcon, BoltIcon, BanknotesIcon, WrenchScrewdriverIcon, TvIcon, FireIcon } from '@heroicons/react/24/solid';
@@ -628,8 +628,8 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
                         const targetType = isRepair ? 'buyback' : 'repair';
                         // Map the correct URL slug for the target service
                         const targetServiceSlug = isRepair
-                            ? (lang === 'fr' ? 'rachat' : (lang === 'nl' ? 'verkopen' : (lang === 'tr' ? 'sat' : 'buyback')))
-                            : (lang === 'fr' ? 'reparation' : (lang === 'nl' ? 'reparatie' : (lang === 'tr' ? 'tamir' : 'repair')));
+                            ? SERVICES.find(s => s.id === 'buyback')?.slugs[lang] || 'buyback'
+                            : SERVICES.find(s => s.id === 'repair')?.slugs[lang] || 'repair';
 
                         const href = `/${lang}/${targetServiceSlug}/${createSlug(brand)}/${createSlug(model)}`;
 

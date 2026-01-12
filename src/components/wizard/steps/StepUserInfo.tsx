@@ -558,9 +558,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
             <div className={`w-full mx-auto ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : ''}`}>
                 {/* Mobile Summary removed in favor of MobileBottomBar */}
                 <div className="flex-1 min-w-0">
-                    <div className="mb-8">
-                        <TrustBar type={type} />
-                    </div>
+
                     <form ref={(formRef as any)} onSubmit={onHandleSubmit} className="space-y-8">
                         <div>
                             {!isKiosk && (
@@ -580,6 +578,10 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                 </>
                             )}
                             {isKiosk && <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">{t('Your Details')}</h2>}
+
+                            <div className="mb-8">
+                                <TrustBar type={type} />
+                            </div>
 
                             <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 ${isKiosk ? 'hidden' : ''}`}>
                                 {/* Visit Store */}

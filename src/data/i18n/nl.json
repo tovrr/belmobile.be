@@ -1033,7 +1033,7 @@
     "Phone": "Telefoon",
     "Address": "Adres",
     "Postal Code": "Postcode",
-    "Confirm Request": "Aanvraag Bevestigen",
+    "Confirm Request": "Aanvraag bevestigen",
     "Request Received!": "Aanvraag Ontvangen!",
     "success_description": "Bedankt! Uw aanvraag is succesvol ingediend. Volg de volgende stappen hieronder.",
     "Thank you. We have received your request and will contact you shortly.": "Bedankt. We hebben uw aanvraag ontvangen en nemen snel contact op.",
@@ -1763,5 +1763,8 @@
     "Cosmetic Condition": "Cosmetische staat",
     "Missing Accessories": "Ontbrekende accessoires",
     "Send Secure Link": "Verstuur veilige link",
+    "Issues": "Problemen",
+    "Confirm Offer": "Bod bevestigen",
+    "Processing...": "Verwerken...",
     "For security, we will send an access link to your email.": "Om veiligheidsredenen sturen we een toegangslink naar uw e-mail."
 }
