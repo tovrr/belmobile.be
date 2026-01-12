@@ -83,22 +83,59 @@ const Breadcrumbs: React.FC = () => {
     }
 
     // Generate crumbs list for rendering and JSON-LD
-    const crumbs = pathnames.map((name, index) => {
+    const crumbs: any[] = [];
+    let hasShownCategory = false;
+
+    pathnames.forEach((name, index) => {
+        const isLast = index === pathnames.length - 1;
+        const displayName = getDisplayName(name, t, products, language);
+        const slug = name.toLowerCase();
+
+        // Check if this segment is a Category
+        const isCategory = DEVICE_TYPES.some(dt => dt.id === slug || createSlug(dt.id) === slug);
+        if (isCategory) hasShownCategory = true;
+
+        // --- SMART INJECTION ---
+        // If this is NOT a category, but the NEXT segment is a known Brand (and we haven't shown category yet),
+        // we might want to inject the category now for better context.
+        // OR: If THIS is a brand, and we haven't shown a category, inject it BEFORE the brand.
+        if (!isCategory && !hasShownCategory && index >= 1) {
+            // Check if this is a brand
+            let autoCat: string | null = null;
+            for (const [catId, brands] of Object.entries(DEVICE_BRANDS)) {
+                if ((brands as string[]).some(b => createSlug(b) === slug)) {
+                    autoCat = catId;
+                    break;
+                }
+            }
+
+            if (autoCat) {
+                const catType = DEVICE_TYPES.find(dt => dt.id === autoCat);
+                if (catType) {
+                    const serviceUrl = `/${language}/${pathnames[0]}`; // The service level (e.g. /rachat)
+                    crumbs.push({
+                        name: t(catType.label),
+                        url: `${serviceUrl}?category=${autoCat}`,
+                        isLast: false,
+                        isVirtual: true
+                    });
+                    hasShownCategory = true;
+                }
+            }
+        }
+
         let routeTo = `/${language}/${pathnames.slice(0, index + 1).join('/')}`;
 
-        // Preserve query params (category) for Brand level and deeper
-        if (index >= 1 && searchParams.toString()) {
+        // Preserve query params (category, etc) for ALL levels to maintain wizard context
+        if (searchParams.toString()) {
             routeTo += `?${searchParams.toString()}`;
         }
 
-        const isLast = index === pathnames.length - 1;
-        const displayName = getDisplayName(name, t, products, language);
-
-        return {
+        crumbs.push({
             name: displayName,
             url: routeTo,
             isLast
-        };
+        });
     });
 
     // Determine Base URL (Fixed for Consistency & Hydration Match)

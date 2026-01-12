@@ -1,10 +1,11 @@
 
 import { MetadataRoute } from 'next';
 import { LOCATIONS } from '../data/locations';
-import { MOCK_BLOG_POSTS, MOCK_PRODUCTS } from '../constants';
+import { MOCK_BLOG_POSTS, MOCK_PRODUCTS, DEVICE_TYPES, SEO_CONTENT } from '../constants';
 import { STATIC_SLUG_MAPPINGS } from '../utils/i18n-helpers';
 import { MASTER_DEVICE_LIST } from '../data/master-device-list';
 import { getAllDevices } from '../services/server/pricing.dal';
+import { getDeviceImage } from '../data/deviceImages';
 
 // --- CONFIGURATION ---
 const getBaseUrl = () => {
@@ -17,13 +18,62 @@ const getBaseUrl = () => {
 const BASE_URL = getBaseUrl();
 const LANGUAGES = ['fr', 'nl', 'en', 'tr'] as const;
 
+// Helper to get image object for device pages
+const getSitemapImage = (deviceId: string, isRepair: boolean) => {
+    // Try to get specific device image
+    const imagePath = getDeviceImage(deviceId);
+    if (!imagePath || imagePath === '/favicon.svg') return undefined;
+
+    // Construct absolute URL
+    const imageUrl = `${BASE_URL}${imagePath}`;
+    const brand = deviceId.split('-')[0];
+    const model = deviceId.split('-').slice(1).join(' ').replace(/-/g, ' ');
+    const action = isRepair ? 'Repair' : 'Sell/Buyback';
+
+    return {
+        url: imageUrl, // Required: The URL of the image
+        caption: `${action} ${model} (Brussels)`, // Optional: Caption
+        title: `${action} ${model} - Belmobile.be`, // Optional: Title
+        license: 'https://belmobile.be/license' // Optional: License
+    };
+};
+
+// Helper to get static page image from SEO_CONTENT
+const getStaticPageImage = (pageId: string) => {
+    // Mapping page IDs to SEO_CONTENT keys
+    const mapping: Record<string, string> = {
+        'repair-home': 'repair_step1',
+        'buyback-home': 'buyback_step1',
+        'business': 'buyback_step1', // Fallback
+        'about': 'repair_step1', // Fallback
+    };
+
+    // Direct match or mapped match
+    const key = mapping[pageId] || pageId;
+    const content = SEO_CONTENT[key];
+
+    if (content?.image) {
+        // Ensure absolute URL
+        const imgUrl = content.image.startsWith('http')
+            ? content.image
+            : `${BASE_URL}${content.image}`;
+
+        return {
+            url: imgUrl,
+            title: content.title,
+            caption: content.text.substring(0, 150) // Truncate caption
+        };
+    }
+    return undefined;
+};
+
 /**
  * ELITE SEO SITEMAP GENERATOR
- * Includes multilingual alternates, brand silos, and prioritized weighting.
+ * Includes multilingual alternates, brand silos, prioritized weighting, and IMAGE METADATA.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const sitemapEntries: MetadataRoute.Sitemap = [];
-    const lastmodStatic = new Date('2026-01-11').toISOString(); // Stable date for authority pages
+    const sitemapEntries: any[] = [];
+    const lastmodStatic = new Date('2026-01-12').toISOString(); // Stable date for authority pages
 
     try {
         // 1. Static Pages (High Priority Infrastructure)
@@ -48,9 +98,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ];
 
         pages.forEach(page => {
+            const staticImage = getStaticPageImage(page.id);
+
             LANGUAGES.forEach(lang => {
                 const relSlug = page.slugs[lang];
-                sitemapEntries.push({
+                const entry: any = {
                     url: `${BASE_URL}/${lang}${relSlug ? '/' + relSlug : ''}`,
                     lastModified: lastmodStatic,
                     changeFrequency: page.changeFreq as any,
@@ -60,7 +112,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                             LANGUAGES.map(l => [l, `${BASE_URL}/${l}${page.slugs[l] ? '/' + page.slugs[l] : ''}`])
                         )
                     }
-                });
+                };
+                if (staticImage) entry.images = [staticImage]; // Inject static image
+                sitemapEntries.push(entry);
             });
         });
 
@@ -129,6 +183,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const masterMap = new Map(MASTER_DEVICE_LIST.map(d => [d.id, d]));
 
         const uniqueBrands = new Set<string>();
+        const brandCategorySilos = new Set<string>(); // "apple-smartphone", "samsung-tablet" etc.
+
         const repairPath = STATIC_SLUG_MAPPINGS.repair;
         const buybackPath = STATIC_SLUG_MAPPINGS.buyback;
 
@@ -143,17 +199,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
             // Priority Logic: Check Master List for 'releaseYear'
             const masterData = masterMap.get(deviceId);
-            // High Priority if 2023+ (Master) OR if it matches keywords (Legacy DB items)
-            const isLatest = (masterData?.releaseYear || 0) >= 2023;
-            // Fallback for DB-only items: 0.8 default, 1.0 if new
+            if (masterData?.type) {
+                brandCategorySilos.add(`${brand}|${masterData.type}`);
+            }
+
+            // High Priority if 2021+ (Lowered from 2023 to include iPhone 13, S21 etc)
+            const isLatest = (masterData?.releaseYear || 0) >= 2021;
             const priority = isLatest ? 1.0 : 0.8;
 
-            LANGUAGES.forEach(lang => {
-                const repUrl = `${BASE_URL}/${lang}/${repairPath[lang]}/${brand}/${model}`.toLowerCase();
+            // Get Image Data
+            const repImage = getSitemapImage(deviceId, true);
+            const buyImage = getSitemapImage(deviceId, false);
 
-                // Repair Model
-                sitemapEntries.push({
-                    url: repUrl,
+            LANGUAGES.forEach(lang => {
+                const repBase = `${BASE_URL}/${lang}/${repairPath[lang]}/${brand}/${model}`.toLowerCase();
+                const buyBase = `${BASE_URL}/${lang}/${buybackPath[lang]}/${brand}/${model}`.toLowerCase();
+
+                // 4.1 Repair Model
+                const repEntry: any = {
+                    url: repBase,
                     lastModified: lastmodStatic,
                     changeFrequency: 'weekly',
                     priority: priority,
@@ -162,11 +226,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                             LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${repairPath[l]}/${brand}/${model}`.toLowerCase()])
                         )
                     }
-                });
+                };
+                if (repImage) repEntry.images = [repImage]; // Inject image
+                sitemapEntries.push(repEntry);
 
-                // Buyback Model
-                sitemapEntries.push({
-                    url: `${BASE_URL}/${lang}/${buybackPath[lang]}/${brand}/${model}`.toLowerCase(),
+                // 4.2 Buyback Model
+                const buyEntry: any = {
+                    url: buyBase,
                     lastModified: lastmodStatic,
                     changeFrequency: 'weekly',
                     priority: priority,
@@ -175,15 +241,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                             LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${buybackPath[l]}/${brand}/${model}`.toLowerCase()])
                         )
                     }
-                });
+                };
+                if (buyImage) buyEntry.images = [buyImage]; // Inject image
+                sitemapEntries.push(buyEntry);
 
-                // Local Optimized Landing Pages (Only for Top Tier Devices)
-                // We limit this expansion to Priority devices to avoid sitemap bloat (500 devices * 4 locs * 4 langs = 8000 URLs)
+                // 4.3 Local Optimized Landing Pages (Neighborhood Authority)
                 if (isLatest) {
                     for (const location of LOCATIONS) {
                         const locSlug = location.slugs[lang];
+
+                        // Local Repair
                         sitemapEntries.push({
-                            url: `${repUrl}/${locSlug}`.toLowerCase(),
+                            url: `${repBase}/${locSlug}`.toLowerCase(),
                             lastModified: lastmodStatic,
                             changeFrequency: 'monthly',
                             priority: 0.9,
@@ -196,13 +265,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                                 )
                             }
                         });
+
+                        // Local Buyback
+                        sitemapEntries.push({
+                            url: `${buyBase}/${locSlug}`.toLowerCase(),
+                            lastModified: lastmodStatic,
+                            changeFrequency: 'monthly',
+                            priority: 0.9,
+                            alternates: {
+                                languages: Object.fromEntries(
+                                    LANGUAGES.map(l => [
+                                        l,
+                                        `${BASE_URL}/${l}/${buybackPath[l]}/${brand}/${model}/${location.slugs[l]}`.toLowerCase()
+                                    ])
+                                )
+                            }
+                        });
                     }
                 }
             });
         }
 
-
-        // 5. Brand Silos (The "Authority" Headers)
+        // 5. Brand Silos & Category Silos (The "Authority" Headers)
         uniqueBrands.forEach(brand => {
             LANGUAGES.forEach(lang => {
                 // Repair Brand
@@ -226,6 +310,84 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                     alternates: {
                         languages: Object.fromEntries(
                             LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${buybackPath[l]}/${brand}`.toLowerCase()])
+                        )
+                    }
+                });
+            });
+        });
+
+        // 6. Brand-Category Silos
+        brandCategorySilos.forEach(siloKey => {
+            const [brand, catId] = siloKey.split('|');
+            const category = DEVICE_TYPES.find((d: any) => d.id === catId);
+            if (!category) return;
+
+            LANGUAGES.forEach(lang => {
+                const catSlug = category.aliases?.[0] || category.id;
+
+                // Repair Brand Category
+                sitemapEntries.push({
+                    url: `${BASE_URL}/${lang}/${repairPath[lang]}/${brand}/${catSlug}`.toLowerCase(),
+                    lastModified: lastmodStatic,
+                    changeFrequency: 'weekly',
+                    priority: 0.8,
+                    alternates: {
+                        languages: Object.fromEntries(
+                            LANGUAGES.map(l => {
+                                const lCat = DEVICE_TYPES.find((d: any) => d.id === catId);
+                                const lSlug = lCat?.aliases?.[0] || catId;
+                                return [l, `${BASE_URL}/${l}/${repairPath[l]}/${brand}/${lSlug}`.toLowerCase()];
+                            })
+                        )
+                    }
+                });
+
+                // Buyback Brand Category
+                sitemapEntries.push({
+                    url: `${BASE_URL}/${lang}/${buybackPath[lang]}/${brand}/${catSlug}`.toLowerCase(),
+                    lastModified: lastmodStatic,
+                    changeFrequency: 'weekly',
+                    priority: 0.8,
+                    alternates: {
+                        languages: Object.fromEntries(
+                            LANGUAGES.map(l => {
+                                const lCat = DEVICE_TYPES.find((d: any) => d.id === catId);
+                                const lSlug = lCat?.aliases?.[0] || catId;
+                                return [l, `${BASE_URL}/${l}/${buybackPath[l]}/${brand}/${lSlug}`.toLowerCase()];
+                            })
+                        )
+                    }
+                });
+            });
+        });
+
+        // 7. Local Service Silos
+        LOCATIONS.forEach(loc => {
+            LANGUAGES.forEach(lang => {
+                const locSlug = loc.slugs[lang];
+
+                // Local Repair Service page
+                sitemapEntries.push({
+                    url: `${BASE_URL}/${lang}/${repairPath[lang]}/${locSlug}`.toLowerCase(),
+                    lastModified: lastmodStatic,
+                    changeFrequency: 'weekly',
+                    priority: 0.9,
+                    alternates: {
+                        languages: Object.fromEntries(
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${repairPath[l]}/${loc.slugs[l]}`.toLowerCase()])
+                        )
+                    }
+                });
+
+                // Local Buyback Service page
+                sitemapEntries.push({
+                    url: `${BASE_URL}/${lang}/${buybackPath[lang]}/${locSlug}`.toLowerCase(),
+                    lastModified: lastmodStatic,
+                    changeFrequency: 'weekly',
+                    priority: 0.9,
+                    alternates: {
+                        languages: Object.fromEntries(
+                            LANGUAGES.map(l => [l, `${BASE_URL}/${l}/${buybackPath[l]}/${loc.slugs[l]}`.toLowerCase()])
                         )
                     }
                 });

@@ -18,6 +18,7 @@ export default async function RepairPage({
     const partnerId = typeof resolvedSearchParams?.partnerId === 'string' ? resolvedSearchParams.partnerId : undefined;
     const initialBrand = typeof resolvedSearchParams?.brand === 'string' ? resolvedSearchParams.brand : undefined;
     const initialModel = typeof resolvedSearchParams?.model === 'string' ? resolvedSearchParams.model : undefined;
+    const initialCategory = typeof resolvedSearchParams?.category === 'string' ? resolvedSearchParams.category : undefined;
 
     // Handle Magic Link Resume
     const resumeId = typeof resolvedSearchParams?.resume === 'string' ? resolvedSearchParams.resume : undefined;
@@ -42,6 +43,7 @@ export default async function RepairPage({
                     <BuybackRepair
                         type="repair"
                         initialDevice={initialDevice}
+                        initialCategory={initialCategory}
                         isWidget={false}
                         hideStep1Title={false}
                         initialWizardProps={{

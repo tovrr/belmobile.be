@@ -86,13 +86,27 @@ const DEVICES = [
     { name: 'iPhone SE (2022)', slug: 'apple-iphone-se-2022' },
     { name: 'iPhone SE (2020)', slug: 'apple-iphone-se-2020' },
 
-    // --- Samsung ---
+    // --- Samsung S-Series ---
+    { name: 'Galaxy S25 Ultra', slug: 'samsung-galaxy-s25-ultra' },
+    { name: 'Galaxy S25+', slug: 'samsung-galaxy-s25-plus' },
+    { name: 'Galaxy S25', slug: 'samsung-galaxy-s25' },
     { name: 'Galaxy S24 Ultra', slug: 'samsung-galaxy-s24-ultra', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-ultra-5g-sm-s928-stylus.jpg' },
     { name: 'Galaxy S24+', slug: 'samsung-galaxy-s24-plus', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-plus-5g-sm-s926.jpg' },
     { name: 'Galaxy S24', slug: 'samsung-galaxy-s24', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-5g-sm-s921.jpg' },
     { name: 'Galaxy S24 FE', slug: 'samsung-galaxy-s24-fe', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/samsung-galaxy-s24-fe-r1.jpg' },
     { name: 'Galaxy S23 Ultra', slug: 'samsung-galaxy-s23-ultra-5g' },
     { name: 'Galaxy S22 Ultra', slug: 'samsung-galaxy-s22-ultra-5g' },
+    { name: 'Galaxy S21 Ultra 5G', slug: 'samsung-galaxy-s21-ultra-5g' },
+    { name: 'Galaxy S21+ 5G', slug: 'samsung-galaxy-s21-plus-5g' },
+    { name: 'Galaxy S21 5G', slug: 'samsung-galaxy-s21-5g' },
+    { name: 'Galaxy S21 FE 5G', slug: 'samsung-galaxy-s21-fe-5g' },
+
+    // --- Samsung A-Series ---
+    { name: 'Galaxy A55', slug: 'samsung-galaxy-a55' },
+    { name: 'Galaxy A54', slug: 'samsung-galaxy-a54' },
+    { name: 'Galaxy A35', slug: 'samsung-galaxy-a35' },
+    { name: 'Galaxy A15', slug: 'samsung-galaxy-a15' },
+    { name: 'Galaxy A14', slug: 'samsung-galaxy-a14' },
 
     // --- Google ---
     { name: 'Pixel 9 Pro Fold', slug: 'google-pixel-9-pro-fold', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-9-pro-fold-.jpg' },
@@ -101,11 +115,23 @@ const DEVICES = [
     { name: 'Pixel 9', slug: 'google-pixel-9', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-9-.jpg' },
     { name: 'Pixel Fold', slug: 'google-pixel-fold', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/google-pixel-fold.jpg' },
 
+    // --- Gaming Consoles ---
+    { name: 'PS5 Pro', slug: 'sony-playstation-5-pro', customUrl: 'https://gmedia.playstation.com/is/image/SIEPDC/ps5-pro-image-block-01-en-05sep24?$1600px$' },
+    { name: 'PS5 Slim', slug: 'sony-playstation-5-slim', customUrl: 'https://m.media-amazon.com/images/I/510uTHyDqGL._SL1500_.jpg' },
+    { name: 'Xbox Series X', slug: 'microsoft-xbox-series-x', customUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/44/Xbox_Series_X_Console.png' },
+    { name: 'Xbox Series S', slug: 'microsoft-xbox-series-s', customUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/ab/Xbox_Series_S_Console.png' },
+    { name: 'Nintendo Switch OLED', slug: 'nintendo-switch-oled', customUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Nintendo_Switch_OLED.png' },
+    { name: 'Nintendo Switch Lite', slug: 'nintendo-switch-lite', customUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/Nintendo_Switch_Lite_%28turquoise%29_-_1.jpg' },
+
     // --- iPads ---
     { name: 'iPad Pro 13 (2024)', slug: 'apple-ipad-pro-13-(2024)' },
     { name: 'iPad Pro 11 (2024)', slug: 'apple-ipad-pro-11-(2024)' },
     { name: 'iPad Air 13 (2024)', slug: 'apple-ipad-air-13-(2024)' },
     { name: 'iPad Air 11 (2024)', slug: 'apple-ipad-air-11-(2024)' },
+    { name: 'iPad Pro 12.9 (2022)', slug: 'apple-ipad-pro-12-9-2022', customUrl: 'https://fdn2.gsmarena.com/vv/bigpic/apple-ipad-pro-129-2022.jpg' },
+    { name: 'iPad Pro 11 (2022)', slug: 'apple-ipad-pro-11-2022' },
+    { name: 'iPad Air (2022)', slug: 'apple-ipad-air-2022' },
+    { name: 'iPad Mini (2021)', slug: 'apple-ipad-mini-2021' },
 ];
 
 const DOWNLOADED_ASSETS = [];
@@ -252,9 +278,18 @@ async function updateMapping() {
 
     content += `\n    // --- SMART ALIASES (Convenience) ---\n`;
     DOWNLOADED_ASSETS.forEach(asset => {
-        const shortSlug = asset.slug.replace(/^(apple|samsung|google)-/, '').replace(/-5g$/, '');
+        const shortSlug = asset.slug.replace(/^(apple|samsung|google|sony|microsoft|nintendo)-/, '').replace(/-5g$/, '');
         if (shortSlug !== asset.slug) {
             content += `    '${shortSlug}': '${asset.path}',\n`;
+        }
+        // Custom console abbreviations
+        if (asset.slug.includes('playstation-5')) {
+            const ps5Slug = asset.slug.replace('sony-playstation-5', 'ps5');
+            if (ps5Slug !== asset.slug) content += `    '${ps5Slug}': '${asset.path}',\n`;
+        }
+        if (asset.slug.includes('xbox-series')) {
+            const xboxSlug = asset.slug.replace('microsoft-xbox-series-', 'xbox-');
+            if (xboxSlug !== asset.slug) content += `    '${xboxSlug}': '${asset.path}',\n`;
         }
         // Handle parenthesis in iPads for mapping
         const cleanSlug = asset.slug.replace(/\(/g, '').replace(/\)/g, '').replace(/ /g, '-').toLowerCase();

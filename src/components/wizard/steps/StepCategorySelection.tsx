@@ -398,7 +398,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                                     className={`object-contain p-2 transition-all duration-300 ${state.deviceType === dt.id ? (type === 'buyback' ? 'brightness-0' : 'brightness-0 invert') : 'opacity-60 dark:invert dark:opacity-80 group-hover:opacity-100 group-hover:scale-110'}`}
                                 />
                             </div>
-                            <span className={`font-bold text-gray-900 dark:text-white transition-colors ${state.deviceType !== dt.id ? 'group-hover:text-bel-yellow' : ''}`}>{t(dt.label)}</span>
+                            <span className={`font-bold text-gray-900 dark:text-white transition-colors ${state.deviceType !== dt.id ? (type === 'buyback' ? 'group-hover:text-bel-yellow' : 'group-hover:text-bel-blue') : ''}`}>{t(dt.label)}</span>
                         </button>
                     ))}
                 </div>

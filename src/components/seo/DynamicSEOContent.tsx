@@ -214,20 +214,28 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
         if (priceQuote && isRepair) {
             const { repair } = priceQuote;
             const startPrice = repair.screen_generic || repair.screen_original || repair.screen_oled || repair.battery || 60;
+            const productBrand = brand ? slugToDisplayName(brand) : 'Belmobile';
 
             schemas.push({
                 "@context": "https://schema.org",
                 "@type": "Product",
                 "name": `${lang === 'fr' ? 'Réparation' : (lang === 'nl' ? 'Reparatie' : 'Repair')} ${deviceName}`,
                 "description": getDescription(),
-                "image": priceQuote.deviceImage || undefined,
+                "image": priceQuote.deviceImage || `https://belmobile.be/images/devices/${createSlug(brand || 'smartphone')}.png`,
+                "brand": {
+                    "@type": "Brand",
+                    "name": productBrand
+                },
+                "sku": `REP-${createSlug(brand || '')}-${createSlug(model || '')}`,
+                "mpn": `MPN-${createSlug(model || '')}`,
                 "offers": {
                     "@type": "Offer",
                     "url": `https://belmobile.be/${lang}/${lang === 'fr' ? 'reparation' : (lang === 'nl' ? 'reparatie' : (lang === 'tr' ? 'onarim' : 'repair'))}/${createSlug(brand || '')}/${createSlug(model || '')}`,
                     "priceCurrency": "EUR",
-                    "price": Number(startPrice),
+                    "price": Number(startPrice).toFixed(2),
                     "availability": "https://schema.org/InStock",
                     "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+                    "itemCondition": "https://schema.org/UsedCondition",
                     "seller": {
                         "@type": "LocalBusiness",
                         "name": "Belmobile"
@@ -236,19 +244,27 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
             });
         } else if (priceQuote && !isRepair) {
             const { buyback } = priceQuote;
+            const productBrand = brand ? slugToDisplayName(brand) : 'Belmobile';
+
             schemas.push({
                 "@context": "https://schema.org",
                 "@type": "Product",
-                "name": `${lang === 'fr' ? 'Rachat' : (lang === 'nl' ? 'Inkoop' : 'Buyback')} ${deviceName}`,
+                "name": `${lang === 'fr' ? 'Rachat' : (lang === 'nl' ? 'Inkoop' : 'Buyback')} ${deviceName} Cash`,
                 "description": getDescription(),
-                "image": priceQuote.deviceImage || undefined,
+                "image": priceQuote.deviceImage || `https://belmobile.be/images/devices/${createSlug(brand || 'smartphone')}.png`,
+                "brand": {
+                    "@type": "Brand",
+                    "name": productBrand
+                },
+                "sku": `BB-${createSlug(brand || '')}-${createSlug(model || '')}`,
                 "offers": {
                     "@type": "Offer",
                     "url": `https://belmobile.be/${lang}/${lang === 'fr' ? 'rachat' : (lang === 'nl' ? 'inkoop' : (lang === 'tr' ? 'geri-alim' : 'buyback'))}/${createSlug(brand || '')}/${createSlug(model || '')}`,
                     "priceCurrency": "EUR",
-                    "price": Number(buyback.maxPrice),
+                    "price": Number(buyback.maxPrice).toFixed(2),
                     "availability": "https://schema.org/InStock",
                     "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+                    "itemCondition": "https://schema.org/UsedCondition",
                     "seller": {
                         "@type": "LocalBusiness",
                         "name": "Belmobile"

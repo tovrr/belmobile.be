@@ -18,9 +18,10 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang, brand } = await params;
     const decodedParam = decodeURIComponent(brand).toLowerCase();
-    const isCategory = DEVICE_TYPES.some(dt => dt.id === decodedParam);
+    const matchedCategory = DEVICE_TYPES.find(dt => dt.id === decodedParam || dt.aliases?.includes(decodedParam));
+    const isCategory = !!matchedCategory;
 
-    const deviceName = isCategory ? decodedParam : decodedParam.replace(/-/g, ' ');
+    const deviceName = isCategory ? (matchedCategory?.id || decodedParam) : decodedParam.replace(/-/g, ' ');
     const { durationText, issuesText } = getDeviceContext(deviceName, lang as any);
 
     const title = getSEOTitle({
@@ -64,15 +65,16 @@ export default async function RepairBrandOrCategoryPage({
 
     const decodedParam = decodeURIComponent(brand).toLowerCase();
 
-    // COLLISION FIX: Distinguish Category vs Brand
-    const isCategory = DEVICE_TYPES.some(dt => dt.id === decodedParam);
+    // COLLISION FIX: Distinguish Category vs Brand (Check IDs AND Aliases)
+    const matchedCategory = DEVICE_TYPES.find(dt => dt.id === decodedParam || dt.aliases?.includes(decodedParam));
+    const isCategory = !!matchedCategory;
 
     let initialDevice = undefined;
     let initialCategory = undefined;
     let startStep = 2;
 
     if (isCategory) {
-        initialCategory = decodedParam;
+        initialCategory = matchedCategory?.id; // Normalize to main ID
         // If category is known, pass it so wizard filters by type
     } else {
         initialDevice = {

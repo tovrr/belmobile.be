@@ -1,14 +1,15 @@
 ﻿'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useShop } from '../../hooks/useShop';
 import { useData } from '../../hooks/useData';
 import { useLanguage } from '../../hooks/useLanguage';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 
 import { AnimatePresence } from 'framer-motion';
 import { createSlug } from '../../utils/slugs';
+import { findDefaultBrandCategory } from '../../utils/deviceLogic';
 import { WizardProvider, useWizard } from '../../context/WizardContext';
 import { useWizardActions } from '../../hooks/useWizardActions';
 import { useWizardPricing } from '../../hooks/useWizardPricing';
@@ -62,8 +63,10 @@ interface BuybackRepairProps {
     isKiosk?: boolean;
 }
 
-const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, hideStep1Title, initialCategory }) => {
+const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, hideStep1Title, initialCategory, initialWizardProps }) => {
     const { state, dispatch } = useWizard();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     const {
         step, isTransitioning, isLoadingData,
@@ -100,46 +103,30 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
+        // AEGIS: Skip recovery if we have deep link props to avoid state collision
+        if (initialWizardProps?.selectedBrand || initialWizardProps?.selectedModel) {
+            console.log('[Wizard] Deep link detected. Skipping session recovery.');
+            return;
+        }
+
         const recoveryData = sessionStorage.getItem('belmobile_recovery_state');
         if (recoveryData) {
             try {
                 const hydratedState = JSON.parse(recoveryData);
-
-                // SAFETY: If URL defines a category, and session differs, DISCARD session to avoid mixing flows
                 if (initialCategory && hydratedState.deviceType !== initialCategory) {
-                    console.warn('[Recovery] URL Category Mismatch. Clearing stale session.');
                     sessionStorage.removeItem('belmobile_recovery_state');
                     return;
                 }
-
-                // Clean up to prevent re-hydrating on refresh
                 sessionStorage.removeItem('belmobile_recovery_state');
-
-                // SANITIZE: Prevent restoring invalid brands (poisoned state fix)
-                if (hydratedState.selectedBrand) {
-                    const { createSlug } = require('../../utils/slugs');
-                    const slug = createSlug(hydratedState.selectedBrand);
-                    const blocked = ['smartphone', 'smartphones', 'tablet', 'tablets', 'laptop', 'laptops', 'smartwatch', 'smartwatches', 'console', 'consoles', 'console-home', 'console-portable'];
-                    if (blocked.includes(slug)) {
-                        console.warn('[Recovery] Sanitizing invalid brand:', hydratedState.selectedBrand);
-                        hydratedState.selectedBrand = '';
-                        if (hydratedState.step > 2) hydratedState.step = 2;
-                    }
-                }
-
-                // Nuclear Hydration
                 dispatch({
                     type: 'HYDRATE',
-                    payload: {
-                        ...hydratedState,
-                        isInitialized: true,
-                    }
+                    payload: { ...hydratedState, isInitialized: true }
                 });
             } catch (e) {
                 console.error('Failed to parse recovery state', e);
             }
         }
-    }, [dispatch, initialCategory]);
+    }, [dispatch, initialCategory, initialWizardProps]);
 
     // SANITY CHECK: Detect and Fix Bad "Category-as-Brand" State
     useEffect(() => {
@@ -159,11 +146,22 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
 
     // SANITY CHECK: Ensure we have a Category if we are at Step 2
     useEffect(() => {
+        // Only run if initialized to avoid race condition with hydration
+        if (!state.isInitialized) return;
+
         if (step === 2 && !deviceType) {
-            console.warn("Fixing bad state: Step 2 without deviceType. Redirecting to Step 1.");
+            console.warn("[Wizard] Step 2 without deviceType. Fixing...");
+            if (selectedBrand) {
+                const { findDefaultBrandCategory } = require('../../utils/deviceLogic');
+                const match = findDefaultBrandCategory(createSlug(selectedBrand));
+                if (match) {
+                    dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: match.deviceType } });
+                    return;
+                }
+            }
             dispatch({ type: 'SET_STEP', payload: 1 });
         }
-    }, [step, deviceType, dispatch]);
+    }, [step, deviceType, selectedBrand, state.isInitialized, dispatch]);
 
     // Sync Shop
     useEffect(() => {
@@ -177,17 +175,58 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     useEffect(() => {
         if (initialCategory && initialCategory !== state.deviceType) {
             dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: initialCategory } });
-        } else if (!initialCategory && !state.deviceType && state.selectedBrand) {
-            // INFERENCE LOGIC: If we have a brand but no category (e.g. /repair/apple),
-            // infer the default category (e.g. smartphone) so models load correctly.
-            const { findDefaultBrandCategory } = require('../../utils/deviceLogic');
-            const defaultMatch = findDefaultBrandCategory(createSlug(state.selectedBrand));
-            if (defaultMatch) {
-                // console.log(`[BuybackRepair] Inferred category '${defaultMatch.deviceType}' for brand '${state.selectedBrand}'`);
-                dispatch({ type: 'SET_DEVICE_INFO', payload: { deviceType: defaultMatch.deviceType } });
-            }
         }
-    }, [initialCategory, dispatch, state.deviceType, state.selectedBrand]);
+    }, [initialCategory, dispatch, state.deviceType]);
+
+    // BREADCRUMB / URL SYNC: Ensure state matches props on navigation (e.g. Back button)
+    const lastSyncedPath = useRef('');
+    useEffect(() => {
+        if (!state.isInitialized) return;
+
+        const currentPath = pathname + searchParams.toString();
+        // If the URL hasn't changed since our last sync, we don't sync.
+        // This is critical: internal wizard interaction (like clicking model) changes state but NOT the URL immediately in state,
+        // so we must not let it trigger a hydration from the base URL props.
+        if (lastSyncedPath.current === currentPath) return;
+
+        const urlBrand = initialWizardProps?.selectedBrand || '';
+        const urlModel = initialWizardProps?.selectedModel || '';
+        const urlStep = initialWizardProps?.step || 1;
+        const urlCategory = initialWizardProps?.deviceType || initialCategory || '';
+
+        // Strategic Sync: Only when major mismatch (manual nav / back button)
+        // We compare against the state to see if the URL suggests we moved back or jumped
+        const stepMismatch = urlStep !== state.step;
+        const brandMismatch = urlBrand !== state.selectedBrand && urlBrand !== '';
+
+        if (stepMismatch || brandMismatch || (urlStep === 1 && state.step > 1)) {
+            console.log('[WizardSync] Navigation sync triggered:', { urlStep, urlBrand, fromStep: state.step });
+            dispatch({
+                type: 'HYDRATE',
+                payload: {
+                    selectedBrand: urlBrand,
+                    selectedModel: urlModel,
+                    step: urlStep,
+                    deviceType: urlCategory || state.deviceType
+                }
+            });
+        } else if (state.step === 1 && urlStep >= 2) {
+            // IRONCLAD FAILSAFE: If state says Step 1 but URL props say Step 2+, force upgrade.
+            // This catches cases where the first render might have missed the initialProps.
+            console.log('[WizardSync] Failsafe: Forcing Step upgrade based on URL', { urlStep });
+            dispatch({
+                type: 'HYDRATE',
+                payload: {
+                    selectedBrand: urlBrand,
+                    selectedModel: urlModel,
+                    step: urlStep,
+                    deviceType: urlCategory || state.deviceType
+                }
+            });
+        }
+
+        lastSyncedPath.current = currentPath;
+    }, [pathname, searchParams, initialWizardProps, initialCategory, state.isInitialized, state.step, state.selectedBrand, state.selectedModel, state.deviceType, dispatch]);
 
     // Data Loading
     useEffect(() => {
@@ -198,28 +237,12 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
 
     // Initial Pricing Load (Deep Link Fix)
     useEffect(() => {
-        // --- CLIENT-SIDE REDIRECT FIX (PlayStation 5) ---
-        // Force redirect from generic PS5 to "Disc" edition to bypass browser cache issues
         if (selectedBrand === 'Sony' && selectedModel === 'Playstation 5') {
             let slug = 'repair';
             if (language === 'fr') slug = 'reparation';
             if (language === 'nl') slug = 'reparatie';
             if (language === 'tr') slug = 'onarim';
-
-            const newPath = `/${language}/${slug}/sony/playstation-5-disc`;
-            router.replace(newPath);
-            return;
-        }
-
-        // --- CLIENT-SIDE REDIRECT FIX (Nintendo 3DS) ---
-        if (typeof window !== 'undefined' && window.location.pathname.includes('reparation-3ds-2ds-xl-bruxelles')) {
-            let slug = 'repair';
-            if (language === 'fr') slug = 'reparation';
-            if (language === 'nl') slug = 'reparatie';
-            if (language === 'tr') slug = 'onarim';
-
-            const newPath = `/${language}/${slug}/nintendo/new-3ds-xl`;
-            router.replace(newPath);
+            router.replace(`/${language}/${slug}/sony/playstation-5-disc`);
             return;
         }
 
@@ -230,7 +253,6 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     }, []); // Run ONCE on mount
 
     // Calculate next disabled for mobile bottom bar
-    const isAppleSmartphone = selectedBrand?.toLowerCase() === 'apple' && (deviceType === 'smartphone' || deviceType === 'tablet');
     let nextDisabled = false;
     let nextLabel = t('Next');
 
@@ -242,28 +264,13 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
             nextDisabled = !storage || turnsOn === null;
             if (turnsOn !== false) {
                 nextDisabled = nextDisabled || worksCorrectly === null;
-
-                // Smartphone specific checks
-                if (deviceType === 'smartphone') {
-                    nextDisabled = nextDisabled || isUnlocked === null;
-                }
-
-                // Apple specific checks
-                if (isAppleSmartphone) {
-                    nextDisabled = nextDisabled || !batteryHealth || faceIdWorking === null;
-                }
-
-                // Console specific checks
-                if (isHomeConsole && (controllerCount === null || controllerCount === undefined)) {
-                    nextDisabled = true;
-                }
+                if (deviceType === 'smartphone') nextDisabled = nextDisabled || isUnlocked === null;
+                if (isAppleSmartphone) nextDisabled = nextDisabled || !batteryHealth || faceIdWorking === null;
+                if (isHomeConsole && (controllerCount === null || controllerCount === undefined)) nextDisabled = true;
             }
         } else {
             nextDisabled = repairIssues.length === 0;
-            // Also logic from StepCondition repair:
-            if (!repairIssues.includes('other')) {
-                nextLabel = t("Start Repair");
-            }
+            if (!repairIssues.includes('other')) nextLabel = t("Start Repair");
         }
     } else if (step === 2) {
         nextDisabled = !selectedBrand || !selectedModel;
@@ -294,8 +301,6 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
             handleNext();
         }
     }
-
-
 
     // --- KIOSK SUCCESS STATE ---
     if (state.isKiosk && state.kioskSuccessData) {
@@ -402,7 +407,6 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
                 </div>
             )}
 
-            {/* APOLLO ENGINE: Mobile Controls */}
             {!state.isWidget && (
                 (step === 2 && selectedModel) ||
                 (step >= 3)
@@ -437,21 +441,64 @@ const BuybackRepair: React.FC<BuybackRepairProps> = (props) => {
     const searchParams = useSearchParams();
     const partnerId = searchParams.get('partnerId') || props.initialWizardProps?.partnerId || '';
 
-    return (
-        <WizardProvider initialProps={{
+    // AEGIS: Robust initial step calculation (Stable on reloads)
+    const effectiveStep = useMemo(() => {
+        if (props.initialWizardProps?.step) return props.initialWizardProps.step;
+
+        const hasModel = props.initialDevice?.model;
+        const brand = props.initialWizardProps?.selectedBrand || props.initialDevice?.brand || '';
+        let category = props.initialWizardProps?.deviceType || props.initialCategory || '';
+
+        // Inference: If Brand exists but Category is missing, try to infer it
+        if (!category && brand) {
+            const match = findDefaultBrandCategory(createSlug(brand));
+            if (match) category = match.deviceType;
+        }
+
+        const hasBrandOrCat = brand || category;
+
+        // If it's a model page (except for broad families like 'iphone')
+        if (hasModel && !['iphone', 'ipad', 'galaxy', 'pixels', 'switch'].includes(hasModel.toLowerCase())) {
+            return 3;
+        }
+
+        // Only proceed to Step 2 if we have a Category (Explicit or Inferred)
+        // A Brand alone is not enough if we can't map it to a category (grid will be empty)
+        if (category) return 2;
+
+        return 1;
+    }, [props.initialWizardProps?.step, props.initialWizardProps?.selectedBrand, props.initialWizardProps?.deviceType, props.initialDevice?.model, props.initialDevice?.brand, props.initialCategory]);
+
+    // Memoize effective props to prevent unnecessary re-renders
+    const effectiveProps = useMemo(() => {
+        const brand = props.initialWizardProps?.selectedBrand || props.initialDevice?.brand || '';
+        const model = props.initialWizardProps?.selectedModel || props.initialDevice?.model || '';
+        let cat = props.initialWizardProps?.deviceType || props.initialCategory || '';
+
+        // Sync Inference: Ensure state has a category if brand is present
+        if (!cat && brand) {
+            const match = findDefaultBrandCategory(createSlug(brand));
+            if (match) cat = match.deviceType;
+        }
+
+        return {
             ...props.initialWizardProps,
-            deviceType: props.initialWizardProps?.deviceType || props.initialCategory || '',
-            selectedBrand: props.initialWizardProps?.selectedBrand || props.initialDevice?.brand || '',
-            selectedModel: props.initialWizardProps?.selectedModel || props.initialDevice?.model || '',
+            deviceType: cat,
+            selectedBrand: brand,
+            selectedModel: model,
             customerEmail: props.initialWizardProps?.customerEmail || '',
             partnerId: partnerId,
             isWidget: props.isWidget || false,
             isKiosk: props.isKiosk || false,
-            isInitialized: !!props.initialWizardProps, // Mark as initialized if we have props (hydration)
-            step: props.initialWizardProps?.step || ((props.initialDevice?.model && !['iphone', 'ipad', 'galaxy', 'pixels', 'switch'].includes(props.initialDevice.model.toLowerCase())) ? 3 : (props.initialDevice?.brand || props.initialCategory ? 2 : 1))
-        }}>
+            isInitialized: true,
+            step: effectiveStep
+        };
+    }, [props.initialWizardProps, props.initialCategory, props.initialDevice, props.isWidget, props.isKiosk, partnerId, effectiveStep]);
+
+    return (
+        <WizardProvider initialProps={effectiveProps}>
             <ToastProvider>
-                <BuybackRepairInner {...props} />
+                <BuybackRepairInner {...props} initialWizardProps={effectiveProps} />
             </ToastProvider>
         </WizardProvider>
     );

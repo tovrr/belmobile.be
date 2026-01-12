@@ -19,7 +19,8 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { lang, brand } = await params;
     const decodedParam = decodeURIComponent(brand).toLowerCase();
-    const isCategory = DEVICE_TYPES.some(dt => dt.id === decodedParam);
+    const matchedCategory = DEVICE_TYPES.find(dt => dt.id === decodedParam || dt.aliases?.includes(decodedParam));
+    const isCategory = !!matchedCategory;
 
     const title = getSEOTitle({
         isRepair: false,
@@ -58,15 +59,16 @@ export default async function BuybackBrandOrCategoryPage({
 
     const decodedParam = decodeURIComponent(brand).toLowerCase();
 
-    // COLLISION FIX: Distinguish Category vs Brand
-    const isCategory = DEVICE_TYPES.some(dt => dt.id === decodedParam);
+    // COLLISION FIX: Distinguish Category vs Brand (Check IDs AND Aliases)
+    const matchedCategory = DEVICE_TYPES.find(dt => dt.id === decodedParam || dt.aliases?.includes(decodedParam));
+    const isCategory = !!matchedCategory;
 
     let initialDevice = undefined;
     let initialCategory = undefined;
     let startStep = 2;
 
     if (isCategory) {
-        initialCategory = decodedParam;
+        initialCategory = matchedCategory?.id; // Normalize to main ID (e.g. 'smartphones' -> 'smartphone')
     } else {
         initialDevice = {
             brand: decodedParam.replace(/-/g, ' '),
