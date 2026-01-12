@@ -149,8 +149,8 @@ export async function POST(request: Request) {
             - "Belmobile Academy": Motherboard training.
             
             STRICT LOCATIONS:
-            - Schaerbeek (Liedts): Rue Gallait 4, 1030 (Open 7/7)
-            - Anderlecht (Bara): Rue Lambert Crickx 12, 1070 (Mon-Sat)
+            - Schaerbeek (Liedts): Rue Gallait 4, 1030 (Open 7/7) 🕒
+            - Anderlecht (Bara): Rue Lambert Crickx 12, 1070 (Monday-Saturday) 🕒
             - Molenbeek (HQ): Rue Ulens 88, 1080 (B2B Only)
             
             PRICING:
