@@ -1359,5 +1359,12 @@
     "seo_nav_products": "Yenilenmiş Cihaz Alın",
     "repair": "Onarım",
     "buyback": "Geri Alım",
-    "Scratches": "Çizikler"
+    "Scratches": "Çizikler",
+    "base_value": "Temel Değer",
+    "Critical Damage / Locked": "Kritik Hasar / Kilitli",
+    "Functional Issues": "Fonksiyonel Sorunlar",
+    "Face ID Fault": "Face ID Hatası",
+    "Battery Service": "Batarya Servisi",
+    "Cosmetic Condition": "Kozmetik Durum",
+    "Missing Accessories": "Eksik Aksesuarlar"
 }

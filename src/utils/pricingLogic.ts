@@ -223,8 +223,25 @@ export const calculateRepairPriceShared = (params: PricingParams, data: PricingD
 
     params.repairIssues.forEach(issueId => {
         if (issueId === 'screen') {
-            const quality = params.selectedScreenQuality || 'generic';
-            const price = repairPrices[`screen_${quality}`] ?? repairPrices['screen_generic'] ?? 0;
+            const quality = params.selectedScreenQuality;
+
+            // If explicit quality selected, use it.
+            // If not, use the CHEAPEST available option to show "Starting From" price logic.
+            let price = 0;
+
+            if (quality) {
+                price = repairPrices[`screen_${quality}`] ?? 0;
+            } else {
+                const candidates = [
+                    repairPrices['screen_generic'],
+                    repairPrices['screen_original'],
+                    repairPrices['screen_oled'],
+                    repairPrices['screen']
+                ].filter(p => typeof p === 'number' && p > 0);
+
+                if (candidates.length > 0) price = Math.min(...candidates);
+            }
+
             if (price > 0) total += price;
             else if (price === 0) isValid = false;
         } else if (issueId === 'battery') {

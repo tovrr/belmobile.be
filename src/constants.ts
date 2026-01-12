@@ -177,17 +177,17 @@ export const SEO_CONTENT: Record<string, { title: string; text: string; image: s
     buyback_step1: {
         title: "Sell Your Device for the Best Price",
         text: "Belmobile offers the highest buyback rates in Belgium. Whether it's an iPhone, Samsung, or MacBook, get an instant quote and fast payment. We recycle responsibly and give your device a second life.",
-        image: "/images/hero_phone_bg.png"
+        image: "/images/hero_phone_bg.webp"
     },
     repair_step1: {
         title: "Expert Repair Services",
         text: "Broken screen? Battery draining fast? Our certified technicians use premium parts to restore your device to perfect condition. Most repairs are done in under 30 minutes.",
-        image: "/images/bento/repair_bg.png"
+        image: "/images/bento/repair_bg.webp"
     },
     buyback_smartphone: {
         title: "Sell Your Smartphone",
         text: "Upgrade to the latest model by selling your old smartphone. We accept all major brands including Apple, Samsung, Xiaomi, and more. Best price guaranteed.",
-        image: "/images/hero_phone_bg.png"
+        image: "/images/hero_phone_bg.webp"
     },
     repair_smartphone: {
         title: "Smartphone Repair Specialists",

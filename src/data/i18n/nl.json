@@ -1037,7 +1037,6 @@
     "Request Received!": "Aanvraag Ontvangen!",
     "success_description": "Bedankt! Uw aanvraag is succesvol ingediend. Volg de volgende stappen hieronder.",
     "Thank you. We have received your request and will contact you shortly.": "Bedankt. We hebben uw aanvraag ontvangen en nemen snel contact op.",
-    "Cosmetic Condition": "Uiterlijke Staat",
     "What needs fixing?": "Wat moet er gerepareerd worden?",
     "Smartphone": "Smartphone",
     "Tablet": "Tablet",
@@ -1754,5 +1753,12 @@
     "google_rating_value": "4.9/5",
     "Sustainability": "Duurzaamheid",
     "repair_in_city": "Reparatie in {0}",
-    "experts_nearby": "Onze experts zijn dichtbij."
+    "experts_nearby": "Onze experts zijn dichtbij.",
+    "base_value": "Basiswaarde",
+    "Critical Damage / Locked": "Kritieke schade / Vergrendeld",
+    "Functional Issues": "Functionele problemen",
+    "Face ID Fault": "Face ID defect",
+    "Battery Service": "Batterij onderhoud",
+    "Cosmetic Condition": "Cosmetische staat",
+    "Missing Accessories": "Ontbrekende accessoires"
 }

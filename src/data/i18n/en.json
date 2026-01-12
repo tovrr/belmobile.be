@@ -979,7 +979,6 @@
     "Request Received!": "Request Received!",
     "success_description": "Thank you! Your request has been submitted successfully. Please follow the next steps below.",
     "Thank you. We have received your request and will contact you shortly.": "Thank you. We have received your request and will contact you shortly.",
-    "Cosmetic Condition": "Cosmetic Condition",
     "What needs fixing?": "What needs fixing?",
     "Smartphone": "Smartphone",
     "Tablet": "Tablet",
@@ -1716,5 +1715,12 @@
     "Search...": "Search...",
     "Sustainability": "Sustainability",
     "repair_in_city": "Repair in {0}",
-    "experts_nearby": "Our experts are nearby."
+    "experts_nearby": "Our experts are nearby.",
+    "base_value": "Base Value",
+    "Critical Damage / Locked": "Critical Damage / Locked",
+    "Functional Issues": "Functional Issues",
+    "Face ID Fault": "Face ID Fault",
+    "Battery Service": "Battery Service",
+    "Cosmetic Condition": "Cosmetic Condition",
+    "Missing Accessories": "Missing Accessories"
 }

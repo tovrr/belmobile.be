@@ -32,7 +32,7 @@ export interface WizardQuoteResponse {
     breakdown: {
         basePrice?: number;
         deductions?: { label: string; amount: number }[];
-        repairs?: { label: string; amount: number }[];
+        repairs?: { id: string; label: string; amount: number }[];
     };
     success: boolean;
     error?: string;
@@ -115,10 +115,11 @@ export async function getWizardQuote(request: WizardQuoteRequest): Promise<Wizar
                 }
 
                 return {
+                    id: id,
                     label: localizedDict[id] || id,
                     amount: amount
                 };
-            }).filter(i => i.amount > 0);
+            }).filter(i => i.amount >= 0);
 
             breakdown = {
                 repairs,

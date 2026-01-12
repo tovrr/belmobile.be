@@ -255,6 +255,7 @@
     "instant_cash": "Cash Immédiat",
     "eco_friendly": "Éco-responsable",
     "no_results_found": "Aucun résultat trouvé pour",
+    "calculating_details": "Calcul du devis...",
     "Track Order": "Suivre ma commande",
     "courier_meta_title": "Réparation Express par Coursier à Bruxelles | Belmobile",
     "courier_meta_description": "Réparation GSM le jour même avec notre service de coursier express à Bruxelles. Enlèvement gratuit à Tour & Taxis et dans tout Bruxelles pour 15€.",
@@ -1054,7 +1055,6 @@
     "Request Received!": "Demande Reçue !",
     "success_description": "Merci ! Votre demande a été soumise avec succès. Veuillez suivre les étapes ci-dessous.",
     "Thank you. We have received your request and will contact you shortly.": "Merci. Nous avons bien reçu votre demande et vous contacterons sous peu.",
-    "Cosmetic Condition": "État Cosmétique",
     "What needs fixing?": "Quel est le problème ?",
     "Smartphone": "Smartphone",
     "Tablet": "Tablette",
@@ -1654,7 +1654,6 @@
     "or_select_manually": "Ou sélectionnez manuellement",
     "Evaluate My Device": "Évaluer mon appareil",
     "Estimate Repair": "Estimer la réparation",
-    "on_request": "sur devis",
     "How do you want to get it?": "Comment souhaitez-vous l'obtenir ?",
     "In-Store Pickup": "Retrait en Magasin",
     "Home Delivery": "Livraison à Domicile",
@@ -1774,5 +1773,13 @@
     "avg_repair_time_value": "30 Min",
     "google_rating_value": "4.9/5",
     "repair_in_city": "Réparation à {0}",
-    "experts_nearby": "Nos experts sont à proximité."
+    "experts_nearby": "Nos experts sont à proximité.",
+    "base_value": "Valeur de base",
+    "Critical Damage / Locked": "Dommages critiques / Verrouillé",
+    "Functional Issues": "Problèmes fonctionnels",
+    "Face ID Fault": "Défaut Face ID",
+    "Battery Service": "Entretien batterie",
+    "Cosmetic Condition": "État esthétique",
+    "Missing Accessories": "Accessoires manquants",
+    "on_request": "Sur devis"
 }

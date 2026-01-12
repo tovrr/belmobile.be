@@ -21,7 +21,7 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export const useWizardPricing = (type: 'buyback' | 'repair') => {
     const { state, dispatch } = useWizard();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     // Local State for Server Price
     const [serverPrice, setServerPrice] = useState<number>(0);
@@ -58,14 +58,14 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
             isUnlocked: isUnlocked ?? undefined,
             controllerCount: controllerCount ?? undefined,
             selectedScreenQuality: selectedScreenQuality || undefined,
-            language: t('current_lang_code') as any || 'fr' // Assuming t can return lang code or we use useLanguage hook's language prop
+            language: language as any || 'fr'
         };
     }, [
         selectedBrand, selectedModel, repairIssues, storage,
         turnsOn, worksCorrectly, screenState, bodyState,
         batteryHealth, faceIdWorking, isUnlocked, controllerCount,
         selectedScreenQuality,
-        type, t
+        type, t, language
     ]);
 
     const debouncedPayload = useDebounce(requestPayload, 300);
@@ -140,7 +140,9 @@ export const useWizardPricing = (type: 'buyback' | 'repair') => {
     const { repairPrices: dynamicRepairPrices } = state.pricingData;
 
     const getSingleIssuePrice = useCallback((issueId: string) => {
-        if (!state.deviceType || !state.selectedBrand || !state.selectedModel) return null;
+        // AEGIS FIX: Fallback to smartphone if deviceType is missing to preventing pricing lockout
+        const currentDeviceType = state.deviceType || 'smartphone';
+        if (!currentDeviceType || !state.selectedBrand || !state.selectedModel) return null; // Wait for core data
         if (dynamicRepairPrices) {
             if (issueId === 'screen') {
                 const p: number[] = [];

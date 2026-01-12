@@ -51,7 +51,7 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
     const brands = (DEVICE_BRANDS as Record<string, string[]>)[normalizedType] ||
         (DEVICE_BRANDS as Record<string, string[]>)[deviceType] || [];
     const nextDisabled = !selectedBrand || !selectedModel;
-    const availableModels = modelsData && modelsData[deviceType] ? Object.keys(modelsData[deviceType]) : [];
+    const availableModels = modelsData && modelsData[normalizedType] ? Object.keys(modelsData[normalizedType]) : [];
 
     const ringColor = type === 'buyback' ? 'ring-yellow-500/30' : 'ring-bel-blue/30';
 
@@ -115,7 +115,7 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                             <button
                                 key={brand}
                                 onClick={() => onBrandClick(brand)}
-                                className={`group py-4 px-4 rounded-ui font-bold text-sm transition-all flex flex-col items-center justify-center gap-3 h-32 active-press ${selectedBrand === brand
+                                className={`group py-4 px-4 rounded-ui font-bold text-sm transition-all flex flex-col items-center justify-center gap-3 h-32 active-press ${selectedBrand?.toLowerCase() === brand.toLowerCase()
                                     ? (type === 'buyback'
                                         ? 'bg-bel-yellow text-gray-900 shadow-lg shadow-yellow-500/20 dark:shadow-none'
                                         : 'bg-[#6366F1] text-white shadow-lg shadow-indigo-500/20 dark:shadow-none')
@@ -136,7 +136,7 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                                             {...(index < 4 ? { fetchPriority: "high" } : {})}
                                             placeholder="blur"
                                             blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(48, 48))}`}
-                                            className={`object-contain transition-all duration-300 ${selectedBrand === brand
+                                            className={`object-contain transition-all duration-300 ${selectedBrand?.toLowerCase() === brand.toLowerCase()
                                                 ? 'brightness-0 invert'
                                                 : 'opacity-40 grayscale dark:invert dark:opacity-60 group-hover:opacity-100 group-hover:grayscale-0'
                                                 }`}

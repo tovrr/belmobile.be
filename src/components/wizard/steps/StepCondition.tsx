@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import { ChevronLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import Sidebar from '../Sidebar';
-import { REPAIR_ISSUES } from '../../../constants';
+import { REPAIR_ISSUES } from '../../../data/repair-issues';
 import { getRepairProfileForModel } from '../../../config/repair-profiles';
 import { useWizard } from '../../../context/WizardContext';
 import { getDeviceContext } from '../../../utils/seoHelpers';
@@ -408,10 +408,16 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                         {REPAIR_ISSUES.filter(issue => {
+                            // SAFEGUARD: Defaults
+                            const currentType = deviceType || 'smartphone';
+                            const currentBrand = selectedBrand?.toLowerCase() || '';
+
                             // 1. Initial Filtering (Device, Brand, Prices, etc.)
-                            if (issue.devices && !issue.devices.includes(deviceType)) return false;
-                            const brand = selectedBrand?.toLowerCase();
-                            if (issue.brands && !issue.brands.some(b => b.toLowerCase() === brand)) return false;
+                            if (issue.devices && !issue.devices.includes(currentType)) return false;
+
+                            if (issue.brands && issue.brands.length > 0) {
+                                if (currentBrand && !issue.brands.some(b => b.toLowerCase() === currentBrand)) return false;
+                            }
 
                             // 2. Category Filtering
                             if (activeCategory !== 'all' && issue.category !== activeCategory) return false;
@@ -433,7 +439,9 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             const p = getSingleIssuePrice(issue.id);
                             const isHandheldScreenIssue = ['screen_upper', 'screen_bottom', 'screen_digitizer', 'screen_lcd', 'screen_component'].includes(issue.id);
                             const isHandheldDevice = deviceType === 'console_portable' || deviceType === 'tablet';
-                            const isExemptFromSoftDelete = (isFoldableIssue && isFoldableModel) || (isHandheldDevice && isHandheldScreenIssue);
+                            // AEGIS FIX: Never soft-delete core smartphone issues to ensure "Sur devis" appears for new devices (e.g. iPhone 16)
+                            const isCoreIssue = ['screen', 'battery', 'charging', 'back_glass', 'camera_rear', 'housing'].includes(issue.id);
+                            const isExemptFromSoftDelete = (isFoldableIssue && isFoldableModel) || (isHandheldDevice && isHandheldScreenIssue) || (deviceType === 'smartphone' && isCoreIssue);
                             if (typeof p === 'number' && p < 0 && !isExemptFromSoftDelete) return false;
 
                             // 5. Profile Check

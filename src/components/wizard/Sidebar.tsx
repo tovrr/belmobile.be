@@ -214,8 +214,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                                         {/* Repair Items */}
                                         {breakdown.repairs?.map((item: any, idx: number) => (
                                             <li key={`rep-${idx}`} className="flex justify-between text-gray-900 dark:text-white font-medium">
-                                                <span className="text-sm">{item.label}</span>
-                                                <span className="text-sm font-mono">{item.amount > 0 ? `€${item.amount}` : t('free')}</span>
+                                                <span className="text-sm">{t(item.label)}</span>
+                                                <span className="text-sm font-mono">{item.amount > 0 ? `€${item.amount}` : (item.id === 'other' ? t('free') : t('on_request'))}</span>
                                             </li>
                                         ))}
 
@@ -230,7 +230,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                         {/* Buyback Deductions */}
                                         {breakdown.deductions?.map((item: any, idx: number) => (
                                             <li key={`ded-${idx}`} className="flex justify-between text-gray-500 font-medium">
-                                                <span className="text-sm">{item.label}</span>
+                                                <span className="text-sm">{t(item.label)}</span>
                                                 <span className="text-sm font-mono text-red-500">-€{item.amount}</span>
                                             </li>
                                         ))}
