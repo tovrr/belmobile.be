@@ -104,7 +104,7 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                     <button
                         onClick={() => { haptic.trigger('light'); onBack(); }}
                         type="button"
-                        className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors active-press`}
+                        className="p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors active-press hover:bg-slate-200 dark:hover:bg-white/20 mr-4"
                         aria-label={t('Back')}
                     >
                         <ChevronLeftIcon className="h-6 w-6" />

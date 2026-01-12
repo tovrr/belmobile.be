@@ -400,11 +400,12 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                         <button
                             onClick={onBack}
                             type="button"
-                            className="lg:hidden p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors"
+                            className="p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors active-press hover:bg-slate-200 dark:hover:bg-white/20"
                             aria-label={t('Back')}
                         >
                             <ChevronLeftIcon className="h-6 w-6" />
                         </button>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('Device Condition')}</h2>
                         {/* SPLIT VIEW (Smartphones/Tablets) vs UNIFIED VIEW (Consoles/Laptops) */}
                         {!['console_home', 'laptop'].includes(deviceType) ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -563,11 +564,11 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                         <div>
                             {!isKiosk && (
                                 <>
-                                    <div className="flex items-center gap-2 mb-8">
+                                    <div className="flex items-center gap-4 mb-8">
                                         <button
                                             onClick={() => { haptic.trigger('light'); onBack(); }}
                                             type="button"
-                                            className="lg:hidden p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-white transition-colors active-press"
+                                            className="p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors active-press hover:bg-slate-200 dark:hover:bg-white/20"
                                             aria-label={t('Back')}
                                         >
                                             <ChevronLeftIcon className="h-6 w-6" />
