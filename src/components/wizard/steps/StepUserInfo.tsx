@@ -895,8 +895,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                     variant={type === 'buyback' ? 'buyback' : 'default'}
                                 />
                                 <Input
-                                    label={t('contact_phone')}
-                                    required
+                                    label={`${t('contact_phone')} (${t('optional')})`}
+                                    required={false}
                                     name="phone"
                                     type="tel"
                                     autoComplete="tel"
