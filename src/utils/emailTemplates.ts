@@ -79,9 +79,44 @@ const LAYOUT = (content: string, lang: string, trackingUrl: string, trackButton:
 `;
 
 export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' | 'nl' | 'tr') => {
-    const trackingUrl = `https://belmobile.be/${lang}/track-order?id=${id}&email=${encodeURIComponent(quote.customerEmail)}`;
+    const trackingUrl = `https://belmobile.be/${lang}/track-order?id=${id}&token=${quote.trackingToken || ''}`;
 
-    const subjects: Record<string, string> = {
+    const statusSubjects: Record<string, Record<string, string>> = {
+        en: {
+            ready: `🎉 Your device is ready! - Order #${id.substring(0, 8).toUpperCase()}`,
+            shipped: `🚚 Order Dispatched - #${id.substring(0, 8).toUpperCase()}`,
+            issue: `⚠️ Important Update - Order #${id.substring(0, 8).toUpperCase()}`,
+            cancelled: `🚫 Order Cancelled - #${id.substring(0, 8).toUpperCase()}`,
+            received: `📍 Device Received - #${id.substring(0, 8).toUpperCase()}`,
+            paid: `✅ Payment Confirmed - #${id.substring(0, 8).toUpperCase()}`
+        },
+        fr: {
+            ready: `🎉 Votre appareil est prêt ! - Commande #${id.substring(0, 8).toUpperCase()}`,
+            shipped: `🚚 Commande Expédiée - #${id.substring(0, 8).toUpperCase()}`,
+            issue: `⚠️ Mise à jour Importante - Commande #${id.substring(0, 8).toUpperCase()}`,
+            cancelled: `🚫 Commande Annulée - #${id.substring(0, 8).toUpperCase()}`,
+            received: `📍 Appareil Reçu - #${id.substring(0, 8).toUpperCase()}`,
+            paid: `✅ Paiement Confirmé - #${id.substring(0, 8).toUpperCase()}`
+        },
+        nl: {
+            ready: `🎉 Uw toestel is klaar! - Bestelling #${id.substring(0, 8).toUpperCase()}`,
+            shipped: `🚚 Bestelling Verzonden - #${id.substring(0, 8).toUpperCase()}`,
+            issue: `⚠️ Belangrijke Update - Bestelling #${id.substring(0, 8).toUpperCase()}`,
+            cancelled: `🚫 Bestelling Geannuleerd - #${id.substring(0, 8).toUpperCase()}`,
+            received: `📍 Toestel Ontvangen - #${id.substring(0, 8).toUpperCase()}`,
+            paid: `✅ Betaling Bevestigd - #${id.substring(0, 8).toUpperCase()}`
+        },
+        tr: {
+            ready: `🎉 Cihazınız hazır! - Sipariş #${id.substring(0, 8).toUpperCase()}`,
+            shipped: `🚚 Sipariş Gönderildi - #${id.substring(0, 8).toUpperCase()}`,
+            issue: `⚠️ Önemli Güncelleme - Sipariş #${id.substring(0, 8).toUpperCase()}`,
+            cancelled: `🚫 Sipariş İptal Edildi - #${id.substring(0, 8).toUpperCase()}`,
+            received: `📍 Cihaz Alındı - #${id.substring(0, 8).toUpperCase()}`,
+            paid: `✅ Ödeme Onaylandı - #${id.substring(0, 8).toUpperCase()}`
+        }
+    };
+
+    const genericSubjects: Record<string, string> = {
         en: `📦 Update: Order #${id.substring(0, 8).toUpperCase()}`,
         fr: `📦 Suivi : Commande #${id.substring(0, 8).toUpperCase()}`,
         nl: `📦 Status : Bestelling #${id.substring(0, 8).toUpperCase()}`,
@@ -99,7 +134,9 @@ export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' 
         en: {
             new: '👋 We have received your request and will process it shortly. Thanks for choosing us!',
             pending_drop: '📥 Your order is confirmed! Please drop off your device at the selected shop whenever you\'re ready.',
+            received: '📍 Device Received! Your device has safely arrived at our workshop.',
             in_diagnostic: '🔍 Our technicians have received your device and are currently performing a complete diagnostic.',
+            verified: '👍 Quote Verified! Our technicians have confirmed the quote details.',
             waiting_parts: '⏳ Needs a little patience! We are currently waiting for specific parts to complete your repair perfectly.',
             in_repair: '🛠️ Work in progress! Your device is currently in the hands of our experts.',
             repaired: '✅ Great news! Your device has been successfully repaired and is working like new.',
@@ -107,13 +144,21 @@ export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' 
             shipped: '🚚 On its way! Your order has been shipped. Track it using the link below.',
             processing: '⚙️ We are processing your order with care.',
             responded: '📬 We have responded to your request. Please check your tracking page.',
+            payment_queued: '💳 Payment Scheduled! Your payment has been approved and queued for transfer.',
+            invoiced: '📄 Invoice Available! An invoice for your order has been generated.',
+            paid: '💸 Payment Confirmed! We have received or sent your payment successfully.',
             payment_sent: '💸 Money sent! We have transferred the payment for your device. It should arrive shortly.',
+            completed: '🏁 Order Completed! Thank you for choosing Belmobile.',
+            cancelled: '🚫 Order Cancelled. Your order has been cancelled. Contact us if this is a mistake.',
+            issue: '⚠️ Action Required. We encountered an issue with your order. Please contact support.',
             closed: '📂 Your order is now closed. Thank you for trusting Belmobile!'
         },
         fr: {
             new: '👋 Nous avons bien reçu votre demande et la traiterons sous peu. Merci de votre confiance !',
             pending_drop: '📥 Votre commande est confirmée ! Vous pouvez déposer votre appareil au magasin choisi quand vous le souhaitez.',
+            received: '📍 Appareil Bien Reçu ! Votre appareil est bien arrivé dans notre atelier.',
             in_diagnostic: '🔍 Nos techniciens ont bien reçu votre appareil et effectuent actuellement un diagnostic complet.',
+            verified: '👍 Devis Vérifié ! Nos techniciens ont confirmé les détails du devis.',
             waiting_parts: '⏳ Un peu de patience ! Nous attendons actuellement des pièces spécifiques pour une réparation parfaite.',
             in_repair: '🛠️ Au travail ! Votre appareil est actuellement entre les mains de nos experts.',
             repaired: '✅ Bonne nouvelle ! Votre appareil a été réparé avec succès et fonctionne comme neuf.',
@@ -121,13 +166,21 @@ export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' 
             shipped: '🚚 En route ! Votre commande a été expédiée. Suivez-la via le lien ci-dessous.',
             processing: '⚙️ Nous traitons votre commande avec soin.',
             responded: '📬 Nous avons répondu à votre demande. Vérifiez votre page de suivi.',
+            payment_queued: '💳 Paiement Programmé ! Votre paiement a été approuvé et mis en file d\'attente.',
+            invoiced: '📄 Facture Disponible ! Une facture pour votre commande a été générée.',
+            paid: '💸 Paiement Confirmé ! Nous avons reçu ou envoyé votre paiement avec succès.',
             payment_sent: '💸 Paiement envoyé ! Nous avons effectué le virement pour votre appareil. Il devrait arriver sous peu.',
+            completed: '🏁 Commande Terminée ! Merci d\'avoir choisi Belmobile.',
+            cancelled: '🚫 Commande Annulée. Votre commande a été annulée. Contactez-nous en cas d\'erreur.',
+            issue: '⚠️ Action Requise. Nous avons rencontré un problème avec votre commande. Veuillez contacter le support.',
             closed: '📂 Votre commande est maintenant clôturée. Merci d\'avoir choisi Belmobile !'
         },
         nl: {
             new: '👋 We hebben uw aanvraag ontvangen en zullen deze spoedig behandelen. Bedankt voor uw vertrouwen!',
             pending_drop: '📥 Uw bestelling is bevestigd! U kunt uw toestel afgeven in de gekozen winkel wanneer u maar wilt.',
+            received: '📍 Toestel Ontvangen! Uw apparaat is veilig aangekomen in onze werkplaats.',
             in_diagnostic: '🔍 Onze technici hebben uw toestel ontvangen en voeren momenteel een volledige diagnose uit.',
+            verified: '👍 Offerte Geverifieerd! Onze technici hebben de offertedetails bevestigd.',
             waiting_parts: '⏳ Even geduld! We wachten momenteel op specifieke onderdelen om uw reparatie perfect uit te voeren.',
             in_repair: '🛠️ Aan het werk! Uw apparaat is momenteel in handen van onze experts.',
             repaired: '✅ Goed nieuws! Uw apparaat is succesvol gerepareerd en werkt weer als nieuw.',
@@ -135,13 +188,21 @@ export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' 
             shipped: '🚚 Onderweg! Uw bestelling is verzonden. Volg het via de onderstaande link.',
             processing: '⚙️ We verwerken uw bestelling met zorg.',
             responded: '📬 We hebben gereageerd op uw aanvraag. Controleer uw volgpagina.',
+            payment_queued: '💳 Betaling Ingepland! Uw betaling is goedgekeurd en klaar voor overschrijving.',
+            invoiced: '📄 Factuur Beschikbaar! Er is een factuur voor uw bestelling aangemaakt.',
+            paid: '💸 Betaling Bevestigd! We hebben uw betaling succesvol ontvangen of verzonden.',
             payment_sent: '💸 Betaling verzonden! We hebben de betaling voor uw apparaat uitgevoerd. Het komt er snel aan.',
+            completed: '🏁 Bestelling Voltooid! Bedankt dat u voor Belmobile hebt gekozen.',
+            cancelled: '🚫 Bestelling Geannuleerd. Uw bestelling is geannuleerd. Neem contact op als dit een vergissing is.',
+            issue: '⚠️ Actie Vereist. Er is een probleem met uw bestelling. Neem contact op met de klantenservice.',
             closed: '📂 Uw bestelling is nu afgerond. Bedankt dat u voor Belmobile hebt gekozen!'
         },
         tr: {
             new: '👋 Talebinizi aldık ve kısa süre içinde işleme koyacağız. Bizi seçtiğiniz için teşekkürler!',
             pending_drop: '📥 Siparişiniz onaylandı! Hazır olduğunuzda cihazınızı seçtiğiniz mağazaya bırakabilirsiniz.',
+            received: '📍 Cihaz Alındı! Cihazınız atölyemize güvenle ulaştı.',
             in_diagnostic: '🔍 Teknisyenlerimiz cihazınızı teslim aldı ve şu anda tam bir arıza tespiti yapıyor.',
+            verified: '👍 Teklif Onaylandı! Teknisyenlerimiz teklif ayrıntılarını doğruladı.',
             waiting_parts: '⏳ Biraz sabır gerekiyor! Onarımınızı mükemmel bir şekilde tamamlamak için şu anda belirli parçaları bekliyoruz.',
             in_repair: '🛠️ İşlem devam ediyor! Cihazınız şu anda uzmanlarımızın ellerinde.',
             repaired: '✅ Harika haber! Cihazınız başarıyla onarıldı ve yeni gibi çalışıyor.',
@@ -149,7 +210,13 @@ export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' 
             shipped: '🚚 Yola çıktı! Siparişiniz kargoya verildi. Aşağıdaki bağlantıyı kullanarak takip edebilirsiniz.',
             processing: '⚙️ Siparişinizi özenle işliyoruz.',
             responded: '📬 Talebinize yanıt verdik. Lütfen takip sayfanızı kontrol edin.',
+            payment_queued: '💳 Ödeme Planlandı! Ödemeniz onaylandı ve transfer sırasına alındı.',
+            invoiced: '📄 Fatura Hazır! Siparişiniz için bir fatura oluşturuldu.',
+            paid: '💸 Ödeme Onaylandı! Ödemenizi başarıyla aldık veya gönderdik.',
             payment_sent: '💸 Ödeme gönderildi! Cihazınızın ödemesini transfer ettik. Kısa süre içinde ulaşacaktır.',
+            completed: '🏁 Sipariş Tamamlandı! Belmobile\'a güvendiğiniz için teşekkürler.',
+            cancelled: '🚫 Sipariş İptal Edildi. Siparişiniz iptal edildi. Bir hata olduğunu düşünüyorsanız bize ulaşın.',
+            issue: '⚠️ İşlem Gerekiyor. Siparişinizle ilgili bir sorun oluştu. Lütfen destek ekibiyle iletişime geçin.',
             closed: '📂 Siparişiniz kapatıldı. Belmobile\'a güvendiğiniz için teşekkürler!'
         }
     };
@@ -166,7 +233,10 @@ export const getQuoteStatusEmail = (quote: Quote, id: string, lang: 'en' | 'fr' 
         </p>
     `;
 
-    return { subject: subjects[lang] || subjects['en'], html: LAYOUT(content, lang, trackingUrl, trackButton, id) };
+    const specificSubject = statusSubjects[lang]?.[quote.status] || statusSubjects['en']?.[quote.status];
+    const genericSubject = genericSubjects[lang] || genericSubjects['en'];
+
+    return { subject: specificSubject || genericSubject, html: LAYOUT(content, lang, trackingUrl, trackButton, id) };
 };
 
 export const getPaymentReceivedEmail = (reservation: Reservation, lang: 'en' | 'fr' | 'nl' | 'tr') => {
