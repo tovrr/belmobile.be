@@ -90,37 +90,17 @@ const TrackOrder: React.FC<TrackOrderProps> = ({ initialData }) => {
         try {
             // 1. TOKEN AUTHENTICATION (Priority)
             if (targetToken) {
-                // If we have a token, we bypass email check and fetch directly
-                let foundDoc: any = null;
-                let docType: 'repair' | 'buyback' | 'reservation' = 'repair';
+                // If we have a token, we bypass email check and fetch via Secure API
+                const response = await fetch('/api/orders/track', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: targetToken })
+                });
 
-                // Search Quotes
-                const qQuotes = query(collection(db, 'quotes'), where('trackingToken', '==', targetToken));
-                const snapQuotes = await getDocs(qQuotes);
+                if (response.ok) {
+                    const data = await response.json();
 
-                if (!snapQuotes.empty) {
-                    foundDoc = snapQuotes.docs[0];
-                    docType = foundDoc.data().type || 'repair';
-                } else {
-                    // Search Reservations
-                    const qRes = query(collection(db, 'reservations'), where('trackingToken', '==', targetToken));
-                    const snapRes = await getDocs(qRes);
-                    if (!snapRes.empty) {
-                        foundDoc = snapRes.docs[0];
-                        docType = 'reservation';
-                    }
-                }
-
-                if (foundDoc) {
-                    const data = foundDoc.data();
-                    // Optional: Verify ID matches if provided (for extra safety)
-                    // if (data.orderId !== targetId) ...
-
-                    setStatus({
-                        ...data,
-                        id: foundDoc.id,
-                        type: docType
-                    } as TrackableItem);
+                    setStatus(data as TrackableItem);
 
                     // Success celebration
                     if (isSuccess && !celebratedRef.current) {

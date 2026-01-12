@@ -170,15 +170,15 @@ const Breadcrumbs: React.FC = () => {
             />
 
             <div className="w-full max-w-6xl mx-auto px-6">
-                <ol className="flex items-center space-x-2 py-3 text-sm">
-                    <li>
+                <ol className="flex items-center space-x-2 py-3 text-sm overflow-x-auto whitespace-nowrap no-scrollbar">
+                    <li className="shrink-0">
                         <Link href={`/${language}`} className="text-gray-500 dark:text-gray-400 hover:text-bel-blue dark:hover:text-blue-400 flex items-center transition-colors">
                             <HomeIcon className="h-4 w-4 mr-1.5" aria-hidden="true" />
                             <span className="sr-only">Home</span>
                         </Link>
                     </li>
                     {crumbs.map((crumb) => (
-                        <li key={crumb.url} className="flex items-center">
+                        <li key={crumb.url} className="flex items-center shrink-0">
                             <ChevronRightIcon className="h-4 w-4 text-gray-400 dark:text-gray-600" aria-hidden="true" />
                             <Link
                                 href={crumb.url}

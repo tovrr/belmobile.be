@@ -150,7 +150,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
             {!hideStep1Title && (
                 <div className="text-center mb-12">
 
-                    <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight flex flex-col items-center sm:block">
+                    <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight flex flex-wrap justify-center items-center gap-x-3">
                         <span className="sr-only">
                             {type === 'buyback'
                                 ? "Sell Your Smartphone, Tablet, or Laptop at the Best Price"
@@ -159,7 +159,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                         {/* Conditional Rendering for Turkish Grammar (Object + Verb) */}
                         {useLanguage().language === 'tr' ? (
                             <>
-                                <span aria-hidden="true" className={`${type === 'buyback' ? 'text-bel-yellow drop-shadow-sm' : 'text-bel-blue'} mb-2 sm:mb-0 sm:mr-3 relative inline-flex justify-start min-h-[1.2em] align-top`}>
+                                <span aria-hidden="true" className={`${type === 'buyback' ? 'text-bel-yellow drop-shadow-sm' : 'text-bel-blue'} relative inline-flex justify-start min-h-[1.2em] align-top`}>
                                     <TypewriterInput
                                         phrases={[
                                             t('typewriter_1'),
@@ -180,7 +180,7 @@ export const StepCategorySelection: React.FC<StepCategorySelectionProps> = memo(
                                 <span aria-hidden="true">
                                     {type === 'buyback' ? t('wizard_action_sell') : t('wizard_action_repair')}
                                 </span>
-                                <span aria-hidden="true" className={`${type === 'buyback' ? 'text-bel-yellow drop-shadow-sm' : 'text-bel-blue'} mt-2 sm:mt-0 sm:ml-3 relative inline-flex justify-start min-h-[1.2em] align-top`}>
+                                <span aria-hidden="true" className={`${type === 'buyback' ? 'text-bel-yellow drop-shadow-sm' : 'text-bel-blue'} relative inline-flex justify-start min-h-[1.2em] align-top`}>
                                     <TypewriterInput
                                         phrases={[
                                             t('typewriter_1'),

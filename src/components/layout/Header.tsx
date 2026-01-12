@@ -131,7 +131,9 @@ const Header: React.FC = () => {
                         <nav className="hidden lg:flex items-center space-x-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-full p-1 border border-white/10 backdrop-blur-sm">
                             {NAV_LINKS.map(link => {
                                 const href = getLocalizedPath(link.path, language as any);
-                                const isActive = pathname === href || pathname.startsWith(href + '/');
+                                // Check if active, ignoring query params
+                                const pathnameWithoutQuery = pathname.split('?')[0];
+                                const isActive = pathnameWithoutQuery === href || pathnameWithoutQuery.startsWith(href + '/');
 
                                 if (link.name === 'Business') {
                                     return (
@@ -181,7 +183,7 @@ const Header: React.FC = () => {
                                 return (
                                     <Link
                                         key={link.name}
-                                        href={href}
+                                        href={link.name === 'Buyback' || link.name === 'Repair' ? `${href}?refresh=true` : href}
                                         aria-label={t(link.name)}
                                         title={
                                             link.name === 'Products' ? t('seo_nav_products') || 'Buy Refurbished Devices' :

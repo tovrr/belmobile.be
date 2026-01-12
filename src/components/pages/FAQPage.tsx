@@ -233,8 +233,8 @@ const FAQPage: React.FC = () => {
                                         {[1, 2, 3, 4].map(i => (
                                             <div key={i} className="w-10 h-10 rounded-full border-2 border-bel-dark bg-slate-800 overflow-hidden transition-transform group-hover:translate-x-1 shadow-lg ring-2 ring-white/5">
                                                 <Image
-                                                    src={`/images/avatars/avatar_tech_${i}.png`}
-                                                    alt={t('Technician')}
+                                                    src={`/images/avatars/avatar${i}.png`}
+                                                    alt={`${t('Technician')} ${i}`}
                                                     width={40}
                                                     height={40}
                                                     className="object-cover w-full h-full"

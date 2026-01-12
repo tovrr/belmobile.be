@@ -144,6 +144,19 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         }
     }, [selectedBrand, step, dispatch]);
 
+    // Check for refresh param (e.g. when clicking header link)
+    useEffect(() => {
+        const refresh = searchParams.get('refresh');
+        if (refresh) {
+            console.log('[Wizard] Refresh signal detected. Resetting state.');
+            sessionStorage.removeItem('belmobile_recovery_state');
+            dispatch({ type: 'RESET_WIZARD' });
+            // Update URL to remove ?refresh=true without full reload
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
+        }
+    }, [searchParams, dispatch]);
+
     // SANITY CHECK: Ensure we have a Category if we are at Step 2
     useEffect(() => {
         // Only run if initialized to avoid race condition with hydration
@@ -185,14 +198,21 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
 
         const currentPath = pathname + searchParams.toString();
         // If the URL hasn't changed since our last sync, we don't sync.
-        // This is critical: internal wizard interaction (like clicking model) changes state but NOT the URL immediately in state,
-        // so we must not let it trigger a hydration from the base URL props.
         if (lastSyncedPath.current === currentPath) return;
 
         const urlBrand = initialWizardProps?.selectedBrand || '';
         const urlModel = initialWizardProps?.selectedModel || '';
         const urlStep = initialWizardProps?.step || 1;
         const urlCategory = initialWizardProps?.deviceType || initialCategory || '';
+
+        // ANTI-FLASH PROTECTION: 
+        // If we just clicked a model (internal state has values), but the URL props haven't updated yet (they are empty/default),
+        // DO NOT HYDRATE back to empty. Trust the local state.
+        if (state.selectedBrand && state.selectedModel && !urlModel) {
+            // We are "ahead" of the URL. Do nothing.
+            lastSyncedPath.current = currentPath;
+            return;
+        }
 
         // Strategic Sync: Only when major mismatch (manual nav / back button)
         // We compare against the state to see if the URL suggests we moved back or jumped
@@ -201,19 +221,6 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
 
         if (stepMismatch || brandMismatch || (urlStep === 1 && state.step > 1)) {
             console.log('[WizardSync] Navigation sync triggered:', { urlStep, urlBrand, fromStep: state.step });
-            dispatch({
-                type: 'HYDRATE',
-                payload: {
-                    selectedBrand: urlBrand,
-                    selectedModel: urlModel,
-                    step: urlStep,
-                    deviceType: urlCategory || state.deviceType
-                }
-            });
-        } else if (state.step === 1 && urlStep >= 2) {
-            // IRONCLAD FAILSAFE: If state says Step 1 but URL props say Step 2+, force upgrade.
-            // This catches cases where the first render might have missed the initialProps.
-            console.log('[WizardSync] Failsafe: Forcing Step upgrade based on URL', { urlStep });
             dispatch({
                 type: 'HYDRATE',
                 payload: {
