@@ -34,7 +34,7 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
     const haptic = useHaptic();
 
     // Actions
-    const { handleBrandSelect, handleModelSelect, handleBack, handleNext } = useWizardActions(type);
+    const { handleBrandSelect, handleModelSelect, handleBack, handleNext, loadBrandData } = useWizardActions(type);
 
     const step = state.step;
     const onBack = handleBack;
@@ -55,21 +55,27 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
 
     const ringColor = type === 'buyback' ? 'ring-yellow-500/30' : 'ring-bel-blue/30';
 
-    // Auto-scroll if brand is already selected (e.g. coming back from next step)
+    // Auto-scroll and Data Loading Fallback
     React.useEffect(() => {
-        if (selectedBrand && modelSelectRef?.current) {
-            setTimeout(() => {
-                modelSelectRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                // Add visual highlight only (no focus to prevent keyboard opening on mobile)
-                const selectElement = modelSelectRef.current?.querySelector('select');
-                if (selectElement) {
-                    selectElement.classList.add('ring-4', ringColor, 'transition-all', 'duration-500');
-                    setTimeout(() => selectElement.classList.remove('ring-4', ringColor), 1500);
-                }
-            }, 400); // Slightly longer delay to allow page transition
+        if (selectedBrand) {
+            // Fallback: Ensure data is loaded if missing
+            if (!modelsData || Object.keys(modelsData).length === 0) {
+                loadBrandData(createSlug(selectedBrand));
+            }
+
+            if (modelSelectRef?.current) {
+                setTimeout(() => {
+                    modelSelectRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const selectElement = modelSelectRef.current?.querySelector('select');
+                    if (selectElement) {
+                        selectElement.classList.add('ring-4', ringColor, 'transition-all', 'duration-500');
+                        setTimeout(() => selectElement.classList.remove('ring-4', ringColor), 1500);
+                    }
+                }, 400);
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // Only on mount
+    }, [selectedBrand]); // Reload if brand changes
 
     // Local handler to wrap the action if needed, or stick to direct usage
     const onBrandClick = (brand: string) => {

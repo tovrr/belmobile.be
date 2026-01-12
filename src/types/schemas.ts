@@ -29,7 +29,7 @@ export const ShopSchema = z.object({
 export const OrderSubmissionSchema = z.object({
     customerName: z.string().min(2),
     customerEmail: z.string().email(),
-    customerPhone: z.string().min(8),
+    customerPhone: z.string().optional(),
     customerAddress: z.string().nullable().optional(),
     customerCity: z.string().nullable().optional(),
     customerZip: z.string().nullable().optional(),

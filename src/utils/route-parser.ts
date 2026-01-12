@@ -57,7 +57,10 @@ export const parseRouteParams = (slug: string[]) => {
                 const seg2 = segments[1];
                 const foundDev = findDefaultBrandCategory(seg2);
                 if (foundDev) {
-                    device = foundDev;
+                    device = {
+                        ...foundDev,
+                        deviceType: deviceCategory || foundDev.deviceType
+                    };
                     // Note: foundDev.deviceType might differ but we enforce category from URL
                     if (segments.length > 2) {
                         deviceModel = segments[2];
