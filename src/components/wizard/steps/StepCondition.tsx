@@ -1,5 +1,5 @@
-import React, { memo, useEffect, useState } from 'react';
-import { ChevronLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import React, { memo, useEffect, useState, useRef } from 'react';
+import { ChevronLeftIcon, ChevronRightIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import Sidebar from '../Sidebar';
 import { REPAIR_ISSUES } from '../../../data/repair-issues';
 import { getRepairProfileForModel } from '../../../config/repair-profiles';
@@ -29,6 +29,19 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
     const { handleNext, handleBack } = useWizardActions(type);
     const haptic = useHaptic();
     const [activeCategory, setActiveCategory] = useState<string>('all');
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const scroll = (direction: 'left' | 'right') => {
+        if (scrollContainerRef.current) {
+            const { current } = scrollContainerRef;
+            const scrollAmount = 200;
+            if (direction === 'left') {
+                current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+    };
 
     const step = state.step;
     const onNext = handleNext;
@@ -382,15 +395,33 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                     </div>
 
                     {/* Category Selector with Scroll Arrows */}
-                    <div className="relative group mb-6">
-                        {/* Right Scroll Arrow */}
-                        <div className="absolute right-0 top-1/2 -translate-y-[calc(50%+8px)] z-20 pointer-events-none text-white animate-pulse lg:hidden">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="size-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                            </svg>
-                        </div>
+                    <div className="relative group mb-6 px-8 sm:px-10">
+                        {/* Left Scroll Arrow */}
+                        <button
+                            type="button"
+                            onClick={() => scroll('left')}
+                            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-white dark:bg-slate-800 rounded-full shadow-md border border-gray-100 dark:border-slate-700 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors active-press hidden md:flex"
+                        >
+                            <ChevronLeftIcon className="h-4 w-4" />
+                        </button>
 
-                        <div className="flex overflow-x-auto pb-4 gap-2 no-scrollbar scroll-smooth snap-x pr-8">
+                        {/* Right Scroll Arrow */}
+                        <button
+                            type="button"
+                            onClick={() => scroll('right')}
+                            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-white dark:bg-slate-800 rounded-full shadow-md border border-gray-100 dark:border-slate-700 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors active-press hidden md:flex"
+                        >
+                            <ChevronRightIcon className="h-4 w-4" />
+                        </button>
+
+                        {/* Mobile Gradient Hints */}
+                        <div className="absolute left-8 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 md:hidden pointer-events-none" />
+                        <div className="absolute right-8 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 md:hidden pointer-events-none" />
+
+                        <div
+                            ref={scrollContainerRef}
+                            className="flex overflow-x-auto pb-4 gap-2 no-scrollbar scroll-smooth snap-x"
+                        >
                             {['all', 'display', 'power', 'camera', 'body', 'technical'].map((cat) => (
                                 <button
                                     key={cat}
