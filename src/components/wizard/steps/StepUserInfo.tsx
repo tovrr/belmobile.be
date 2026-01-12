@@ -221,19 +221,19 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
 
     // SendCloud / Service Point logic
     const openServicePointPicker = () => {
-        const sendcloud = (window as any).sendcloud;
-        if (typeof window !== 'undefined' && sendcloud && sendcloud.servicePointPicker) {
-            sendcloud.servicePointPicker.open({
-                apiKey: process.env.NEXT_PUBLIC_SENDCLOUD_API_KEY || 'AIzaSyDbBU2HDNb_CravJAIbYKqsWhhbAgVBelY', // Fallback just in case
+        const sc = (window as any).sendcloud;
+        if (typeof window !== 'undefined' && sc && sc.servicePoints) {
+            sc.servicePoints.open({
+                apiKey: process.env.NEXT_PUBLIC_SENDCLOUD_API_KEY || 'pk_live_d8cc38d9-35a0-4a8d-b3ef-3617185368a4', // Correct fallback format
                 country: 'be',
-                language: 'en-us',
+                language: language === 'nl' ? 'nl-be' : (language === 'fr' ? 'fr-be' : 'en-be'),
                 onSelect: (data: any) => {
                     setServicePoint(data);
                 }
             });
         } else {
-            console.warn("SendCloud not loaded");
-            alert(t ? t('Service Point Picker is loading...') : "Service Point Picker is loading...");
+            console.warn("SendCloud library not fully loaded on window.sendcloud", { sc });
+            alert(t('Please wait, the shipping map is loading...'));
         }
     };
 
@@ -394,11 +394,11 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
     // -------------------------------------------------------------------------
     if (step === 4 && type === 'buyback') {
         return (
-            <div className="w-full mx-auto bg-transparent">
-                <div className="flex-1 min-w-0 space-y-8">
-                    <div className="flex items-center gap-2 mb-6">
+            <div className={`w-full mx-auto ${state.isWidget ? 'p-0 shadow-none border-0 bg-transparent' : ''}`}>
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-4 mb-8">
                         <button
-                            onClick={onBack}
+                            onClick={() => { haptic.trigger('light'); onBack(); }}
                             type="button"
                             className="p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors active-press hover:bg-slate-200 dark:hover:bg-white/20"
                             aria-label={t('Back')}
@@ -406,6 +406,9 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                             <ChevronLeftIcon className="h-6 w-6" />
                         </button>
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('Device Condition')}</h2>
+                    </div>
+
+                    <div className="space-y-8">
                         {/* SPLIT VIEW (Smartphones/Tablets) vs UNIFIED VIEW (Consoles/Laptops) */}
                         {!['console_home', 'laptop'].includes(deviceType) ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -950,7 +953,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         <div className={`w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all ${notificationPreferences?.includes('email') ? `${type === 'buyback' ? 'bg-bel-yellow border-bel-yellow ring-2 ring-bel-yellow/20' : 'bg-bel-blue border-bel-blue ring-2 ring-bel-blue/20'}` : 'border-white/20'}`}>
                                             {notificationPreferences?.includes('email') && <CheckIcon className={`h-4 w-4 stroke-3 ${type === 'buyback' ? 'text-gray-900' : 'text-white'}`} />}
                                         </div>
-                                        <span className={`font-black uppercase tracking-wide text-xs ${notificationPreferences?.includes('email') ? `${type === 'buyback' ? 'text-gray-900' : 'text-bel-blue'}` : 'text-gray-400'}`}>{t('Email')}</span>
+                                        <span className={`font-black uppercase tracking-wide text-xs ${notificationPreferences?.includes('email') ? `${type === 'buyback' ? 'text-gray-900 dark:text-white' : 'text-bel-blue'}` : 'text-gray-400'}`}>{t('Email')}</span>
                                     </label>
 
                                     {/* SMS (Coming Soon) */}
