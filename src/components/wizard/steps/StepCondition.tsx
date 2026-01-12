@@ -385,7 +385,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             <button
                                 onClick={() => { haptic.trigger('light'); onBack(); }}
                                 type="button"
-                                className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors active-press`}
+                                className="p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors active-press hover:bg-slate-200 dark:hover:bg-white/20"
                                 aria-label={t('Back')}
                             >
                                 <ChevronLeftIcon className="h-6 w-6" />
@@ -395,7 +395,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                     </div>
 
                     {/* Category Selector with Scroll Arrows */}
-                    <div className="relative group mb-6 px-8 sm:px-10">
+                    <div className="relative group mb-6 px-1 sm:px-10">
                         {/* Left Scroll Arrow */}
                         <button
                             type="button"
@@ -413,10 +413,6 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         >
                             <ChevronRightIcon className="h-4 w-4" />
                         </button>
-
-                        {/* Mobile Gradient Hints */}
-                        <div className="absolute left-8 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 md:hidden pointer-events-none" />
-                        <div className="absolute right-8 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 md:hidden pointer-events-none" />
 
                         <div
                             ref={scrollContainerRef}
