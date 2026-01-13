@@ -440,10 +440,10 @@ const DynamicSEOContent: React.FC<DynamicSEOContentProps> = ({
     };
 
     return (
-        <section className="w-full bg-transparent py-16 lg:py-24 transition-colors duration-300">
+        <section className="w-full bg-transparent py-8 transition-colors duration-300">
             {getJSONLDSchema()}
-            <div className="container mx-auto px-4 max-w-6xl">
-                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl p-6 lg:p-12 shadow-2xl border border-white/20 dark:border-white/10">
+            <div className="container mx-auto px-4 max-w-7xl">
+                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl p-4 lg:p-8 shadow-2xl border border-white/20 dark:border-white/10">
                     <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
                         {getTitle()}
                     </h2>

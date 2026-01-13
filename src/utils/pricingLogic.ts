@@ -218,17 +218,18 @@ export const calculateRepairPriceShared = (params: PricingParams, data: PricingD
     const { repairPrices } = data;
     if (!repairPrices || !params.repairIssues || params.repairIssues.length === 0) return 0;
 
-    let total = 0;
+    // Special Case: Diagnostic (Other) -> 0
+    if (params.repairIssues.includes('other')) return 0;
+
+    let prices: number[] = [];
     let isValid = true;
 
+    // 1. Collect all individual prices
     params.repairIssues.forEach(issueId => {
+        let price = 0;
+
         if (issueId === 'screen') {
             const quality = params.selectedScreenQuality;
-
-            // If explicit quality selected, use it.
-            // If not, use the CHEAPEST available option to show "Starting From" price logic.
-            let price = 0;
-
             if (quality) {
                 price = repairPrices[`screen_${quality}`] ?? 0;
             } else {
@@ -241,25 +242,43 @@ export const calculateRepairPriceShared = (params: PricingParams, data: PricingD
 
                 if (candidates.length > 0) price = Math.min(...candidates);
             }
-
-            if (price > 0) total += price;
-            else if (price === 0) isValid = false;
         } else if (issueId === 'battery') {
-            const price = repairPrices['battery'] ?? repairPrices['battery_original'] ?? repairPrices['battery_generic'] ?? 0;
-            if (price > 0) total += price;
-            // Don't invalidate if battery is 0, arguably? Or keep strict? 
-            // Strict: else if (price === 0) isValid = false;
-            // Let's keep strict to surface errors if data is missing.
-            else if (price === 0) isValid = false;
+            price = repairPrices['battery'] ?? repairPrices['battery_original'] ?? repairPrices['battery_generic'] ?? 0;
         } else {
-            const price = repairPrices[issueId] ?? 0;
-            if (price > 0) total += price;
-            else if (price === 0) isValid = false;
+            price = repairPrices[issueId] ?? 0;
+        }
+
+        if (price > 0) {
+            prices.push(price);
+        } else {
+            // If a required price is missing (0), the calculation is invalid
+            isValid = false;
         }
     });
 
+    if (!isValid) return 0;
+
+    // 2. Sort Descending (Highest Price First)
+    prices.sort((a, b) => b - a);
+
+    // 3. Apply Bundle Discounts
+    // 1st item: 100%
+    // 2nd item: 75% (25% off)
+    // 3rd+ item: 50% (50% off)
+    let total = 0;
+    prices.forEach((price, index) => {
+        if (index === 0) {
+            total += price;
+        } else if (index === 1) {
+            total += Math.round(price * 0.75);
+        } else {
+            total += Math.round(price * 0.50);
+        }
+    });
+
+    // 4. Add Extras (No discount on extras)
     if (params.hasHydrogel) total += EXTRAS_PRICING.HYDROGEL;
     if (params.deliveryMethod === 'courier' && params.courierTier === 'brussels') total += EXTRAS_PRICING.COURIER_BRUSSELS;
 
-    return isValid ? Math.round(total) : 0;
+    return Math.round(total);
 };

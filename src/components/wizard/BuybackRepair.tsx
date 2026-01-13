@@ -324,7 +324,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
     }
 
     return (
-        <div className={`w-full ${state.isWidget ? 'py-0' : 'pb-32'}`}>
+        <div className={`w-full ${state.isWidget ? 'py-0' : 'pb-32 lg:pb-0'}`}>
             <WizardExitIntent />
 
             <script

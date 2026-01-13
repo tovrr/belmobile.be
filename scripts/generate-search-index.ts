@@ -125,7 +125,7 @@ async function generateIndex() {
             const parts = id.split('-');
             const brand = parts[0];
             // Basic Brand Check
-            if (!['apple', 'samsung', 'google', 'xiaomi', 'oppo', 'huawei', 'oneplus'].includes(brand)) {
+            if (!['apple', 'samsung', 'google', 'xiaomi', 'oppo', 'huawei', 'oneplus', 'sony', 'microsoft', 'nintendo', 'dell', 'hp', 'lenovo', 'asus'].includes(brand)) {
                 continue;
             }
 

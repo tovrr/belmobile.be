@@ -2609,5 +2609,82 @@
     "price": 0,
     "brand": "Xiaomi",
     "model": "xiaomi 14 ultra"
+  },
+  {
+    "id": "playstation-5-pro",
+    "label": "Sony PlayStation 5 Pro",
+    "price": 0,
+    "brand": "Sony",
+    "model": "playstation 5 pro"
+  },
+  {
+    "id": "playstation-5-slim",
+    "label": "Sony PlayStation 5 Slim",
+    "price": 0,
+    "brand": "Sony",
+    "model": "playstation 5 slim"
+  },
+  {
+    "id": "playstation-5-disc",
+    "label": "Sony PlayStation 5 (Disc)",
+    "price": 0,
+    "brand": "Sony",
+    "model": "playstation 5 disc"
+  },
+  {
+    "id": "playstation-5-digital",
+    "label": "Sony PlayStation 5 (Digital)",
+    "price": 0,
+    "brand": "Sony",
+    "model": "playstation 5 digital"
+  },
+  {
+    "id": "playstation-4-pro",
+    "label": "Sony PlayStation 4 Pro",
+    "price": 0,
+    "brand": "Sony",
+    "model": "playstation 4 pro"
+  },
+  {
+    "id": "playstation-4-slim",
+    "label": "Sony PlayStation 4 Slim",
+    "price": 0,
+    "brand": "Sony",
+    "model": "playstation 4 slim"
+  },
+  {
+    "id": "nintendo-switch-oled",
+    "label": "Nintendo Switch OLED",
+    "price": 0,
+    "brand": "Nintendo",
+    "model": "switch oled"
+  },
+  {
+    "id": "nintendo-switch",
+    "label": "Nintendo Switch",
+    "price": 0,
+    "brand": "Nintendo",
+    "model": "switch"
+  },
+  {
+    "id": "nintendo-switch-lite",
+    "label": "Nintendo Switch Lite",
+    "price": 0,
+    "brand": "Nintendo",
+    "model": "switch lite"
+  },
+  {
+    "id": "xbox-series-x",
+    "label": "Microsoft Xbox Series X",
+    "price": 0,
+    "brand": "Microsoft",
+    "model": "xbox series x"
+  },
+  {
+    "id": "xbox-series-s",
+    "label": "Microsoft Xbox Series S",
+    "price": 0,
+    "brand": "Microsoft",
+    "model": "xbox series s"
   }
 ]

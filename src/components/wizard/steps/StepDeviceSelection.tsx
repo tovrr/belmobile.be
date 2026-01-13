@@ -104,12 +104,14 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                     <button
                         onClick={() => { haptic.trigger('light'); onBack(); }}
                         type="button"
-                        className="p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors active-press hover:bg-slate-200 dark:hover:bg-white/20 mr-4"
+                        className="p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors active-press hover:bg-slate-200 dark:hover:bg-white/20 mr-4 shrink-0"
                         aria-label={t('Back')}
                     >
                         <ChevronLeftIcon className="h-6 w-6" />
                     </button>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('Select Brand & Model')}</h2>
+                    <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
+                        {t('Select Brand & Model')}
+                    </h2>
                 </div>
 
                 <div className="mb-8">
@@ -121,13 +123,13 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                             <button
                                 key={brand}
                                 onClick={() => onBrandClick(brand)}
-                                className={`group py-4 px-4 rounded-ui font-bold text-sm transition-all flex flex-col items-center justify-center gap-3 h-32 active-press ${selectedBrand?.toLowerCase() === brand.toLowerCase()
+                                className={`group py-4 px-4 rounded-ui font-bold text-sm transition-all flex flex-col items-center justify-center gap-3 h-32 active-press border-2 ${selectedBrand?.toLowerCase() === brand.toLowerCase()
                                     ? (type === 'buyback'
-                                        ? 'bg-bel-yellow text-gray-900 shadow-lg shadow-yellow-500/20 dark:shadow-none'
-                                        : 'bg-[#6366F1] text-white shadow-lg shadow-indigo-500/20 dark:shadow-none')
-                                    : `bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-800 ${type === 'buyback'
+                                        ? 'border-bel-yellow bg-yellow-50 text-gray-900 shadow-lg shadow-yellow-500/20 dark:shadow-none'
+                                        : 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-lg shadow-indigo-500/20 dark:shadow-none')
+                                    : `bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 border-gray-100 dark:border-slate-800 ${type === 'buyback'
                                         ? 'hover:border-bel-yellow hover:bg-yellow-50/50'
-                                        : 'hover:border-[#6366F1] hover:bg-indigo-50/50'
+                                        : 'hover:border-indigo-600 hover:bg-indigo-50/50'
                                     } dark:hover:bg-slate-800`
                                     }`}
                             >
@@ -143,9 +145,11 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                                             placeholder="blur"
                                             blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(48, 48))}`}
                                             className={`object-contain transition-all duration-300 ${selectedBrand?.toLowerCase() === brand.toLowerCase()
-                                                ? 'brightness-0 invert'
+                                                ? 'brightness-0 invert-0' /* Buyback: Dark Text, Repair: Indigo Text - keep image default or specific? Usually logos are improved by being dark in light mode */
                                                 : 'opacity-40 grayscale dark:invert dark:opacity-60 group-hover:opacity-100 group-hover:grayscale-0'
                                                 }`}
+                                            /* Correction: For selected state, let's keep it simple. */
+                                            style={selectedBrand?.toLowerCase() === brand.toLowerCase() ? { filter: 'none', opacity: 1 } : {}}
                                         />
                                     </div>
                                 )}
@@ -171,9 +175,9 @@ export const StepDeviceSelection: React.FC<StepDeviceSelectionProps> = ({
                                     { value: "", label: isLoadingData ? t('Loading models...') : `👇 ${t('Select your model...')}` },
                                     ...availableModels.map(model => ({ value: model, label: model }))
                                 ]}
-                                className={`text-lg font-medium w-full ${type === 'buyback'
-                                    ? 'focus:ring-bel-yellow! focus:border-transparent!'
-                                    : 'focus:ring-[#6366F1]! focus:border-transparent!'
+                                className={`text-lg font-medium w-full py-4 rounded-2xl border-2 transition-all ${type === 'buyback'
+                                    ? 'focus:ring-bel-yellow! focus:border-bel-yellow!'
+                                    : 'focus:ring-indigo-600! focus:border-indigo-600!'
                                     }`}
                                 disabled={isLoadingData}
                             />

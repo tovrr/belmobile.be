@@ -240,9 +240,9 @@ export default function LocalPainPoints({ lang, locationName, deviceType: rawDev
     const t = content[lang] ? content[lang][type] : content['en'][type];
 
     return (
-        <section className="py-12 bg-transparent">
-            <div className="container mx-auto px-4 max-w-6xl">
-                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl p-8 lg:p-12 shadow-2xl border border-white/20 dark:border-white/10">
+        <section className="py-8 bg-transparent">
+            <div className="container mx-auto px-4 max-w-7xl">
+                <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl p-4 lg:p-8 shadow-2xl border border-white/20 dark:border-white/10">
                     <h2 className="text-2xl md:text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">
                         {t.title}
                     </h2>

@@ -214,8 +214,22 @@ const Sidebar: React.FC<SidebarProps> = ({
                                         {/* Repair Items */}
                                         {breakdown.repairs?.map((item: any, idx: number) => (
                                             <li key={`rep-${idx}`} className="flex justify-between text-gray-900 dark:text-white font-medium">
-                                                <span className="text-sm">{t(item.label)}</span>
-                                                <span className="text-sm font-mono">{item.amount > 0 ? `€${item.amount}` : (item.id === 'other' ? t('free') : t('on_request'))}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm">{t(item.label)}</span>
+                                                    {item.discountLabel && (
+                                                        <span className="text-[10px] uppercase font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded-md w-fit mt-0.5">
+                                                            {item.discountLabel}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-sm font-mono">
+                                                        {item.originalAmount && (
+                                                            <span className="text-xs text-gray-400 line-through mr-1.5">€{item.originalAmount}</span>
+                                                        )}
+                                                        {item.amount > 0 ? `€${item.amount}` : (item.id === 'other' ? t('free') : t('on_request'))}
+                                                    </span>
+                                                </div>
                                             </li>
                                         ))}
 
@@ -284,7 +298,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                                             estimateDisplay > 0 ? (
                                                 `€${estimateDisplay}`
                                             ) : (
-                                                (selectedModel && (isBuyback || repairIssues.length > 0)) ? (isBuyback ? t('contact_for_price_buyback') : t('contact_for_price')) : '-'
+                                                (selectedModel && (isBuyback || repairIssues.length > 0)) ? (
+                                                    isBuyback
+                                                        ? t('contact_for_price_buyback')
+                                                        : (repairIssues.includes('screen') && !selectedScreenQuality)
+                                                            ? '-'
+                                                            : t('sur_devis', 'sur devis')
+                                                ) : '-'
                                             )
                                         ) : estimateDisplay}
                                     </motion.span>

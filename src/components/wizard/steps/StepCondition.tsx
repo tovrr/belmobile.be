@@ -88,9 +88,28 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
     const toggleRepairIssue = (issue: string) => {
         haptic.trigger('light');
         const currentIssues = repairIssues || [];
-        const newIssues = currentIssues.includes(issue)
-            ? currentIssues.filter(i => i !== issue)
-            : [...currentIssues, issue];
+
+        // Exclusivity Logic for "other" (Diagnostic)
+        if (issue === 'other') {
+            // If selecting "other", clear everything else. If deselecting, just remove it.
+            if (currentIssues.includes('other')) {
+                dispatch({ type: 'SET_WIZARD_DATA', payload: { repairIssues: [] } });
+            } else {
+                dispatch({ type: 'SET_WIZARD_DATA', payload: { repairIssues: ['other'] } });
+            }
+            return;
+        }
+
+        // If "other" was previously selected and we pick something else, remove "other"
+        let newIssues = currentIssues.includes('other') ? [] : [...currentIssues];
+
+        // Standard Toggle
+        if (newIssues.includes(issue)) {
+            newIssues = newIssues.filter(i => i !== issue);
+        } else {
+            newIssues.push(issue);
+        }
+
         dispatch({ type: 'SET_WIZARD_DATA', payload: { repairIssues: newIssues } });
     };
 
@@ -195,12 +214,12 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         <button
                             onClick={() => { haptic.trigger('light'); onBack(); }}
                             type="button"
-                            className={`${state.isWidget ? 'block' : 'lg:hidden'} p-2 -ml-2 mr-2 rounded-full hover:bg-white/10 text-gray-900 dark:text-white transition-colors active-press`}
+                            className="p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors active-press hover:bg-slate-200 dark:hover:bg-white/20 mr-4 shrink-0"
                             aria-label={t('Back')}
                         >
                             <ChevronLeftIcon className="h-6 w-6" />
                         </button>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('Functionality & Specs')}</h2>
+                        <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">{t('Functionality & Specs')}</h2>
                     </div>
 
                     {/* Storage Selection */}
@@ -266,9 +285,9 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                                 key={`storage-${opt}`}
                                                 type="button"
                                                 onClick={() => setStorage(opt)}
-                                                className={`py-2.5 rounded-xl font-bold text-sm transition-all active-press ${storage === opt
-                                                    ? 'bg-bel-yellow text-gray-900 shadow-lg shadow-yellow-500/20 ring-1 ring-yellow-400'
-                                                    : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
+                                                className={`py-2.5 rounded-2xl font-bold text-sm transition-all active-press border-2 ${storage === opt
+                                                    ? 'border-bel-yellow bg-yellow-50 text-gray-900 shadow-lg shadow-yellow-500/20'
+                                                    : 'bg-white dark:bg-slate-900 border-gray-100 dark:border-slate-800 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
                                             >
                                                 {opt}
                                             </button>
@@ -385,12 +404,12 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             <button
                                 onClick={() => { haptic.trigger('light'); onBack(); }}
                                 type="button"
-                                className="p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors active-press hover:bg-slate-200 dark:hover:bg-white/20"
+                                className="p-2.5 rounded-full bg-slate-100 dark:bg-white/10 text-gray-900 dark:text-white transition-colors active-press hover:bg-slate-200 dark:hover:bg-white/20 mr-4 shrink-0"
                                 aria-label={t('Back')}
                             >
                                 <ChevronLeftIcon className="h-6 w-6" />
                             </button>
-                            <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-none">{t('What needs fixing?')}</h2>
+                            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">{t('What needs fixing?')}</h2>
                         </div>
 
                         {/* Desktop Scroll Arrows - Top Right */}
@@ -429,9 +448,9 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                 <button
                                     key={cat}
                                     onClick={() => { haptic.trigger('light'); setActiveCategory(cat); }}
-                                    className={`px-6 py-3 rounded-2xl whitespace-nowrap font-black text-xs uppercase tracking-widest transition-all snap-start active-press min-w-max ${activeCategory === cat
-                                        ? 'bg-[#6366F1] text-white shadow-md shadow-indigo-500/20 ring-4 ring-indigo-500/10'
-                                        : 'bg-white/50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:scale-105'
+                                    className={`px-6 py-3 rounded-2xl whitespace-nowrap font-black text-xs uppercase tracking-widest transition-all snap-start active-press min-w-max border-2 ${activeCategory === cat
+                                        ? 'border-indigo-600 bg-indigo-600 text-white shadow-md shadow-indigo-500/20'
+                                        : 'bg-white/50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 border-transparent hover:bg-white dark:hover:bg-slate-800 hover:scale-105'
                                         }`}
                                 >
                                     {t('cat_' + cat)}
@@ -495,25 +514,32 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                             const showScreenOptionsForIssue = isScreenIssue && isSelected && (deviceType === 'smartphone' || selectedBrand?.toLowerCase() === 'nintendo');
 
                             return (
-                                <div key={issue.id} className={`group relative flex flex-col p-4 rounded-[1.5rem] border-2 transition-all duration-300 active-press ${isSelected ? 'border-[#6366F1] bg-indigo-50/50 dark:bg-indigo-900/10 shadow-xl shadow-indigo-500/5' : 'border-slate-100 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-900'} ${showScreenOptionsForIssue ? 'md:col-span-2 shadow-2xl shadow-indigo-500/10' : ''}`}>
+                                <div key={issue.id} className={`group relative flex flex-col p-4 rounded-2xl border-2 transition-all duration-300 active-press ${isSelected ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/10 shadow-xl shadow-indigo-500/5' : 'border-slate-100 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 hover:border-indigo-200 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-900'} ${showScreenOptionsForIssue ? 'md:col-span-2 shadow-2xl shadow-indigo-500/10' : ''}`}>
                                     <div className="flex items-start h-full cursor-pointer" onClick={() => toggleRepairIssue(issue.id)}>
-                                        <div className={`p-4 rounded-2xl mr-4 shrink-0 transition-all duration-500 ${isSelected ? 'bg-[#6366F1] text-white shadow-lg shadow-indigo-500/30 scale-110' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 group-hover:scale-110 group-hover:bg-slate-200 group-hover:text-slate-600'} `}>
+                                        <div className={`p-4 rounded-2xl mr-4 shrink-0 transition-all duration-500 ${isSelected ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-110' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 group-hover:scale-110 group-hover:bg-slate-200 group-hover:text-slate-600'} `}>
                                             <issue.icon className="h-6 w-6" />
                                         </div>
 
                                         <div className="flex-1 min-w-0">
                                             <div className="flex flex-col">
                                                 <div className="flex justify-between items-start mb-1 gap-2">
-                                                    <span className={`font-black text-sm md:text-base leading-tight transition-colors ${isSelected ? 'text-[#6366F1]' : 'text-gray-900 dark:text-white'}`}>
+                                                    <span className={`font-black text-sm md:text-base leading-tight transition-colors ${isSelected ? 'text-indigo-600' : 'text-gray-900 dark:text-white'}`}>
                                                         {t(issue.id)}
                                                     </span>
 
                                                     {!showScreenOptionsForIssue && (
                                                         <div className="flex flex-col items-end shrink-0">
-                                                            <span className={`text-[11px] font-black px-2 py-1 rounded-lg transition-colors ${isSelected ? 'bg-[#6366F1] text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400'}`}>
-                                                                {isScreenIssue && displayPrice !== null && displayPrice > 0 && <span className="mr-1 text-[9px] font-normal opacity-70 uppercase tracking-tighter">{t('À partir de')}</span>}
-                                                                {issue.id === 'other' ? <span className="font-black uppercase tracking-widest">{t('free')}</span> : (displayPrice !== null && displayPrice > 0 ? <>&euro;{displayPrice}</> : <span className="text-[9px] font-bold tracking-tight whitespace-nowrap">{t('on_request')}</span>)}
-                                                            </span>
+                                                            <div className="flex flex-col items-end">
+                                                                <span className={`text-[11px] font-black px-2 py-1 rounded-lg transition-colors ${isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400'}`}>
+                                                                    {isScreenIssue && displayPrice !== null && displayPrice > 0 && <span className="mr-1 text-[9px] font-normal opacity-70 uppercase tracking-tighter">{t('À partir de')}</span>}
+                                                                    {issue.id === 'other' ? <span className="font-black uppercase tracking-widest">{t('free')}</span> : (displayPrice !== null && displayPrice > 0 ? <>&euro;{displayPrice}</> : <span className="text-[9px] font-bold tracking-tight whitespace-nowrap">{t('on_request')}</span>)}
+                                                                </span>
+                                                                {isSelected && state.priceBreakdown?.repairs?.find((r: any) => r.id === issue.id)?.discountLabel && (
+                                                                    <span className="text-[9px] font-black bg-emerald-500 text-white px-1.5 py-0.5 rounded-md uppercase tracking-tighter animate-in zoom-in slide-in-from-top-1 duration-300 mt-1">
+                                                                        {state.priceBreakdown.repairs.find((r: any) => r.id === issue.id).discountLabel}
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
@@ -525,7 +551,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
 
                                         {isSelected && !showScreenOptionsForIssue && (
                                             <div className="absolute top-2 right-2 animate-in fade-in zoom-in duration-300">
-                                                <div className="bg-[#6366F1] text-white rounded-full p-1 shadow-lg shadow-indigo-500/40">
+                                                <div className="bg-indigo-600 text-white rounded-full p-1 shadow-lg shadow-indigo-500/40">
                                                     <CheckCircleIcon className="h-3 w-3 stroke-3" />
                                                 </div>
                                             </div>

@@ -51,6 +51,23 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
     const [saveModalOpen, setSaveModalOpen] = useState(false);
     const isBuyback = type === 'buyback';
 
+    // Keyboard detection to hide bar when typing
+    const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+
+    useEffect(() => {
+        if (!window.visualViewport) return;
+
+        const handleResize = () => {
+            const viewport = window.visualViewport;
+            if (!viewport) return;
+            // If the viewport height is significantly smaller than the window height, keyboard is likely open
+            setIsKeyboardOpen(viewport.height < window.innerHeight * 0.85);
+        };
+
+        window.visualViewport.addEventListener('resize', handleResize);
+        return () => window.visualViewport?.removeEventListener('resize', handleResize);
+    }, []);
+
     // Lock body scroll when expanded
     useLockBodyScroll(isExpanded);
     const haptic = useHaptic();
@@ -128,7 +145,7 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
             )}
 
             <div
-                className={`lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) rounded-t-3xl overflow-hidden flex flex-col ${isExpanded ? 'max-h-[85vh]' : 'h-auto'}`}
+                className={`lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) rounded-t-3xl overflow-hidden flex flex-col ${isExpanded ? 'max-h-[85vh]' : 'h-auto'} ${isKeyboardOpen ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}
                 onTouchStart={onTouchStart}
                 onTouchEnd={onTouchEnd}
             >
@@ -229,11 +246,21 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
                                     <div className="col-span-2 p-3 rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900">
                                         <div className="text-[10px] uppercase text-gray-400 font-bold mb-2">{t('Issues')}</div>
                                         <div className="flex flex-wrap gap-2">
-                                            {issuesList.map(i => (
-                                                <span key={i} className={`text-[10px] font-bold px-2 py-1 rounded-lg uppercase ${themeColor}`}>
-                                                    {t(i)}
-                                                </span>
-                                            ))}
+                                            {issuesList.map(i => {
+                                                const discount = state.priceBreakdown?.repairs?.find((r: any) => r.id === i)?.discountLabel;
+                                                return (
+                                                    <div key={i} className="relative">
+                                                        <span className={`text-[10px] font-black px-3 py-1.5 rounded-xl uppercase border shadow-sm ${themeColor}`}>
+                                                            {t(i)}
+                                                        </span>
+                                                        {discount && (
+                                                            <span className="absolute -top-2 -right-1 flex items-center justify-center px-1.5 py-0.5 rounded-full bg-emerald-500 text-[8px] font-black text-white shadow-md border border-white dark:border-slate-900 animate-in zoom-in duration-300">
+                                                                {discount}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}
@@ -246,11 +273,21 @@ const MobileBottomBar: React.FC<MobileBottomBarProps> = ({
                         {/* Mini Chips Line (Collapsed Only) */}
                         {!isExpanded && type === 'repair' && issuesList.length > 0 && (
                             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-1 mask-linear-fade-right">
-                                {issuesList.map((issue, idx) => (
-                                    <span key={idx} className={`shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wide border bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 border-indigo-100 dark:border-indigo-800/30`}>
-                                        {t(issue)}
-                                    </span>
-                                ))}
+                                {issuesList.map((issue, idx) => {
+                                    const discount = state.priceBreakdown?.repairs?.find((r: any) => r.id === issue)?.discountLabel;
+                                    return (
+                                        <div key={idx} className="relative shrink-0">
+                                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wide border bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 border-indigo-100 dark:border-indigo-800/30`}>
+                                                {t(issue)}
+                                            </span>
+                                            {discount && (
+                                                <span className="absolute -top-1 -right-1 flex h-2 w-2 items-center justify-center rounded-full bg-emerald-500 shadow-xs border border-white dark:border-slate-900 animate-pulse">
+                                                    {/* Dot indicator for collapsed view */}
+                                                </span>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
 

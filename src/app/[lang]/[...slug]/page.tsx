@@ -395,7 +395,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                 {/* Invisible H1 for SEO ("The Hack") */}
                 <h1 className="sr-only">{pageTitle}</h1>
 
-                <div className="mt-8">
+                <div className="mt-4">
                     <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 dark:bg-slate-800 rounded-2xl" />}>
                         <BuybackRepair
                             type={type}
@@ -420,7 +420,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                 />
 
                 {/* Local Pain Points (Anxiety Reducers) - Moved to bottom as requested */}
-                <div className="mt-12 mb-8">
+                <div className="mt-0 mb-8">
                     <LocalPainPoints
                         lang={lang as 'fr' | 'nl' | 'en' | 'tr'}
                         locationName={locationName || (lang === 'fr' ? 'Bruxelles' : lang === 'nl' ? 'Brussel' : 'Brussels')}
