@@ -18,28 +18,18 @@ const getBaseUrl = () => {
 const BASE_URL = getBaseUrl();
 const LANGUAGES = ['fr', 'nl', 'en', 'tr'] as const;
 
-// Helper to get image object for device pages
-const getSitemapImage = (deviceId: string, isRepair: boolean) => {
+// Helper to get simple image URL for device pages (Next.js sitemap strictly requires strings)
+const getSitemapImage = (deviceId: string, isRepair: boolean): string | undefined => {
     // Try to get specific device image
     const imagePath = getDeviceImage(deviceId);
     if (!imagePath || imagePath === '/favicon.svg') return undefined;
 
-    // Construct absolute URL
-    const imageUrl = `${BASE_URL}${imagePath}`;
-    const brand = deviceId.split('-')[0];
-    const model = deviceId.split('-').slice(1).join(' ').replace(/-/g, ' ');
-    const action = isRepair ? 'Repair' : 'Sell/Buyback';
-
-    return {
-        url: imageUrl, // Required: The URL of the image
-        caption: `${action} ${model} (Brussels)`, // Optional: Caption
-        title: `${action} ${model} - Belmobile.be`, // Optional: Title
-        license: 'https://belmobile.be/license' // Optional: License
-    };
+    // Return absolute URL
+    return `${BASE_URL}${imagePath}`;
 };
 
-// Helper to get static page image from SEO_CONTENT
-const getStaticPageImage = (pageId: string) => {
+// Helper to get static page image URL from SEO_CONTENT
+const getStaticPageImage = (pageId: string): string | undefined => {
     // Mapping page IDs to SEO_CONTENT keys
     const mapping: Record<string, string> = {
         'repair-home': 'repair_step1',
@@ -54,15 +44,9 @@ const getStaticPageImage = (pageId: string) => {
 
     if (content?.image) {
         // Ensure absolute URL
-        const imgUrl = content.image.startsWith('http')
+        return content.image.startsWith('http')
             ? content.image
             : `${BASE_URL}${content.image}`;
-
-        return {
-            url: imgUrl,
-            title: content.title,
-            caption: content.text.substring(0, 150) // Truncate caption
-        };
     }
     return undefined;
 };
