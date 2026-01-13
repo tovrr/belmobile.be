@@ -218,7 +218,7 @@ const ApolloHero: React.FC<ApolloHeroProps> = ({ mode, setMode }) => {
                                                     className="w-full text-left px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 flex justify-between items-center border-b border-slate-100 dark:border-slate-900 last:border-0 active-press"
                                                 >
                                                     <span className="font-bold text-slate-700 dark:text-slate-200">{device.label}</span>
-                                                    {mode === 'buyback' && (
+                                                    {mode === 'buyback' && device.price > 0 && (
                                                         <span className="text-xs font-black text-cyber-citron bg-cyber-citron/10 px-2 py-1 rounded-lg">
                                                             ~€{device.price}
                                                         </span>

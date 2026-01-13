@@ -1,6 +1,7 @@
 import React from 'react';
 import { createSlug } from '@/utils/slugs';
 import Link from 'next/link';
+import Image from 'next/image';
 
 import { LOCATIONS } from '../../data/locations';
 import { PaperAirplaneIcon, SparklesIcon } from '../ui/BrandIcons';
@@ -114,6 +115,35 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
             {/* Gradient Top Border */}
             <div className="absolute top-0 left-0 w-full h-[2px] bg-linear-to-r from-transparent via-electric-indigo to-transparent shadow-[0_0_15px_rgba(99,102,241,0.8)] z-10"></div>
 
+            {/* Giant Background Watermark Logo */}
+            <div className="absolute -bottom-24 -right-24 z-0 pointer-events-none opacity-[0.03] select-none text-white overflow-hidden">
+                <svg
+                    width="600"
+                    height="600"
+                    viewBox="0 0 100 100"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="transform rotate-[-15deg]"
+                >
+                    {/* Phone Body */}
+                    <path
+                        d="M60 10 H 40 C 25 10 20 25 20 40 V 70 C 20 85 30 90 45 90 H 65 C 80 90 85 80 85 65 V 55"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                    />
+                    {/* Cross */}
+                    <path
+                        d="M75 15 V 45 M 60 30 H 90"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                    />
+                    {/* Dot */}
+                    <circle cx="52" cy="78" r="2" fill="currentColor" />
+                </svg>
+            </div>
+
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="grid grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-8 mb-12">
 
@@ -156,6 +186,8 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
 
                         <FooterNewsletter />
                         <FooterSocials />
+
+
                     </div>
 
                     <FooterColumns lang={lang} dict={dict} />
@@ -163,7 +195,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
 
                 {/* Popular Repairs (Integrated with Spacing) */}
                 <nav aria-label={t('Popular Repairs')} className="border-t border-white/10 pt-8 mb-8">
-                    <h4 className="text-xs font-bold text-cyber-citron uppercase tracking-wider mb-6 text-center md:text-left">
+                    <h4 className="text-xs font-bold text-cyber-citron uppercase tracking-wider mb-6 text-left">
                         {t('Popular Repairs')}
                     </h4>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -183,7 +215,7 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
 
                 {/* Locations */}
                 <nav aria-label={t('Our Stores')} className="border-t border-white/10 pt-8 mb-12">
-                    <h4 className="text-xs font-bold text-cyber-citron uppercase tracking-wider mb-6 text-center md:text-left">
+                    <h4 className="text-xs font-bold text-cyber-citron uppercase tracking-wider mb-6 text-left">
                         {t('Our Stores')}
                     </h4>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -221,6 +253,21 @@ const Footer: React.FC<FooterProps> = ({ lang = 'en', dict = {} }) => {
                                 {index < array.length - 1 && <span className="text-slate-800">•</span>}
                             </React.Fragment>
                         ))}
+                    </div>
+
+                    <div className="mt-12 flex flex-col items-center md:items-start">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 text-center md:text-left">
+                            {t('Secured by') || 'Secured by'}
+                        </p>
+                        <div className="relative h-20 sm:h-24 w-full max-w-[360px] sm:max-w-md opacity-90 hover:opacity-100 transition-opacity">
+                            <Image
+                                src="/images/logos/payment-shipping-row.png"
+                                alt="Secure Payment (Bancontact, Visa, Mastercard) & Bpost Shipping"
+                                fill
+                                className="object-contain object-center md:object-left"
+                                sizes="(max-width: 768px) 360px, 450px"
+                            />
+                        </div>
                     </div>
                 </nav>
 

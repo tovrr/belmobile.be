@@ -266,7 +266,7 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                                 key={`storage-${opt}`}
                                                 type="button"
                                                 onClick={() => setStorage(opt)}
-                                                className={`py-3 rounded-xl font-bold transition-all active-press ${storage === opt
+                                                className={`py-2.5 rounded-xl font-bold text-sm transition-all active-press ${storage === opt
                                                     ? 'bg-bel-yellow text-gray-900 shadow-lg shadow-yellow-500/20 ring-1 ring-yellow-400'
                                                     : 'bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 hover:border-bel-yellow hover:bg-yellow-50/50 dark:hover:bg-slate-800'}`}
                                             >
@@ -325,8 +325,8 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                         <div className={turnsOn === false ? 'opacity-50 pointer-events-none' : ''}>
                             <label className="block text-xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">{t('Battery Health')}</label>
                             <div className="grid grid-cols-2 gap-3">
-                                <button type="button" onClick={() => setBatteryHealth('normal')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border active-press ${batteryHealth === 'normal' ? 'bg-green-600 text-white border-green-600' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}>{t('battery_normal_desc')}</button>
-                                <button type="button" onClick={() => setBatteryHealth('service')} disabled={turnsOn === false} className={`py-3 px-4 rounded-xl font-bold transition-all border active-press ${batteryHealth === 'service' ? 'bg-red-600 text-white border-red-600' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'}`}>{t('battery_service_desc')}</button>
+                                <button type="button" onClick={() => setBatteryHealth('normal')} disabled={turnsOn === false} className={`py-2.5 px-3 rounded-xl font-bold text-sm transition-all border active-press ${batteryHealth === 'normal' ? 'bg-green-600 text-white border-green-600 shadow-md shadow-green-500/20' : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'}`}>{t('battery_normal_desc')}</button>
+                                <button type="button" onClick={() => setBatteryHealth('service')} disabled={turnsOn === false} className={`py-2.5 px-3 rounded-xl font-bold text-sm transition-all border active-press ${batteryHealth === 'service' ? 'bg-red-600 text-white border-red-600 shadow-md shadow-red-500/20' : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'}`}>{t('battery_service_desc')}</button>
                             </div>
                         </div>
                     )}
@@ -342,8 +342,8 @@ export const StepCondition: React.FC<StepConditionProps> = memo(({
                                         type="button"
                                         onClick={() => setControllerCount(count)}
                                         disabled={turnsOn === false}
-                                        className={`py-3 px-4 rounded-xl font-bold transition-all border active-press ${controllerCount === count
-                                            ? 'bg-bel-yellow text-gray-900 border-bel-yellow'
+                                        className={`py-2.5 px-4 rounded-xl font-bold text-sm transition-all border active-press ${controllerCount === count
+                                            ? 'bg-bel-yellow text-gray-900 border-bel-yellow outline-none ring-2 ring-bel-yellow ring-offset-2 dark:ring-offset-slate-900'
                                             : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800'
                                             }`}
                                     >

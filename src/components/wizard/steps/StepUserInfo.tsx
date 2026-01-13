@@ -696,9 +696,24 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
 
                                 {/* Send by Post */}
                                 <div onClick={() => setDeliveryMethod(deliveryMethod === 'send' ? null : 'send')} className={`cursor-pointer p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 text-left transition-all flex flex-col active-press ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/20 ring-1 ring-bel-yellow' : 'border-bel-blue bg-blue-50 dark:bg-blue-900/20 ring-1 ring-bel-blue'}` : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-gray-300 dark:hover:border-slate-700'}`}>
-                                    <div className="flex items-start">
-                                        <TruckIcon className={`h-8 w-8 mr-4 ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}` : 'text-gray-400'}`} />
-                                        <div><span className={`block font-bold text-lg mb-1 ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'text-gray-900 dark:text-white' : 'text-bel-blue dark:text-blue-400'}` : 'text-gray-900 dark:text-white'}`}>{t('Send by Post')}</span><p className="text-sm text-gray-500 dark:text-gray-400">{t('Free shipping label provided. Secure and insured.')}</p></div>
+                                    <div className="flex items-center">
+                                        <div className={`relative h-12 w-12 mr-4 shrink-0 overflow-hidden rounded-lg bg-white p-1 ${deliveryMethod === 'send' ? 'ring-2 ring-red-500 shadow-md' : 'grayscale ring-1 ring-gray-200'}`}>
+                                            <Image
+                                                src="/images/logos/bpost.png"
+                                                alt="Bpost"
+                                                fill
+                                                className="object-contain p-1"
+                                            />
+                                        </div>
+                                        <div>
+                                            <span className={`block font-bold text-lg mb-0.5 ${deliveryMethod === 'send' ? `${type === 'buyback' ? 'text-gray-900 dark:text-white' : 'text-bel-blue dark:text-blue-400'}` : 'text-gray-900 dark:text-white'}`}>
+                                                {t('Send by Post')}
+                                            </span>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                                <span className="text-red-600 font-bold">bpost</span>
+                                                {t('Free shipping label provided. Secure and insured.')}
+                                            </p>
+                                        </div>
                                     </div>
                                     {deliveryMethod === 'send' && (
                                         <div className="mt-4 w-full animate-fade-in">
@@ -759,39 +774,39 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         <div className="mt-4 space-y-3 animate-fade-in">
                                             <div
                                                 onClick={(e) => { e.stopPropagation(); haptic.trigger('light'); setCourierTier('bridge'); }}
-                                                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between active-press ${courierTier === 'bridge' ? 'border-bel-blue bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-blue' : 'border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 hover:border-bel-blue/30'}`}
+                                                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between active-press ${courierTier === 'bridge' ? `${type === 'buyback' ? 'border-bel-yellow bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-yellow' : 'border-bel-blue bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-blue'}` : `border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 ${type === 'buyback' ? 'hover:border-bel-yellow/30' : 'hover:border-bel-blue/30'}`}`}
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${courierTier === 'bridge' ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-800 text-gray-400'}`}>
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${courierTier === 'bridge' ? `${type === 'buyback' ? 'bg-bel-yellow text-gray-900' : 'bg-bel-blue text-white'}` : 'bg-gray-100 dark:bg-slate-800 text-gray-400'}`}>
                                                         <MapPinIcon className="h-5 w-5" />
                                                     </div>
                                                     <div>
-                                                        <p className={`font-bold text-sm ${courierTier === 'bridge' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Tour & Taxis Bridge')}</p>
+                                                        <p className={`font-bold text-sm ${courierTier === 'bridge' ? `${type === 'buyback' ? 'text-yellow-600 dark:text-yellow-400' : 'text-bel-blue'}` : 'text-gray-900 dark:text-white'}`}>{t('Tour & Taxis Bridge')}</p>
                                                         <p className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">{t('Free Pickup')}</p>
                                                     </div>
                                                 </div>
-                                                {courierTier === 'bridge' && <CheckCircleIcon className="h-5 w-5 text-bel-blue" />}
+                                                {courierTier === 'bridge' && <CheckCircleIcon className={`h-5 w-5 ${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}`} />}
                                             </div>
 
                                             <div
                                                 onClick={(e) => { e.stopPropagation(); haptic.trigger('light'); setCourierTier('brussels'); }}
-                                                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between active-press ${courierTier === 'brussels' ? 'border-bel-blue bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-blue' : 'border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 hover:border-bel-blue/30'}`}
+                                                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center justify-between active-press ${courierTier === 'brussels' ? `${type === 'buyback' ? 'border-bel-yellow bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-yellow' : 'border-bel-blue bg-white dark:bg-slate-900 shadow-md ring-1 ring-bel-blue'}` : `border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 ${type === 'buyback' ? 'hover:border-bel-yellow/30' : 'hover:border-bel-blue/30'}`}`}
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${courierTier === 'brussels' ? 'bg-bel-blue text-white' : 'bg-gray-100 dark:bg-slate-800 text-gray-400'}`}>
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${courierTier === 'brussels' ? `${type === 'buyback' ? 'bg-bel-yellow text-gray-900' : 'bg-bel-blue text-white'}` : 'bg-gray-100 dark:bg-slate-800 text-gray-400'}`}>
                                                         <TruckIcon className="h-5 w-5" />
                                                     </div>
                                                     <div>
-                                                        <p className={`font-bold text-sm ${courierTier === 'brussels' ? 'text-bel-blue' : 'text-gray-900 dark:text-white'}`}>{t('Grand-Bruxelles')}</p>
-                                                        <p className="text-[10px] text-bel-blue font-black uppercase tracking-wider">{t('All 19 municipalities')} (+15€)</p>
+                                                        <p className={`font-bold text-sm ${courierTier === 'brussels' ? `${type === 'buyback' ? 'text-yellow-600 dark:text-yellow-400' : 'text-bel-blue'}` : 'text-gray-900 dark:text-white'}`}>{t('Grand-Bruxelles')}</p>
+                                                        <p className={`text-[10px] font-black uppercase tracking-wider ${type === 'buyback' ? 'text-yellow-600 dark:text-yellow-400' : 'text-bel-blue'}`}>{t('All 19 municipalities')} (+15€)</p>
                                                     </div>
                                                 </div>
-                                                {courierTier === 'brussels' && <CheckCircleIcon className="h-5 w-5 text-bel-blue" />}
+                                                {courierTier === 'brussels' && <CheckCircleIcon className={`h-5 w-5 ${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}`} />}
                                             </div>
 
-                                            <div className="p-4 bg-white/50 dark:bg-black/20 rounded-xl border border-bel-blue/10">
+                                            <div className={`p-4 bg-white/50 dark:bg-black/20 rounded-xl border ${type === 'buyback' ? 'border-bel-yellow/10' : 'border-bel-blue/10'}`}>
                                                 <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                                    <ClockIcon className="h-3.5 w-3.5 text-bel-blue" />
+                                                    <ClockIcon className={`h-3.5 w-3.5 ${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}`} />
                                                     {courierTier === 'bridge' ? t('Please provide your corporate address. A technician will contact you shortly.') : t('Courier will pick up from your home/office anywhere in Brussels.')}
                                                 </p>
                                             </div>
@@ -1042,6 +1057,7 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                 enterKeyHint="done"
                                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIban(e.target.value)}
                                                 placeholder="BE00 0000 0000 0000"
+                                                variant={type === 'buyback' ? 'buyback' : 'default'}
                                             />
                                             <div>
                                                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 ml-1">{t('Upload ID Copy')}</label>
@@ -1056,11 +1072,11 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIdFile(e.target.files ? e.target.files[0] : null)}
                                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                                         />
-                                                        <div className="w-full p-6 rounded-xl border-2 border-dashed border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 group-hover:border-bel-blue group-hover:bg-blue-50/50 dark:group-hover:bg-blue-900/20 transition-all flex flex-col items-center justify-center text-center">
+                                                        <div className={`w-full p-6 rounded-xl border-2 border-dashed border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 transition-all flex flex-col items-center justify-center text-center ${type === 'buyback' ? 'group-hover:border-bel-yellow group-hover:bg-yellow-50/50 dark:group-hover:bg-yellow-900/20' : 'group-hover:border-bel-blue group-hover:bg-blue-50/50 dark:group-hover:bg-blue-900/20'}`}>
                                                             <div className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                                                                <CloudArrowUpIcon className="h-6 w-6 text-bel-blue" />
+                                                                <CloudArrowUpIcon className={`h-6 w-6 ${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}`} />
                                                             </div>
-                                                            <p className="text-sm font-bold text-gray-700 dark:text-white mb-1 group-hover:text-bel-blue transition-colors">
+                                                            <p className={`text-sm font-bold text-gray-700 dark:text-white mb-1 transition-colors ${type === 'buyback' ? 'group-hover:text-bel-yellow' : 'group-hover:text-bel-blue'}`}>
                                                                 {t('Click to upload')}
                                                             </p>
                                                             <p className="text-xs text-gray-400">
@@ -1071,8 +1087,8 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                                 ) : (
                                                     <div className="flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm animate-fade-in">
                                                         <div className="flex items-center space-x-3 overflow-hidden">
-                                                            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg shrink-0">
-                                                                <DocumentIcon className="h-5 w-5 text-bel-blue" />
+                                                            <div className={`p-2 rounded-lg shrink-0 ${type === 'buyback' ? 'bg-yellow-50 dark:bg-yellow-900/30' : 'bg-blue-50 dark:bg-blue-900/30'}`}>
+                                                                <DocumentIcon className={`h-5 w-5 ${type === 'buyback' ? 'text-bel-yellow' : 'text-bel-blue'}`} />
                                                             </div>
                                                             <div className="truncate">
                                                                 <p className="text-sm font-bold text-gray-900 dark:text-white truncate max-w-[150px] sm:max-w-xs">{idFile.name}</p>

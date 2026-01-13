@@ -104,12 +104,24 @@ const Breadcrumbs: React.FC = () => {
         // we might want to inject the category now for better context.
         // OR: If THIS is a brand, and we haven't shown a category, inject it BEFORE the brand.
         if (!isCategory && !hasShownCategory && index >= 1) {
-            // Check if this is a brand
             let autoCat: string | null = null;
-            for (const [catId, brands] of Object.entries(DEVICE_BRANDS)) {
-                if ((brands as string[]).some(b => createSlug(b) === slug)) {
-                    autoCat = catId;
-                    break;
+
+            // 1. Try to infer category from the NEXT segment (Model) if available
+            // This prevents "iPad" (Tablet) being labeled as "Smartphone" just because Apple makes both.
+            if (index + 1 < pathnames.length) {
+                const nextSlug = pathnames[index + 1].toLowerCase();
+                if (SEARCH_INDEX[nextSlug] && SEARCH_INDEX[nextSlug].category) {
+                    autoCat = SEARCH_INDEX[nextSlug].category;
+                }
+            }
+
+            // 2. Fallback: Check if this is a brand and use default category
+            if (!autoCat) {
+                for (const [catId, brands] of Object.entries(DEVICE_BRANDS)) {
+                    if ((brands as string[]).some(b => createSlug(b) === slug)) {
+                        autoCat = catId;
+                        break;
+                    }
                 }
             }
 
