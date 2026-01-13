@@ -1,7 +1,7 @@
 
 import { MetadataRoute } from 'next';
 import { LOCATIONS } from '../data/locations';
-import { MOCK_BLOG_POSTS, MOCK_PRODUCTS, DEVICE_TYPES, SEO_CONTENT } from '../constants';
+import { STATIC_BLOG_POSTS, STATIC_PRODUCTS, DEVICE_TYPES, SEO_CONTENT } from '../constants';
 import { STATIC_SLUG_MAPPINGS } from '../utils/i18n-helpers';
 import { MASTER_DEVICE_LIST } from '../data/master-device-list';
 import { getAllDevices } from '../services/server/pricing.dal';
@@ -122,7 +122,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
 
         // 3. Blog Posts (Content Authority)
-        MOCK_BLOG_POSTS.forEach(post => {
+        STATIC_BLOG_POSTS.forEach(post => {
             LANGUAGES.forEach(lang => {
                 const currentSlug = (post.slugs as any)?.[lang] || post.slug || post.id;
                 sitemapEntries.push({
@@ -141,7 +141,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
         // 3. Products
         const productsPath = { fr: 'produits', nl: 'producten', tr: 'urunler', en: 'products' };
-        MOCK_PRODUCTS.forEach(product => {
+        STATIC_PRODUCTS.forEach(product => {
             if (product.slug) {
                 LANGUAGES.forEach(lang => {
                     sitemapEntries.push({

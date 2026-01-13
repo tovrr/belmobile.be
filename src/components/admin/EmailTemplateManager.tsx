@@ -21,7 +21,7 @@ const EMAIL_TYPES = [
     { id: 'review_request', label: 'Review Request', icon: StarIcon, color: 'text-amber-500' },
 ];
 
-const MOCK_DATA: EmailTemplatesConfig = {
+const DEFAULT_TEMPLATES: EmailTemplatesConfig = {
     quote_status: {
         en: { subject: "📦 Update: Order #12345678", content: "We have received your request..." },
         fr: { subject: "📦 Suivi : Commande #12345678", content: "Nous avons bien reçu votre demande..." },
@@ -50,7 +50,7 @@ export default function EmailTemplateManager() {
     const [isLoading, setIsLoading] = useState(false);
 
     // Start with mock data or empty structure
-    const [templates, setTemplates] = useState<EmailTemplatesConfig>(MOCK_DATA);
+    const [templates, setTemplates] = useState<EmailTemplatesConfig>(DEFAULT_TEMPLATES);
 
     // Load from Firestore
     React.useEffect(() => {
@@ -61,7 +61,7 @@ export default function EmailTemplateManager() {
                 if (docSnap.exists()) {
                     // Merge with mock/defaults to ensure all keys exist
                     const failedLoad = docSnap.data() as EmailTemplatesConfig;
-                    const merged = { ...MOCK_DATA, ...failedLoad };
+                    const merged = { ...DEFAULT_TEMPLATES, ...failedLoad };
                     setTemplates(merged);
                 }
             } catch (err) {

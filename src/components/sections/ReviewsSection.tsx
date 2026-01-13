@@ -13,10 +13,11 @@ interface ReviewsSectionProps {
     variant?: 'aegis' | 'apollo';
 }
 
-const MOCK_REVIEWS: Review[] = [
-    { id: '1', author: 'Jean Dupont', rating: 5, text: 'Service rapide et impeccable ! Mon iPhone est comme neuf.', date: '2 days ago', publishTime: Date.now() - 172800000, shopName: 'Schaerbeek' },
-    { id: '2', author: 'Marie Peeters', rating: 5, text: 'Très bon accueil à Schaerbeek. Je recommande.', date: '1 week ago', publishTime: Date.now() - 604800000, shopName: 'Schaerbeek' },
-    { id: '3', author: 'Ahmed Benali', rating: 4, text: 'Bon prix pour le rachat de mon Samsung.', date: '2 weeks ago', publishTime: Date.now() - 1209600000, shopName: 'Molenbeek' },
+const STATIC_REVIEWS: Review[] = [
+    { id: '1', author: 'Sarah Dubois', rating: 5, text: 'Incroyable ! Écran d\'iPhone 13 réparé en 30 minutes chrono rue Gallait. Le True Tone fonctionne parfaitement.', date: '2 days ago', publishTime: Date.now() - 172800000, shopName: 'Schaerbeek' },
+    { id: '2', author: 'Marc Janssens', rating: 5, text: 'J\'ai vendu mon S23 Ultra. Offre honnête (mieux que BackMarket), virement instantané reçu sur place à Anderlecht.', date: '1 week ago', publishTime: Date.now() - 604800000, shopName: 'Anderlecht' },
+    { id: '3', author: 'Elif Yilmaz', rating: 5, text: 'Ils ont sauvé les photos de mon mariage d\'un téléphone tombé dans l\'eau alors qu\'Apple disait que c\'était impossible.', date: '2 weeks ago', publishTime: Date.now() - 1209600000, shopName: 'Schaerbeek' },
+    { id: '4', author: 'Jonathan Verhaegen', rating: 5, text: 'Batterie changée sur mon MacBook Air. Service rapide et prix transparent. Je recommande pour le B2B.', date: '3 weeks ago', publishTime: Date.now() - 1814400000, shopName: 'Molenbeek' }
 ];
 
 const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [], variant = 'aegis' }) => {
@@ -36,14 +37,14 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ initialReviews = [], va
                     if (Array.isArray(data) && data.length > 0) {
                         setReviews(data);
                     } else {
-                        setReviews(MOCK_REVIEWS);
+                        setReviews(STATIC_REVIEWS);
                     }
                 } else {
-                    setReviews(MOCK_REVIEWS);
+                    setReviews(STATIC_REVIEWS);
                 }
             } catch (error) {
                 console.error('Error fetching reviews:', error);
-                setReviews(MOCK_REVIEWS);
+                setReviews(STATIC_REVIEWS);
             } finally {
                 setIsLoading(false);
             }

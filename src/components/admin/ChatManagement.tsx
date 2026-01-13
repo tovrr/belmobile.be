@@ -84,7 +84,7 @@ const ChatManagement: React.FC = () => {
     }, [selectedSession?.messages, selectedSession?.id]);
 
     // Mock Data for "Operation Velocity" Demo if DB is empty
-    const MOCK_SESSIONS: ChatSession[] = [
+    const DEMO_SESSIONS: ChatSession[] = [
         {
             id: 'mock-1',
             userEmail: 'client@gmail.com',
@@ -178,12 +178,12 @@ const ChatManagement: React.FC = () => {
                 setLoading(false);
             }, (error) => {
                 console.error("Error fetching sessions:", error);
-                setSessions(MOCK_SESSIONS);
+                setSessions(DEMO_SESSIONS);
                 setLoading(false);
             });
         } catch (err) {
             console.error("Firestore init error:", err);
-            setSessions(MOCK_SESSIONS);
+            setSessions(DEMO_SESSIONS);
             setLoading(false);
         }
 

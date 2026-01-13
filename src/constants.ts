@@ -59,20 +59,76 @@ export const SHOPS: Shop[] = [
     }
 ];
 
-export const MOCK_PRODUCTS: Product[] = [
+export const STATIC_PRODUCTS: Product[] = [
     {
         id: 1,
         name: "iPhone 13",
-        price: 599,
+        price: 499,
         description: "A15 Bionic chip, advanced dual-camera system.",
         imageUrl: "/images/hero_phone_bg.webp",
         category: "smartphone",
         brand: "Apple",
-        condition: 'perfect',
+        condition: 'good',
         capacity: '128GB',
-        color: 'Blue',
-        slug: 'apple-iphone-13-128gb-blue-perfect',
-        availability: { 'schaerbeek': 5, 'anderlecht': 2, 'molenbeek': 0 }
+        color: 'Midnight',
+        slug: 'apple-iphone-13-128gb-midnight-good',
+        availability: { 'schaerbeek': 5, 'anderlecht': 3, 'molenbeek': 0 }
+    },
+    {
+        id: 2,
+        name: "iPhone 15 Pro",
+        price: 950,
+        description: "Titanium design, A17 Pro chip, Action button.",
+        imageUrl: "/images/hero_phone_bg.webp",
+        category: "smartphone",
+        brand: "Apple",
+        condition: 'perfect',
+        capacity: '256GB',
+        color: 'Black Titanium',
+        slug: 'apple-iphone-15-pro-256gb-black-titanium-perfect',
+        availability: { 'schaerbeek': 2, 'anderlecht': 1, 'molenbeek': 0 }
+    },
+    {
+        id: 3,
+        name: "Samsung Galaxy S24 Ultra",
+        price: 1150,
+        description: "Galaxy AI, 200MP Camera, Titanium Frame.",
+        imageUrl: "/images/bento/repair_bg.webp",
+        category: "smartphone",
+        brand: "Samsung",
+        condition: 'perfect',
+        capacity: '512GB',
+        color: 'Titanium Grey',
+        slug: 'samsung-galaxy-s24-ultra-512gb-grey-like-new',
+        availability: { 'schaerbeek': 1, 'anderlecht': 0, 'molenbeek': 0 }
+    },
+    {
+        id: 4,
+        name: "MacBook Air M2",
+        price: 890,
+        description: "Supercharged by M2. Strikingly thin design.",
+        imageUrl: "/images/bento/business_bg.webp",
+        category: "laptop",
+        brand: "Apple",
+        condition: 'perfect',
+        capacity: '256GB',
+        color: 'Midnight',
+        slug: 'apple-macbook-air-m2-256gb-midnight-perfect',
+        availability: { 'schaerbeek': 1, 'anderlecht': 1, 'molenbeek': 1 }
+    },
+    {
+        id: 5,
+        name: "iPad Pro 11 M2",
+        price: 780,
+        description: "The ultimate iPad experience. M2 chip.",
+        imageUrl: "/images/bento/business_bg.webp",
+        category: "tablet",
+        brand: "Apple",
+        condition: 'good',
+        capacity: '128GB',
+        color: 'Space Grey',
+        slug: 'apple-ipad-pro-11-m2-128gb-space-grey-good',
+        availability: { 'schaerbeek': 2, 'anderlecht': 0, 'molenbeek': 0 }
     }
 ];
 
@@ -125,14 +181,14 @@ export const ADMIN_STATS: AdminStat[] = [
 ];
 
 
-export const MOCK_REVIEWS: Review[] = [
-    { id: 1, customerName: 'Thomas D.', rating: 5, comment: 'Super fast service! Replaced my iPhone screen in under an hour at Liedts.', date: '2024-07-20', platform: 'Google' },
-    { id: 2, customerName: 'Sophie M.', rating: 5, comment: 'Got a great price for my old Samsung. The transfer was instant. Highly recommend.', date: '2024-07-18', platform: 'Website' },
-    { id: 3, customerName: 'Jonas V.', rating: 4, comment: 'Very professional team. A bit busy on Saturday but worth the wait for the quality.', date: '2024-07-15', platform: 'Google' },
-    { id: 4, customerName: 'Elise B.', rating: 5, comment: 'Bought a refurbished iPad here, looks brand new! Saved me €200.', date: '2024-07-12', platform: 'Website' }
+export const STATIC_REVIEWS: Review[] = [
+    { id: 1, customerName: 'Sarah Dubois', rating: 5, comment: 'Incroyable ! Écran d\'iPhone 13 réparé en 30 minutes chrono rue Gallait. Le True Tone fonctionne parfaitement. Merci à l\'équipe !', date: '2024-12-10', platform: 'Google' },
+    { id: 2, customerName: 'Marc Janssens', rating: 5, comment: 'J\'ai vendu mon S23 Ultra. Offre honnête (mieux que BackMarket), virement instantané reçu sur place à Anderlecht. Très pro.', date: '2024-12-05', platform: 'Website' },
+    { id: 3, customerName: 'Elif Yilmaz', rating: 5, comment: 'Ils ont sauvé les photos de mon mariage d\'un téléphone tombé dans l\'eau alors qu\'Apple disait que c\'était impossible. Des vrais magiciens.', date: '2024-11-28', platform: 'Google' },
+    { id: 4, customerName: 'Jonathan Verhaegen', rating: 5, comment: 'Batterie changée sur mon MacBook Air. Service rapide et prix transparent. Je recommande pour le B2B.', date: '2024-11-15', platform: 'Website' }
 ];
 
-export const MOCK_FAQ_CATEGORIES: FAQCategory[] = [
+export const STATIC_FAQ_CATEGORIES: FAQCategory[] = [
     {
         id: 'general',
         title: 'General Questions',
@@ -226,7 +282,7 @@ export const SEO_CONTENT: Record<string, { title: string; text: string; image: s
     }
 };
 
-export const MOCK_BLOG_POSTS: BlogPost[] = [
+export const STATIC_BLOG_POSTS: BlogPost[] = [
     {
         id: 1,
         slug: 'reparation-ecran-iphone-15-pro-bruxelles-original',
@@ -428,7 +484,7 @@ We don't just "dry" the phone. We:
     }
 ];
 
-export const MOCK_REPAIR_PRICES: RepairPricing[] = [
+export const STATIC_REPAIR_PRICES: RepairPricing[] = [
     {
         id: 'sony-playstation-5-disc',
         currency: 'EUR',

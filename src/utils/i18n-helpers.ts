@@ -1,4 +1,4 @@
-import { MOCK_BLOG_POSTS } from '../constants';
+import { STATIC_BLOG_POSTS } from '../constants';
 import { SERVICES } from '../data/services';
 
 /**
@@ -82,7 +82,7 @@ export function getLocalizedPath(currentPath: string, newLang: 'en' | 'fr' | 'nl
     if (segments.includes('blog') && segments.length > segments.indexOf('blog') + 1) {
         const blogIndex = segments.indexOf('blog');
         const currentSlug = segments[blogIndex + 1];
-        const post = MOCK_BLOG_POSTS.find(p =>
+        const post = STATIC_BLOG_POSTS.find(p =>
             p.slug === currentSlug ||
             (p.slugs && Object.values(p.slugs).includes(currentSlug))
         );

@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useData } from '../../hooks/useData';
 import { useLanguage } from '../../hooks/useLanguage';
 import { CalendarIcon as CalendarDaysIcon, UsersIcon as UserIcon } from '../ui/BrandIcons';
-import { MOCK_BLOG_POSTS } from '../../constants';
+import { STATIC_BLOG_POSTS } from '../../constants';
 
 const Blog: React.FC = () => {
     const { language, t } = useLanguage();
@@ -14,8 +14,8 @@ const Blog: React.FC = () => {
 
     // Merge mock posts with Firestore posts
     const displayPosts = [
-        ...MOCK_BLOG_POSTS,
-        ...blogPosts.filter(bp => !MOCK_BLOG_POSTS.some(mp => mp.id === bp.id || mp.slug === bp.slug))
+        ...STATIC_BLOG_POSTS,
+        ...blogPosts.filter(bp => !STATIC_BLOG_POSTS.some(mp => mp.id === bp.id || mp.slug === bp.slug))
     ];
 
     return (

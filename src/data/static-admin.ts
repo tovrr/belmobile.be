@@ -10,7 +10,7 @@ export const QUOTES_CHART_DATA: ChartData[] = [
     { name: 'Apr', value: 40 }, { name: 'May', value: 35 }, { name: 'Jun', value: 50 },
 ];
 
-export const MOCK_SERVICES: Service[] = [
+export const STATIC_SERVICES: Service[] = [
     { id: 1, name: 'Screen Replacement', type: 'repair', description: 'Cracked or unresponsive screen repair for all major brands (iPhone, Samsung, Huawei, etc.).' },
     { id: 2, name: 'Battery Replacement', type: 'repair', description: 'Extend the life of your device with a brand new battery. Fixes fast draining and shutdown issues.' },
     { id: 3, name: 'Water Damage Repair', type: 'repair', description: 'Expert service to revive water-damaged devices. Includes ultrasonic cleaning and board diagnostics.' },

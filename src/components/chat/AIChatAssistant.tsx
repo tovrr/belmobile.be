@@ -16,7 +16,7 @@ import { serverTimestamp, setDoc, doc, getDoc, updateDoc, onSnapshot, deleteFiel
 import ChatActionCard from './ChatActionCard';
 import { useLockBodyScroll } from '../../hooks/useLockBodyScroll';
 import { useHaptic } from '../../hooks/useHaptic';
-import { MOCK_PRODUCTS } from '../../constants';
+import { STATIC_PRODUCTS } from '../../constants';
 import { sendGAEvent } from '../../utils/analytics';
 
 interface Message {
@@ -364,7 +364,7 @@ const AIChatAssistant: React.FC = () => {
                 text = text.replace(productMatch[0], '').trim();
 
                 // Lookup product
-                const product = MOCK_PRODUCTS.find(p => p.slug === slug || p.id.toString() === slug) || MOCK_PRODUCTS[0];
+                const product = STATIC_PRODUCTS.find(p => p.slug === slug || p.id.toString() === slug) || STATIC_PRODUCTS[0];
 
                 metadata = {
                     type: 'product',

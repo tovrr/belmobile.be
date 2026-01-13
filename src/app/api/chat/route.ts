@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { SHOPS, MOCK_REPAIR_PRICES } from '../../../constants';
+import { SHOPS, STATIC_REPAIR_PRICES } from '../../../constants';
 import { REPAIR_ISSUES } from '../../../data/repair-issues';
 import { modelsData } from '../../../data/deviceData';
 

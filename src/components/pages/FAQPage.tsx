@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '../../hooks/useLanguage';
-import { MOCK_FAQ_CATEGORIES } from '../../constants';
+import { STATIC_FAQ_CATEGORIES } from '../../constants';
 import {
     PlusIcon,
     MinusIcon,
@@ -29,7 +29,7 @@ const FAQPage: React.FC = () => {
     };
 
     // Remove AI Verified category as requested
-    const allCategories = MOCK_FAQ_CATEGORIES;
+    const allCategories = STATIC_FAQ_CATEGORIES;
 
     // Flatten all FAQs for Schema Markup (SEO)
     const faqSchemaItems = allCategories.flatMap(cat =>

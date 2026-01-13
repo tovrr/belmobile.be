@@ -39,7 +39,7 @@ export function useFormPersistence<T>(key: string, initialState: T) {
 
                 // Validate Version
                 if (parsed.version === PERSISTENCE_VERSION) {
-                    console.log(`[Persistence] Restored ${key} (v${parsed.version})`);
+                    // console.log(`[Persistence] Restored ${key} (v${parsed.version})`);
                     setState(parsed.data);
                 } else {
                     console.warn(`[Persistence] Discarding old version ${key} (Found: ${parsed.version}, Expected: ${PERSISTENCE_VERSION})`);

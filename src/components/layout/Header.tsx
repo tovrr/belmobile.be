@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { NAV_LINKS, MOCK_BLOG_POSTS } from '../../constants';
+import { NAV_LINKS, STATIC_BLOG_POSTS } from '../../constants';
 import { MenuIcon as Bars3Icon, CloseIcon as XMarkIcon, PhoneIcon } from '../ui/BrandIcons';
 import { useLanguage } from '../../hooks/useLanguage';
 

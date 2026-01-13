@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { REPAIR_ISSUES, MOCK_REPAIR_PRICES } from '../../constants';
+import { REPAIR_ISSUES, STATIC_REPAIR_PRICES } from '../../constants';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useData } from '../../hooks/useData';
 import { createSlug } from '../../utils/slugs';
@@ -71,7 +71,7 @@ const PriceTable: React.FC = () => {
                             {popularModels.map((item, idx) => {
                                 const slug = createSlug(`${item.brand} ${item.model}`);
                                 const pricing = repairPrices.find(p => p.id === slug);
-                                const fallback = MOCK_REPAIR_PRICES.find(p => p.id === slug);
+                                const fallback = STATIC_REPAIR_PRICES.find(p => p.id === slug);
 
                                 // Use dynamic price if available, otherwise fallback to estimate
                                 // Fix: Check override -> fallback -> generic

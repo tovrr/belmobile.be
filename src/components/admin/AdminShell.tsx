@@ -87,9 +87,7 @@ const AdminShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         { name: 'Services', href: '/admin/services', icon: WrenchScrewdriverIcon },
         { name: 'Shops', href: '/admin/shops', icon: BuildingStorefrontIcon },
         ...(profile?.role === 'super_admin' ? [{ name: 'Team', href: '/admin/team', icon: UsersIcon }] : []),
-        { name: 'Blog Posts', href: '/admin/blog', icon: NewspaperIcon },
         { name: 'Franchise', href: '/admin/franchise', icon: GlobeAltIcon },
-        { name: 'Global SEO', href: '/admin/seo', icon: GlobeAltIcon },
         { name: 'Templates', href: '/admin/templates', icon: DocumentTextIcon },
         { name: 'Settings', href: '/admin/settings', icon: Cog6ToothIcon },
     ];

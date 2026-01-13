@@ -2,7 +2,7 @@ import React, { cache } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { Metadata } from 'next';
 import BlogPost from '../../../../components/pages/BlogPost';
-import { MOCK_BLOG_POSTS } from '../../../../constants';
+import { STATIC_BLOG_POSTS } from '../../../../constants';
 import { db } from '../../../../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { BlogPost as BlogPostType } from '../../../../types';
@@ -23,13 +23,13 @@ const getAllPosts = cache(async (): Promise<BlogPostType[]> => {
 
         // Merge Mock and Firestore posts (deduplicating by ID or slug)
         const allPosts = [
-            ...MOCK_BLOG_POSTS,
-            ...firestorePosts.filter(fp => !MOCK_BLOG_POSTS.some(mp => mp.id === fp.id || mp.slug === fp.slug))
+            ...STATIC_BLOG_POSTS,
+            ...firestorePosts.filter(fp => !STATIC_BLOG_POSTS.some(mp => mp.id === fp.id || mp.slug === fp.slug))
         ];
         return allPosts;
     } catch (error) {
         console.error("Error fetching blog posts for SSG:", error);
-        return MOCK_BLOG_POSTS;
+        return STATIC_BLOG_POSTS;
     }
 });
 

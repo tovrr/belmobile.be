@@ -75,14 +75,14 @@ export async function saveQuote(
             const emailData = getMagicLinkEmail(email, magicLink, lang, deviceName, inferredType, quoteId);
 
             await serverEmailService.sendEmail(email, emailData.subject, emailData.html);
-            console.log(`[SaveQuote] Email sent to ${email}`);
+            // console.log(`[SaveQuote] Email sent to ${email}`);
         } catch (emailError) {
             console.error('[SaveQuote] Failed to send email:', emailError);
             // We don't fail the request if email fails, but we log it. 
             // The user still got the UI confirmation that it was saved (which is technically true).
         }
 
-        console.log(`[SaveQuote] Saved quote ${quoteId} for ${email}`);
+        console.log(`[SaveQuote] Saved quote ${quoteId} (hash: ${crypto.createHash('md5').update(email).digest('hex').substring(0, 8)})`);
 
         return { success: true, quoteId };
 
