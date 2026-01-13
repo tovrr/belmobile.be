@@ -47,21 +47,25 @@ export const parseRouteParams = (slug: string[]) => {
 
     // 2. Parse device/model/category from remaining segments
     if (segments.length > 0) {
-        const seg1 = segments[0];
-        // Robust check: match exact ID OR slugified ID (e.g. 'console_home' matched by 'console-home')
-        const foundCat = DEVICE_TYPES.find(d => d.id === seg1 || createSlug(d.id) === seg1);
+        const seg1 = segments[0].toLowerCase().trim();
+        // Robust check: match exact ID OR slugified ID OR any Alias (handles /tablettes or /ipads)
+        const foundCat = DEVICE_TYPES.find(d =>
+            d.id.toLowerCase() === seg1 ||
+            createSlug(d.id) === seg1 ||
+            d.aliases?.some(a => createSlug(a) === seg1 || a.toLowerCase() === seg1)
+        );
+
         if (foundCat) {
             deviceCategory = foundCat.id;
             // Check if next segment is a Brand
             if (segments.length > 1) {
-                const seg2 = segments[1];
+                const seg2 = segments[1].toLowerCase().trim();
                 const foundDev = findDefaultBrandCategory(seg2);
                 if (foundDev) {
                     device = {
                         ...foundDev,
-                        deviceType: deviceCategory || foundDev.deviceType
+                        deviceType: deviceCategory || foundDev.deviceType // Enforce category from URL
                     };
-                    // Note: foundDev.deviceType might differ but we enforce category from URL
                     if (segments.length > 2) {
                         deviceModel = segments[2];
                     }
@@ -75,10 +79,11 @@ export const parseRouteParams = (slug: string[]) => {
 
                 // Check if next segment is actually a specific Category Alias (e.g. /apple/tablets)
                 if (segments.length > 1) {
-                    const seg2 = segments[1];
+                    const seg2 = segments[1].toLowerCase().trim();
                     const overriddenCat = DEVICE_TYPES.find(d =>
-                        d.id === seg2 ||
-                        d.aliases?.some(a => a.toLowerCase() === seg2.toLowerCase())
+                        d.id.toLowerCase() === seg2 ||
+                        createSlug(d.id) === seg2 ||
+                        d.aliases?.some(a => createSlug(a) === seg2 || a.toLowerCase() === seg2)
                     );
 
                     if (overriddenCat) {

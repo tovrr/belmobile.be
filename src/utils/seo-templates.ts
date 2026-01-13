@@ -134,66 +134,76 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
         const suffix = getRepairSuffix(ctx);
 
         if (lang === 'fr') {
-            const templates = [
-                `Réparation ${deviceName} ${loc} ${suffix}`,
+            const templates = (price && price > 0) ? [
+                `Réparation ${deviceName} ${loc} dès ${price}€`,
+                `${deviceName} cassé ? Réparation à ${loc} dès ${price}€`,
+                `Réparation ${fullDeviceName} en 30 min à ${loc} (${price}€)`,
+                `${deviceNameLC} à réparer à ${loc} dès ${price}€ : Devis Gratuit`
+            ] : [
+                `Réparation ${deviceName} ${loc} : Devis Gratuit`,
                 `${deviceName} cassé ? Réparation à ${loc} - Belmobile`,
                 `Réparation ${fullDeviceName} en 30 min à ${loc}`,
-                `Spécialiste de votre ${deviceNameLC} à ${loc} : Devis Gratuit`
+                `Spécialiste de votre ${deviceNameLC} à ${loc} : Belmobile`
             ];
             const isPhoneContext = deviceCategory === 'smartphone';
             if (isPhoneContext) {
-                templates.push(`Réparation GSM & Téléphone à ${loc} - Belmobile`, `Magasin de Réparation GSM ${loc} : ${deviceName}`, `Expert Réparation iPhone & Smartphone ${loc}`);
+                const s = (price && price > 0) ? ` : Dès ${price}€` : '';
+                templates.push(`Réparation GSM & Téléphone à ${loc}${s}`, `Magasin de Réparation GSM ${loc} : ${deviceName}${s}`, `Expert Réparation iPhone & Smartphone ${loc}${s}`);
             } else if (!deviceCategory) {
                 templates.push(`Réparation Multimédia & Électronique à ${loc}`, `Atelier de Réparation ${loc} : Smartphone, PC, Console`, `Belmobile ${loc} : Magasin de Réparation High-Tech`);
             } else if (deviceCategory === 'tablet') {
-                templates.push(`Réparation Tablette & iPad à ${loc} - Belmobile`, `Remplacement Vitre Tablette ${loc} : ${deviceName}`);
+                const s = (price && price > 0) ? ` : Dès ${price}€` : '';
+                templates.push(`Réparation Tablette & iPad à ${loc}${s}`, `Vitre de Tablette à remplacer ${loc}${s}`);
             } else if (deviceCategory === 'laptop') {
                 templates.push(`Réparation Ordinateur Portable à ${loc} - PC & Mac`);
             }
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
         } else if (lang === 'nl') {
+            const p = (price && price > 0) ? ` vanaf ${price}€` : '';
             const templates = [
-                `Reparatie ${deviceName} ${loc} ${suffix}`,
-                `${deviceName} Herstellen in ${loc} - Klaar in 30 min`,
-                `Uw experts for ${fullDeviceName} in ${loc}`,
-                `${deviceName} scherm vervangen ${loc}? Belmobile`
+                `Reparatie ${deviceName} ${loc}${p}`,
+                `${deviceName} Herstellen in ${loc}${p} - 30 min`,
+                `Uw experts voor ${fullDeviceName} in ${loc}${p}`,
+                `${deviceName} scherm vervangen ${loc}${p}? Belmobile`
             ];
             const isPhoneContext = deviceCategory === 'smartphone';
             if (isPhoneContext) {
-                templates.push(`GSM Reparatie ${loc} - Klaar terwijl u wacht`, `Telefoon Winkel ${loc} : Reparatie & Onderhoud`);
+                templates.push(`GSM Reparatie ${loc}${p} - Klaar terwijl u wacht`, `Telefoon Winkel ${loc} : Reparatie & Onderhoud`);
             } else if (deviceCategory === 'tablet') {
-                templates.push(`Tablet & iPad Reparatie ${loc} - Belmobile`, `Scherm Vervangen Tablet ${loc} : ${deviceName}`);
+                templates.push(`Tablet & iPad Reparatie ${loc}${p} - Belmobile`, `Scherm Vervangen Tablet ${loc} : ${deviceName}${p}`);
             }
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
         } else if (lang === 'tr') {
+            const p = (price && price > 0) ? ` ${price}€'den başlayan fiyatlarla` : '';
             const templates = [
-                `${deviceName} Onarımı ${loc} ${suffix}`,
-                `${deviceName} mi bozuldu? ${loc}'de Hızlı Onarım - Belmobile`,
-                `${fullDeviceName} 30 dakikada onarım ${loc}`,
-                `${loc}'deki ${deviceName} uzmanınız: Ücretsiz Fiyat Teklifi`
+                `${deviceName} Onarımı ${loc}${p}`,
+                `${deviceName} mi bozuldu? ${loc}'de Hızlı Onarım${p}`,
+                `${fullDeviceName} 30 dakikada onarım ${loc}${p}`,
+                `${loc}'deki ${deviceName} uzmanınız${p}`
             ];
             const isPhoneContext = deviceCategory === 'smartphone';
             if (isPhoneContext) {
-                templates.push(`${loc}'de Cep Telefonu Tamiri - Beklerken Onarım`, `${loc} Telefon Hastanesi: ${deviceName} Servisi`);
+                templates.push(`${loc}'de Cep Telefonu Tamiri${p}`, `${loc} Telefon Hastanesi: ${deviceName} Servisi${p}`);
             } else if (deviceCategory === 'tablet') {
-                templates.push(`${loc} Tablet ve iPad Onarımı - Belmobile`, `${loc}'de Tablet Cam Değişimi: ${deviceName}`);
+                templates.push(`${loc} Tablet ve iPad Onarımı${p}`, `${loc}'de Tablet Cam Değişimi: ${deviceName}${p}`);
             }
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
         } else { // EN
+            const p = (price && price > 0) ? ` from ${price}€` : '';
             const templates = [
-                `${deviceName} Repair ${loc} ${suffix}`,
-                `Broken ${deviceName}? Fast Repair in ${loc}`,
-                `${fullDeviceName} Screen Replacement ${loc}`,
-                `Expert ${deviceName} Repair Service ${loc}`
+                `${deviceName} Repair ${loc}${p}`,
+                `Broken ${deviceName}? Fast Repair in ${loc}${p}`,
+                `${fullDeviceName} Screen Replacement ${loc}${p}`,
+                `Expert ${deviceName} Repair Service ${loc}${p}`
             ];
             const isPhoneContext = deviceCategory === 'smartphone';
             if (isPhoneContext) {
-                templates.push(`Phone Repair ${loc} - Fast Service`, `Smartphone Fix ${loc} : ${deviceName}`);
+                templates.push(`Phone Repair ${loc}${p} - Fast Service`, `Smartphone Fix ${loc} : ${deviceName}${p}`);
             } else if (deviceCategory === 'tablet') {
-                templates.push(`Tablet & iPad Repair ${loc} - Belmobile`, `Broken Tablet Screen? Fix in ${loc}`);
+                templates.push(`Tablet & iPad Repair ${loc}${p} - Belmobile`, `Broken Tablet Screen? Fix in ${loc}${p}`);
             }
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
@@ -202,42 +212,51 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
         const suffix = getBuybackSuffix(ctx);
 
         if (lang === 'fr') {
-            const templates = [
-                `Rachat ${deviceName} ${loc} ${suffix}`,
+            const templates = (price && price > 0) ? [
+                `Rachat ${deviceName} ${loc} : ${price}€ Cash`,
+                `Paiement ${price}€ pour votre ${fullDeviceNameLC} à ${loc}`,
+                `Reprise ${deviceName} : Estimé à ${price}€ à ${loc}`,
+                `Recyclage de votre ${deviceNameLC} à ${loc} - Payé ${price}€ Cash`
+            ] : [
+                `Rachat ${deviceName} ${loc} : Meilleur Prix`,
                 `Vendez votre ${fullDeviceNameLC} au meilleur prix à ${loc}`,
                 `Reprise ${deviceName} : Estimation immédiate à ${loc}`,
                 `Recyclage de votre ${deviceNameLC} à ${loc} - Payé Cash`
             ];
             const isPhoneContext = !deviceCategory || deviceCategory === 'smartphone';
             if (isPhoneContext) {
-                templates.push(`Rachat GSM & Smartphone à ${loc} - Cash Direct`, `Vendre mon iPhone/Samsung à ${loc}`);
+                const p = (price && price > 0) ? ` : ${price}€` : '';
+                templates.push(`Rachat GSM & Smartphone à ${loc}${p} - Cash Direct`, `Vendre mon iPhone/Samsung à ${loc}${p}`);
             }
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
         } else if (lang === 'nl') {
+            const p = (price && price > 0) ? ` : ${price}€ Cash` : '';
             const templates = [
-                `Verkoop uw ${deviceName} ${loc} ${suffix}`,
-                `Uw ${fullDeviceName} verkopen in ${loc}? Hoogste Prijs`,
-                `Inkoop ${deviceName} ${loc} - Direct Cash`,
-                `Waarde van uw ${deviceName}? Gratis taxatie in ${loc}`
+                `Verkoop uw ${deviceName} ${loc}${p}`,
+                `Uw ${fullDeviceName} verkopen in ${loc}${p}`,
+                `Inkoop ${deviceName} ${loc}${p} - Direct Cash`,
+                `Waarde van uw ${deviceName}${p}? Gratis taxatie`
             ];
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
         } else if (lang === 'tr') {
+            const p = (price && price > 0) ? ` : ${price}€ Nakit` : '';
             const templates = [
-                `${deviceName} Geri Alım ${loc} ${suffix}`,
-                `${fullDeviceName}'inizi ${loc}'de en iyi fiyata satın`,
-                `${deviceName} Takas: ${loc}'de anında nakit`,
-                `${deviceName} Geri Dönüşüm ${loc} - Hemen Ödeme`
+                `${deviceName} Geri Alım ${loc}${p}`,
+                `${fullDeviceName}'inizi ${loc}'de satın${p}`,
+                `${deviceName} Takas: ${loc}'de${p}`,
+                `${deviceName} Geri Dönüşüm ${loc}${p}`
             ];
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
         } else { // EN
+            const p = (price && price > 0) ? ` : ${price}€ Cash` : '';
             const templates = [
-                `Sell ${deviceName} ${loc} ${suffix}`,
-                `Sell your ${fullDeviceName} in ${loc} - Best Price`,
-                `Trade-in ${deviceName} ${loc} - Instant Cash`,
-                `Recycle ${deviceName} in ${loc} - Get Paid Today`
+                `Sell ${deviceName} ${loc}${p}`,
+                `Sell your ${fullDeviceName} in ${loc}${p}`,
+                `Trade-in ${deviceName} ${loc}${p} - Instant Cash`,
+                `Recycle ${deviceName} in ${loc}${p}`
             ];
             const idx = getDeterministicIndex(seed, templates.length);
             title = templates[idx];
@@ -256,32 +275,32 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
         if (lang === 'fr') {
             const templates = [
                 `Confiez votre ${fullDeviceName} aux experts de Belmobile à ${loc}. Réparation ${services} en 30 minutes${priceText ? ' ' + priceText : ''}. Garantie 1 an.`,
-                `Besoin d'une réparation pour ${deviceName} ? Nous réparons votre appareil sur place à ${loc}. Prix transparents${priceText ? ' ' + priceText : ''}.`,
-                `Votre ${fullDeviceName} est cassé ? Pas de panique. Belmobile ${loc} le remet à neuf en moins d'une heure. Garantie pièces et main d'œuvre.`
+                `Besoin d'une réparation pour ${deviceName} ? Nous réparons votre appareil sur place à ${loc}${priceText ? ' ' + priceText : ''}. Prix transparents.`,
+                `Votre ${fullDeviceName} est cassé ? Pas de panique. Belmobile ${loc} le remet à neuf en moins d'une heure. Devis gratuit${priceText ? ' ' + priceText : ''}.`
             ];
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
             description = templates[idx];
         } else if (lang === 'nl') {
             const templates = [
                 `Laat uw ${fullDeviceName} herstellen door Belmobile in ${loc}. ${services} vervangen in 30 minuten${priceText ? ' ' + priceText : ''}. 1 jaar garantie.`,
-                `${deviceName} reparatie nodig? Wij herstellen uw toestel direct in ${loc}. Bekijk onze prijzen voor ${services}.`,
-                `Is uw ${fullDeviceName} stuk? Belmobile ${loc} fixt het binnen het uur. Garantie op onderdelen en werkuren.`
+                `${deviceName} reparatie nodig? Wij herstellen uw toestel direct in ${loc}${priceText ? ' ' + priceText : ''}. Bekijk onze prijzen.`,
+                `Is uw ${fullDeviceName} stuk? Belmobile ${loc} fixt het binnen het uur${priceText ? ' ' + priceText : ''}. Garantie op onderdelen.`
             ];
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
             description = templates[idx];
         } else if (lang === 'tr') {
             const templates = [
                 `${fullDeviceName}'inizi ${loc}'deki Belmobile uzmanlarına emanet edin. 30 dakikada ${services} değişimi${priceText ? ' ' + priceText : ''}. 1 yıl garanti.`,
-                `${deviceName} onarımı mı lazım? Cihazınızı ${loc}'de hemen onarıyoruz. Şeffaf fiyatlar${priceText ? ' ' + priceText : ''}. Hızlı servis.`,
-                `${fullDeviceName} mi bozuldu? Belmobile ${loc} bir saatten kısa sürede cihazınızı yeniler. Parça ve işçilik garantisi.`
+                `${deviceName} onarımı mı lazım? Cihazınızı ${loc}'de hemen onarıyoruz. Hızlı servis${priceText ? ' ' + priceText : ''}.`,
+                `${fullDeviceName} mi bozuldu? Belmobile ${loc} bir saatten kısa sürede cihazınızı yeniler${priceText ? ' ' + priceText : ''}.`
             ];
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
             description = templates[idx];
         } else {
             const templates = [
                 `Trust your ${fullDeviceName} with Belmobile experts in ${loc}. Screen & battery repair in 30 minutes${priceText ? ' ' + priceText : ''}. 1 Year Warranty.`,
-                `Need a ${deviceName} repair? We fix your device on-site in ${loc}. Transparent prices${priceText ? ' ' + priceText : ''}. Fast service.`,
-                `Broken ${fullDeviceName}? Belmobile ${loc} restores it in under an hour. Parts and labor warranty included.`
+                `Need a ${deviceName} repair? We fix your device on-site in ${loc}${priceText ? ' ' + priceText : ''}. Transparent prices.`,
+                `Broken ${fullDeviceName}? Belmobile ${loc} restores it in under an hour${priceText ? ' ' + priceText : ''}. Parts and labor warranty.`
             ];
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
             description = templates[idx];
@@ -292,32 +311,32 @@ export const generateSeoMetadata = (ctx: SeoContext) => {
         if (lang === 'fr') {
             const templates = [
                 `Vendez votre ${fullDeviceName} au meilleur prix chez Belmobile à ${loc}. Estimation gratuite et paiement cash immédiat${priceText ? ' ' + priceText : ''}.`,
-                `Transformez votre ${deviceName} en argent liquide. Reprise simple et rapide à ${loc}. Nous rachetons tous les modèles.`,
-                `Offre de reprise pour ${fullDeviceName} : obtenez une estimation en ligne ou en magasin à ${loc}. Paiement direct.`
+                `Transformez votre ${deviceName} en argent liquide. Reprise simple et rapide à ${loc}${priceText ? ' ' + priceText : ''}. Nous rachetons tous les modèles.`,
+                `Offre de reprise pour ${fullDeviceName} à ${loc} : obtenez une estimation immédiate${priceText ? ' ' + priceText : ''}. Paiement direct.`
             ];
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
             description = templates[idx];
         } else if (lang === 'nl') {
             const templates = [
-                `Verkoop uw ${fullDeviceName} voor de beste prijs bij Belmobile in ${loc}. Gratis schatting en directe contante betaling${priceText ? ' ' + priceText : ''}.`,
-                `Zet uw ${deviceName} om in cash. Eenvoudige en snelle inkoop in ${loc}. Wij kopen alle modellen.`,
-                `Inruilactie voor ${fullDeviceName}: krijg direct bir schatting online of in onze winkel in ${loc}. Direct uitbetaald.`
+                `Verkoop uw ${fullDeviceName} voor de beste pris bij Belmobile in ${loc}. Gratis schatting en directe contante betaling${priceText ? ' ' + priceText : ''}.`,
+                `Zet uw ${deviceName} om in cash. Eenvoudige en snelle inkoop in ${loc}${priceText ? ' ' + priceText : ''}. Wij kopen alle modellen.`,
+                `Inruilactie voor ${fullDeviceName}: krijg direct een schatting in onze winkel in ${loc}${priceText ? ' ' + priceText : ''}. Direct uitbetaald.`
             ];
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
             description = templates[idx];
         } else if (lang === 'tr') {
             const templates = [
                 `${fullDeviceName}'inizi ${loc}'deki Belmobile'de en iyi fiyata satın. Ücretsiz ekspertiz ve anında nakit ödeme${priceText ? ' ' + priceText : ''}.`,
-                `${deviceName}'inizi nakite çevirin. ${loc}'de hızlı ve kolay geri alım. Tüm modelleri alıyoruz.`,
-                `${fullDeviceName} için geri alım teklifi: ${loc}'deki mağazamızda veya online hemen fiyat alın. Anında ödeme.`
+                `${deviceName}'inizi nakite çevirin. ${loc}'de hızlı ve kolay geri alım${priceText ? ' ' + priceText : ''}. Tüm modelleri alıyoruz.`,
+                `${fullDeviceName} için geri alım teklifi: ${loc}'deki mağazamızda hemen fiyat alın${priceText ? ' ' + priceText : ''}. Anında ödeme.`
             ];
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
             description = templates[idx];
         } else {
             const templates = [
                 `Sell your ${fullDeviceName} for the best price at Belmobile in ${loc}. Free quote and instant cash payment${priceText ? ' ' + priceText : ''}.`,
-                `Turn your ${deviceName} into cash. Simple and fast trade-in in ${loc}. We buy all models.`,
-                `Trade-in offer for ${fullDeviceName}: get an instant quote online or at our store in ${loc}. Get paid today.`
+                `Turn your ${deviceName} into cash. Simple and fast trade-in in ${loc}${priceText ? ' ' + priceText : ''}. We buy all models.`,
+                `Trade-in offer for ${fullDeviceName}: get an instant quote at our store in ${loc}${priceText ? ' ' + priceText : ''}. Get paid today.`
             ];
             const idx = getDeterministicIndex(seed + '_desc', templates.length);
             description = templates[idx];

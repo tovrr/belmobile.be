@@ -205,7 +205,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
     if (!routeData) {
         return notFound();
     }
-    const { service, location, device, deviceModel } = routeData;
+    const { service, location, device, deviceModel, deviceCategory } = routeData;
 
     // FETCH REAL PRICING FOR PAGE (CTR BOOSTER)
     let pricing: PricingQuote | null = null;
@@ -262,7 +262,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
 
     // Prioritize category from search params if available, otherwise use route data, fallback to Real Category from DB
     const categoryParam = resolvedSearchParams?.category;
-    let finalDeviceCategory = typeof categoryParam === 'string' ? categoryParam : (routeData.deviceCategory || device?.deviceType);
+    let finalDeviceCategory = routeData.deviceCategory || (typeof categoryParam === 'string' ? categoryParam : device?.deviceType);
 
     // AEGIS FIX: If the route parser guessed 'smartphone' (default) but the pricing DB says it's something else (e.g. smartwatch), TRUST THE DB.
     if (realCategory && realCategory !== 'smartphone' && finalDeviceCategory === 'smartphone') {
