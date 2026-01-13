@@ -303,7 +303,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                         ? t('contact_for_price_buyback')
                                                         : (repairIssues.includes('screen') && !selectedScreenQuality)
                                                             ? '-'
-                                                            : t('sur_devis', 'sur devis')
+                                                            : (repairIssues.includes('other') && repairIssues.length === 1)
+                                                                ? <span className="text-sm font-black uppercase tracking-widest text-emerald-500">{t('free', 'gratuit')}</span>
+                                                                : t('on_request')
                                                 ) : '-'
                                             )
                                         ) : estimateDisplay}
