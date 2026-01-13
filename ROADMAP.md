@@ -1,6 +1,6 @@
 # 🗺️ Operation Velocity Roadmap (Next 4 Weeks)
 
-**Current Phase**: **Week 3: B2B Fleet Portal** (Development)
+**Current Phase**: **Week 4: Physical Expansion** (Development)
 
 ### 🟢 Week 1: SEO Dominance (COMPLETED)
 *   **Goal**: 500+ Indexed Device Pages.
@@ -17,15 +17,15 @@
     *   [x] "Magic Link" Recovery Emails. (Implemented via SendGrid/Brevo & `save-quote`)
     *   [x] "Save Quote" functionality. (Implemented `Sidebar` & `SaveQuoteModal`)
 
-### 🟡 Week 3: B2B Fleet Portal (CURRENT FOCUS)
+### 🟢 Week 3: B2B Fleet Portal (COMPLETED)
 *   **Goal**: 1 Corporate Contract.
 *   **Tasks**:
-    *   [ ] Client Dashboard View.
-    *   [ ] Bulk IMEI Upload.
-    *   [ ] Automated PDF Invoicing.
+    *   [x] Client Dashboard View. (Active in `business/portal/dashboard/page.tsx`)
+    *   [x] Bulk IMEI Upload. (Implemented via `BulkFleetUploadModal`)
+    *   [x] Automated PDF Invoicing. (Implemented and verified in `invoices/page.tsx`)
 
-### 🔵 Week 4: Physical Expansion
+### 🟡 Week 4: Physical Expansion (CURRENT FOCUS)
 *   **Goal**: 5 Partner Stores.
 *   **Tasks**:
     *   [ ] Kiosk Mode (Locked UI).
-    *   [ ] Print Label Integration.
+    *   [ ] Print Label Integration (SendCloud?).
