@@ -23,9 +23,11 @@ interface ProductDetailProps {
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ initialProduct }) => {
     const params = useParams();
-    // params.slug might be string or string[] depending on route. 
-    // In [category]/[slug], it is string.
-    const slug = typeof params?.slug === 'string' ? params.slug : params?.slug?.[0];
+    // params.slug might be string or string[] depending on route.
+    // In catch-all [...slug], it is an array. We want the last segment.
+    const slug = typeof params?.slug === 'string'
+        ? params.slug
+        : (Array.isArray(params?.slug) ? params.slug[params.slug.length - 1] : '');
 
     const router = useRouter();
     const { products, loading } = useData();

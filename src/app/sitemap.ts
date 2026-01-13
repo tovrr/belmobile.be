@@ -140,7 +140,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
 
         // 3. Products
-        const productsPath = { fr: 'produits', nl: 'producten', tr: 'urunler', en: 'products' };
+        // Use 'acheter', 'kopen', 'buy' to match the ProductCard routing and avoid the /products redirector
+        const productsPath = { fr: 'acheter', nl: 'kopen', tr: 'buy', en: 'buy' };
         STATIC_PRODUCTS.forEach(product => {
             if (product.slug) {
                 LANGUAGES.forEach(lang => {

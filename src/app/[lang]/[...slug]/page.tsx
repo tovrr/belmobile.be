@@ -12,10 +12,12 @@ import { Shop } from '@/types';
 import { parseRouteParams } from '@/utils/route-parser';
 import { generateSeoMetadata, getKeywordsForPage, generateMetaKeywords } from '@/utils/seo-templates';
 import { getPriceQuote, getPricingData, PricingQuote } from '@/services/server/pricing.dal';
+import { getProducts } from '@/services/productService';
 
 import BuybackRepair from '@/components/wizard/BuybackRepair';
 import Hreflang from '@/components/seo/Hreflang';
 import SchemaOrg from '@/components/seo/SchemaOrg';
+import ProductDetail from '@/components/product/ProductDetail';
 
 // --- CONFIG ---
 // Enable ISR (1 Hour Cache) to prevent Function Invocation Spikes
@@ -71,6 +73,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                 robots: { index: true, follow: true }
             };
         }
+
+        // SHOP PRODUCT PAGE FALLBACK
+        // Check for 'acheter', 'buy', 'kopen' routes which are NOT strictly services but product pages
+        if (['acheter', 'buy', 'kopen'].includes(s0)) {
+            // Last part of slug is likely product ID/slug
+            const productSlug = slug[slug.length - 1];
+            const products = await getProducts();
+            const product = products.find(p => p.slug === productSlug);
+
+            if (product) {
+                return {
+                    title: `${product.name} - ${product.price}€ | Belmobile`,
+                    description: product.description || `Buy ${product.name} refurbishment or new at Belmobile.`,
+                    openGraph: {
+                        images: [product.imageUrl]
+                    }
+                }
+            }
+        }
+
         return {};
     }
 
@@ -199,6 +221,18 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
     // Filter out asset paths that might have fallen through
     if (slug.some(s => ['cdn', 'checkouts', 'images', 'assets', 'static'].includes(s))) {
         return notFound();
+    }
+
+    // PRODUCT PAGE ROUTING
+    const s0 = slug?.[0]?.toLowerCase();
+    if (['acheter', 'buy', 'kopen'].includes(s0)) {
+        const productSlug = slug[slug.length - 1]; // Assume last segment is slug
+        const products = await getProducts();
+        const product = products.find(p => p.slug === productSlug);
+
+        if (product) {
+            return <ProductDetail initialProduct={product} />;
+        }
     }
 
     const routeData = parseRouteParams(slug);
