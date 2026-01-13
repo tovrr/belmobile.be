@@ -285,18 +285,18 @@ const SchemaMarkup: React.FC<SchemaProps> = ({ type = 'organization', product, b
 
     // 8. VideoObject Schema (Video SEO Strategy for 2026)
     // Helps appear in "Videos" tab and Google Discover
+    // FIXED: Removed placeholder embedUrl, updated thumbnail to real poster, updated date.
     const videoObjectSchema = type === 'organization' ? {
         "@context": "https://schema.org",
         "@type": "VideoObject",
         "name": "Belmobile - Expert Smartphone Repair in Brussels",
         "description": "See inside our certified repair labs in Schaerbeek. 30-minute iPhone and Samsung repairs.",
         "thumbnailUrl": [
-            "https://belmobile.be/og-image.jpg"
+            "https://belmobile.be/images/microsoldering-lab-motherboard-repair-brussels.webp"
         ],
-        "uploadDate": "2024-01-01T08:00:00+08:00",
+        "uploadDate": "2026-01-01T08:00:00+01:00",
         "duration": "PT1M33S",
         "contentUrl": "https://belmobile.be/videos/Belmobile_corporate_video_2026.mp4",
-        "embedUrl": "https://www.youtube.com/embed/placeholder",
         "interactionStatistic": {
             "@type": "InteractionCounter",
             "interactionType": { "@type": "WatchAction" },
