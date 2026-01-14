@@ -1,6 +1,7 @@
 import { Quote } from '../types';
 import { sendEmail } from './emailService';
 import { getQuoteStatusEmail } from '../utils/emailTemplates';
+import { logger } from '@/utils/logger';
 
 export const notificationService = {
     /**
@@ -15,14 +16,14 @@ export const notificationService = {
             try {
                 const { subject, html } = getQuoteStatusEmail(quote, id, lang);
                 await sendEmail(quote.customerEmail, subject, html);
-                console.log(`[NotificationService] Email sent to ${quote.customerEmail}`);
+                logger.info(`[NotificationService] Email sent to ${quote.customerEmail}`, { quoteId: id, action: 'email_sent', flow: quote.type });
             } catch (error) {
-                console.error('[NotificationService] Email failed:', error);
+                logger.error('[NotificationService] Email failed:', { quoteId: id, action: 'email_error', flow: quote.type }, error);
             }
         }
 
-        // 2. Send WhatsApp (Proactive)
-        if (notifyMethods.includes('whatsapp') && quote.customerPhone) {
+        // 2. Send WhatsApp (Proactive - Attempt if phone is present)
+        if (quote.customerPhone) {
             try {
                 // Construct the "Eyes and Ears" WhatsApp message
                 const message = this.getWhatsAppTemplate(quote, id, lang);
@@ -40,12 +41,12 @@ export const notificationService = {
 
                 if (!response.ok) {
                     const err = await response.json();
-                    console.warn('[NotificationService] WhatsApp API issue:', err);
+                    logger.warn('[NotificationService] WhatsApp API issue:', { quoteId: id, action: 'whatsapp_warning', error: err });
                 } else {
-                    console.log(`[NotificationService] WhatsApp sent to ${quote.customerPhone}`);
+                    logger.info(`[NotificationService] WhatsApp sent to ${quote.customerPhone}`, { quoteId: id, action: 'whatsapp_sent', flow: quote.type });
                 }
             } catch (error) {
-                console.error('[NotificationService] WhatsApp dispatch error:', error);
+                logger.error('[NotificationService] WhatsApp dispatch error:', { quoteId: id, action: 'whatsapp_error', flow: quote.type }, error);
             }
         }
 
@@ -55,9 +56,9 @@ export const notificationService = {
                 // Placeholder for SMS integration. 
                 // User requested cost-effective solution. 
                 // We can implement logic later to check if WhatsApp failed first, then send SMS.
-                console.log(`[NotificationService] SMS requested for ${quote.customerPhone}. (Pending Integration)`);
+                logger.info(`[NotificationService] SMS requested for ${quote.customerPhone}`, { quoteId: id, action: 'sms_requested', flow: quote.type });
             } catch (error) {
-                console.error('[NotificationService] SMS dispatch error:', error);
+                logger.error('[NotificationService] SMS dispatch error:', { quoteId: id, action: 'sms_error', flow: quote.type }, error);
             }
         }
     },

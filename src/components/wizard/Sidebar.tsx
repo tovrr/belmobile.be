@@ -5,14 +5,15 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     CheckCircleIcon, WrenchScrewdriverIcon, ShieldCheckIcon,
-    CheckBadgeIcon, BanknotesIcon, InformationCircleIcon
+    CheckBadgeIcon, BanknotesIcon, InformationCircleIcon,
+    MapPinIcon
 } from '@heroicons/react/24/outline';
 import { useLanguage } from '../../hooks/useLanguage';
 import { REPAIR_ISSUES, DEVICE_TYPES } from '../../constants';
 import { getDeviceImage } from '../../data/deviceImages';
 import { createSlug, slugToDisplayName } from '../../utils/slugs';
 import { TRUST_SIGNALS, SignalContext } from '../../data/trustSignals';
-import { getDeviceContext } from '../../utils/seoHelpers';
+import { getDeviceContext, getLastPaidInfo } from '../../utils/seoHelpers';
 import { useHaptic } from '../../hooks/useHaptic';
 import Button from '../ui/Button';
 
@@ -29,7 +30,8 @@ const ICON_MAP: Record<string, React.ElementType> = {
     CheckBadgeIcon,
     BanknotesIcon,
     InformationCircleIcon,
-    BoltIcon
+    BoltIcon,
+    MapPinIcon
 };
 
 interface SidebarProps {
@@ -114,10 +116,15 @@ const Sidebar: React.FC<SidebarProps> = ({
     const loadingText = processingText || t('Processing...');
 
     // Image Logic
+    // SSoT: Prefer DB Image from pricingData, then specific local image, then brand fallback
+    const dbImage = state.pricingData.deviceImage;
     const specificImage = selectedModel ? getDeviceImage(createSlug(`${selectedBrand} ${selectedModel}`), deviceType) : null;
     const brandImage = selectedBrand ? getDeviceImage(createSlug(selectedBrand), deviceType) : null;
-    const displayImage = specificImage || brandImage;
-    const isFallback = !specificImage || (typeof specificImage === 'string' && specificImage.includes('/brands/'));
+
+    const displayImage = dbImage || specificImage || brandImage;
+
+    // Fallback detection for styling: If it's a brand logo or a generic icon
+    const isFallback = !dbImage && (!specificImage || (typeof specificImage === 'string' && (specificImage.includes('/brands/') || specificImage.includes('favicon.svg'))));
 
     // Trust Signals Logic
     const signalContext: SignalContext = {
@@ -346,6 +353,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                                                                 .replace('30m', durationText)
                                                                 .replace('30min', durationText)
                                                                 .replace('30 min', durationText);
+                                                        }
+                                                        if (signal.id === 'city_payout_history') {
+                                                            const priceVal = typeof estimateDisplay === 'number' ? estimateDisplay : 0;
+                                                            label = getLastPaidInfo(selectedModel || '', language as any, priceVal);
                                                         }
                                                         return label;
                                                     })()}

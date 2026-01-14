@@ -1,6 +1,7 @@
 import React from 'react';
 import { Shop } from '../../types';
 import { createSlug } from '../../utils/slugs';
+import { formatPriceForSchema } from '../../utils/seoHelpers';
 
 interface SchemaOrgProps {
     shop?: Shop;
@@ -147,9 +148,9 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, shops, service, device, dev
                     "@type": "City",
                     "name": "Brussels"
                 },
-                "offers": (price && price > 0) ? {
+                "offers": formatPriceForSchema(price) ? {
                     "@type": "Offer",
-                    "price": price.toFixed(2),
+                    "price": formatPriceForSchema(price),
                     "priceCurrency": "EUR",
                     "availability": "https://schema.org/InStock"
                 } : undefined,
@@ -175,9 +176,9 @@ const SchemaOrg: React.FC<SchemaOrgProps> = ({ shop, shops, service, device, dev
                 },
                 "name": `${serviceName} ${deviceName}`,
                 "description": serviceDesc,
-                "offers": (price && price > 0) ? {
+                "offers": formatPriceForSchema(price) ? {
                     "@type": "Offer",
-                    "price": price.toFixed(2),
+                    "price": formatPriceForSchema(price),
                     "priceCurrency": "EUR",
                     "availability": "https://schema.org/InStock",
                     "description": "Maximum Buyback Price"

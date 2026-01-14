@@ -1,6 +1,7 @@
 'use server';
 
 import * as Sentry from '@sentry/nextjs';
+import { logger } from '@/utils/logger';
 
 import { calculateBuybackPriceShared, calculateRepairPriceShared, PricingParams } from '@/utils/pricingLogic';
 import { getPricingData, getLocalizedRepairDictionary } from '@/services/server/pricing.dal';
@@ -209,15 +210,13 @@ export async function getWizardQuote(request: WizardQuoteRequest): Promise<Wizar
         };
 
     } catch (error) {
-        console.error('Server Action Error:', error);
-        Sentry.captureException(error, {
-            tags: {
-                action: 'getWizardQuote',
-                device: request.deviceSlug,
-                type: request.type
-            },
-            extra: { request }
-        });
+        logger.error('Failed to calculate wizard quote', {
+            flow: request.type,
+            deviceId: request.deviceSlug,
+            lang: request.language,
+            action: 'getWizardQuote'
+        }, error);
+
         return { price: 0, currency: 'EUR', breakdown: {}, success: false, error: 'Calculation failed' };
     }
 }

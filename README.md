@@ -10,6 +10,8 @@ Built with a "Family Business" philosophy by **Omer** (Visionary), **Aegis** (Ar
 *   **Database**: Firebase (Firestore Realtime & Auth)
 *   **AI Brain**: Gemini Pro (Apollo: The Digital Esnaf)
 *   **Pricing Engine**: Hybrid GSMArena Scraper + Firestore Anchors.
+*   **Caching**: `unstable_cache` & `cache` (React/Next.js) for Pricing & Products.
+*   **Observability**: Structured Logger utility with error metadata.
 
 ## 🏛️ The Three-Pillar Presence (Brussels)
 

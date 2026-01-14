@@ -7,7 +7,7 @@ import { db } from '../firebase';
 import {
     Product, Shop, Service, BlogPost, RepairPricing,
     RepairPriceRecord, Reservation, Quote, FranchiseApplication,
-    BuybackPriceRecord, StockLog, ContactMessage, AdminProfile
+    BuybackPriceRecord, StockLog, ContactMessage, AdminProfile, DraftLead
 } from '../types';
 import { SHOPS } from '../constants';
 
@@ -281,7 +281,7 @@ export const useReservations = (user: User | null, shopId: string = 'all', pageS
         }
 
         const snapshot = await getDocs(q);
-        const newData = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Reservation));
+        const newData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Reservation));
 
         setReservations(prev => [...prev, ...newData]);
         setLastVisible(snapshot.docs[snapshot.docs.length - 1] || null);
@@ -354,7 +354,7 @@ export const useQuotes = (user: User | null, shopId: string = 'all', pageSize: n
         }
 
         const snapshot = await getDocs(q);
-        const newData = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Quote));
+        const newData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Quote));
 
         setQuotes(prev => [...prev, ...newData]);
         setLastVisible(snapshot.docs[snapshot.docs.length - 1] || null);
@@ -458,7 +458,7 @@ export const useContactMessages = (user: User | null, shopId: string = 'all') =>
 };
 
 export const useLeads = (user: User | null) => {
-    const [leads, setLeads] = useState<any[]>([]);
+    const [leads, setLeads] = useState<DraftLead[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -469,7 +469,7 @@ export const useLeads = (user: User | null) => {
 
         const q = query(collection(db, 'leads'), orderBy('updatedAt', 'desc'));
         const unsub = onSnapshot(q, (snapshot) => {
-            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DraftLead));
             setLeads(data);
             setLoading(false);
         }, (error) => {

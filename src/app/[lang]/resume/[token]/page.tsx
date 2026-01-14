@@ -33,21 +33,36 @@ export default async function ResumePage(props: any) { // Type 'any' for props d
             return notFound();
         }
 
-        // Fetch lead from Firestore (Legacy)
+        // 1. Try direct ID search (Leads)
         let docRef = await adminDb.collection('leads').doc(token).get();
 
         if (docRef.exists) {
             data = docRef.data();
         } else {
-            // Check 'quotes' collection (New Standard)
-            docRef = await adminDb.collection('quotes').doc(token).get();
-            if (docRef.exists) {
-                const quoteData = docRef.data();
-                // Map quote data to legacy format expected by loader
-                data = {
-                    ...quoteData,
-                    wizardState: JSON.stringify(quoteData?.state) // Convert object state to string for loader
-                };
+            // 2. Try searching by magicLinkToken field (Leads)
+            const leadQuery = await adminDb.collection('leads').where('magicLinkToken', '==', token).limit(1).get();
+            if (!leadQuery.empty) {
+                data = leadQuery.docs[0].data();
+            } else {
+                // 3. Try direct ID search (Quotes)
+                docRef = await adminDb.collection('quotes').doc(token).get();
+                if (docRef.exists) {
+                    const quoteData = docRef.data();
+                    data = {
+                        ...quoteData,
+                        wizardState: JSON.stringify(quoteData?.state || quoteData?.wizardState || quoteData)
+                    };
+                } else {
+                    // 4. Try searching by trackingToken field (Quotes)
+                    const quoteQuery = await adminDb.collection('quotes').where('trackingToken', '==', token).limit(1).get();
+                    if (!quoteQuery.empty) {
+                        const quoteData = quoteQuery.docs[0].data();
+                        data = {
+                            ...quoteData,
+                            wizardState: JSON.stringify(quoteData?.state || quoteData?.wizardState || quoteData)
+                        };
+                    }
+                }
             }
         }
     } catch (error) {

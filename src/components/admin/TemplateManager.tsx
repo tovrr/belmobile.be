@@ -79,13 +79,14 @@ export default function TemplateManager() {
             // Import dynamically to avoid SSR issues
             const pdfGenerator = await import('../../utils/pdfGenerator');
 
-            const mockData = {
+            const mockData: any = {
                 documentTitle: 'TEST DOCUMENT',
                 orderId: `${config.prefixes.order}TEST-001`,
                 date: new Date().toLocaleDateString('fr-BE'),
                 time: new Date().toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' }),
                 status: 'DRAFT',
                 method: 'In Store',
+                type: 'repair',
                 customer: {
                     name: 'John Doe',
                     email: 'john@example.com',
@@ -100,8 +101,8 @@ export default function TemplateManager() {
                     ]
                 },
                 priceBreakdown: [
-                    { description: 'Screen Replacement', price: 150 },
-                    { description: 'Battery Service', price: 80 }
+                    { label: 'Screen Replacement', price: 150 },
+                    { label: 'Battery Service', price: 80 }
                 ],
                 totalPrice: 230,
                 totalLabel: 'TOTAL ESTIMATED',
@@ -119,8 +120,7 @@ export default function TemplateManager() {
                     price: 'Price'
                 },
                 nextSteps: ['Device intake', 'Technician review', 'Repair execution'],
-                iban: 'BE00 0000 0000 0000',
-                legalText: config.legal.repairTerms
+                iban: 'BE00 0000 0000 0000'
             };
 
             // Generate locally in browser

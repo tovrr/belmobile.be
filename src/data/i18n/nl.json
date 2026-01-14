@@ -1766,5 +1766,14 @@
     "À partir de": "Vanaf",
     "État": "Staat",
     "État Corps": "Staat Behuizing",
-    "État Écran": "Staat Scherm"
+    "État Écran": "Staat Scherm",
+    "Like New (Boxed / Mint)": "Als Nieuw (Doos / Perfect)",
+    "No scratches, original box, perfect.": "Geen krassen, originele doos, perfect.",
+    "Good (Used)": "Goed (Gebruikt)",
+    "Normal signs of use, small micro-scratches.": "Normale gebruikssporen, kleine microkrassen.",
+    "Fair (Heavily Used)": "Redelijk (Veel gebruikt)",
+    "Visible scratches, dents, or heavy wear.": "Zichtbare krassen, deuken of zware slijtage.",
+    "Damaged / Broken": "Beschadigd / Defect",
+    "Cracks, broken ports, or major damage.": "Barsten, kapotte poorten of grote schade.",
+    "Device Condition": "Staat van het toestel"
 }

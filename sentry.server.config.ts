@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
   dsn: "https://4ae68a58c37d14302554ea40a4e77d40@o4510604314345472.ingest.de.sentry.io/4510604327845968",
-  tracesSampleRate: 1,
+  tracesSampleRate: 0.2, // Tuned for Operation Stability
   enableLogs: false,
   sendDefaultPii: false,
 

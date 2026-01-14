@@ -1013,9 +1013,9 @@ export default isSentryBuildEnabled ? withSentryConfig(nextConfig, {
   // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
   tunnelRoute: "/monitoring",
 
-  // Hides source maps from generated client bundles
+  // Ensure source maps are uploaded to Sentry for de-minified stack traces
   sourcemaps: {
-    disable: true,
+    disable: false,
   },
 
   // Webpack-based configuration (replaces deprecated options)

@@ -1734,5 +1734,14 @@
     "À partir de": "Starting at",
     "État": "Condition",
     "État Corps": "Body Condition",
-    "État Écran": "Screen Condition"
+    "État Écran": "Screen Condition",
+    "Touchscreen / Glass Only": "Touchscreen / Glass Only",
+    "Like New (Boxed / Mint)": "Like New (Boxed / Mint)",
+    "No scratches, original box, perfect.": "No scratches, original box, perfect.",
+    "Good (Used)": "Good (Used)",
+    "Normal signs of use, small micro-scratches.": "Normal signs of use, small micro-scratches.",
+    "Fair (Heavily Used)": "Fair (Heavily Used)",
+    "Visible scratches, dents, or heavy wear.": "Visible scratches, dents, or heavy wear.",
+    "Damaged / Broken": "Damaged / Broken",
+    "Cracks, broken ports, or major damage.": "Cracks, broken ports, or major damage."
 }

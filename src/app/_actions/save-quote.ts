@@ -7,6 +7,7 @@ import { WizardState } from '../../context/WizardContext';
 import { serverEmailService } from '../../services/server/emailService';
 import { getMagicLinkEmail } from '../../utils/emailTemplates';
 import crypto from 'crypto';
+import { logger } from '../../utils/logger';
 
 interface SaveQuoteResponse {
     success: boolean;
@@ -82,12 +83,18 @@ export async function saveQuote(
             // The user still got the UI confirmation that it was saved (which is technically true).
         }
 
-        console.log(`[SaveQuote] Saved quote ${quoteId} (hash: ${crypto.createHash('md5').update(email).digest('hex').substring(0, 8)})`);
+        logger.trackEvent('Quote Saved', {
+            flow: inferredType as any,
+            lang,
+            quoteId,
+            deviceId: `${state.selectedBrand}-${state.selectedModel}`,
+            estimatedPrice: state.currentEstimate
+        });
 
         return { success: true, quoteId };
 
     } catch (error) {
-        console.error('[SaveQuote] Error:', error);
+        logger.error('Failed to save quote', { lang, action: 'saveQuote' }, error);
         return { success: false, error: 'Failed to save quote' };
     }
 }

@@ -41,7 +41,7 @@ service cloud.firestore {
     // --- Active Pricing Collections ---
     match /repair_prices/{document=**} {
       allow read: if true;
-      allow write: if true; // TEMPORARY DEBUG
+      allow write: if isAdmin();
     }
     match /buyback_pricing/{document=**} {
       allow read: if true;

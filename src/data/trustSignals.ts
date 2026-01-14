@@ -52,6 +52,13 @@ export const TRUST_SIGNALS: TrustSignal[] = [
         descriptionKey: 'trust_payment_desc',
         condition: (ctx) => ctx.type === 'buyback'
     },
+    {
+        id: 'city_payout_history',
+        icon: 'MapPinIcon',
+        titleKey: 'trust_city_payout_title',
+        descriptionKey: 'trust_city_payout_desc',
+        condition: (ctx) => ctx.type === 'buyback' && !!ctx.model
+    },
     // --- GENERAL REPAIR ---
     {
         id: 'repair_express',

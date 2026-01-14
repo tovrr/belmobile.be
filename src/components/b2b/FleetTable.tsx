@@ -14,9 +14,10 @@ interface FleetTableProps {
     selectedIds?: string[];
     onSelect?: (deviceId: string) => void;
     onToggleSelection?: (deviceId: string) => void;
+    onShowHistory?: (device: FleetDevice) => void;
 }
 
-export default function FleetTable({ devices, selectedIds = [], onToggleSelection, onSelect }: FleetTableProps) {
+export default function FleetTable({ devices, selectedIds = [], onToggleSelection, onSelect, onShowHistory }: FleetTableProps) {
 
     const getStatusBadge = (status: FleetDevice['status']) => {
         switch (status) {
@@ -127,9 +128,14 @@ export default function FleetTable({ devices, selectedIds = [], onToggleSelectio
                                         </div>
                                     </td>
                                     <td className="p-6 text-right">
-                                        <button className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 border rounded-xl transition-all ${isSelected ? 'bg-white text-midnight border-white' : 'text-slate-500 border-white/5 group-hover:border-white/20 group-hover:text-white'
-                                            }`}>
-                                            Initialize
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onShowHistory?.(device);
+                                            }}
+                                            className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 border rounded-xl transition-all ${isSelected ? 'bg-white text-midnight border-white' : 'text-slate-500 border-white/5 group-hover:border-white/20 group-hover:text-white'
+                                                }`}>
+                                            Lifecycle
                                         </button>
                                     </td>
                                 </tr>

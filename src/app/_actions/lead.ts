@@ -3,6 +3,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { WizardState } from '@/context/WizardContext';
 import { sendMagicLinkEmail } from '@/services/server/email/magicLink';
+import { logger } from '@/utils/logger';
 
 export interface SaveLeadResponse {
     success: boolean;
@@ -59,9 +60,17 @@ export async function saveLead(email: string, state: WizardState, lang: string =
             // Actually, UI shows token, but email is better.
         }
 
+        logger.trackEvent('Lead Captured', {
+            flow: state.deviceType as any,
+            lang,
+            leadId: token,
+            deviceId: `${state.selectedBrand}-${state.selectedModel}`,
+            estimatedPrice: state.currentEstimate
+        });
+
         return { success: true, token };
     } catch (error) {
-        console.error('Error saving lead:', error);
+        logger.error('Failed to capture lead', { lang, action: 'saveLead' }, error);
         return { success: false, error: 'Failed to save quote. Please try again.' };
     }
 }

@@ -13,6 +13,7 @@ import { parseRouteParams } from '@/utils/route-parser';
 import { generateSeoMetadata, getKeywordsForPage, generateMetaKeywords } from '@/utils/seo-templates';
 import { getPriceQuote, getPricingData, PricingQuote } from '@/services/server/pricing.dal';
 import { getProducts } from '@/services/productService';
+import { logger } from '@/utils/logger';
 
 import BuybackRepair from '@/components/wizard/BuybackRepair';
 import Hreflang from '@/components/seo/Hreflang';
@@ -20,8 +21,8 @@ import SchemaOrg from '@/components/seo/SchemaOrg';
 import ProductDetail from '@/components/product/ProductDetail';
 
 // --- CONFIG ---
-// Enable ISR (1 Hour Cache) to prevent Function Invocation Spikes
-export const revalidate = 3600;
+// Enable ISR (24 Hours Cache) to prevent Function Invocation Spikes
+export const revalidate = 86400;
 
 // --- DYNAMIC IMPORTS & SKELETONS ---
 
@@ -45,9 +46,8 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { lang, slug } = await params;
-    console.log('[MetadataDebug] Params:', { lang, slug });
     const routeData = parseRouteParams(slug);
-    console.log('[MetadataDebug] RouteData:', routeData ? 'Found' : 'Null', routeData?.service?.id);
+    logger.debug('[SEO Metadata] Generating metadata', { lang, slug, routeFound: !!routeData });
 
     if (!routeData) {
         // EMERGENCY FALLBACK for SEO: If route parser fails but we identify the service keyword
@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         else if (['reparation', 'reparatie', 'repair', 'onarim'].includes(s0)) fallbackService = 'repair';
 
         if (fallbackService) {
-            console.log('[Metadata] Triggering Fallback for:', s0);
+            logger.info('[SEO Metadata] Triggering Emergency Fallback', { s0, lang });
             const { title, description, ogTitle, ogSubtitle } = generateSeoMetadata({
                 lang: lang as 'fr' | 'nl' | 'en' | 'tr',
                 serviceId: fallbackService,
@@ -76,7 +76,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
         // SHOP PRODUCT PAGE FALLBACK
         // Check for 'acheter', 'buy', 'kopen' routes which are NOT strictly services but product pages
-        if (['acheter', 'buy', 'kopen'].includes(s0)) {
+        if (['acheter', 'buy', 'kopen', 'satin-al'].includes(s0)) {
             // Last part of slug is likely product ID/slug
             const productSlug = slug[slug.length - 1];
             const products = await getProducts();
@@ -115,7 +115,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                 price = pricing.buyback.maxPrice;
             }
         } catch (e) {
-            console.error("[SEO Page] Pricing fetch failed:", e);
+            logger.error('[SEO Page] Pricing fetch failed', { action: 'DynamicPageFetch' }, e);
         }
     }
 
@@ -225,7 +225,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
 
     // PRODUCT PAGE ROUTING
     const s0 = slug?.[0]?.toLowerCase();
-    if (['acheter', 'buy', 'kopen'].includes(s0)) {
+    if (['acheter', 'buy', 'kopen', 'satin-al'].includes(s0)) {
         const productSlug = slug[slug.length - 1]; // Assume last segment is slug
         const products = await getProducts();
         const product = products.find(p => p.slug === productSlug);
@@ -248,7 +248,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
             const deviceSlug = createSlug(`${device.value} ${deviceModel}`);
             pricing = await getPriceQuote(deviceSlug);
         } catch (e) {
-            console.error("[SEO Page] Pricing fetch failed:", e);
+            logger.error('[SEO Page] Pricing fetch failed', { action: 'DynamicPageFetch' }, e);
         }
     }
 
@@ -290,7 +290,7 @@ export default async function DynamicLandingPage({ params, searchParams }: PageP
                 loadedForModel: deviceSlugForWizard
             };
         } catch (e) {
-            console.error("[SEO Page] Wizard Pricing fetch failed:", e);
+            logger.error('[SEO Page] Wizard Pricing hydration failed', { action: 'DynamicLandingPage', deviceSlug: deviceSlugForWizard }, e);
         }
     }
 

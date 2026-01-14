@@ -10,10 +10,12 @@ import { ArrowLeftIcon, CheckCircleIcon, ShieldCheckIcon, TruckIcon, StarIcon } 
 import BrandLoader from '../ui/BrandLoader';
 import Image from 'next/image';
 const ReservationModal = dynamic(() => import('../features/ReservationModal'), { ssr: false });
+import { getLocalizedPath } from '../../utils/i18n-helpers';
 import SchemaMarkup from '../seo/SchemaMarkup';
 import ConditionGuide from '../wizard/ConditionGuide';
 import { getLocalizedProduct } from '../../utils/localization';
 import { Button } from '../ui';
+import { Locale } from '../../i18n-config';
 
 import { Product } from '../../types';
 
@@ -76,7 +78,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ initialProduct }) => {
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{t('Product not found')}</h1>
                 <p className="text-gray-600 dark:text-gray-400 mb-8">{t('The product you are looking for does not exist.')}</p>
                 <Button
-                    onClick={() => router.push(`/${language}/${language === 'fr' ? 'produits' : language === 'nl' ? 'producten' : 'products'}`)}
+                    onClick={() => router.push(getLocalizedPath('/products', language as Locale))}
                     variant="primary"
                 >
                     {t('Back to Products')}
@@ -85,7 +87,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ initialProduct }) => {
         );
     }
 
-    const { name: localizedName, description: localizedDescription } = getLocalizedProduct(product, language as 'en' | 'fr' | 'nl');
+    const { name: localizedName, description: localizedDescription } = getLocalizedProduct(product, language as Locale);
 
     const handleReserve = () => {
         setIsReservationModalOpen(true);

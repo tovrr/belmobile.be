@@ -72,8 +72,8 @@ export interface PdfData {
     totalLabel: string;
     legalDisclaimer?: string;
     trackingInfo?: string;
-    labels: any;
-    signatureBlock?: any;
+    labels: Record<string, any>;
+    signatureBlock?: Record<string, any>;
 }
 
 // --- 3. ATOMIC RENDER BLOCKS ---

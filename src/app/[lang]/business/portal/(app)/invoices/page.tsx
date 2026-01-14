@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, getDoc, doc, orderBy } from 'firebase/firestore';
 import { db, auth } from '@/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -119,6 +119,7 @@ export default function InvoicesPage() {
                 vatAmount: Number(invoice.amount) * 0.21,
 
                 nextSteps: ['Please retain this document for your records.'],
+                totalLabel: 'Total Due',
 
                 labels: {
                     orderId: 'Invoice No',

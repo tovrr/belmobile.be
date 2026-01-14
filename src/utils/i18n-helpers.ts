@@ -16,7 +16,8 @@ export function sanitizeUrl(url: string | undefined, defaultUrl: string = 'https
 // 1. Static Mappings for non-service pages
 export const STATIC_SLUG_MAPPINGS: Record<string, Record<string, string>> = {
     services: { en: 'services', fr: 'services', nl: 'diensten', tr: 'hizmetler' },
-    products: { en: 'products', fr: 'produits', nl: 'producten', tr: 'urunler' }, // Can overlap with service if not careful
+    products: { en: 'products', fr: 'produits', nl: 'producten', tr: 'urunler' },
+    buy: { en: 'buy', fr: 'acheter', nl: 'kopen', tr: 'satin-al' },
     stores: { en: 'stores', fr: 'magasins', nl: 'winkels', tr: 'magazalar' },
     about: { en: 'about', fr: 'a-propos', nl: 'over-ons', tr: 'hakkimizda' },
     sustainability: { en: 'sustainability', fr: 'durabilite', nl: 'duurzaamheid', tr: 'surdurulebilirlik' },

@@ -162,7 +162,7 @@ const BuybackRepairInner: React.FC<BuybackRepairProps> = ({ type, initialShop, h
         // Only run if initialized to avoid race condition with hydration
         if (!state.isInitialized) return;
 
-        if (step === 2 && !deviceType) {
+        if (step === 2 && !deviceType && !isTransitioning) {
             console.warn("[Wizard] Step 2 without deviceType. Fixing...");
             if (selectedBrand) {
                 const { findDefaultBrandCategory } = require('../../utils/deviceLogic');

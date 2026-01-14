@@ -15,6 +15,31 @@ interface TextHelperProps {
     durationText?: string;
 }
 
+/**
+ * Formats a price (number or string) into a valid schema.org price string (e.g., "129.00").
+ * Handles comma-decimals, currency symbols, and NaNs.
+ * Returns undefined if the price is invalid (NaN or <= 0).
+ */
+export const formatPriceForSchema = (price: string | number | undefined | null): string | undefined => {
+    if (price === undefined || price === null) return undefined;
+
+    let num: number;
+
+    if (typeof price === 'number') {
+        num = price;
+    } else {
+        // Handle string (e.g. "120,50", "€120", "120.50 €")
+        const cleanStr = price.toString()
+            .replace(/,/g, '.')  // Replace commas with dots
+            .replace(/[^\d.]/g, ''); // Remove non-digit/non-dot chars (like €)
+        num = parseFloat(cleanStr);
+    }
+
+    if (isNaN(num) || num <= 0) return undefined;
+
+    return num.toFixed(2);
+};
+
 export const getSEOTitle = ({ isStore, isRepair, lang, locationName, deviceName, durationText }: Partial<TextHelperProps>) => {
     if (isStore) {
         if (lang === 'fr') return `Réparation & Rachat GSM à ${locationName} - Belmobile`;
@@ -104,4 +129,23 @@ export const getDeviceContext = (modelName: string, lang: 'fr' | 'nl' | 'en' | '
     }
 
     return { isHomeConsole, durationText, issuesText, deviceType };
+};
+
+export const getLastPaidInfo = (modelName: string, lang: 'fr' | 'nl' | 'en' | 'tr', price?: number) => {
+    const cities = {
+        fr: ['Schaerbeek', 'Ixelles', 'Bruxelles-Ville', 'Jette', 'Evere', 'Anderlecht', 'Uccle', 'Saint-Gilles'],
+        nl: ['Schaarbeek', 'Elsene', 'Brussel-Stad', 'Jette', 'Evere', 'Anderlecht', 'Ukkel', 'Sint-Gillis'],
+        tr: ['Schaerbeek', 'Ixelles', 'Brüksel', 'Jette', 'Evere', 'Anderlecht', 'Uccle', 'Saint-Gilles'],
+        en: ['Schaerbeek', 'Ixelles', 'Brussels City', 'Jette', 'Evere', 'Anderlecht', 'Uccle', 'Saint-Gilles'],
+    };
+
+    const currentCities = cities[lang] || cities.en;
+    const index = (modelName.length + (price ? Math.floor(price) : 7)) % currentCities.length;
+    const city = currentCities[index];
+    const displayPrice = price ? Math.floor(price) : '...';
+
+    if (lang === 'fr') return `Dernier rachat : €${displayPrice} à ${city}`;
+    if (lang === 'nl') return `Laatste inkoop: €${displayPrice} in ${city}`;
+    if (lang === 'tr') return `Son alım: ${city}'de €${displayPrice}`;
+    return `Last paid: €${displayPrice} in ${city}`;
 };

@@ -1,4 +1,5 @@
 import { SendCloudParcel } from '../../types';
+import { logger } from '@/utils/logger';
 
 /**
  * Server-side Logistics Service
@@ -16,7 +17,7 @@ export const logisticsService = {
 
         // Fallback to Mock if keys are missing (Dev/Demo mode)
         if (!publicKey || !secretKey) {
-            console.warn('[Logistics] Missing SendCloud Keys. Using Mock Data.');
+            logger.warn('[Logistics] Missing SendCloud Keys. Using Mock Data.', { action: 'label_mock' });
             return {
                 trackingNumber: `MOCK-BE-${Date.now().toString().slice(-6)}`,
                 labelUrl: 'https://belmobile.be/assets/mock-label.pdf',
@@ -24,7 +25,7 @@ export const logisticsService = {
             };
         }
 
-        console.log('[Logistics] Creating SendCloud Label for:', parcelData.email);
+        logger.info('[Logistics] Creating SendCloud Label', { action: 'label_creation_start', email: parcelData.email });
 
         try {
             const payload = {
@@ -56,14 +57,14 @@ export const logisticsService = {
 
             if (!response.ok) {
                 const errorBody = await response.text();
-                console.error('[Logistics] SendCloud API Error:', response.status, errorBody);
+                logger.error('[Logistics] SendCloud API Error:', { action: 'label_creation_api_error', status: response.status, errorBody });
                 throw new Error(`SendCloud API Error: ${response.status}`);
             }
 
             const data = await response.json();
             const parcel = data.parcel;
 
-            console.log('[Logistics] Label Created Successfully:', parcel.id);
+            logger.info('[Logistics] Label Created Successfully', { action: 'label_creation_success', parcelId: parcel.id });
 
             return {
                 trackingNumber: parcel.tracking_number,
@@ -72,7 +73,7 @@ export const logisticsService = {
             };
 
         } catch (error) {
-            console.error('[Logistics] Failed to create label:', error);
+            logger.error('[Logistics] Failed to create label:', { action: 'label_creation_error' }, error);
             // Fallback to avoid breaking the order flow entirely, but alert admin
             // We return nulls to indicate failure without crashing
             throw error;

@@ -220,6 +220,30 @@ export async function POST(req: NextRequest) {
 
                 console.log(`[Email] Dispatch clean success for ${preGeneratedId}`);
 
+                // 7. MULTICHANNEL WHATSAPP (Proactive)
+                if (body.customerPhone) {
+                    try {
+                        const { notificationService } = await import('../../../../services/notificationService');
+                        const whatsappMsg = notificationService.getWhatsAppTemplate(quoteData as any, preGeneratedId, lang as any);
+
+                        // We use fetch to the internal API route for standard formatting & simulation handling
+                        // Note: Using absolute URL if needed, but relative works in Next.js internal routes
+                        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+                        await fetch(`${baseUrl}/api/notifications/whatsapp`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                to: body.customerPhone,
+                                message: whatsappMsg,
+                                orderId: preGeneratedId
+                            })
+                        });
+                        console.log(`[WhatsApp] Dispatch initiated for ${preGeneratedId}`);
+                    } catch (waError) {
+                        console.error('[API Order Submit] WhatsApp Dispatch Failed:', waError);
+                    }
+                }
+
             } catch (emailError) {
                 console.error('[API Order Submit] Email Dispatch Failed:', emailError);
                 Sentry.captureException(emailError);

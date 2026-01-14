@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateMarketPrice } from '@/services/server/pricing.dal';
+import { logger } from '@/utils/logger';
 
 export async function POST(req: NextRequest) {
     // 1. Security: Validate API Key
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
         // 3. Sanity Checks (Prevent Price Bombs)
         // Flag extreme updates or invalid bounds
         if (price < 50 || price > 2500) {
-            console.warn(`[MarketAPI] Price ${price} for ${deviceId} suspended. Outside safety bounds (50-2500).`);
+            logger.warn(`[MarketAPI] Price suspended. Outside safety bounds`, { deviceId, price, action: 'market_update_suspended' });
             return NextResponse.json({
                 warning: 'Price flagged for review (Out of bounds)',
                 success: false

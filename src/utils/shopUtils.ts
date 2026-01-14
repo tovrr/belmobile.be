@@ -4,6 +4,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { LOCATIONS } from '../data/locations';
 import { SHOPS } from '../constants';
 import { ShopSchema } from '../types/schemas';
+import { logger } from './logger';
 
 /**
  * Fetch shops from Firestore and merge with static LOCATIONS
@@ -16,7 +17,7 @@ export const fetchMergedShops = async (): Promise<Shop[]> => {
             const data = { id: doc.id, ...doc.data() };
             const parsed = ShopSchema.safeParse(data);
             if (!parsed.success) {
-                console.warn(`Invalid shop data in DB for ${doc.id}:`, parsed.error.format());
+                logger.warn(`Invalid shop data in DB for ${doc.id}:`, { action: 'fetchMergedShops', error: parsed.error.format() });
                 return null;
             }
             const shopData = parsed.data;

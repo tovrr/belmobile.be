@@ -13,11 +13,13 @@ import {
     CheckCircleIcon
 } from '@/components/ui/BrandIcons';
 import { motion } from 'framer-motion';
+import BulkBuybackModal from '@/components/b2b/BulkBuybackModal';
 
 export default function BuybackPage() {
     const [loading, setLoading] = useState(true);
     const [requests, setRequests] = useState<any[]>([]);
     const [companyId, setCompanyId] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const fetchRequests = async (cid: string) => {
         try {
@@ -97,6 +99,7 @@ export default function BuybackPage() {
                     </p>
                 </div>
                 <button
+                    onClick={() => setIsModalOpen(true)}
                     className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 border border-indigo-600/50 rounded-xl text-xs font-black uppercase tracking-widest text-white transition-all flex items-center gap-3 active:scale-95 group shadow-xl shadow-indigo-600/20"
                 >
                     <ArrowUpCircleIcon className="w-4 h-4 group-hover:-translate-y-1 transition-transform duration-300" />
@@ -173,6 +176,15 @@ export default function BuybackPage() {
                     </table>
                 </div>
             </div>
+
+            {companyId && (
+                <BulkBuybackModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    companyId={companyId}
+                    onSuccess={() => fetchRequests(companyId)}
+                />
+            )}
         </div>
     );
 }

@@ -1,4 +1,5 @@
 import { createPdfDefinition, PdfData } from './PdfTemplates';
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { TFunction } from './i18n-server';
 import { mapReservationToPdfData } from './orderMappers';
 
@@ -81,7 +82,7 @@ const getLogoBase64 = async (): Promise<string> => {
  * The primary way to generate PDFs in the application.
  * Accepts structured PdfData and produces consistent, high-quality output.
  */
-export const generatePDFFromPdfData = async (pdfData: any, filenamePrefix: string) => {
+export const generatePDFFromPdfData = async (pdfData: PdfData, filenamePrefix: string) => {
     // 1. Setup Data
     // AEGIS: Vector logo is now hardcoded in PdfTemplates for maximum performance and ink saving.
     // No need to load external PNGs.
@@ -104,9 +105,9 @@ export const generatePDFFromPdfData = async (pdfData: any, filenamePrefix: strin
 
     // 3. Generate Document
     const docDefinition = createPdfDefinition(pdfData);
-    const pdfGenerator = pdfMake.createPdf(docDefinition as any);
+    const pdfGenerator = pdfMake.createPdf(docDefinition);
 
-    return new Promise<{ blob: Blob, base64: string, safeFileName: string, doc: any }>((resolve, reject) => {
+    return new Promise<{ blob: Blob, base64: string, safeFileName: string, doc: TDocumentDefinitions }>((resolve, reject) => {
         try {
             const isServer = typeof window === 'undefined';
 

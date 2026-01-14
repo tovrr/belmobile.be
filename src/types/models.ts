@@ -32,9 +32,11 @@ export interface Product {
     name: string;
     name_fr?: string;
     name_nl?: string;
+    name_tr?: string;
     description: string;
     description_fr?: string;
     description_nl?: string;
+    description_tr?: string;
     price: number;
     imageUrl: string;
     altText?: string;
@@ -145,6 +147,7 @@ export interface Quote {
     deviceType: string;
     brand: string;
     model: string;
+    imei?: string; // For B2B/Fleet tracking
     condition: string | { screen: string; body: string };
     storage?: string; // Explicit storage for buyback
     issue?: string; // Legacy
@@ -292,6 +295,7 @@ export interface RepairPriceRecord {
     laborMinutes?: number; // Labor time (Expert Mode)
     isActive: boolean;
     isManual?: boolean; // Manual edit flag for priority boost
+    imageUrl?: string | null;
     migrationSource?: string; // Original legacy doc ID
     updatedAt: string;
 }
@@ -303,6 +307,7 @@ export interface BuybackPriceRecord {
     id?: string;
     deviceId: string; // "apple-iphone-13"
     storage: string; // "128gb", "256gb"
+    capacity?: string; // Standardized capacity field
     condition: BuybackCondition;
     price: number; // The offer price we give to the customer
     brand?: string;
@@ -343,6 +348,11 @@ export interface DraftLead {
     magicLinkToken?: string;
     language: string;
     name?: string;
+    customerName?: string; // Compatibility with both name and customerName
+    brand?: string;
+    model?: string;
+    imei?: string; // For B2B/Fleet tracking
+    price?: number;
     phone?: string;
     type?: 'buyback' | 'repair';
     createdAt: any; // Firestore Timestamp

@@ -1,11 +1,13 @@
 
 import { MetadataRoute } from 'next';
+export const revalidate = 86400;
 import { LOCATIONS } from '../data/locations';
 import { STATIC_BLOG_POSTS, STATIC_PRODUCTS, DEVICE_TYPES, SEO_CONTENT } from '../constants';
 import { STATIC_SLUG_MAPPINGS } from '../utils/i18n-helpers';
 import { MASTER_DEVICE_LIST } from '../data/master-device-list';
 import { getAllDevices } from '../services/server/pricing.dal';
 import { getDeviceImage } from '../data/deviceImages';
+import { logger } from '../utils/logger';
 
 // --- CONFIGURATION ---
 const getBaseUrl = () => {
@@ -141,7 +143,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
         // 3. Products
         // Use 'acheter', 'kopen', 'buy' to match the ProductCard routing and avoid the /products redirector
-        const productsPath = { fr: 'acheter', nl: 'kopen', tr: 'buy', en: 'buy' };
+        const productsPath = { fr: 'acheter', nl: 'kopen', tr: 'satin-al', en: 'buy' };
         STATIC_PRODUCTS.forEach(product => {
             if (product.slug) {
                 LANGUAGES.forEach(lang => {
@@ -230,17 +232,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 if (buyImage) buyEntry.images = [buyImage]; // Inject image
                 sitemapEntries.push(buyEntry);
 
-                // 4.3 Local Optimized Landing Pages (Neighborhood Authority)
-                if (isLatest) {
+                // 4.3 Local Optimized Landing Pages (Neighborhood Authority - throttled for Vercel limits)
+                // AEGIS: Only generate per-neighborhood pages for the TOP 10 highest-value devices
+                // or if it's the main hub (Bruxelles). This prevents the 80k+ URL explosion.
+                const TOP_PRIORITY_FOR_LOCAL = [
+                    'apple-iphone-13', 'apple-iphone-14', 'apple-iphone-15', 'apple-iphone-16',
+                    'apple-iphone-13-pro', 'apple-iphone-14-pro', 'apple-iphone-15-pro', 'apple-iphone-16-pro',
+                    'samsung-galaxy-s23-ultra', 'samsung-galaxy-s24-ultra'
+                ];
+
+                const shouldGenerateLocal = TOP_PRIORITY_FOR_LOCAL.includes(deviceId);
+
+                if (shouldGenerateLocal) {
                     for (const location of LOCATIONS) {
                         const locSlug = location.slugs[lang];
+                        // Skip if location is already a hub (those are served by 7. Local Service Silos below)
+                        if (location.isHub) continue;
 
                         // Local Repair
                         sitemapEntries.push({
                             url: `${repBase}/${locSlug}`.toLowerCase(),
                             lastModified: lastmodStatic,
                             changeFrequency: 'monthly',
-                            priority: 0.9,
+                            priority: 0.7, // Lower priority for neighborhood pages
                             alternates: {
                                 languages: Object.fromEntries(
                                     LANGUAGES.map(l => [
@@ -256,7 +270,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                             url: `${buyBase}/${locSlug}`.toLowerCase(),
                             lastModified: lastmodStatic,
                             changeFrequency: 'monthly',
-                            priority: 0.9,
+                            priority: 0.7,
                             alternates: {
                                 languages: Object.fromEntries(
                                     LANGUAGES.map(l => [
@@ -382,7 +396,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         return sitemapEntries;
 
     } catch (error) {
-        console.error('[Sitemap] Critical Error:', error);
+        logger.error('[Sitemap] Critical Error', { action: 'sitemap' }, error);
         return [{ url: `${BASE_URL}/error`, lastModified: new Date() }];
     }
 }

@@ -1789,5 +1789,15 @@
     "À partir de": "À partir de",
     "État": "État",
     "État Corps": "État Corps",
-    "État Écran": "État Écran"
+    "État Écran": "État Écran",
+    "Like New (Boxed / Mint)": "Comme Neuf (Boîte / Impeccable)",
+    "No scratches, original box, perfect.": "Aucune rayure, boîte d'origine, parfait.",
+    "Good (Used)": "Bon État (Usage normal)",
+    "Normal signs of use, small micro-scratches.": "Signes normaux d'usure, petites micro-rayures.",
+    "Fair (Heavily Used)": "État Correct (Usage intensif)",
+    "Visible scratches, dents, or heavy wear.": "Rayures visibles, coups ou usure importante.",
+    "Damaged / Broken": "Endommagé / Cassé",
+    "Cracks, broken ports, or major damage.": "Fissures, ports cassés ou dommages majeurs.",
+    "Touchscreen / Glass Only": "Écran Tactile / Vitre Seule",
+    "Device Condition": "État de l'appareil"
 }

@@ -35,7 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) 
 
     const handleCardClick = () => {
         if (product.slug) {
-            const basePath = language === 'fr' ? 'acheter' : language === 'nl' ? 'kopen' : 'buy';
+            const basePath = language === 'fr' ? 'acheter' : language === 'nl' ? 'kopen' : (language === 'tr' ? 'satin-al' : 'buy');
             router.push(`/${language}/${basePath}/${product.category}/${product.slug}`);
         }
     };

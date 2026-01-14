@@ -14,6 +14,7 @@ import { createSlug, slugToDisplayName } from '../../../utils/slugs';
 import { getDeviceImage } from '../../../data/deviceImages';
 import { REPAIR_ISSUES } from '../../../constants';
 import { parseAddressString } from '../../../utils/addressParser';
+import { Shop } from '../../../types';
 import { useWizard } from '../../../context/WizardContext';
 import { useWizardActions } from '../../../hooks/useWizardActions';
 import { useWizardPricing } from '../../../hooks/useWizardPricing';
@@ -34,8 +35,8 @@ interface StepUserInfoProps {
     onBack?: () => void;
     handleSubmit?: (e: React.FormEvent) => void;
     formRef?: React.RefObject<HTMLFormElement | null>;
-    shops?: any[];
-    [key: string]: any;
+    shops?: Shop[];
+    isKiosk?: boolean;
 }
 
 export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
@@ -995,6 +996,26 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         <span className={`font-black uppercase tracking-wide text-xs ${notificationPreferences?.includes('email') ? `${type === 'buyback' ? 'text-gray-900 dark:text-white' : 'text-bel-blue'}` : 'text-gray-400'}`}>{t('Email')}</span>
                                     </label>
 
+                                    {/* WhatsApp */}
+                                    <label className={`flex items-center gap-3 p-4 pr-5 rounded-2xl border-2 transition-all cursor-pointer ${notificationPreferences?.includes('whatsapp') ? `${type === 'buyback' ? 'border-bel-yellow bg-yellow-50 dark:bg-yellow-900/10 shadow-lg shadow-yellow-500/5' : 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/10 shadow-lg shadow-indigo-500/5'}` : 'border-white/10 bg-white/5 dark:bg-slate-900/50 hover:border-white/30'}`}>
+                                        <input
+                                            type="checkbox"
+                                            checked={notificationPreferences?.includes('whatsapp')}
+                                            onChange={() => {
+                                                const current = notificationPreferences || [];
+                                                const newPrefs = current.includes('whatsapp')
+                                                    ? current.filter(p => p !== 'whatsapp')
+                                                    : [...current, 'whatsapp'];
+                                                setNotificationPreferences(newPrefs as ('email' | 'whatsapp' | 'sms')[]);
+                                            }}
+                                            className="hidden"
+                                        />
+                                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all ${notificationPreferences?.includes('whatsapp') ? `${type === 'buyback' ? 'bg-bel-yellow border-bel-yellow ring-2 ring-bel-yellow/20' : 'bg-bel-blue border-bel-blue ring-2 ring-bel-blue/20'}` : 'border-white/20'}`}>
+                                            {notificationPreferences?.includes('whatsapp') && <CheckIcon className={`h-4 w-4 stroke-3 ${type === 'buyback' ? 'text-gray-900' : 'text-white'}`} />}
+                                        </div>
+                                        <span className={`font-black uppercase tracking-wide text-xs ${notificationPreferences?.includes('whatsapp') ? `${type === 'buyback' ? 'text-gray-900 dark:text-white' : 'text-bel-blue'}` : 'text-gray-400'}`}>{t('WhatsApp')}</span>
+                                    </label>
+
                                     {/* SMS (Coming Soon) */}
                                     <label className="flex items-center gap-3 p-4 pr-5 rounded-2xl border-2 border-white/5 bg-white/5 opacity-40 cursor-not-allowed">
                                         <input
@@ -1005,19 +1026,6 @@ export const StepUserInfo: React.FC<StepUserInfoProps> = memo(({
                                         <div className="w-6 h-6 rounded-lg border-2 border-white/10 flex items-center justify-center">
                                         </div>
                                         <span className="font-black uppercase tracking-wide text-xs text-gray-500">{t('SMS')}</span>
-                                        <span className="text-[10px] bg-white/10 text-gray-400 px-2 py-0.5 rounded-full font-black uppercase tracking-tighter">{t('coming_soon') || 'Soon'}</span>
-                                    </label>
-
-                                    {/* WhatsApp (Coming Soon) */}
-                                    <label className="flex items-center gap-3 p-4 pr-5 rounded-2xl border-2 border-white/5 bg-white/5 opacity-40 cursor-not-allowed">
-                                        <input
-                                            type="checkbox"
-                                            disabled
-                                            className="hidden"
-                                        />
-                                        <div className="w-6 h-6 rounded-lg border-2 border-white/10 flex items-center justify-center">
-                                        </div>
-                                        <span className="font-black uppercase tracking-wide text-xs text-gray-500">{t('WhatsApp')}</span>
                                         <span className="text-[10px] bg-white/10 text-gray-400 px-2 py-0.5 rounded-full font-black uppercase tracking-tighter">{t('coming_soon') || 'Soon'}</span>
                                     </label>
                                 </div>

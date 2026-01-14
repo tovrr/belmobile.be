@@ -13,6 +13,8 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import SchemaMarkup from '../../components/seo/SchemaMarkup';
 import FaviconHeartbeat from '../../components/ui/FaviconHeartbeat';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export async function generateStaticParams() {
     return [{ lang: 'en' }, { lang: 'fr' }, { lang: 'nl' }, { lang: 'tr' }];
@@ -82,6 +84,8 @@ export default async function LangLayout({
 
                 <GoogleAnalytics />
                 <SchemaMarkup type="organization" />
+                <Analytics />
+                <SpeedInsights />
             </div>
         </Providers>
     );

@@ -10,6 +10,7 @@ import { FleetDevice } from '@/types/models';
 import AddDeviceModal from '@/components/b2b/AddDeviceModal';
 import RepairRequestModal from '@/components/b2b/RepairRequestModal';
 import BulkFleetUploadModal from '@/components/b2b/BulkFleetUploadModal';
+import DeviceHistoryModal from '@/components/b2b/DeviceHistoryModal';
 import { PlusIcon, ArrowPathIcon, WrenchScrewdriverIcon, ArrowUpTrayIcon } from '@/components/ui/BrandIcons';
 
 export default function FleetPage() {
@@ -20,6 +21,7 @@ export default function FleetPage() {
     const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [isRepairModalOpen, setIsRepairModalOpen] = useState(false);
     const [selectedDeviceIds, setSelectedDeviceIds] = useState<string[]>([]);
+    const [historyDevice, setHistoryDevice] = useState<FleetDevice | null>(null);
 
     const router = useRouter();
 
@@ -119,6 +121,7 @@ export default function FleetPage() {
                 devices={devices}
                 selectedIds={selectedDeviceIds}
                 onToggleSelection={toggleDeviceSelection}
+                onShowHistory={(device) => setHistoryDevice(device)}
             />
 
             {companyId && (
@@ -144,6 +147,12 @@ export default function FleetPage() {
                             setSelectedDeviceIds([]);
                             fetchFleet(companyId);
                         }}
+                    />
+                    <DeviceHistoryModal
+                        isOpen={!!historyDevice}
+                        onClose={() => setHistoryDevice(null)}
+                        imei={historyDevice?.imei || ''}
+                        modelName={historyDevice ? `${historyDevice.brand} ${historyDevice.model}` : ''}
                     />
                 </>
             )}
